@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Page</title>
+    <style>
+        body {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+<img id="gifImage" src="/assets/img/TeamPlugin.gif" alt="TeamPlugin">
+</div>
+<script>
+    // Wait for the GIF to load
+    document.getElementById("gifImage").onload = function() {
+        // After the GIF finishes loading, wait for 10 seconds and then redirect
+        setTimeout(function(){
+            window.location.href = "/index"; // Redirect to the index page after 10 seconds
+        }, 10000); // 10 seconds delay
+    };
+</script>
+</body>
+</html>

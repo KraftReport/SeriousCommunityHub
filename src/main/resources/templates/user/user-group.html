@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{index::head}">
+    <title>Create Community</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div th:replace="~{index::header}"></div>
+<div th:replace="~{index::navbar}"></div>
+<main id="main" class="main">
+    <div class="container mt-5">
+        <span id="message"></span>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCommunityModal">
+            Create Community
+        </button>
+        <br><br>
+
+        <!-- Create Community Modal -->
+        <div class="modal fade" id="createCommunityModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createCommunityModalLabel">Create Community</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createCommunityForm">
+                            <div class="form-group">
+                                <label for="name">Name:</label>
+                                <input type="text" class="form-control" id="name" name="name">
+                                <span id="nameError" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="ownerId">Choose Owner Name:</label>
+                                <select class="form-control" id="ownerId" name="ownerId">
+                                    <option value="">Select Owner</option>
+                                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.name}"></option>
+                                </select>
+                                <span id="ownerIdError" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description:</label>
+                                <input type="text" class="form-control" id="description" name="description">
+                                <span id="descriptionError" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="file">Image:</label>
+                                <input type="file" class="form-control" accept="image/**" id="file" name="file"
+                                       multiple="multiple"/>
+                                <span id="fileError" class="text-danger"></span>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="createCommunityBtn">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <table class="table table-striped" id="groupTable">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Community ID</th>
+                <th scope="col">Group's Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Group's Photo</th>
+                <th scope="col">Owner's Name</th>
+                <th scope="col">Member's Names</th>
+                <th scope="col">Add User</th>
+                <th scope="col">Delete</th>
+                <th scope="col">Kick User</th>
+                <th scope="col">Chat Room</th>
+            </tr>
+            </thead>
+            <tbody id="communityTableBody">
+            </tbody>
+        </table>
+    </div>
+    <!-- Add Community Modal -->
+    <div class="container">
+        <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createCommunityModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createGroupModalLabel">Create Community</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createGroupForm">
+                            <div class="form-group">
+                                <label for="name">Name:</label>
+                                <input type="text" class="form-control" id="name1" name="name">
+                            </div>
+                            <input type="hidden" id="communityId1" name="id">
+                            <div class="row mb-4">
+                                <label class="col-md-2 col-form-label">Choose Owner's Name</label>
+                                <div class="col-md-4">
+                                    <div id="usersList">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="description1">Description:</label>
+                                <input type="text" class="form-control" id="description1" name="description">
+                            </div>
+                            <div class="form-group">
+                                <label for="image1">Image:</label>
+                                <input type="file" class="form-control" accept="image/**" id="image1" name="file"
+                                       multiple="multiple"/>
+                            </div>
+                            <span id="photo"></span>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="createGroupBtn">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Kick Community Modal -->
+    <div class="container">
+        <div class="modal fade" id="kickModal" tabindex="-1" aria-labelledby="createCommunityModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-body">
+                        <form id="kickForm">
+                            <div class="row mb-4">
+                                <label class="col-md-2 col-form-label">Member's Name</label>
+                                <div class="col-md-4">
+                                    <div id="userList">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="communityId" name="id">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="kickGroupBtn">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<div th:replace="~{index::footer}"></div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+
+    document.getElementById('createCommunityBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const ownerId = document.getElementById('ownerId').value;
+        const description = document.getElementById('description').value;
+        const file = document.getElementById('file').value;
+
+        let isValid = true;
+
+        if (name.trim() === '') {
+            document.getElementById('nameError').innerHTML = 'Name is required';
+            isValid = false;
+        } else {
+            document.getElementById('nameError').innerHTML = '';
+        }
+
+        if (ownerId.trim() === '') {
+            document.getElementById('ownerIdError').innerHTML = 'Owner is required';
+            isValid = false;
+        } else {
+            document.getElementById('ownerIdError').innerHTML = '';
+        }
+
+        if (description.trim() === '') {
+            document.getElementById('descriptionError').innerHTML = 'Description is required';
+            isValid = false;
+        } else {
+            document.getElementById('descriptionError').innerHTML = '';
+        }
+
+        if (file.trim() === '') {
+            document.getElementById('fileError').innerHTML = 'Image is required';
+            isValid = false;
+        } else {
+            document.getElementById('fileError').innerHTML = '';
+        }
+
+        if (isValid) {
+            const formData = new FormData(document.getElementById('createCommunityForm'));
+            const url = "/api/community/createCommunity";
+            const data = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            if (data.ok) {
+                const result = await data.json();
+                await fetchCommunities();
+                document.getElementById('message').innerHTML = result.message;
+                $('#createCommunityModal').modal('hide');
+            } else {
+                document.getElementById('message').innerHTML = 'Error creating community';
+            }
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchCommunities();
+    });
+
+    function fetchCommunities() {
+        fetch('/api/community/communityview')
+            .then(response => response.json())
+            .then(data => {
+                populateTable(data);
+            })
+            .catch(error => {
+                console.error('Error fetching communities:', error);
+            });
+    }
+
+    async function fetchOwnerNames(communityId) {
+        const response = await fetch(`/api/community/ownerNames/${communityId}`);
+        const data = await response.json();
+        return data;
+    }
+
+    async function populateTable(communities) {
+        const tableBody = document.getElementById('communityTableBody');
+        let table = '';
+        const currentUser = await getCurrentUser();
+
+        for (let i = 0; i < communities.length; i++) {
+            const community = communities[i];
+            const ownerNames = await fetchOwnerNames(community.id);
+            let photo = '';
+            if (community.image) {
+                photo = `<img src="data:image/*;base64,${community.image}" alt="Group's Photo" width="100" height="100">`;
+            }
+            const isCurrentUserOwner = currentUser.name !== community.ownerName && currentUser.role === "USER";
+
+            table += `
+        <tr>
+            <td>${i + 1}</td>
+            <td>${community.id}</td>
+            <td>${community.name}</td>
+            <td>${community.description}</td>
+            <td>${photo}</td>
+            <td>${community.ownerName}</td>
+            <td>${ownerNames.join(', ')}</td>
+            <td><button type="button" class="btn btn-success" data-toggle="modal" data-target="#createGroupModal" onclick="populateCreateGroupForm(${community.id}, '${community.name}', '${community.ownerName}', '${community.description}', '${community.image}')">Add</button></td>
+            <td><button type="button" class="btn btn-danger" onclick="deleteCommunity(${community.id})">Delete</button></td>
+            <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickModal" ${isCurrentUserOwner ? 'disabled' : ''} onclick="populateKickGroupForm(${community.id})">Kick</button></td>
+            <td><button type="button" class="btn btn-primary">Chat</button></td>
+        </tr>
+    `;
+        }
+
+        tableBody.innerHTML = table;
+    }
+
+    const getAllUsers = async () => {
+        const url = '/api/community/users';
+        const data = await fetch(url);
+        if (data.ok) {
+            const dataResponse = await data.json();
+            console.log('all users', dataResponse);
+            return dataResponse;
+        }
+    };
+
+    const getUsersByCommunityId = async (id) => {
+        const url = `/api/community/user/${id}`;
+        const data = await fetch(url);
+        if (data.ok) {
+            const dataResponse = await data.json();
+            console.log('community users', dataResponse);
+            return dataResponse;
+        }
+    };
+    async function getCommunityById(id) {
+        const response = await fetch(`/api/community/getCommunity/${id}`);
+        const data = await response.json();
+        return data;
+    }
+    async function getCurrentUser() {
+        const response = await fetch('/api/community/user/current');
+        const data = await response.json();
+        return data;
+    }
+
+
+    async function populateCreateGroupForm(id, name, ownerName, description, image) {
+        document.getElementById('communityId1').value = id;
+        document.getElementById('name1').value = name;
+        document.getElementById('description1').value = description;
+        // document.getElementById('image1').innerHTML = '';
+        // document.getElementById('image1').value = image;
+
+        const allUsers = await getAllUsers();
+        const communityUsers = await getUsersByCommunityId(id);
+
+        const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+
+        const usersList = document.getElementById('usersList');
+
+        usersList.innerHTML = '';
+
+
+        allUsers.forEach(user => {
+            const userDiv = document.createElement('div');
+            const isChecked = communityUsers.some(communityUser => communityUser.id === user.id);
+
+            userDiv.innerHTML = `
+               <input type="checkbox" name="user" id="user${user.id}" value="${user.id}" ${isChecked ? 'checked' : ''} ${isChecked ? 'disabled' : ''}/>
+                 <label class="form-check-label">
+                    <span>${user.name}</span>
+                    </label>
+                 `;
+
+            usersList.appendChild(userDiv);
+        });
+
+
+        const photoContainer = document.getElementById('photo');
+        photoContainer.innerHTML = '';
+
+        if (image) {
+            const img = document.createElement('img');
+            img.src = `data:image/*;base64,${image}`;
+            img.alt = "Community's Photo";
+            img.width = 100;
+            img.height = 100;
+            photoContainer.appendChild(img);
+        }
+
+        $('#createGroupModal').modal('show');
+    }
+
+    document.getElementById('createGroupBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(document.getElementById('createGroupForm'));
+        const url = "/api/community/createGroup";
+        const data = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        if (data.ok) {
+            const result = await data.json();
+            await fetchCommunities();
+            document.getElementById('message').innerHTML = result.message;
+            $('#createGroupModal').modal('hide');
+        } else {
+            document.getElementById('message').innerHTML = 'Error creating community';
+        }
+
+    });
+
+    const deleteCommunity = async (communityId) => {
+        const url = `/api/community/delete/${communityId}`;
+        const cancelUser = await fetch(url, {
+            method: 'DELETE'
+        });
+
+        if (!cancelUser.ok) {
+            alert('DELETE error');
+        }
+        await fetchCommunities();
+
+    }
+
+    let currentCommunityID;
+
+    async function populateKickGroupForm(id) {
+        currentCommunityID = id;
+        document.getElementById('communityId').value = id;
+        const communityUsers = await getUsersByCommunityId(id);
+        const usersList = document.getElementById('userList');
+        const kickGroup=document.getElementById('kickGroup');
+
+        const community = await getCommunityById(id);
+        const currentUser = await getCurrentUser();
+
+        usersList.innerHTML = '';
+        communityUsers.forEach(user => {
+            if (currentUser.role === "ADMIN") {
+                const userDiv = document.createElement('div');
+                userDiv.innerHTML = `
+                <input type="checkbox" name="userIds" id="user${user.id}" value="${user.id}" />
+                <label class="form-check-label">
+                    <span>${user.name}</span>
+                </label>
+            `;
+                usersList.appendChild(userDiv);
+            } else if (user.name !== community.ownerName) {
+                const userDiv = document.createElement('div');
+                userDiv.innerHTML = `
+                <input type="checkbox" name="userIds" id="user${user.id}" value="${user.id}" />
+                <label class="form-check-label">
+                    <span>${user.name}</span>
+                </label>
+            `;
+                usersList.appendChild(userDiv);
+            }
+        });
+
+        $('#kickModal').modal('show');
+    }
+
+    document.getElementById('kickGroupBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        document.getElementById('communityId').value = currentCommunityID;
+        const formData = new FormData(document.getElementById('kickForm'));
+        const url = "/api/community/kick";
+        const data = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (data.ok) {
+            const result = await data.json();
+            await fetchCommunities();
+            document.getElementById('message').innerHTML = result.message;
+            $('#kickModal').modal('hide');
+        } else {
+            document.getElementById('message').innerHTML = 'Error kicking users from community';
+        }
+    });
+
+</script>
+</body>
+</html>

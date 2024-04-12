@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:fragment="head">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Dashboard - COMMUNITY HUB ADMIN</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Favicons -->
+    <link href="/static/assets/img/team-logo.png" rel="icon">
+    <link href="/static/assets/img/team-logo.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="/static/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="/static/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="/static/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="/static/assets/css/home.css" rel="stylesheet">
+    <link href="/static/assets/css/style.css" rel="stylesheet">
+    <style>
+        #calendar {
+            width: 800px;
+            height: 600px;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/assets/js/react.js"></script>
+</head>
+
+<body>
+
+<!-- ======= Header ======= -->
+<div th:fragment="header">
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="/index" class="logo d-flex align-items-center">
+                <img src="/static/assets/img/DAT-logo.png" alt="">
+                <span class="d-none d-lg-block">System-Admin</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div><!-- End Logo -->
+
+        <div class="search-bar">
+            <form class="search-form d-flex align-items-center" method="POST" action="#">
+                <input type="text" name="query" placeholder="Search" title="Enter search keyword">
+                <button type="submit" title="Search"><i class="bi bi-search"></i></button>
+            </form>
+        </div><!-- End Search Bar -->
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li><!-- End Search Icon-->
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown"  sec:authorize="hasAnyAuthority('ADMIN')">
+                        <i class="bi bi-file-earmark-spreadsheet"></i>
+                    </a><!-- End Excel Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                        <li class="dropdown-header">
+                            Import Excel File
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="message-item">
+                            <a href="#">
+                                <div>
+                                    <form action="/user/upload-data" method="post" enctype="multipart/form-data">
+                                        <input type="file" name="file" accept=".xlsx, .xls">
+                                        <br><br>
+                                        <button type="submit">Upload</button>
+                                    </form>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="dropdown-footer">
+                            <a href="#">Close</a>
+                        </li>
+
+                    </ul><!-- End Messages Dropdown Items -->
+                </li>
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" id="notiCountDecrease">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-primary badge-number" id="notiCount"></span>
+                    </a><!-- End Notification Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                        <li class="dropdown-header">
+                            <!--                        You have 4 new notifications-->
+                            <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2" id="notiId">View all</span></a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="notification-item">
+                            <i class="bi bi-exclamation-circle text-warning"></i>
+                            <div id="notifyMessage">
+                                <!--                            <h4>Lorem Ipsum</h4>-->
+                                <!--                            <p>Quae dolorem earum veritatis oditseno</p>-->
+                                <!--                            <p>30 min. ago</p>-->
+                            </div>
+                        </li>
+
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li class="dropdown-footer">
+                            <a href="#">Show all notifications</a>
+                        </li>
+
+                    </ul><!-- End Notification Dropdown Items -->
+
+                </li><!-- End Notification Nav -->
+
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-chat-left-text"></i>
+                        <span class="badge bg-success badge-number">3</span>
+                    </a><!-- End Messages Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                        <li class="dropdown-header">
+                            You have 3 new messages
+                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="message-item">
+                            <a href="#">
+                                <img src="/static/assets/img/messages-1.jpg" alt="" class="rounded-circle">
+                                <div>
+                                    <h4>Maria Hudson</h4>
+                                    <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
+                                    <p>4 hrs. ago</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="dropdown-footer">
+                            <a href="#">Show all messages</a>
+                        </li>
+
+                    </ul><!-- End Messages Dropdown Items -->
+
+                </li><!-- End Messages Nav -->
+
+                <li class="nav-item dropdown pe-3">
+
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <img src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
+                             th:if="${session.user.photo == null}" />
+                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />
+                        <span class="d-none d-md-block dropdown-toggle ps-2"  th:text="${session.user.name}" >Name</span>
+                    </a><!-- End Profile Iamge Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6 th:text="${session.user.name}">Name</h6>
+                            <span th:text="${session.user.role}">Role</span>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="/user/profile">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="/user/profile">
+                                <i class="bi bi-gear"></i>
+                                <span>Change Password</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Need Help?</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Sign Out</span>
+                            </a>
+                        </li>
+
+                    </ul><!-- End Profile Dropdown Items -->
+                </li><!-- End Profile Nav -->
+
+            </ul>
+        </nav><!-- End Icons Navigation -->
+
+    </header><!-- End Header -->
+</div>
+
+<div th:fragment="navbar">
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+
+        <ul class="sidebar-nav" id="sidebar-nav">
+
+            <li class="nav-item">
+                <a class="nav-link " href="/index">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li><!-- End Dashboard Nav -->
+
+            <li  class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-menu-button-wide"></i><span>Data</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="/user/View-all-users">
+                            <i class="bi bi-circle"></i><span>Employee</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/api/community/group">
+                            <i class="bi bi-circle"></i><span>Group</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="components-badges.html">
+                            <i class="bi bi-circle"></i><span>Post</span>
+                        </a>
+                    </li>
+                </ul>
+            </li><!-- End Components Nav -->
+
+            <!--<li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="forms-elements.html">
+                            <i class="bi bi-circle"></i><span>Form Elements</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-layouts.html">
+                            <i class="bi bi-circle"></i><span>Form Layouts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-editors.html">
+                            <i class="bi bi-circle"></i><span>Form Editors</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-validation.html">
+                            <i class="bi bi-circle"></i><span>Form Validation</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>&lt;!&ndash; End Forms Nav &ndash;&gt;-->
+
+            <!--<li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="tables-general.html">
+                            <i class="bi bi-circle"></i><span>General Tables</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tables-data.html">
+                            <i class="bi bi-circle"></i><span>Data Tables</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>&lt;!&ndash; End Tables Nav &ndash;&gt;-->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="charts-chartjs.html">
+                            <i class="bi bi-circle"></i><span>Chart.js</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="charts-apexcharts.html">
+                            <i class="bi bi-circle"></i><span>ApexCharts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="charts-echarts.html">
+                            <i class="bi bi-circle"></i><span>ECharts</span>
+                        </a>
+                    </li>
+                </ul>
+            </li><!-- End Charts Nav -->
+
+            <!--<li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-gem"></i><span>Icons</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="icons-bootstrap.html">
+                            <i class="bi bi-circle"></i><span>Bootstrap Icons</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="icons-remix.html">
+                            <i class="bi bi-circle"></i><span>Remix Icons</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="icons-boxicons.html">
+                            <i class="bi bi-circle"></i><span>Boxicons</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>&lt;!&ndash; End Icons Nav &ndash;&gt;-->
+
+            <li class="nav-heading">Pages</li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="/user/profile">
+                    <i class="bi bi-person"></i>
+                    <span>Profile</span>
+                </a>
+            </li><!-- End Profile Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="pages-faq.html">
+                    <i class="bi bi-question-circle"></i>
+                    <span>F.A.Q</span>
+                </a>
+            </li><!-- End F.A.Q Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="pages-contact.html">
+                    <i class="bi bi-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </li><!-- End Contact Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" th:href="@{/logout}">
+                    <i class="bi bi-dash-circle"></i>
+                    <span>Log Out</span>
+                </a>
+            </li><!-- End Error 404 Page Nav -->
+
+
+        </ul>
+
+    </aside><!-- End Sidebar-->
+</div>
+<main id="main" class="main">
+
+    <div class="middle-panel">
+
+        <div class="story-section">
+            <div class="story create ">
+                <div class="exo1-image">
+                    <img src ="/static/assets/img/card.jpg" alt="Profile pic">
+                </div>
+                <span class="exo1-container">
+                            <i class="fa fa-plus"></i>
+                        </span>
+                <span class="name">Create Story</span>
+            </div>
+
+            <div class="story">
+                <img src="/static/assets/img/card.jpg" alt="Mya 's Story">
+                <div class="exo1-container">
+                    <img src="/static/assets/img/card.jpg" alt="">
+                </div>
+                <span class="name">Mya Mya</span>
+            </div>
+
+            <div class="story">
+                <img src="/static/assets/img/card.jpg" alt="Aye's Story">
+                <div class="exo1-container">
+                    <img src="/static/assets/img/card.jpg" alt="">
+                </div>
+                <span class="name">Aye Aye</span>
+            </div>
+        </div>
+
+        <nav style="--bs-breadcrumb-divider: '>';">
+            <button type="button" class="btn btn-primary" onclick="getAllUserGroup('1')" data-bs-toggle="modal" data-bs-target="#modalDialogScrollable">
+                <i class="bx bxl-facebook-square"></i>
+                What's on your mind ?
+            </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick="getAllUserGroup('2')" data-bs-target="#eventCreateModal">
+                Create a event
+            </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick="getAllUserGroup('3')" data-bs-target="#pollCreateModal">
+                Create a poll
+            </button>
+            <button type="button" class="btn btn-primary"   onclick="seeEvents()"  >
+                See calender
+            </button>
+
+            <button type="button" class="btn btn-primary"   onclick="seePolls()"  >
+                See Polls
+            </button>
+
+
+        </nav>
+        <div class="modal fade" id="modalDialogScrollable" tabindex="-1">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create Status</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="postForm">
+                            <!-- Quill Editor Default -->
+                            <div class="row mb-3">
+                                <label for="inputPassword" class="col-sm-2 col-form-label ">Title</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control quill-editor-default" style="height: 100px" name="content" id="content"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="formFile" class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-10">
+                                    <label for="formFile" style="width: 50px; height: 50px;">
+                                        Select Photo/Video
+                                    </label>
+                                    <input class="form-control"   type="file" id="file" name="file" multiple>
+                                </div>
+                            </div>
+                            <div></div>
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Select</label>
+                                <div class="col-sm-10" >
+                                    <select class="form-select" id="groupSelect1" name="groupId" aria-label="Default select example">
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="preview"></div>
+
+                        </form><!-- End General Form Elements -->
+                        <!-- End Quill Editor Default -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="createPost()">POST</button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- End Modal Dialog Scrollable-->
+
+        <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="eventForm">
+                            <label for="description">Enter Event Title</label>
+                            <input type="text" class="form-control" name="description" id="eventDescription">
+                            <label for="start_date">Enter start date</label>
+                            <input type="date" class="form-control" name="start_date" id="start_date">
+                            <label for="end_date">Enter end date</label>
+                            <input type="date" class="form-control" name="end_date" id="end_date">
+                            <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
+                            <label for="multipartFile">Enter Event Photo</label>
+                            <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
+
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Select</label>
+                                <div class="col-sm-10" >
+                                    <select class="form-select" id="groupSelect2" name="groupId" aria-label="Default select example">
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"  >POST</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="pollCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="pollForm">
+                            <label for="description">Enter Event Title</label>
+                            <input type="text" class="form-control" name="description" id="eventDescription">
+                            <label for="start_date">Enter start date</label>
+                            <input type="date" class="form-control" name="start_date" id="start_date">
+                            <label for="end_date">Enter end date</label>
+                            <input type="date" class="form-control" name="end_date" id="end_date">
+                            <input type="text" name="eventType" id="eventType" value="VOTE" hidden>
+                            <label for="multipartFile">Enter Event Photo</label>
+                            <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
+
+                            <div class="row mb-3">
+                                <label class="col-sm-2 col-form-label">Select</label>
+                                <div class="col-sm-10" >
+                                    <select class="form-select" id="groupSelect3" name="groupId" aria-label="Default select example">
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"  >POST</button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="post create">
+            <div class="post-top">
+                <div class="dp">
+                    <img src="/static/assets/img/card.jpg" alt="">
+                </div>
+                <input type="text" placeholder="What's on your mind?">
+            </div>
+            <div class="post-bottom">
+                <div class="action">
+                    <i class="fa fa-video"></i>
+                    <span>Live Video</span>
+                </div>
+                <div class="action">
+                    <i class="fa fa-photo"></i>
+                    <span>Photo/Video</span>
+                </div>
+                <div class="action">
+                    <i class="fa-solid fa-face-smile"></i>
+                    <span>Feeling/Activity</span>
+                </div>
+            </div>
+        </div>
+        <div id="cal" class="hidden">
+            <div id="calendar"></div>
+            <button class="btn btn-primary" onclick="goBack()">Go back</button>
+        </div>
+        <div id="newsfeed" class="">
+        </div>
+        <div id="pol" class="hidden">
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="welcome-content">
+                        <p>Welcome from our community hub website! To continue please set up your account first.</p>
+                        <button id="letsStartBtn" class="btn btn-primary">Let's Start</button>
+                    </div>
+                    <div id="passwordChangeForm" style="display: block">
+                        <h2>Change Password</h2>
+                        <form id="passwordForm">
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" name="newPassword">
+                                <div id="newPasswordMessage" class="text-danger" style="display: none">Your password is weak.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                                <div id="confirmPasswordMessage" class="text-danger" style="display: none">Passwords do not match.</div>
+                            </div>
+                            <button type="button" class="btn btn-primary next" style="display: none">Next</button>
+                            <script src="/static/assets/js/password.js"></script>
+                        </form>
+                    </div>
+                    <div id="photoChangeForm" style="display: none">
+                        <h2>Change Photo</h2>
+                        <form>
+                            <input type="file" id="inputImage" accept="image/*">
+                            <div id="croppedImagePreview" style="display: none;">
+                                <img id="defaultImage" src="/assets/img/default-logo.png" alt="Default image">
+                            </div>
+                            <button type="button" class="btn btn-primary next">Skip</button>
+                        </form>
+                        <script src="/static/assets/js/photoEdit.js"></script>
+                    </div>
+                    <div id="phoneChangeForm" style="display: none">
+                        <h2>Enter your information</h2>
+                        <form>
+                            <div class="form-group">
+                                <label for="phoneInput">Phone number:</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <label for="countrySelect"></label>
+                                        <select id="countrySelect" class="custom-select">
+                                            <option value="1" >USA (+1)</option>
+                                            <option value="86">China (+86)</option>
+                                            <option value="91">India (+91)</option>
+                                            <option value="81">Japan (+81)</option>
+                                            <option value="62">Indonesia (+62)</option>
+                                            <option value="60">Malaysia (+60)</option>
+                                            <option value="65">Singapore (+65)</option>
+                                            <option value="92">Pakistan (+92)</option>
+                                            <option value="880">Bangladesh (+880)</option>
+                                            <option value="7">Russia (+7)</option>
+                                            <option value="55">Brazil (+55)</option>
+                                            <option value="33">France (+33)</option>
+                                            <option value="44">UK (+44)</option>
+                                            <option value="1">Canada (+1)</option>
+                                            <option value="95" selected>Myanmar (+95)</option>
+                                        </select>
+                                    </div>
+                                    <input type="tel" id="phoneInput" class="form-control" placeholder="Enter phone number">
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please enter a valid phone number.
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="dobInput">Date of birth:</label>
+                                <input type="date" id="dobInput" class="form-control" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid date of birth.
+                                </div>
+                            </div>
+                            <div class="form-group" id="genderInput">
+                                <label>Gender:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gender" value="male" required>
+                                    <label class="form-check-label" for="genderInput">
+                                        Male
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gender" value="female" required>
+                                    <label class="form-check-label" for="genderInput">
+                                        Female
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gender"  value="notDefine" required>
+                                    <label class="form-check-label" for="genderInput">
+                                        Not Define
+                                    </label>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please select a gender.
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary next" style="display: none;">Next</button>
+                        </form>
+                        <script src="/static/assets/js/phone.js"></script>
+                    </div>
+                    <div id="hobbyChangeForm" style="display: none">
+                        <h2>Choose hobby</h2>
+                        <form>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyReading">
+                                        <label class="form-check-label" for="hobbyReading">
+                                            <i class="fas fa-book" style="color: #4a86e8;"></i> Reading
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyHiking">
+                                        <label class="form-check-label" for="hobbyHiking">
+                                            <i class="fas fa-hiking" style="color: #f6b26b;"></i> Hiking
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyCooking">
+                                        <label class="form-check-label" for="hobbyCooking">
+                                            <i class="fas fa-utensils" style="color: #e55039;"></i> Cooking
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyGardening">
+                                        <label class="form-check-label" for="hobbyGardening">
+                                            <i class="fas fa-seedling" style="color: #8bc34a;"></i> Gardening
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyWriting">
+                                        <label class="form-check-label" for="hobbyWriting">
+                                            <i class="fas fa-pen" style="color: #673ab7;"></i> Writing
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyPhotography">
+                                        <label class="form-check-label" for="hobbyPhotography">
+                                            <i class="fas fa-camera" style="color: #9e9e9e;"></i> Photography
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyCoding">
+                                        <label class="form-check-label" for="hobbyCoding">
+                                            <i class="fas fa-laptop-code" style="color: #607d8b;"></i> Coding
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyDrawing">
+                                        <label class="form-check-label" for="hobbyDrawing">
+                                            <i class="fas fa-draw-polygon" style="color: #ff9800;"></i> Drawing
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbySwimming">
+                                        <label class="form-check-label" for="hobbySwimming">
+                                            <i class="fas fa-swimmer" style="color: #00bcd4;"></i> Swimming
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyGaming">
+                                        <label class="form-check-label" for="hobbyGaming">
+                                            <i class="fas fa-gamepad" style="color: #4caf50;"></i> Gaming
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyPainting">
+                                        <label class="form-check-label" for="hobbyPainting">
+                                            <i class="fas fa-paint-brush" style="color: #9c27b0;"></i> Painting
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyTraveling">
+                                        <label class="form-check-label" for="hobbyTraveling">
+                                            <i class="fas fa-globe-americas" style="color: #795548;"></i> Traveling
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyCycling">
+                                        <label class="form-check-label" for="hobbyCycling">
+                                            <i class="fas fa-bicycle" style="color: #607d8b;"></i> Cycling
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyCamping">
+                                        <label class="form-check-label" for="hobbyCamping">
+                                            <i class="fas fa-campground" style="color: #ff9800;"></i> Camping
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyFishing">
+                                        <label class="form-check-label" for="hobbyFishing">
+                                            <i class="fas fa-fish" style="color: #00bcd4;"></i> Fishing
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyBirdwatching">
+                                        <label class="form-check-label" for="hobbyBirdwatching">
+                                            <i class="fas fa-binoculars" style="color: #4caf50;"></i> Birdwatching
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyMeditation">
+                                        <label class="form-check-label" for="hobbyMeditation">
+                                            <i class="fas fa-meditate" style="color: #9c27b0;"></i> Meditation
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyMusic">
+                                        <label class="form-check-label" for="hobbyMusic">
+                                            <i class="fas fa-music" style="color: #795548;"></i> Music
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyJogging">
+                                        <label class="form-check-label" for="hobbyJogging">
+                                            <i class="fas fa-running" style="color: #4a86e8;"></i> Jogging
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbySports">
+                                        <label class="form-check-label" for="hobbySports">
+                                            <i class="fas fa-futbol" style="color: #f6b26b;"></i> Sports
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyCrafts">
+                                        <label class="form-check-label" for="hobbyCrafts">
+                                            <i class="fas fa-craft" style="color: #e55039;"></i> Crafts
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbySewing">
+                                        <label class="form-check-label" for="hobbySewing">
+                                            <i class="fas fa-scissors" style="color: #8bc34a;"></i> Sewing
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyCrochet">
+                                        <label class="form-check-label" for="hobbyCrochet">
+                                            <i class="fas fa-crop" style="color: #673ab7;"></i> Crochet
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="hobbyActing">
+                                        <label class="form-check-label" for="hobbyActing">
+                                            <i class="fas fa-theater-masks" style="color: #9e9e9e;"></i> Acting
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary next">Skip</button>
+                        </form>
+                        <script src="/static/assets/js/hobbies.js"></script>
+                    </div>
+                    <div id="skillChangeForm">
+                        <h2>Enter your skills</h2>
+                        <form id="skillForm">
+                            <div id="skillsDropdown">
+                                <!-- Skills checkboxes will be rendered here -->
+                            </div>
+                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
+                            <div id="newSkillInput" style="display: none;">
+                                <input type="text" class="form-control mt-2" placeholder="Enter new skill" id="newSkillNameInput">
+                                <input type="text" class="form-control mt-2" placeholder="Experience" id="newSkillExperienceInput">
+                            </div>
+                            <button type="button" class="btn btn-primary next">Next</button>
+                        </form>
+                    </div>
+                    <script src="/assets/js/skill.js" defer></script>
+                    <div id="term&condition" style="display: none">
+                        <h2>Our terms and conditions</h2>
+                        <div id="termsContainer" style="overflow-y: scroll; height: 200px;">
+                            <!-- Terms and conditions paragraph will be inserted here by JavaScript -->
+                        </div>
+                        <form id="conditionForm">
+                            <input type="checkbox" id="acceptTerms" name="acceptTerms">
+                            <label for="acceptTerms">Accept terms and conditions</label><br>
+                            <button type="button" class="btn btn-primary mt-2" id="finishedButton" disabled>Finished</button>
+                        </form>
+                        <script src="/assets/js/term&condition.js"></script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</main><!-- End #main -->
+
+<div th:fragment="footer">
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+            &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+        </div>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+            <!-- Licensing information: https://bootstrapmade.com/license/ -->
+            <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
+            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        </div>
+    </footer><!-- End Footer -->
+
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const user = /*[[${user}]]*/ null;
+        /*]]>*/
+    </script>
+    <!-- Vendor JS Files -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (user) {
+                console.log(user);
+                fetch('/check-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: user.password })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Display modal if the passwords match
+                        if (data.match) {
+                            console.log("reach here");
+                            const modal = new bootstrap.Modal(document.getElementById("welcomeModal"), {
+                                backdrop: 'static'
+                            });
+                            const welcomeContent = document.getElementById('welcome-content');
+                            const passwordForm = document.getElementById('passwordChangeForm');
+                            const photoForm = document.getElementById('photoChangeForm');
+                            const phoneForm = document.getElementById('phoneChangeForm');
+                            const hobbyForm = document.getElementById('hobbyChangeForm');
+                            const skillForm = document.getElementById('skillChangeForm');
+                            const conditionForm = document.getElementById('term&condition');
+
+                            let currentIndex = 0;
+
+                            // Function to hide all forms
+                            function hideForms() {
+                                passwordForm.style.display = 'none';
+                                photoForm.style.display = 'none';
+                                phoneForm.style.display = 'none';
+                                hobbyForm.style.display = 'none';
+                                skillForm.style.display = 'none';
+                            }
+
+                            // Function to show the welcome content and hide other forms
+                            function showWelcomeContent() {
+                                welcomeContent.style.display = 'block';
+                                hideForms();
+                            }
+
+                            // Add event listener to the "Next" buttons
+                            document.querySelectorAll('.modal-content form button.next').forEach(button => {
+                                button.addEventListener("click", function(event) {
+                                    event.preventDefault(); // Prevent form submission
+                                    currentIndex++; // Move to the next form
+                                    if (currentIndex === 1) {
+                                        hideForms(passwordForm);
+                                        showForm(photoForm);
+                                    } else if (currentIndex === 2) {
+                                        hideForms(photoForm);
+                                        showForm(phoneForm);
+                                    } else if (currentIndex === 3) {
+                                        hideForms(phoneForm);
+                                        showForm(hobbyForm);
+                                    } else if (currentIndex === 4) {
+                                        hideForms(hobbyForm);
+                                        showForm(skillForm);
+                                    }else if (currentIndex === 5) {
+                                        hideForms(skillForm);
+                                        showForm(conditionForm);
+                                    }
+                                    else {
+                                        modal.hide(); // Hide the modal if all forms are completed
+                                    }
+                                });
+                            });
+
+                            document.getElementById('finishedButton').addEventListener('click', function() {
+                                modal.hide(); // Hide the modal when "Finished" button is clicked
+                            });
+                            document.getElementById('letsStartBtn').addEventListener('click', function() {
+                                welcomeContent.style.display = 'none';
+                                showForm(passwordForm);
+                            });
+
+                            modal.show(); // Show the modal
+                            showWelcomeContent(); // Show the welcome content initially
+                        } else {
+                            console.log("failed");
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+        function showForm(form) {
+            form.style.display = 'block';
+        }
+
+        function goBack(){
+            document.getElementById('cal').classList.add('hidden')
+            document.getElementById('newsfeed').classList.remove('hidden')
+        }
+
+        async function seeEvents(){
+            document.getElementById('newsfeed').classList.add('hidden')
+            document.getElementById('cal').classList.remove('hidden')
+            let data = await fetch('/event',{
+                method : 'GET'
+            })
+            let response = await data.json()
+            console.log(response)
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                start :'2024-04-15T00:00:00' ,
+                end : '2024-04-19T00:00:00'
+            });
+            calendar.render();
+            response.forEach(r=>{
+                let timestamp = r.start_date
+                let timestamp2 = r.end_date
+                let date = new Date(timestamp);
+                let date2 = new Date(timestamp2)
+                let formattedDate = date.toISOString().split('T')[0];
+                let formattedDate2 = date2.toISOString().split('T')[0];
+                calendar.addEventSource([
+                    {
+                        title: r.description,
+                        start: date,
+                        end: date2
+                    }
+                ]);
+            })
+
+
+        }
+
+
+
+    </script>
+
+
+
+    <script src="/static/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="/static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="/static/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="/static/assets/vendor/quill/quill.min.js"></script>
+    <script src="/static/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="/static/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="/static/assets/vendor/php-email-form/validate.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="/static/assets/js/main.js"></script>
+    <script src="/static/assets/js/post.js"></script>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</body>
+
+</html>
