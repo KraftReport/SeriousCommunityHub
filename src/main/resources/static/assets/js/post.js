@@ -4,6 +4,12 @@ function goToCreatePost(){
     window.location.href = '/user/goToCreatePost'
 }
 
+const fetchSizes =async (id) => {
+    const reactSize = await fetch(`/like-size/${id}`);
+    const reactCount =await reactSize.json();
+    return reactCount;
+};
+
 const fileInput = document.getElementById('file');
 const type = document.getElementById('')
 let newsfeed = document.getElementById('newsfeed')
@@ -113,9 +119,9 @@ async function welcome(){
     if(response.length === 0){
         newsfeed.innerHTML = `<div>No Posts Available</div>`
     }else{
-        response.forEach(p=>{
-
-            let post = ''
+        for (const p of response) {
+            const reactCount = await fetchSizes(p.id);
+            let post = '';
             post += `
 
       <div class="post">
@@ -183,11 +189,11 @@ async function welcome(){
       <div class="post-bottom">
           <div class="action">
               <i class="fa-regular fa-thumbs-up"></i>
-              <span onclick="pressedLike('${p.id}')">Like</span>
+              <span onclick="pressedLike('${p.id}')">Like ${reactCount}</span>
           </div>
           <div class="action">
               <i class="fa-regular fa-comment"></i>
-              <span>Comment</span>
+              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment</span>
           </div>
           <div class="action">
               <i class="fa fa-share"></i>
@@ -197,7 +203,7 @@ async function welcome(){
   </div>`
 
             posts += post
-        })
+        }
         newsfeed.innerHTML = posts
     }
     // console.log(data.json())
@@ -317,7 +323,4 @@ async function voteNO(eventId){
 async function voteYES(eventId){
     console.log('NO')
 }
-const pressedLike = (id) => {
-    console.log('PostId',id);
-};
 

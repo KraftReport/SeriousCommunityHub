@@ -50,6 +50,10 @@ public class PostServiceImpl implements PostService {
         return postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDate"));
     }
 
+    @Override
+    public Post findById(Long postId) {
+        return postRepository.findById(postId).orElse(null);
+    }
 
 
     public boolean isValidPhotoExtension(String extension) {

@@ -37,6 +37,12 @@
             width: 800px;
             height: 600px;
         }
+
+        .modal-body {
+            max-height: calc(100vh - 200px); /* Adjust the value as needed */
+            overflow-y: auto;
+        }
+
     </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -130,7 +136,6 @@
                                 <!--                            <p>30 min. ago</p>-->
                             </div>
                         </li>
-
 
                         <li>
                             <hr class="dropdown-divider">
@@ -411,33 +416,6 @@
 
     <div class="middle-panel">
 
-        <div class="story-section">
-            <div class="story create ">
-                <div class="exo1-image">
-                    <img src ="/static/assets/img/card.jpg" alt="Profile pic">
-                </div>
-                <span class="exo1-container">
-                            <i class="fa fa-plus"></i>
-                        </span>
-                <span class="name">Create Story</span>
-            </div>
-
-            <div class="story">
-                <img src="/static/assets/img/card.jpg" alt="Mya 's Story">
-                <div class="exo1-container">
-                    <img src="/static/assets/img/card.jpg" alt="">
-                </div>
-                <span class="name">Mya Mya</span>
-            </div>
-
-            <div class="story">
-                <img src="/static/assets/img/card.jpg" alt="Aye's Story">
-                <div class="exo1-container">
-                    <img src="/static/assets/img/card.jpg" alt="">
-                </div>
-                <span class="name">Aye Aye</span>
-            </div>
-        </div>
 
         <nav style="--bs-breadcrumb-divider: '>';">
             <button type="button" class="btn btn-primary" onclick="getAllUserGroup('1')" data-bs-toggle="modal" data-bs-target="#modalDialogScrollable">
@@ -928,6 +906,33 @@
 
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <div class="modal fade" id="commentStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Comment....</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="height: 300px; overflow-y: auto;">
+                    <div class="mb-container" id="commentMessageText">
+                        <!-- Add more content here if needed -->
+                    </div>
+                </div>
+                <form id="commentForm" class="modal-footer">
+                    <div class="mb-3">
+                        <label for="commentText" class="form-label">Comment:</label>
+                        <input type="text" class="form-control" id="commentText" placeholder="Type your comment here....." style="width: 350px">
+                    </div>
+                    <button id="sendCommentButton" class="btn btn-primary" type="button" style="margin-top: 23px">Send</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
     <script th:inline="javascript">
         /*<![CDATA[*/
         const user = /*[[${user}]]*/ null;

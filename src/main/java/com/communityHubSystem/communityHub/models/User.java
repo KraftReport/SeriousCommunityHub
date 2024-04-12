@@ -60,6 +60,10 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.EAGER)
     private Set<Event> events;
 
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<React> reacts;
+
 
 
     public enum Role{
