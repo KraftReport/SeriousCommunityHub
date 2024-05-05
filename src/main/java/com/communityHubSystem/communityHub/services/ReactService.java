@@ -28,4 +28,10 @@ public interface ReactService {
   public React findReactByUserIdAndPostIdAndCommentId(Long userId, Long postId, Long id);
 
    public React getReact(Long id, Long id1, Long id2, Long id3);
+
+   public React findReactByCommentId(Long id);
+
+   public void deleteById(Long id);
+
+    public React findByReplyId(Long id);
 }

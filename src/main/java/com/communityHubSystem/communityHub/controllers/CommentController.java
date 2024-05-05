@@ -28,6 +28,7 @@ public class CommentController {
     private final User_ChatRoomService user_chatRoomService;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final ReactService reactService;
 
 
     @DeleteMapping("/delete-comment/{id}")
@@ -41,6 +42,10 @@ public class CommentController {
         var noti = notificationService.findByCommentIdAndUserId(id,user.getId());
         for(Notification notification:noti){
             notificationService.deleteAll(notification.getId());
+        }
+        var react = reactService.findReactByCommentId(id);
+        if(react != null){
+            reactService.deleteById(react.getId());
         }
         commentService.deleteComment(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -57,6 +62,10 @@ public class CommentController {
         var noti = notificationService.findByReplyIdAndUserId(id,user.getId());
         for(Notification notification:noti){
             notificationService.deleteAll(notification.getId());
+        }
+        var react = reactService.findByReplyId(id);
+        if(react != null){
+            reactService.deleteById(react.getId());
         }
         replyService.deleteReply(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
