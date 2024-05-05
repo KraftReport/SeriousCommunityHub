@@ -1,6 +1,8 @@
 package com.communityHubSystem.communityHub.services;
 
+import com.communityHubSystem.communityHub.dto.FirstUpdateDto;
 import com.communityHubSystem.communityHub.dto.PostDto;
+import com.communityHubSystem.communityHub.dto.SecondUpdateDto;
 import com.communityHubSystem.communityHub.models.Post;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,4 +15,14 @@ public interface PostService {
 
 
     public Post findById(Long postId);
+
+    public List<Post> findPostByUserId(Long id);
+
+    public void deletePost(Long id);
+    public List<Post> searchMethod(String input);
+    public Post firstUpdate(FirstUpdateDto firstUpdateDto, MultipartFile[] files, String[] captions) throws IOException;
+    public Post secondUpdate(List<SecondUpdateDto> secondUpdateDto);
+    public List<Object> getFivePostsPerTime(String page);
+
+
 }

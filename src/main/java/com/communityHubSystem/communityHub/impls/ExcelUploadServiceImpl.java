@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.impls;
 
 import com.communityHubSystem.communityHub.models.User;
+import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -20,9 +21,12 @@ import java.util.Objects;
 @Service
 public class ExcelUploadServiceImpl implements ExcelUploadService {
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    public ExcelUploadServiceImpl(PasswordEncoder passwordEncoder) {
+    public ExcelUploadServiceImpl(PasswordEncoder passwordEncoder,
+                                  UserRepository userRepository) {
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -82,11 +86,29 @@ public class ExcelUploadServiceImpl implements ExcelUploadService {
                 user.setPassword(passwordEncoder.encode("DAT@123"));
                 user.setRole(User.Role.USER);
                 user.setActive(true);
+                user.setPending(false);
+                user.setDone(false);
+                user.setRemoved(false);
+                user.setRejected(false);
                 user_data.add(user);
             }
         } catch (IOException e) {
             e.getStackTrace();
         }
         return user_data;
+    }
+
+    @Override
+    public void uploadEmployeeData(MultipartFile file) throws IOException {
+        List<User> newEmployeeData = getEmployeeDataFromExcel(file.getInputStream());
+        List<User> existingEmployeeData = userRepository.findAll();
+
+        for (User existingEmployee : existingEmployeeData) {
+            if (!newEmployeeData.contains(existingEmployee) && (!existingEmployee.getStaffId().equals("99-09999"))) {
+                userRepository.delete(existingEmployee);
+            }
+        }
+
+        userRepository.saveAll(newEmployeeData);
     }
 }

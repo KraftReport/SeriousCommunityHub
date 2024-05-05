@@ -187,7 +187,7 @@ nav .nav-middle a  > i{
 
 }
 .container .right-panel .pages-section .page,
-.right-panel .friends-section .friend{
+.container .right-panel .friends-section .friend{
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -196,10 +196,10 @@ nav .nav-middle a  > i{
     padding: 7px 10px;
     color: #333;
 }
-.container .right-panel .pages-section .page:hover,.right-panel .friends-section .friend:hover{
+.container  .right-panel .pages-section .page:hover,.right-panel .friends-section .friend:hover{
     background: #ddd;
 }
-.container .right-panel .pages-section .page > .dp,.right-panel .friends-section  .friend > .dp {
+.container  .right-panel .pages-section .page > .dp,.right-panel .friends-section  .friend > .dp {
     height: 40px;
     width: 40px;
     border-radius: 50%;

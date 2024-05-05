@@ -1,6 +1,8 @@
 package com.communityHubSystem.communityHub.impls;
 
+import com.cloudinary.Cloudinary;
 import com.communityHubSystem.communityHub.dto.UserDTO;
+import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Skill;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.models.User_Group;
@@ -11,15 +13,14 @@ import com.communityHubSystem.communityHub.services.UserService;
 import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,9 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ExcelUploadService excelUploadService;
+    private final List<String> photoExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", "bmp","tiff","tif","psv","svg","webp","ico","heic");
+    private final Cloudinary cloudinary;
+
 
     @Transactional
     @Override
@@ -103,6 +107,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll(userSpec);
     }
 
+    @Transactional
     @Override
     public Optional<User> findByStaffId(String staffId) {
         return userRepository.findByStaffId(staffId);
@@ -120,16 +125,56 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserStatus(Long userId, boolean isActive) {
+    public void updateUserStatus(Long userId, boolean isActive, String banReason) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         user.setActive(isActive);
+        user.setBannedReason(banReason);
         userRepository.save(user);
     }
 
     @Override
     public boolean existsByStaffId(String staffId) {
         return userRepository.existsByStaffId(staffId);
+    }
+
+    @Override
+    public User updateProfilePhoto(MultipartFile multipartFile) throws IOException {
+        var found =  userRepository.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(()->new CommunityHubException("user not found"));
+        if(isValidPhotoExtension(getFileExtension(multipartFile))){
+            found.setPhoto(uploadPhoto(multipartFile));
+        }else {
+            found.setPhoto(found.getPhoto());
+        }
+        return userRepository.save(found);
+    }
+
+    @Override
+    public User saveImage(MultipartFile multipartFile) throws IOException {
+        var user = getCurrentLoginUser();
+        var url = uploadPhoto(multipartFile);
+        System.err.println(url);
+        user.setPhoto(url);
+        userRepository.save(user);
+        return user;
+    }
+
+    public User getCurrentLoginUser() {
+        return userRepository.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("user not found"));
+    }
+
+    public String uploadPhoto(MultipartFile file) throws IOException {
+        return cloudinary.uploader()
+                .upload(file.getBytes(), Map.of( "public_id", UUID.randomUUID().toString()))
+                .get("url").toString();
+    }
+
+    public boolean isValidPhotoExtension(String extension) {
+        return photoExtensions.contains(extension);
+    }
+
+    public String getFileExtension(MultipartFile file){
+        return file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.')).toLowerCase();
     }
 
     public static Specification<User> getUserFromSkill(List<String > skillNameList){
@@ -161,7 +206,66 @@ public class UserServiceImpl implements UserService {
 
 
 
+    @Override
+    public void updateUserRoleToAdmin(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            user.get().setRole(User.Role.ADMIN);
+            userRepository.save(user.get());
+        }
+    }
 
+
+    @Override
+    @Transactional
+    public void updateUserToAdminStatus(Long userId, boolean pending, boolean done,boolean removed) {
+        System.out.println("it still reach");
+        System.out.println(pending);
+        System.out.println(done);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        System.out.println("user is present");
+        user.setPending(pending);
+        user.setDone(done);
+        user.setRemoved(removed);
+        user.setRemovedReason(null);
+        userRepository.save(user);
+    }
+    @Override
+    @Transactional
+    public  void rejectAdminRole(Long userId,boolean pending,boolean done,boolean removed,boolean reject,String rejectReason){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        System.out.println("user is present");
+        user.setPending(pending);
+        user.setDone(done);
+        user.setRemoved(removed);
+        user.setRejected(reject);
+        user.setRejectReason(rejectReason);
+        userRepository.save(user);
+    }
+    @Override
+    @Transactional
+    public  void acceptReject(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        System.out.println("user is present");
+        user.setRejected(false);
+        user.setRejectReason(null);
+        userRepository.save(user);
+    }
+    @Override
+    @Transactional
+    public void updateAdminToUserStatus(Long userId, boolean isRemoved, String removedReason){
+        System.out.println("it reach 22");
+        User user= userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found" +
+                "with ID: "+userId));
+        user.setRemoved(isRemoved);
+        user.setDone(false);
+        user.setRole(User.Role.USER);
+        user.setRemovedReason(removedReason);
+        userRepository.save(user);
+    }
 
 
 

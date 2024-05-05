@@ -1,0 +1,142 @@
+.community-card {
+    width: calc(50% - 20px);
+    margin: 10px;
+    float: left;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.community-card:nth-child(2n+1) {
+    margin-right: 10px;
+}
+
+.community-card:hover .dropdown-menu {
+    display: block;
+}
+
+.community-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.community-card .card-body {
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-footer {
+    text-align: center;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding: 10px;
+}
+
+.card-footer .dropdown-toggle::after {
+    display: none;
+}
+
+.card-footer .dropdown-menu {
+    position: absolute;
+    right: 0;
+    z-index: 1;
+}
+
+.community-card .card-text {
+    margin-left: 120px;
+}
+
+.community-card .card-title {
+    margin-left: 120px;
+}
+
+.community-card .dropdown {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.community-card .btn-primary {
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 40px;
+    padding: 0;
+}
+
+.community-card .btn-success {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 40px;
+    padding: 0;
+}
+
+.community-card .btn-danger {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 40px;
+    padding: 0;
+}
+
+.community-card .btn-success::before {
+    content: "\f067";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    color: white;
+}
+
+.community-card .btn-primary::before {
+    content: "\f0e6";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    color: white;
+}
+
+.community-card .btn-danger::before {
+    content: "\f00d";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    color: white;
+}
+
+.community-card .member-list {
+    margin-left: 120px;
+    margin-top: 10px;
+}
+
+.community-card .member-list .member-name {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.community-card .member-list .member-name:last-child:after {
+    content: "...";
+}

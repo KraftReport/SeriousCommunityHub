@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,10 +37,22 @@ public class User implements Serializable {
     private String hobby;
     private String gender;
     private boolean isActive;
+    private boolean pending;
+    private boolean done;
+    private boolean isRemoved;
+    private boolean isRejected;
+    private String RemovedReason;
+    private String RejectReason;
+    private String BannedReason;
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Poll> polls;
+
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<User_ChatRoom> user_chatRooms;
 
     @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
@@ -50,20 +63,45 @@ public class User implements Serializable {
     @JsonIgnore
     private Set<User_Group> user_groups;
 
-    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Policy> policies;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Post> posts;
 
-    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Event> events;
 
     @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<React> reacts;
 
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Reply> replies;
+
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Comment> comments;
+
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Share> shares;
+
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Notification> notifications;
+
+
+    public Set<Post> getPosts() {
+        if (posts == null) {
+            posts = new HashSet<>();
+        }
+        return posts;
+    }
 
 
     public enum Role{

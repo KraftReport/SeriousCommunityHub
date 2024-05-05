@@ -32,81 +32,81 @@
 <div th:replace="~{index::header}"></div>
 <div th:replace="~{index::navbar}"></div>
 <main id="main" class="main">
-<section class="h-100 gradient-custom-2">
-    <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col col-lg-9 col-xl-7">
-                <div class="card">
-                    <div class="rounded-top text-white d-flex flex-row" style="height:200px;" onclick="showbgModal()" id="profile-background">
-                        <img id="profile-background-img" src="/assets/img/pf-bg1.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; object-fit: cover; " alt="pf-bg">                        <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
+    <section class="h-100 gradient-custom-2">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-lg-9 col-xl-7">
+                    <div class="card">
+                        <div class="rounded-top text-white d-flex flex-row" style="height:200px;" onclick="showbgModal()" id="profile-background" >
+                            <img id="profile-background-img" src="/assets/img/pf-bg1.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; object-fit: cover; " alt="pf-bg">                        <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
                             <img id="profile-photo" src="/assets/img/default-logo.png" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2"
                                  style="width: 150px; z-index: 1" th:if="${user.photo == null}">
                             <img  th:unless="${user.photo == null}" th:src="${user.photo}" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2"
-                                 style="width: 150px; z-index: 1" />
+                                  style="width: 150px; z-index: 1" />
                             <button id="edit-photo-btn" type="button" class="btn btn-outline-dark edit-button" data-mdb-ripple-color="dark" style="z-index: 1;">Edit Profile</button>
-                                Edit profile
+                            Edit profile
                         </div>
-                        <div class="ms-3" style="margin-top: 130px;">
-                            <h5 th:text="${user.name}" >Name</h5>
-                            <p th:text="${user.role}">Role</p>
-                        </div>
-                    </div>
-                    <div class="p-4 text-black" style="background-color: #f8f9fa;">
-                        <div class="d-flex justify-content-end text-center py-1">
-                            <div>
-                                <p class="mb-1 h5" th:text="${user.posts.size()}">253</p>
-                                <p class="small text-muted mb-0">Posts</p>
-                            </div>
-                            <div class="px-3">
-                                <p class="mb-1 h5">1026</p>
-                                <p class="small text-muted mb-0">Images</p>
-                            </div>
-                            <div>
-                                <p class="mb-1 h5">478</p>
-                                <p class="small text-muted mb-0">Videos</p>
+                            <div class="ms-3" style="margin-top: 130px;">
+                                <h5 th:text="${user.name}" >Name</h5>
+                                <p th:text="${user.role}">Role</p>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-body p-4 text-black">
-                        <div class="mb-5">
-                            <p class="lead fw-normal mb-1">About</p>
-                            <div class="p-4" style="background-color: #f8f9fa;">
-                                <p class="font-italic mb-1" th:text="${user.gender}"></p>
-                                <p class="font-italic mb-1" th:text="${user.staffId}"></p>
-                                <p class="font-italic mb-1" th:text="${user.email}"></p>
-                                <p class="font-italic mb-1" th:text="${user.phone}"></p>
+                        <div class="p-4 text-black" style="background-color: #f8f9fa;">
+                            <div class="d-flex justify-content-end text-center py-1">
+                                <div>
+                                    <p class="mb-1 h5" th:text="${user.posts.size()}">253</p>
+                                    <p class="small text-muted mb-0">Posts</p>
+                                </div>
+                                <div class="px-3">
+                                    <p class="mb-1 h5">1026</p>
+                                    <p class="small text-muted mb-0">Images</p>
+                                </div>
+                                <div>
+                                    <p class="mb-1 h5">478</p>
+                                    <p class="small text-muted mb-0">Videos</p>
+                                </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <p class="lead fw-normal mb-0">Recent photos</p>
-                            <p class="mb-0"><a href="#" class="text-muted">Show all</a></p>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col mb-2">
-                                <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(112).webp"
-                                     alt="image 1" class="w-100 rounded-3">
+                        <div class="card-body p-4 text-black">
+                            <div class="mb-5">
+                                <p class="lead fw-normal mb-1">About</p>
+                                <div class="p-4" style="background-color: #f8f9fa;">
+                                    <p class="font-italic mb-1" th:text="${user.gender}"></p>
+                                    <p class="font-italic mb-1" th:text="${user.staffId}"></p>
+                                    <p class="font-italic mb-1" th:text="${user.email}"></p>
+                                    <p class="font-italic mb-1" th:text="${user.phone}"></p>
+                                </div>
                             </div>
-                            <div class="col mb-2">
-                                <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(107).webp"
-                                     alt="image 1" class="w-100 rounded-3">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <p class="lead fw-normal mb-0">Recent photos</p>
+                                <p class="mb-0"><a href="#" class="text-muted">Show all</a></p>
                             </div>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col">
-                                <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(108).webp"
-                                     alt="image 1" class="w-100 rounded-3">
+                            <div class="row g-2">
+                                <div class="col mb-2">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(112).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
+                                <div class="col mb-2">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(107).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
                             </div>
-                            <div class="col">
-                                <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(114).webp"
-                                     alt="image 1" class="w-100 rounded-3">
+                            <div class="row g-2">
+                                <div class="col">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(108).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
+                                <div class="col">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(114).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 </main>
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -317,43 +317,259 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <button type="button" class="btn btn-primary" onclick="changeBackground('pf-bg1.gif')">cloud</button>
-                <button type="button" class="btn btn-primary" onclick="changeBackground('pf-bg2.gif')">walking</button>
-                <button type="button" class="btn btn-primary" onclick="changeBackground('pf-bg3.gif')">eyes of storm</button>
+                <form id="backgroundForm">
+                    <div class="form-group">
+                        <label for="file">Choose Background:</label>
+                        <input type="file" class="form-control" accept="image/*" id="file" name="file" multiple="multiple"/>
+                        <span id="fileError" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" id="userId" name="userId">
+                </form><br><br>
+                <div>
+                    <div id="backgroundImages"></div>
+                    <input type="hidden" id="userId1" name="userId" th:value="${user.id}">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="uploadBackground">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="photoForm">
+                    <input class="form-control" type="file" name="file" id="file1" >
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="changeProfilePhoto()">Save changes</button>
             </div>
         </div>
     </div>
 </div>
 <div th:replace="~{index::footer}"></div>
+
 <script>
-    const editPhotoBtn = document.getElementById('edit-photo-btn');
-    const profileForm = document.getElementById('editModal');
+
+    // Function to save the selected image URL to local storage with userId
+    function saveSelectedImageToLocalStorage(userId, imageUrl) {
+        localStorage.setItem('selectedImage' + userId, imageUrl);
+    }
+
+    // Function to retrieve the image URL from local storage and set it as the background image with userId
+    function setBackgroundImageFromLocalStorage(userId) {
+        const imageUrl = localStorage.getItem('selectedImage' + userId);
+        if (imageUrl) {
+            document.getElementById('profile-background-img').src = imageUrl;
+        }
+    }
+
+    // Call the function to set the background image when the page is loaded with userId
+    window.onload = function() {
+        const userIdInput = document.getElementById('userId1');
+        if (userIdInput) {
+            const userId = userIdInput.value;
+            setBackgroundImageFromLocalStorage(userId);
+        } else {
+            console.error('User id not found');
+        }
+    };
 
     // Add a click event listener to the edit photo button to show the modal
-    editPhotoBtn.addEventListener('click', function(event) {
-        event.stopPropagation(); // Prevent click event from propagating to parent elements
-        const modal = new bootstrap.Modal(profileForm);
-        modal.show();
-    });
+    const editPhotoBtn = document.getElementById('edit-photo-btn');
+    const profileForm = document.getElementById('editModal');
+    if (editPhotoBtn && profileForm) {
+        editPhotoBtn.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent click event from propagating to parent elements
+            const modal = new bootstrap.Modal(profileForm);
+            modal.show();
+        });
 
-    // Add a submit event listener to the profile form to handle form submission
-    profileForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        // Handle form submission here
-        // After handling the submission, you might want to close the modal
-        const modal = bootstrap.Modal.getInstance(profileForm);
-        modal.hide();
-    });
+        // Add a submit event listener to the profile form to handle form submission
+        profileForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Handle form submission here
+            // After handling the submission, you might want to close the modal
+            const modal = bootstrap.Modal.getInstance(profileForm);
+            modal.hide();
+        });
+    } else {
+        console.error('Edit photo button or profile form not found');
+    }
 
+    // Function to show the background selection modal
     function showbgModal() {
         const modal = new bootstrap.Modal(document.getElementById('backgroundModal'));
         modal.show();
     }
 
-    function changeBackground(gifName) {
-        const img = document.getElementById('profile-background-img');
-        img.src = `/assets/img/${gifName}`;
+    // Add event listener to the upload background button
+    document.getElementById('uploadBackground').addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('file');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            document.getElementById('fileError').innerText = 'Please select a file';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/background/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const imageUrl = await response.text();
+                const userIdInput = document.getElementById('userId1');
+                if (userIdInput) {
+                    const userId = userIdInput.value;
+                    saveSelectedImageToLocalStorage(userId, imageUrl);
+
+                    //recall function
+                    setTimeout(() =>{
+                        const userIdInput = document.getElementById('userId1');
+                        if (userIdInput) {
+                            const userId = userIdInput.value;
+                            fetchUserBackgrounds(userId);
+                        }
+                    },1000);
+                } else {
+                    console.error('User id not found');
+                }
+                $('#backgroundModal').modal('hide');
+            } else {
+                console.error('Failed to upload image:', response.statusText);
+                document.getElementById('fileError').innerText = 'Failed to upload image';
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            document.getElementById('fileError').innerText = 'Error uploading image';
+        }
+    });
+
+    // Function to fetch user backgrounds
+    async function fetchUserBackgrounds(userId) {
+        try {
+            const response = await fetch('/background/user/' + userId);
+            if (!response.ok) {
+                throw new Error('Failed to fetch user backgrounds');
+            }
+            const backgrounds = await response.json();
+            displayUserBackgrounds(backgrounds, userId);
+        } catch (error) {
+            console.error('Error fetching user backgrounds:', error);
+        }
     }
+
+    // Function to display user backgrounds
+    function displayUserBackgrounds(backgrounds, userId) {
+        const backgroundImages = document.getElementById('backgroundImages');
+        backgroundImages.innerHTML = '';
+        backgrounds.forEach(background => {
+            const imageUrl = background.backgroundUrl;
+
+            const button = document.createElement('button');
+            button.setAttribute('type', 'button');
+            button.setAttribute('class', 'btn btn-secondary me-2 mb-2');
+            button.innerText = 'Background ' + background.id;
+            button.addEventListener('click', () => {
+                document.getElementById('profile-background-img').src = imageUrl;
+                saveSelectedImageToLocalStorage(userId, imageUrl);
+            });
+
+            const deleteButton = document.createElement('button');
+            deleteButton.setAttribute('type', 'button');
+            deleteButton.setAttribute('class', 'btn-close');
+            deleteButton.setAttribute('aria-label', 'Close');
+            deleteButton.addEventListener('click', () => deleteBackground(background.id, userId));
+
+            backgroundImages.appendChild(deleteButton);
+            backgroundImages.appendChild(button);
+        });
+    }
+
+    // Function to delete a background
+    async function deleteBackground(backgroundId, userId) {
+        const url = `/background/delete/${backgroundId}`;
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE'
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete background');
+            }
+            localStorage.removeItem('selectedImage' + userId);
+            await nextBackground(userId);
+
+            setTimeout(() =>{
+                const userIdInput = document.getElementById('userId1');
+                if (userIdInput) {
+                    const userId = userIdInput.value;
+                    fetchUserBackgrounds(userId);
+                } else {
+                    console.error('User ID not found');
+                }
+            },1000);
+
+            $('#backgroundModal').modal('hide');
+        } catch (error) {
+            console.error('Error deleting background:', error);
+        }
+    }
+
+    // Function to fetch the next background after deletion
+    async function nextBackground(userId) {
+        try {
+            const response = await fetch('/background/user/' + userId);
+            if (!response.ok) {
+                throw new Error('Failed to fetch user backgrounds');
+            }
+            const backgrounds = await response.json();
+            const nextBackgroundUrl = backgrounds.length > 0 ? backgrounds[0].backgroundUrl : "/assets/img/pf-bg1.gif";
+            document.getElementById('profile-background-img').src = nextBackgroundUrl;
+            saveSelectedImageToLocalStorage(userId, nextBackgroundUrl);
+        } catch (error) {
+            console.error('Error fetching next background:', error);
+        }
+    }
+
+
+    const userIdInput = document.getElementById('userId1');
+    if (userIdInput) {
+        const userId = userIdInput.value;
+        fetchUserBackgrounds(userId);
+    } else {
+        console.error('User id not found');
+    }
+
+    async function changeProfilePhoto(){
+        let data = new FormData(document.getElementById('photoForm'))
+        let response = await fetch('/user/updateProfilePhoto',{
+            method : 'POST',
+            body : data
+        });
+        console.log(response)
+    }
+
 </script>
 </body>
 </html>
+
+

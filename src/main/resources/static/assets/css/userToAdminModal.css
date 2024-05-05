@@ -1,0 +1,59 @@
+#updateRoleModal {
+    /* Make the modal box static */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1060;
+}
+
+#updateRoleModal.modal-content {
+    /* Add a blue and white theme */
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#updateRoleModal.modal-header.bg-primary {
+    background-color: #337ab7;
+    color: #fff;
+    border-bottom: 1px solid #337ab7;
+}
+
+#updateRoleModal.modal-header.bg-primary.close {
+    color: #fff;
+    text-shadow: none;
+}
+
+#updateRoleModal.modal-body {
+    padding: 20px;
+}
+
+#updateRoleModal.modal-footer {
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+    padding: 10px;
+}
+
+#updateRoleModal.btn-secondary {
+    background-color: #666;
+    color: #fff;
+    border-color: #666;
+}
+
+#updateRoleModal.btn-secondary:hover {
+    background-color: #555;
+    border-color: #555;
+}
+
+#updateRoleModal.btn-primary {
+    background-color: #337ab7;
+    color: #fff;
+    border-color: #337ab7;
+}
+
+.btn-primary:hover {
+    background-color: #23527c;
+    border-color: #23527c;
+}

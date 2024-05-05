@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/"));
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/signIn","/check-password","/checkStaffId","/video","/index", "/ws/**", "/forms/**", "/static/**").permitAll()
+                .requestMatchers("/","/forgotPassword","/saveNewPassword","/sendEmail", "/signIn","/check-password","/checkStaffId","/video","/index", "/ws/**", "/forms/**", "/static/**").permitAll()
                 .requestMatchers("/css/**", "/img/**", "/js/**", "/scss/**", "/vendor/**").permitAll()
                 .requestMatchers("/assets/**").permitAll()
                 .requestMatchers("/user/**").hasAnyAuthority(User.Role.USER.name(), User.Role.ADMIN.name())

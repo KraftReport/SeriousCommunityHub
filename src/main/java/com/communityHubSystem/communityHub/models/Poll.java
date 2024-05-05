@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +25,8 @@ public class Poll implements Serializable {
     @Enumerated(EnumType.STRING)
     private Vote type;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @JoinColumn(name = "user_id",unique = false)
     private User user;
 
     @ManyToOne
@@ -35,6 +36,10 @@ public class Poll implements Serializable {
     public enum  Vote {
         YES,NO;
     }
+
+    @ManyToOne
+    @JoinColumn(name = "vote_option_id")
+    private VoteOption voteOptionId;
 
 
 }

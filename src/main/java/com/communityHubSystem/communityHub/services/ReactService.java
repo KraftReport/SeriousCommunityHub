@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.services;
 
 import com.communityHubSystem.communityHub.models.React;
+import com.communityHubSystem.communityHub.models.Type;
 
 import java.util.List;
 
@@ -11,4 +12,20 @@ public interface ReactService {
     public boolean findByPostIdAndUserId(Long id, Long id1);
 
     public List<React> findByPostId(Long id);
+
+    public React findReactByPostIdAndUserId(Long id, Long id1);
+
+   public void updatedReact(Long id, Type type);
+
+    void removeReactType(Long id);
+
+    public React findById(Long id);
+
+    public React findReactByUserIdAndCommentId(Long id, Long commentId,Long postId);
+
+   public void modifyReact(Long id, Type type);
+
+  public React findReactByUserIdAndPostIdAndCommentId(Long userId, Long postId, Long id);
+
+   public React getReact(Long id, Long id1, Long id2, Long id3);
 }

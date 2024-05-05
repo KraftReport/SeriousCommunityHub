@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,12 +23,19 @@ public class ChatRoom implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String photo;
     private Date date;
 
     @OneToMany(mappedBy = "chatRoom",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<User_ChatRoom> user_chatRooms;
 
     @OneToMany(mappedBy = "chatRoom",cascade = {CascadeType.PERSIST,CascadeType.MERGE},fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<ChatMessage> chatMessages;
+
+    @ManyToOne
+    @JoinColumn(name = "community_id")
+    private Community community;
 
 }

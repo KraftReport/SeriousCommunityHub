@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface CommunityService {
-    public void createCommunity(Community community, Long id);
+    public Community createCommunity(Community community, Long id);
 
     public List<User> getAll();
 
@@ -26,5 +26,8 @@ public interface CommunityService {
     public List<Community> findAll();
 
     public List<Community> findAllByIsActive();
+
+    public List<Community> getAllCommunityWithUserId();
+    public List<Community> communitySearchMethod(String input);
 
 }

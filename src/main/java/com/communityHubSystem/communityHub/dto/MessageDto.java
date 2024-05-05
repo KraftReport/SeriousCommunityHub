@@ -15,8 +15,14 @@ import java.util.Date;
 public class MessageDto {
 
     private Long postId;
+    private String staffId;
     private String sender;
     private String content;
     private Type type;
+    private String photo;
     private Date date;
+
+
+    public MessageDto(Long postId, String name, String content, String photo, Date date) {
+    }
 }

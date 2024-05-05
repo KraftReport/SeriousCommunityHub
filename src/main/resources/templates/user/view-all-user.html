@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{index::head}">
     <meta charset="UTF-8">
@@ -6,27 +7,17 @@
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
 
-    <style>
-        .mode-toggle {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 50px;
-            margin-top: 20px;
-        }
-
-        .mode-toggle-btn {
-            margin: 0 5px;
-        }
-    </style>
 
 </head>
 <body>
 <div th:replace="~{index::header}"></div>
 <div th:replace="~{index::navbar}"></div>
 <main id="main" class="main">
-    <button sec:authorize="hasAnyAuthority('ADMIN')" id="modeToggleBtn" class="btn btn-primary mode-toggle-btn" onclick="toggleView()">User Mode</button>
+    <button sec:authorize="hasAnyAuthority('ADMIN')" id="modeToggleBtn" class="btn btn-primary mode-toggle-btn"
+            onclick="toggleView()">User Mode
+    </button>
     <div id="tableView" class="table-responsive" style="width:100%" sec:authorize="hasAnyAuthority('ADMIN')">
         <table id="usersTable" class="table table-striped table-bordered" style="width:100%">
             <thead>
@@ -45,16 +36,38 @@
             <tr th:each="user : ${users}">
                 <td th:text="${user.id}"></td>
                 <td>
-                    <img th:if="${user.photo!= null}" th:src="@{'/path/to/user/photos/' + ${user.photo}}" alt="User Photo" style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
-                    <img th:unless="${user.photo!= null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo" style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
+                    <img th:if="${user.photo!= null}" th:src="@{ ${user.photo}}" alt="User Photo"
+                         style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
+                    <img th:unless="${user.photo!= null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo"
+                         style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
                 </td>
                 <td th:text="${user.name}"></td>
                 <td th:text="${user.email}"></td>
                 <td th:text="${user.division}"></td>
                 <td th:text="${user.staffId}"></td>
-                <td th:text="${user.role}"></td>
                 <td>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" th:data-bs-target="'#userDetailModal-' + ${user.id}">View Detail</button>
+                    <span th:text="${user.role}"></span>
+                    <th:block th:if="${user.pending}">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </th:block>
+                    <th:block th:if="${user.rejected}">
+                        <button type="button" class="btn btn-warning btn-sm">
+                            <i class="fas fa-exclamation-triangle" id="warningIcons"></i>
+                        </button>
+                    </th:block>
+                    <th:block th:unless="${user.pending}">
+                        <th:block th:unless="${user.rejected}">
+                            <button type="button" class="btn btn-primary btn-sm">
+                                <i th:unless="${user.done}" class="fas fa-pencil-alt" id="pencilIcons"></i>
+                                <i th:if="${user.done}" class="fas fa-trash-alt" id="trashIcons"></i>
+                            </button>
+                        </th:block>
+                    </th:block>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            th:data-bs-target="'#userDetailModal-' + ${user.id}">View Detail
+                    </button>
                     <button th:if="${user.isActive}" class="btn btn-danger btn-ban">Ban</button>
                     <button th:unless="${user.isActive}" class="btn btn-success btn-unban">UnBan</button>
                 </td>
@@ -63,20 +76,24 @@
         </table>
     </div>
 
-    <div id="cardView" sec:authorize="hasAnyAuthority('USER','ADMIN')" >
+    <div id="cardView" sec:authorize="hasAnyAuthority('USER','ADMIN')">
         <link rel="stylesheet" href="/assets/css/userView.css">
-        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
         <div class="container">
             <div class="row">
                 <!-- Single Advisor-->
                 <div class="col-12 col-sm-6 col-lg-3" th:each="user : ${users}">
-                    <div class="single_advisor_profile wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                    <div class="single_advisor_profile wow fadeInUp" data-wow-delay="0.2s"
+                         style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
                         <!-- Team Thumb-->
                         <div class="advisor_thumb">
-                            <img th:if="${user.photo != null}" th:src="@{'/path/to/user/photos/' + ${user.photo}}" alt="User Photo" class="img-fluid rounded-circle">
-                            <img th:unless="${user.photo != null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo" class="img-fluid rounded-circle">
+                            <img th:if="${user.photo != null}" th:src="@{${user.photo}}" alt="User Photo"
+                                 class="img-fluid rounded-circle">
+                            <img th:unless="${user.photo != null}" th:src="@{/assets/img/default-logo.png}"
+                                 alt="Default Photo" class="img-fluid rounded-circle">
                             <!-- Social Info-->
-                            <div class="social-info"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-linkedin"></i></a></div>
+                            <div class="social-info"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i
+                                    class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-linkedin"></i></a></div>
                         </div>
                         <!-- Team Details-->
                         <div class="single_advisor_details_info">
@@ -89,9 +106,76 @@
         </div>
     </div>
 
+    <div class="modal fade" id="rejectedRoleModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
+         aria-labelledby="updateRoleModalLabel" aria-hidden="true">
+        <link href="/static/assets/css/userToAdminModal.css" rel="stylesheet">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeRoleModalLabel">Removed Admin Role</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="acceptRejectedRoleBtn" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal fade" id="removeUserModal" data-bs-backdrop="static" tabindex="-1"
+         aria-labelledby="removeUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeUserModalLabel">Reason for Removal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="removalReason" class="form-label">Please provide a reason for removing the
+                            user:</label>
+                        <textarea class="form-control" id="removalReason" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitRemovalReason">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="banUserModal" data-bs-backdrop="static" tabindex="-1"
+         aria-labelledby="removeUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="banUserModalLabel">Reason for Ban</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="banReason" class="form-label">Please provide a reason for banning the user:</label>
+                        <textarea class="form-control" id="banReason" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitBanReason">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 <div th:each="user : ${users}" sec:authorize="hasAnyAuthority('ADMIN')">
-    <div class="modal fade" th:id="'userDetailModal-' + ${user.id}" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal fade" th:id="'userDetailModal-' + ${user.id}" tabindex="-1" aria-labelledby="userDetailModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -99,20 +183,61 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="container">
+                    <div class="container-fluid">
                         <div class="row">
-                            <div class="col-md-4">
-                                <div class="profile-image text-center">
-                                    <img th:if="${user.photo != null}" th:src="@{'/path/to/user/photos/' + ${user.photo}}" alt="User Photo" class="img-fluid rounded-circle">
-                                    <img th:unless="${user.photo != null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo" class="img-fluid rounded-circle">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="rounded-top text-white d-flex flex-row" style="height:200px;"
+                                         onclick="showbgModal()" id="profile-background">
+                                        <img id="profile-background-img" src="/assets/img/pf-bg1.gif"
+                                             style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; object-fit: cover; "
+                                             alt="pf-bg">
+                                        <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
+                                            <img id="profile-photo" src="/assets/img/default-logo.png" alt="Profile"
+                                                 class="img-fluid img-thumbnail mt-4 mb-2"
+                                                 style="width: 150px; z-index: 1" th:if="${user.photo == null}">
+                                            <img th:unless="${user.photo == null}" th:src="${user.photo}" alt="Profile"
+                                                 class="img-fluid img-thumbnail mt-4 mb-2"
+                                                 style="width: 150px; z-index: 1"/>
+                                            <button id="edit-photo-btn" type="button"
+                                                    class="btn btn-outline-dark edit-button"
+                                                    data-mdb-ripple-color="dark" style="z-index: 1;">Edit Profile
+                                            </button>
+                                            Edit profile
+                                        </div>
+                                        <div class="ms-3" style="margin-top: 130px;">
+                                            <h5 th:text="${user.name}">Name</h5>
+                                            <p th:text="${user.role}">Role</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 text-black" style="background-color: #f8f9fa;">
+                                        <div class="d-flex justify-content-end text-center py-1">
+                                            <div>
+                                                <p class="mb-1 h5" th:text="${user.posts.size()}">253</p>
+                                                <p class="small text-muted mb-0">Posts</p>
+                                            </div>
+                                            <div class="px-3">
+                                                <p class="mb-1 h5">1026</p>
+                                                <p class="small text-muted mb-0">Images</p>
+                                            </div>
+                                            <div>
+                                                <p class="mb-1 h5">478</p>
+                                                <p class="small text-muted mb-0">Videos</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-4 text-black">
+                                        <div class="mb-5">
+                                            <p class="lead fw-normal mb-1">About</p>
+                                            <div class="p-4" style="background-color: #f8f9fa;">
+                                                <p class="font-italic mb-1" th:text="${user.gender}"></p>
+                                                <p class="font-italic mb-1" th:text="${user.staffId}"></p>
+                                                <p class="font-italic mb-1" th:text="${user.email}"></p>
+                                                <p class="font-italic mb-1" th:text="${user.phone}"></p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-8">
-                                <h4 class="modal-title"><strong th:text="${user.name}"></strong></h4>
-                                <p class="job_post" th:text="${user.role}"></p>
-                                <p th:text="${user.email}"></p>
-                                <p th:text="${user.division}"></p>
-                                <p th:text="${user.staffId}"></p>
                             </div>
                         </div>
                     </div>
@@ -128,8 +253,12 @@
 <div th:replace="~{index::footer}"></div>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
+        integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD"
+        crossorigin="anonymous"></script>
 <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
@@ -144,61 +273,201 @@
     /*]]>*/
 </script>
 <script>
-    $(document).ready(function() {
+    document.addEventListener('DOMContentLoaded', function () {
+        const pencilIcons = document.querySelectorAll('#pencilIcons');
+        const trashIcons = document.querySelectorAll('#trashIcons');
+        const warningIcon = document.querySelectorAll('#warningIcons')
+        pencilIcons.forEach(icon => {
+            icon.addEventListener('click', function () {
+                const userId = this.closest('tr').querySelector('td:first-child').textContent.trim();
+                console.log("Pencil icon clicked");
+                updateUserToAdminStatus(userId, 'pending', true);
+            });
+        });
+        warningIcon.forEach(icon => {
+            icon.addEventListener('click', function () {
+                const userId = this.closest('tr').querySelector('td:first-child').textContent.trim();
+                console.log("warning icon is clicked");
+                document.getElementById('rejectedRoleModal').setAttribute('data-user-id', userId);
+                fetch('/user/getRejectReason', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({userId: userId})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const modalBody = document.getElementById('rejectedRoleModal').querySelector('.modal-body');
+                        modalBody.innerHTML = `Sorry User <strong>${data.name}</strong> rejected to update to the admin role due to the fact <span style="color: #ff0000">${data.rejectReason}</span>.`;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                const modal = new bootstrap.Modal(document.getElementById('rejectedRoleModal'));
+                modal.show();
+            })
+        })
+        trashIcons.forEach(icon => {
+            icon.addEventListener('click', function () {
+                const userId = this.closest('tr').querySelector('td:first-child').textContent.trim();
+                console.log("Trash icon clicked");
+                document.getElementById('removeUserModal').setAttribute('data-user-id', userId);
+                const modal = new bootstrap.Modal(document.getElementById('removeUserModal'));
+                modal.show();
+            });
+        });
+        const submitButton = document.getElementById('submitRemovalReason');
+
+        submitButton.addEventListener('click', function () {
+            const userId = document.getElementById('removeUserModal').getAttribute('data-user-id');
+            const removalReason = document.getElementById('removalReason').value;
+            removedAdminToUserStatus(userId, 'removedStatus', true, removalReason);
+            const modal = bootstrap.Modal.getInstance(document.getElementById('removeUserModal'));
+            modal.hide();
+        });
+
+        const acceptRoleBtn = document.getElementById('acceptRejectedRoleBtn');
+
+        acceptRoleBtn.addEventListener('click', function () {
+            const userId = document.getElementById('rejectedRoleModal').getAttribute('data-user-id');
+            removeUserStatusAndRole(userId);
+        });
+
+        function removeUserStatusAndRole(userId) {
+            fetch(`/user/acceptRejected`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: userId
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Failed to update user status and role');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating user status and role:', error);
+                });
+        }
+
+        function removedAdminToUserStatus(userId, statusField, newValue, removalReason) {
+            fetch('/user/removedAdmin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({userId: userId, [statusField]: newValue, removedReason: removalReason})
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.log("Failed to update admin status")
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating user status: ', error);
+                })
+        }
+
+        function updateUserToAdminStatus(userId, statusField, newValue) {
+            fetch(`/user/updateUserToAdminStatus`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({userId: userId, [statusField]: newValue})
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Failed to update user status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating user status:', error);
+                });
+        }
+    });
+    $(document).ready(function () {
         const tableView = $('#tableView');
         const cardView = $('#cardView');
         const modeToggleBtn = $('#modeToggleBtn');
-
         const userRole = getUserRole();
         console.log("User role: " + userRole);
         if (userRole === 'ADMIN') {
-            // If the user is an admin, show the table view and hide the card view
             console.log("Admin reach")
             tableView.show();
             cardView.hide();
             modeToggleBtn.text('User Mode');
         } else if (userRole === 'USER') {
-            // If the user is not an admin, show the card view and hide the table view
             console.log("user reach")
             tableView.hide();
             cardView.show();
-            modeToggleBtn.hide(); // Hide the toggle button for non-admin users
+            modeToggleBtn.hide();
         }
-
         const table = $('#usersTable').DataTable({
             lengthChange: true,
             buttons: ['copy', 'excel', 'pdf', 'print']
         });
+        $(document).ready(function() {
+            $('#usersTable').on('click', '.btn-ban', function(event) {
+                event.preventDefault();
+                const userId = $(this).closest('tr').find('td:first').text();
+                console.log("banned button clicked.")
+                document.getElementById('banUserModal').setAttribute('data-user-id', userId);
+                const modal = new bootstrap.Modal(document.getElementById('banUserModal'));
+                modal.show();
 
-        table.buttons().container().appendTo('#usersTable_wrapper .col-md-6:eq(0)');
+                const submitButton = document.getElementById('submitBanReason');
 
-        // Add click event listeners for ban and unban buttons
-        $('.btn-ban').on('click', function(event) {
-            event.preventDefault();
-            const userId = $(this).closest('tr').find('td:first').text();
-            updateUserStatus(userId, false);
-        });
+                submitButton.addEventListener('click', function() {
+                    const userId = document.getElementById('banUserModal').getAttribute('data-user-id');
+                    const banReason = document.getElementById('banReason').value;
+                    updateUserStatus(userId, false, banReason);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('banUserModal'));
+                    modal.hide();
+                });
+            });
 
-        $('.btn-unban').on('click', function(event) {
-            event.preventDefault();
-            const userId = $(this).closest('tr').find('td:first').text();
-            updateUserStatus(userId, true);
+            $('#usersTable').on('click', '.btn-unban', function(event) {
+                event.preventDefault();
+                const userId = $(this).closest('tr').find('td:first').text();
+                updateUserStatus(userId, true, null);
+            });
         });
 
     });
 
-    function updateUserStatus(userId, isActive) {
-        $.ajax({
-            url: '/user/updateUserStatus',
+    function updateUserStatus(userId, isActive, banReason) {
+        fetch(`/user/updateUserStatus`, {
             method: 'POST',
-            data: { userId: userId, isActive: isActive },
-            success: function(response) {
-                location.reload();
+            headers: {
+                'Content-Type': 'application/json'
             },
-            error: function(xhr, status, error) {
-                console.error(error);
-            }
-        });
+            body: JSON.stringify({
+                userId: userId,
+                isActive: isActive,
+                banReason: banReason
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Failed to update user status');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating user status:', error);
+            });
     }
 
     function toggleView() {
@@ -222,7 +491,7 @@
     }
 
     function getUserRole() {
-       
+
         if (userRole && Array.isArray(userRole) && userRole.length > 0) {
 
             return userRole[0].authority;

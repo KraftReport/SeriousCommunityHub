@@ -1,5 +1,7 @@
 package com.communityHubSystem.communityHub.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,27 +22,31 @@ public class Notification implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String content;
     private Date date;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "react_id")
     private React react;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "share_id")
     private Share share;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "reply_id")
     private Reply reply;
 
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
 
 }

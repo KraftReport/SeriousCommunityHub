@@ -28,7 +28,7 @@ public class Resource implements Serializable {
 
 
     @JsonBackReference
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
 

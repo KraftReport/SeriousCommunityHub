@@ -20,4 +20,7 @@ public interface User_GroupRepository extends JpaRepository<User_Group,Long> {
     @Query("DELETE FROM User_Group ug WHERE ug.community.id = :communityId AND ug.user.id = :userId")
     void deleteByCommunityIdAndUserId(@Param("communityId") Long communityId, @Param("userId") Long userId);
 
+    @Query (value = "select distinct community_id from user_group where user_id = :userId",nativeQuery = true)
+    List<Long> findDistinctCommunityIdByUserId(Long userId);
+
 }

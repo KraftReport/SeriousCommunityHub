@@ -11,16 +11,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 
-
+    <link th:href="@{/static/assets/css/policy_modal.css}" type="text/css" rel="stylesheet">
     <!-- Favicons -->
     <link href="/static/assets/img/team-logo.png" rel="icon">
     <link href="/static/assets/img/team-logo.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+          rel="stylesheet">
 
     <!-- Vendor CSS Files -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="/static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -30,23 +33,131 @@
     <link href="/static/assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
     <!-- Template Main CSS File -->
-    <link href="/static/assets/css/home.css" rel="stylesheet">
-    <link href="/static/assets/css/style.css" rel="stylesheet">
-    <style>
-        #calendar {
-            width: 800px;
-            height: 600px;
-        }
+    <link th:href="@{/static/assets/css/home.css}" type="text/css" rel="stylesheet">
+    <link th:href="@{/static/assets/css/style.css}" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/loading.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/chatRoom.css}">
 
-        .modal-body {
-            max-height: calc(100vh - 200px); /* Adjust the value as needed */
+    <!--     chatRomm js-->
+    <script src="/static/assets/js/chatRoom.js"></script>
+    <!--    react css-->
+    <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/react.css}">
+
+    <script src="/static/assets/js/react.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/checkBox.css}">
+    <style>
+
+        #calendarModalBox .modal-body {
+            height: 300px;
             overflow-y: auto;
         }
 
-    </style>
+        #calendarModalBox .modal-body::-webkit-scrollbar {
+            display: none;
+        }
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/static/assets/js/react.js"></script>
+
+
+        #calendar {
+            height: 100%;
+            position: relative;
+        }
+
+
+        #calendarModalBox .modal-dialog {
+            position: absolute;
+            right: 0;
+            margin-right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: calc(100% - 20px);
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: 1.5em;
+        }
+
+        @media (min-width: 576px) {
+            #calendarModalBox .modal-dialog {
+                max-width: 400px;
+            }
+        }
+
+
+
+        .user-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50px;
+        }
+
+
+        .notificationForNoti {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .notificationForNoti:hover {
+            background-color: lightgrey;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+
+        #notificationStaticBox .modal-dialog {
+            position: absolute;
+            right: 0;
+            margin-right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: calc(100% - 20px);
+        }
+
+        @media (min-width: 576px) {
+            #notificationStaticBox .modal-dialog {
+                max-width: 400px;
+            }
+        }
+
+        .reply-item {
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        .chat-area::-webkit-scrollbar {
+            display: none;
+            width: 0px;
+            background: transparent;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            overflow-y: auto;
+        }
+
+        #mentionSuggestions {
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .mentionSuggestion {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .mentionSuggestion:hover {
+            background-color: #f0f0f0;
+        }
+
+        .readonly {
+            color: blue;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
 
 <body>
@@ -56,13 +167,12 @@
     <header id="header" class="header fixed-top d-flex align-items-center">
 
         <div class="d-flex align-items-center justify-content-between">
-            <a href="/index" class="logo d-flex align-items-center">
+            <a th:href="@{/index}" class="logo d-flex align-items-center">
                 <img src="/static/assets/img/DAT-logo.png" alt="">
                 <span class="d-none d-lg-block">System-Admin</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->
-
         <div class="search-bar">
             <form class="search-form d-flex align-items-center" method="POST" action="#">
                 <input type="text" name="query" placeholder="Search" title="Enter search keyword">
@@ -78,8 +188,14 @@
                         <i class="bi bi-search"></i>
                     </a>
                 </li><!-- End Search Icon-->
+
                 <li class="nav-item dropdown">
-                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown"  sec:authorize="hasAnyAuthority('ADMIN')">
+                    <i class="fa-solid fa-calendar-days" data-bs-toggle="modal" onclick="seeEvents()" data-bs-target="#calendarModalBox" style="font-size: 22px; margin-right: 20px"></i>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown"
+                       sec:authorize="hasAnyAuthority('ADMIN')">
                         <i class="bi bi-file-earmark-spreadsheet"></i>
                     </a><!-- End Excel Icon -->
 
@@ -94,11 +210,12 @@
                         <li class="message-item">
                             <a href="#">
                                 <div>
-                                    <form action="/user/upload-data" method="post" enctype="multipart/form-data">
-                                        <input type="file" name="file" accept=".xlsx, .xls">
+                                    <form id="uploadForm" enctype="multipart/form-data">
+                                        <input type="file" id="fileInput" accept=".xlsx, .xls">
                                         <br><br>
-                                        <button type="submit">Upload</button>
+                                        <button type="button" id="uploadButton">Upload</button>
                                     </form>
+                                    <script src="/static/assets/js/excelUpload.js"></script>
                                 </div>
                             </a>
                         </li>
@@ -122,14 +239,15 @@
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
                         <li class="dropdown-header">
                             <!--                        You have 4 new notifications-->
-                            <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2" id="notiId">View all</span></a>
+                            <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2"
+                                              id="notiId">View all</span></a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
 
                         <li class="notification-item">
-                            <i class="bi bi-exclamation-circle text-warning"></i>
+                            <!--                            <i class="bi bi-exclamation-circle text-warning"></i>-->
                             <div id="notifyMessage">
                                 <!--                            <h4>Lorem Ipsum</h4>-->
                                 <!--                            <p>Quae dolorem earum veritatis oditseno</p>-->
@@ -141,7 +259,9 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li class="dropdown-footer">
-                            <a href="#">Show all notifications</a>
+                            <i class="bi bi-bell-fill"></i><a type="button" data-bs-toggle="modal"
+                                                              data-bs-target="#notificationStaticBox">Show all
+                            notifications</a>
                         </li>
 
                     </ul><!-- End Notification Dropdown Items -->
@@ -190,9 +310,10 @@
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                         <img src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
-                             th:if="${session.user.photo == null}" />
-                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />
-                        <span class="d-none d-md-block dropdown-toggle ps-2"  th:text="${session.user.name}" >Name</span>
+                             th:unless="${session.user.photo}"/>
+                        <img th:src="${session.user.photo}" alt="Profile" class="rounded-circle"/>
+                        <!--                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />-->
+                        <span class="d-none d-md-block dropdown-toggle ps-2" th:text="${session.user.name}">Name</span>
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
@@ -205,7 +326,7 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="/user/profile">
+                            <a class="dropdown-item d-flex align-items-center" th:href="@{/user/profile}">
                                 <i class="bi bi-person"></i>
                                 <span>My Profile</span>
                             </a>
@@ -218,6 +339,16 @@
                             <a class="dropdown-item d-flex align-items-center" href="/user/profile">
                                 <i class="bi bi-gear"></i>
                                 <span>Change Password</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li sec:authorize="hasAnyAuthority('ADMIN')">
+                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton">
+                                <i class="bi bi-body-text"></i>
+                                <span>Add Policy</span>
                             </a>
                         </li>
                         <li>
@@ -257,30 +388,30 @@
         <ul class="sidebar-nav" id="sidebar-nav">
 
             <li class="nav-item">
-                <a class="nav-link " href="/index">
+                <a class="nav-link " th:href="@{/index}">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
             </li><!-- End Dashboard Nav -->
 
-            <li  class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-menu-button-wide"></i><span>Data</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
                     <li>
-                        <a href="/user/View-all-users">
+                        <a th:href="@{/user/View-all-users}">
                             <i class="bi bi-circle"></i><span>Employee</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/api/community/group">
+                        <a th:href="@{/api/community/group}">
                             <i class="bi bi-circle"></i><span>Group</span>
                         </a>
                     </li>
                     <li>
-                        <a href="components-badges.html">
-                            <i class="bi bi-circle"></i><span>Post</span>
+                        <a th:href="@{/user/chat-room}">
+                            <i class="bi bi-circle"></i><span>Chat</span>
                         </a>
                     </li>
                 </ul>
@@ -381,7 +512,7 @@
             <li class="nav-heading">Pages</li>
 
             <li class="nav-item">
-                <a class="nav-link collapsed" href="/user/profile">
+                <a class="nav-link collapsed" th:href="@{/user/profile}">
                     <i class="bi bi-person"></i>
                     <span>Profile</span>
                 </a>
@@ -395,9 +526,9 @@
             </li><!-- End F.A.Q Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed" href="pages-contact.html">
-                    <i class="bi bi-envelope"></i>
-                    <span>Contact</span>
+                <a class="nav-link collapsed" th:href="@{/user/policy}">
+                    <i class="bi bi-question-circle"></i>
+                    <span>Term&Condition</span>
                 </a>
             </li><!-- End Contact Page Nav -->
             <li class="nav-item">
@@ -405,7 +536,7 @@
                     <i class="bi bi-dash-circle"></i>
                     <span>Log Out</span>
                 </a>
-            </li><!-- End Error 404 Page Nav -->
+            </li>
 
 
         </ul>
@@ -413,186 +544,573 @@
     </aside><!-- End Sidebar-->
 </div>
 <main id="main" class="main">
+    <button class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
+        <i id="pen" class="fa-solid fa-marker"></i>
+    </button>
 
+    <!--    <section class="section dashboard">-->
+    <!--        <div class="row">-->
+
+    <!--            &lt;!&ndash; Left side columns &ndash;&gt;-->
+    <!--            <div class="col-lg-8">-->
+    <!--        <div class="row">-->
+    <!--            <div class="middle-panel">-->
+
+    <!--                <ul class="nav nav-tabs" id="myTab" role="tablist">-->
+    <!--                    <li class="nav-item" role="presentation">-->
+    <!--                        <button class="nav-link active" onclick="welcome(0)" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>-->
+    <!--                    </li>-->
+    <!--                    <li class="nav-item" role="presentation">-->
+    <!--                        <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>-->
+    <!--                    </li>-->
+    <!--                    <li class="nav-item" role="presentation">-->
+    <!--                        <button class="nav-link" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>-->
+    <!--                    </li>-->
+    <!--                </ul>-->
+    <!--                <div class="tab-content" id="myTabContent">-->
+    <!--                    <div class="tab-pane fade show active" id="newsfeedTab" role="tabpanel" aria-labelledby="newsfeed-tab">-->
+    <!--                        <div id="newsfeed"  class=""></div>-->
+    <!--                    </div>-->
+    <!--                    <div class="tab-pane fade" id="eventsTab" role="tabpanel" aria-labelledby="events-tab">-->
+    <!--                        <div id="events"  class=""></div>-->
+    <!--                    </div>-->
+    <!--                    <div class="tab-pane fade" id="pollsTab" role="tabpanel" aria-labelledby="polls-tab">-->
+    <!--                        <div id="polls" class="hidden"></div>-->
+    <!--                    </div>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--            </div>-->
+
+
+    <!--            <div class="col-lg-4">-->
+    <!--                <div class="card">-->
+    <!--                    <div class="card-body">-->
+    <!--                        <h5 class="card-title">Recent Activity <span>| Today</span></h5>-->
+
+    <!--                        <div class="activity">-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--                        </div>-->
+    <!--                    </div>-->
+    <!--                </div>-->
+    <!--            </div>-->
+
+    <!--        </div>-->
+    <!--    </section>-->
     <div class="middle-panel">
 
 
-        <nav style="--bs-breadcrumb-divider: '>';">
-            <button type="button" class="btn btn-primary" onclick="getAllUserGroup('1')" data-bs-toggle="modal" data-bs-target="#modalDialogScrollable">
-                <i class="bx bxl-facebook-square"></i>
-                What's on your mind ?
-            </button>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick="getAllUserGroup('2')" data-bs-target="#eventCreateModal">
-                Create a event
-            </button>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" onclick="getAllUserGroup('3')" data-bs-target="#pollCreateModal">
-                Create a poll
-            </button>
-            <button type="button" class="btn btn-primary"   onclick="seeEvents()"  >
-                See calender
-            </button>
-
-            <button type="button" class="btn btn-primary"   onclick="seePolls()"  >
-                See Polls
-            </button>
-
-
-        </nav>
-        <div class="modal fade" id="modalDialogScrollable" tabindex="-1">
-            <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Create Status</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="uploadModalLabel">Success</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
-                        <form id="postForm">
-                            <!-- Quill Editor Default -->
-                            <div class="row mb-3">
-                                <label for="inputPassword" class="col-sm-2 col-form-label ">Title</label>
-                                <div class="col-sm-10">
-                                    <textarea class="form-control quill-editor-default" style="height: 100px" name="content" id="content"></textarea>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <label for="formFile" class="col-sm-2 col-form-label"></label>
-                                <div class="col-sm-10">
-                                    <label for="formFile" style="width: 50px; height: 50px;">
-                                        Select Photo/Video
-                                    </label>
-                                    <input class="form-control"   type="file" id="file" name="file" multiple>
-                                </div>
-                            </div>
-                            <div></div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Select</label>
-                                <div class="col-sm-10" >
-                                    <select class="form-select" id="groupSelect1" name="groupId" aria-label="Default select example">
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="preview"></div>
-
-                        </form><!-- End General Form Elements -->
-                        <!-- End Quill Editor Default -->
+                        <p>Data upload into the database successfully.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="createPost()">POST</button>
-                    </div>
-                </div>
-            </div>
-        </div><!-- End Modal Dialog Scrollable-->
-
-        <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="eventForm">
-                            <label for="description">Enter Event Title</label>
-                            <input type="text" class="form-control" name="description" id="eventDescription">
-                            <label for="start_date">Enter start date</label>
-                            <input type="date" class="form-control" name="start_date" id="start_date">
-                            <label for="end_date">Enter end date</label>
-                            <input type="date" class="form-control" name="end_date" id="end_date">
-                            <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
-                            <label for="multipartFile">Enter Event Photo</label>
-                            <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
-
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Select</label>
-                                <div class="col-sm-10" >
-                                    <select class="form-select" id="groupSelect2" name="groupId" aria-label="Default select example">
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"  >POST</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="modal fade" id="pollCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="pollForm">
-                            <label for="description">Enter Event Title</label>
-                            <input type="text" class="form-control" name="description" id="eventDescription">
-                            <label for="start_date">Enter start date</label>
-                            <input type="date" class="form-control" name="start_date" id="start_date">
-                            <label for="end_date">Enter end date</label>
-                            <input type="date" class="form-control" name="end_date" id="end_date">
-                            <input type="text" name="eventType" id="eventType" value="VOTE" hidden>
-                            <label for="multipartFile">Enter Event Photo</label>
-                            <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
-
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">Select</label>
-                                <div class="col-sm-10" >
-                                    <select class="form-select" id="groupSelect3" name="groupId" aria-label="Default select example">
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal"  >POST</button>
-                        </div>
-                        </form>
-                    </div>
-                </div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" onclick="welcome(0)" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" onclick="getAllPollPost()" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="newsfeedTab" role="tabpanel" aria-labelledby="newsfeed-tab">
+                <div id="newsfeed"  class=""></div>
+            </div>
+            <div class="tab-pane fade" id="eventsTab" role="tabpanel" aria-labelledby="events-tab">
+                <div id="events"  class=""></div>
+            </div>
+            <div class="tab-pane fade" id="pollsTab" role="tabpanel" aria-labelledby="polls-tab">
+                <div id="polls" class=" "></div>
             </div>
         </div>
-        <div class="post create">
-            <div class="post-top">
-                <div class="dp">
-                    <img src="/static/assets/img/card.jpg" alt="">
-                </div>
-                <input type="text" placeholder="What's on your mind?">
-            </div>
-            <div class="post-bottom">
-                <div class="action">
-                    <i class="fa fa-video"></i>
-                    <span>Live Video</span>
-                </div>
-                <div class="action">
-                    <i class="fa fa-photo"></i>
-                    <span>Photo/Video</span>
-                </div>
-                <div class="action">
-                    <i class="fa-solid fa-face-smile"></i>
-                    <span>Feeling/Activity</span>
-                </div>
-            </div>
-        </div>
-        <div id="cal" class="hidden">
-            <div id="calendar"></div>
-            <button class="btn btn-primary" onclick="goBack()">Go back</button>
-        </div>
-        <div id="newsfeed" class="">
-        </div>
-        <div id="pol" class="hidden">
+    </div>
+    <!--
+        <nav style="--bs-breadcrumb-divider: '>';">
 
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#calendarModalBox" onclick="seeEvents()">See Events</button>
+            <button type="button" class="btn btn-outline-primary" onclick="seePolls()">See Polls</button>
+        </nav> -->
+
+
+    <!-- icon modal box start  -->
+
+    <div class="modal fade" id="penIcon" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body ">
+                    <button type="button" class="btn btn-primary d-block m-1" onclick="getAllUserGroup('1')"
+                            data-bs-toggle="modal" data-bs-target="#modalDialogScrollable">
+                        <i class="fa-solid fa-keyboard"></i> Create a post !
+                    </button>
+                    <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
+                            onclick="getAllUserGroup('2')" data-bs-target="#eventCreateModal">
+                        <i class="fa-solid fa-calendar"></i> Create a event !
+                    </button>
+                    <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
+                            onclick="getAllUserGroup('3')" data-bs-target="#pollCreateModal">
+                        <i class="fa-solid fa-square-poll-vertical"></i> Create a poll !
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
+
+    <div class="modal fade" id="updateRoleModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
+         aria-labelledby="updateRoleModalLabel" aria-hidden="true">
+        <link href="/static/assets/css/userToAdminModal.css" rel="stylesheet">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateRoleModalLabel">Update User Role</h5>
+                </div>
+                <div class="modal-body">
+                    Congratulation User <strong th:text="${user.name}"></strong>.You have requested to update your role
+                    to Admin.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="rejectRoleBtn">Reject
+                    </button>
+                    <button type="button" class="btn btn-primary" id="acceptRoleBtn" data-bs-dismiss="modal">Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script src="/static/assets/js/changeRole.js"></script>
+    </div>
+    <div class="modal fade" id="removedRoleModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
+         aria-labelledby="updateRoleModalLabel" aria-hidden="true">
+        <link href="/static/assets/css/userToAdminModal.css" rel="stylesheet">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeRoleModalLabel">Removed Admin Role</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="acceptRemovedRoleBtn" data-bs-dismiss="modal">
+                        Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script src="/static/assets/js/acceptRemoval.js"></script>
+    </div>
+    <div class="modal fade" id="bannedModal" tabindex="-1" role="dialog" aria-labelledby="updateRoleModalLabel"
+         aria-hidden="true" data-bs-backdrop="static">
+        <link href="/static/assets/css/userToAdminModal.css" rel="stylesheet">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bannedModalLabel">User Account Banned</h5>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="acceptBannedRoleBtn" data-bs-dismiss="modal">
+                        Accept
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script src="/static/assets/js/acceptRemoval.js"></script>
+    </div>
+    <div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
+         aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Congratulations!</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Your role has been updated to the admin. Please login again to see the admin features.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="acceptndLogout" data-bs-dismiss="modal">Login
+                        Now
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="removeUserModal" data-bs-backdrop="static" tabindex="-1"
+         aria-labelledby="removeUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeUserModalLabel">Reason for Reject Admin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="removalReason" class="form-label">Please provide a reason for rejecting the chance
+                            to become an admin:</label>
+                        <textarea class="form-control" id="removalReason" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitRemovalReason" data-bs-dismiss="modal">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="changePasswordModal" class="modal">
+        <link href="/static/assets/css/changePassword.css" rel="stylesheet">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Change Password</h2>
+            <div class="form-group">
+                <label for="currentPassword">Current Password:</label>
+                <div class="input-group">
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+                    <button id="checkPasswordBtn" class="check-btn">Check</button>
+                </div>
+            </div>
+            <div id="changePasswordFields">
+                <div class="form-group">
+                    <label for="changePassword">New Password:</label>
+                    <input type="password" id="changePassword" name="changePassword" required>
+                    <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmChangePassword">Confirm Password:</label>
+                    <input type="password" id="confirmChangePassword" name="confirmChangePassword" required>
+                    <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not
+                        match.
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="restartBtn">Restart</button>
+                    <button id="saveBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/assets/js/changePassword.js" defer></script>
+    <!-- icon modal box end  -->
+
+
+    <!-- edit modal box  -->
+    <div class="modal fade" id="editModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="editModal">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="getUpdateData()" data-bs-dismiss="modal" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#loadingModalBox">Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="pollEventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Edit Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="pollEventEditModal">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- end edit modal box  -->
+
+
+    <!-- loading modal box start  -->
+
+    <!-- Button trigger modal -->
+
+
+    <!-- Modal -->
+
+
+    <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border rounded-1">
+
+                <div id="markBox" class="hidden">
+                    <div class="check_mark">
+                        <div class="sa-icon sa-success animate">
+                            <span class="sa-line sa-tip animateSuccessTip"></span>
+                            <span class="sa-line sa-long animateSuccessLong"></span>
+                            <div class="sa-placeholder"></div>
+                            <div class="sa-fix"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="restart" class="btn btn-success offset-10" data-bs-dismiss="modal"
+                                onclick="setToNormal()">OK
+                        </button>
+                    </div>
+                </div>
+
+                <div id="catBox" class="">
+                    <div class="box">
+                        <div class="cat">
+                            <div class="cat__body"></div>
+                            <div class="cat__body"></div>
+                            <div class="cat__tail"></div>
+                            <div class="cat__head"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- loading modal box end  -->
+
+
+    <!-- post create modal box start -->
+
+
+    <div class="modal fade" id="modalDialogScrollable" tabindex="-1" data-bs-backdrop="false">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                            onclick="removePreview()"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="postForm">
+                        <!-- Quill Editor Default -->
+                        <div class="row mb-3">
+                            <label for="inputPassword" class="col-sm-2 col-form-label ">Title</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control quill-editor-default" style="height: 100px" name="content"
+                                          id="content"></textarea>
+                                <div id="mentionSuggestions"></div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="formFile" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <label for="formFile" style="width: 50px; height: 50px;">
+                                    Select Photo/Video
+                                </label>
+                                <input class="form-control" type="file" id="file" name="file" multiple>
+                            </div>
+                        </div>
+                        <div></div>
+                        <div class="row mb-3">
+                            <label class="col-sm-2 col-form-label">Select</label>
+                            <div class="col-sm-10">
+                                <select class="form-select" id="groupSelect1" name="groupId"
+                                        aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>
+                        <div id="preview"></div>
+
+                    </form><!-- End General Form Elements -->
+                    <!-- End Quill Editor Default -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="removePreview()">
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="createPost()"
+                            data-bs-toggle="modal" data-bs-target="#loadingModalBox">POST
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- end post create modal box -->
+
+
+    <!-- calendar modal box start -->
+
+
+    <div class="modal fade" id="calendarModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel1">Calendar...</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="calendar">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- calendar modal box end  -->
+
+
+    <!-- event create modal box start  -->
+
+    <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm">
+                        <label for="title">Enter Event Title</label>
+                        <input type="text" class="form-control" name="title" id="title">
+                        <label for="description">Enter Event Description</label>
+                        <textarea class="form-control quill-editor-default" style="height: 100px" name="description" id="description" ></textarea>
+                        <label for="start_date">Enter start date</label>
+                        <input type="date" class="form-control" name="start_date" id="start_date">
+                        <label for="end_date">Enter end date</label>
+                        <input type="date" class="form-control" name="end_date" id="end_date">
+                        <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
+                        <label for="event_location" >Enter event location</label>
+                        <input type="text" class="form-control" name="location" id="location" >
+                        <label for="multipartFile">Enter Event Photo</label>
+                        <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
+
+                        <div class="row mb-3">
+                            <label class="col-sm-2 col-form-label">Select</label>
+                            <div class="col-sm-10" >
+                                <select class="form-select" id="groupSelect2" name="groupId" aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loadingModalBox"  >POST</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- event create modal box end  -->
+
+
+    <!-- poll create modal box start -->
+
+    <div class="modal fade" id="pollCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Create Poll Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pollForm">
+                        <label for="description">Enter Event Title</label>
+                        <input type="text" class="form-control" name="title" id="pollTitle">
+                        <label for="description">Enter Event Description</label>
+                        <input type="text" class="form-control" name="description" id="pollDescription">
+                        <label for="start_date">Enter start date</label>
+                        <input type="date" class="form-control" name="start_date" id="poll_start_date">
+                        <label for="end_date">Enter end date</label>
+                        <input type="date" class="form-control" name="end_date" id="poll_end_date">
+                        <input type="text" name="eventType" id="eventType" value="VOTE" hidden>
+                        <label for="multipartFile">Enter Event Photo</label>
+                        <input type="file" name="multipartFile" class="form-control" id="pollMultipartFile" >
+
+                        <label for="options">Add vote options </label>
+                        <div class="d-flex"><input type="text" name="voteOptionInput" id="voteOptionInput" class="form-control"><button type="button" class="btn btn-primary " onclick="createAVoteOption()"><i class="fa-solid fa-plus text-white"></i></button></div>
+                        <div>
+                            <ul id="ulTag">
+
+                            </ul>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-sm-2 col-form-label">Select</label>
+                            <div class="col-sm-10" >
+                                <select class="form-select" id="groupSelect3" name="groupId" aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer" >
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >Close</button>
+                            <button type="button" class="btn btn-primary" id="pollCreateBtn"  onclick="createAPollPost()"  data-bs-toggle="modal"  >POST</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- poll create modal box end  -->
+
     <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <link href="/static/assets/css/modals.css" rel="stylesheet">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body">
@@ -606,12 +1124,16 @@
                             <div class="mb-3">
                                 <label for="newPassword" class="form-label">New Password</label>
                                 <input type="password" class="form-control" id="newPassword" name="newPassword">
-                                <div id="newPasswordMessage" class="text-danger" style="display: none">Your password is weak.</div>
+                                <div id="newPasswordMessage" class="text-danger" style="display: none">Your password is
+                                    weak.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="confirmPassword" class="form-label">Confirm Password</label>
                                 <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
-                                <div id="confirmPasswordMessage" class="text-danger" style="display: none">Passwords do not match.</div>
+                                <div id="confirmPasswordMessage" class="text-danger" style="display: none">Passwords do
+                                    not match.
+                                </div>
                             </div>
                             <button type="button" class="btn btn-primary next" style="display: none">Next</button>
                             <script src="/static/assets/js/password.js"></script>
@@ -633,29 +1155,7 @@
                         <form>
                             <div class="form-group">
                                 <label for="phoneInput">Phone number:</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <label for="countrySelect"></label>
-                                        <select id="countrySelect" class="custom-select">
-                                            <option value="1" >USA (+1)</option>
-                                            <option value="86">China (+86)</option>
-                                            <option value="91">India (+91)</option>
-                                            <option value="81">Japan (+81)</option>
-                                            <option value="62">Indonesia (+62)</option>
-                                            <option value="60">Malaysia (+60)</option>
-                                            <option value="65">Singapore (+65)</option>
-                                            <option value="92">Pakistan (+92)</option>
-                                            <option value="880">Bangladesh (+880)</option>
-                                            <option value="7">Russia (+7)</option>
-                                            <option value="55">Brazil (+55)</option>
-                                            <option value="33">France (+33)</option>
-                                            <option value="44">UK (+44)</option>
-                                            <option value="1">Canada (+1)</option>
-                                            <option value="95" selected>Myanmar (+95)</option>
-                                        </select>
-                                    </div>
-                                    <input type="tel" id="phoneInput" class="form-control" placeholder="Enter phone number">
-                                </div>
+                                <input type="tel" id="phoneInput" class="form-control" placeholder="Enter phone number">
                                 <div class="invalid-feedback">
                                     Please enter a valid phone number.
                                 </div>
@@ -682,7 +1182,8 @@
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="gender"  value="notDefine" required>
+                                    <input class="form-check-input" type="radio" name="gender" value="notDefine"
+                                           required>
                                     <label class="form-check-label" for="genderInput">
                                         Not Define
                                     </label>
@@ -860,10 +1361,13 @@
                             <div id="skillsDropdown">
                                 <!-- Skills checkboxes will be rendered here -->
                             </div>
-                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
+                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill
+                            </button>
                             <div id="newSkillInput" style="display: none;">
-                                <input type="text" class="form-control mt-2" placeholder="Enter new skill" id="newSkillNameInput">
-                                <input type="text" class="form-control mt-2" placeholder="Experience" id="newSkillExperienceInput">
+                                <input type="text" class="form-control mt-2" placeholder="Enter new skill"
+                                       id="newSkillNameInput">
+                                <input type="text" class="form-control mt-2" placeholder="Experience"
+                                       id="newSkillExperienceInput">
                             </div>
                             <button type="button" class="btn btn-primary next">Next</button>
                         </form>
@@ -877,7 +1381,8 @@
                         <form id="conditionForm">
                             <input type="checkbox" id="acceptTerms" name="acceptTerms">
                             <label for="acceptTerms">Accept terms and conditions</label><br>
-                            <button type="button" class="btn btn-primary mt-2" id="finishedButton" disabled>Finished</button>
+                            <button type="button" class="btn btn-primary mt-2" id="finishedButton" disabled>Finished
+                            </button>
                         </form>
                         <script src="/assets/js/term&condition.js"></script>
                     </div>
@@ -885,7 +1390,6 @@
             </div>
         </div>
     </div>
-
 
 </main><!-- End #main -->
 
@@ -896,25 +1400,23 @@
             &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
         </div>
         <div class="credits">
-            <!-- All the links in the footer should remain intact. -->
-            <!-- You can delete the links only if you purchased the pro version. -->
-            <!-- Licensing information: https://bootstrapmade.com/license/ -->
-            <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
             Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
         </div>
     </footer><!-- End Footer -->
 
 
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
 
-    <div class="modal fade" id="commentStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <div class="modal fade" id="commentStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Comment....</h5>
+                    <h5 class="modal-title" id="staticBackdropLabelForComment">Comment....</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" style="height: 300px; overflow-y: auto;">
+                <div class="modal-body" style="height: 400px; overflow-y: auto;">
                     <div class="mb-container" id="commentMessageText">
                         <!-- Add more content here if needed -->
                     </div>
@@ -922,15 +1424,63 @@
                 <form id="commentForm" class="modal-footer">
                     <div class="mb-3">
                         <label for="commentText" class="form-label">Comment:</label>
-                        <input type="text" class="form-control" id="commentText" placeholder="Type your comment here....." style="width: 350px">
+                        <input type="text" class="form-control" id="commentText"
+                               placeholder="Type your comment here....." style="width: 350px">
                     </div>
-                    <button id="sendCommentButton" class="btn btn-primary" type="button" style="margin-top: 23px">Send</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="sendCommentButton" class="btn btn-primary" type="button" style="margin-top: 23px">Send
+                    </button>
+                    <!--                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="clearDataModal">Close-->
+                    <!--                    </button>-->
                 </form>
             </div>
         </div>
     </div>
 
+
+    <div class="modal fade" id="notificationStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationStaticBoxLabel">Notifications....</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="content-notification"
+                     style="overflow-y: auto; height: 350px; width: 400px;">
+                    <div id="root"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="custom-modal" id="addPolicyModal">
+        <div class="custom-modal-dialog">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h5 class="custom-modal-title">Add Policy</h5>
+                    <button type="button" class="custom-modal-close" aria-label="Close">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.7071 1.70711L11.2929 0.292893L7 5.58579L2.70711 0.292893L1.29289 1.70711L5.58579 7L1.29289 12.2929L2.70711 13.7071L7 8.41421L11.2929 13.7071L12.7071 12.2929L8.41421 7L12.7071 1.70711Z"
+                                  fill="#337AB7"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="custom-modal-body">
+                    <!-- Text editor -->
+                    <div id="editor"></div>
+                    <!-- Other form elements go here -->
+                </div>
+                <div class="custom-modal-footer">
+                    <button type="button" id="closePolicyBtn" data-dismiss="modal"
+                            class="custom-modal-btn custom-modal-btn-secondary">Close
+                    </button>
+                    <button type="button" id="savePolicyBtn" data-dismiss="modal"
+                            class="custom-modal-btn custom-modal-btn-primary">Add Policy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <script th:inline="javascript">
@@ -940,7 +1490,65 @@
     </script>
     <!-- Vendor JS Files -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            function checkPendingStatus() {
+
+                fetch('/user/checkPendingStatus')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.pending) {
+                            const updateRoleModal = new bootstrap.Modal(document.getElementById("updateRoleModal"));
+                            const rejectRoleBtn = document.getElementById('rejectRoleBtn');
+                            updateRoleModal.show();
+                            rejectRoleBtn.addEventListener('click', function() {
+                                const modal = new bootstrap.Modal(document.getElementById('removeUserModal'));
+                                modal.show();
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);})
+            }
+            function checkBannedStatus(){
+                fetch('/user/checkBannedStatus')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.active) {
+                            console.log("user banned by the admin.")
+                            const bannedModal = new bootstrap.Modal(document.getElementById("bannedModal"));
+                            const bannedAcceptBtn=document.getElementById('acceptBannedRoleBtn')
+                            const modalBody = document.getElementById("bannedModal").querySelector(".modal-body");
+                            modalBody.innerHTML = `Sorry User <strong>${data.name}</strong>. You have been banned from the application due to <span style="color: red">${data.bannedReason}</span>.`;
+                            bannedModal.show();
+                            bannedAcceptBtn.addEventListener('click', function() {
+                                window.location.href = '/logout';
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);})
+            }
+            function checkRemovedStatus() {
+                fetch('/user/checkPendingStatus')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.removed) {
+                            console.log("user removed form the admin role.")
+                            const removedRoleModal = new bootstrap.Modal(document.getElementById("removedRoleModal"));
+                            const modalBody = document.getElementById("removedRoleModal").querySelector(".modal-body");
+                            modalBody.innerHTML = `Sorry User <strong>${data.name}</strong>. You have been removed from the admin role due to <span style="color: red">${data.removedReason}</span>. Please accept and login again to stay as user.`;
+                            removedRoleModal.show();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);})
+            }
+            checkRemovedStatus()
+            checkPendingStatus();
+            checkBannedStatus()
             if (user) {
                 console.log(user);
                 fetch('/check-password', {
@@ -948,7 +1556,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ password: user.password })
+                    body: JSON.stringify({password: user.password})
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -983,9 +1591,10 @@
                                 hideForms();
                             }
 
+
                             // Add event listener to the "Next" buttons
                             document.querySelectorAll('.modal-content form button.next').forEach(button => {
-                                button.addEventListener("click", function(event) {
+                                button.addEventListener("click", function (event) {
                                     event.preventDefault(); // Prevent form submission
                                     currentIndex++; // Move to the next form
                                     if (currentIndex === 1) {
@@ -1000,20 +1609,19 @@
                                     } else if (currentIndex === 4) {
                                         hideForms(hobbyForm);
                                         showForm(skillForm);
-                                    }else if (currentIndex === 5) {
+                                    } else if (currentIndex === 5) {
                                         hideForms(skillForm);
                                         showForm(conditionForm);
-                                    }
-                                    else {
-                                        modal.hide(); // Hide the modal if all forms are completed
+                                    } else {
+                                        modal.hide();
                                     }
                                 });
                             });
 
-                            document.getElementById('finishedButton').addEventListener('click', function() {
-                                modal.hide(); // Hide the modal when "Finished" button is clicked
+                            document.getElementById('finishedButton').addEventListener('click', function () {
+                                modal.hide();
                             });
-                            document.getElementById('letsStartBtn').addEventListener('click', function() {
+                            document.getElementById('letsStartBtn').addEventListener('click', function () {
                                 welcomeContent.style.display = 'none';
                                 showForm(passwordForm);
                             });
@@ -1026,56 +1634,186 @@
                     })
                     .catch(error => console.error('Error:', error));
             }
+
+            const quill = new Quill('#editor', {
+                theme: 'snow'
+            });
+
+            const closeBtn = document.getElementById('closePolicyBtn');
+            const saveBtn = document.getElementById('savePolicyBtn');
+
+            // Event listener for closing the modal
+            closeBtn.addEventListener('click', function () {
+                hideModal();
+            });
+
+            // Event listener for saving policy
+            saveBtn.addEventListener('click', function () {
+                const policyContent = quill.root.innerHTML;
+
+                fetch('/user/save-policy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        policyContent: policyContent
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            hideModal();
+                        } else {
+                            console.error('Failed to save policy');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+
+            // Function to hide the modal
+            function hideModal() {
+                const modal = document.getElementById('addPolicyModal');
+                modal.style.display = 'none';
+
+                // Remove any existing modal backdrop
+                const modalBackdrop = document.querySelector('.custom-modal-backdrop');
+                if (modalBackdrop) {
+                    modalBackdrop.parentNode.removeChild(modalBackdrop);
+                }
+            }
+
+
+            // const modal = document.getElementById('addPolicyModal');
+            // modal.style.display = 'block';
+
         });
+
+
         function showForm(form) {
             form.style.display = 'block';
         }
 
-        function goBack(){
-            document.getElementById('cal').classList.add('hidden')
-            document.getElementById('newsfeed').classList.remove('hidden')
+
+        let calendar = null;
+
+        async function seeEvents() {
+            let data = await fetch('/event', {
+                method: 'GET'
+            });
+            if (data.ok) {
+                let response = await data.json();
+                console.log(response);
+
+                let events = response
+                    .filter(function (event) {
+                        return new Date(event.end_date) >= new Date();
+                    })
+                    .map(function (event) {
+                        return {
+                            id: event.id,
+                            title: event.description,
+                            start: new Date(event.start_date),
+                            end: new Date(event.end_date)
+                        };
+                    });
+                console.log(events);
+
+                $('#calendarModalBox').modal('show');
+
+                $('#calendarModalBox').on('shown.bs.modal', () => {
+                    renderCalendar(events);
+                });
+            }
         }
 
-        async function seeEvents(){
-            document.getElementById('newsfeed').classList.add('hidden')
-            document.getElementById('cal').classList.remove('hidden')
-            let data = await fetch('/event',{
-                method : 'GET'
-            })
-            let response = await data.json()
-            console.log(response)
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
+        function renderCalendar(events) {
+            let calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                height: 'auto',
                 initialView: 'dayGridMonth',
-                start :'2024-04-15T00:00:00' ,
-                end : '2024-04-19T00:00:00'
+                initialDate: new Date(),
+                selectable: true,
+                editable: true,
+
+                select: async function (info) {
+                    let title = prompt('Enter event title:');
+                    if (title) {
+                        let eventObj = {
+                            start_date: info.startStr,
+                            end_date: info.endStr,
+                            description: title,
+                            groupId: '0',
+                            eventType: 'EVENT',
+                            multipartFile: null
+                        };
+                        let response = await fetch('event/makeEvent', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(eventObj)
+                        });
+                        let result = await response.json();
+                        console.log(result);
+                        calendar.addEvent({
+                            title: title,
+                            start: info.startStr,
+                            end: info.endStr,
+                            allDay: info.allDay
+                        });
+                    }
+                    calendar.unselect();
+                },
+                eventDrop: async function (info) {
+                    let gpId = info.event.groupId === '' ? '0' : info.event.groupId;
+                    let eventData = {
+                        eventId: info.event.id,
+                        description: info.event.title,
+                        start_date: info.event.startStr,
+                        end_date: info.event.endStr,
+                        multipartFile: null,
+                        groupId: gpId,
+                        eventType: 'EVENT'
+                    };
+
+                    console.log(eventData);
+
+                    let response = await fetch('/event/updateEvent', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(eventData)
+                    });
+
+                    let result = await response.json();
+
+                    console.log(result);
+                },
+                eventClick: async function (info) {
+                    if (confirm("Are you sure you want to delete this event?")) {
+                        console.log(info.event.id);
+                        let response = await fetch('/event/deleteEvent/' + info.event.id, {
+                            method: 'DELETE'
+                        });
+                        let result = await response.json();
+                        console.log(result);
+                        info.event.remove();
+                    }
+                }
             });
             calendar.render();
-            response.forEach(r=>{
-                let timestamp = r.start_date
-                let timestamp2 = r.end_date
-                let date = new Date(timestamp);
-                let date2 = new Date(timestamp2)
-                let formattedDate = date.toISOString().split('T')[0];
-                let formattedDate2 = date2.toISOString().split('T')[0];
-                calendar.addEventSource([
-                    {
-                        title: r.description,
-                        start: date,
-                        end: date2
-                    }
-                ]);
-            })
-
-
+            calendar.addEventSource(events);
         }
 
+        document.getElementById('addPolicyButton').addEventListener('click', function () {
+            console.log('Clicked Polick Buttonb');
+            const modal = document.getElementById('addPolicyModal');
+            modal.style.display = 'block';
+        });
 
 
     </script>
 
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/static/assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="/static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/assets/vendor/chart.js/chart.umd.js"></script>
@@ -1085,12 +1823,13 @@
     <script src="/static/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="/static/assets/vendor/php-email-form/validate.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 
     <!-- Template Main JS File -->
     <script src="/static/assets/js/main.js"></script>
+    <script src="https://kit.fontawesome.com/e2397b357b.js" crossorigin="anonymous"></script>
     <script src="/static/assets/js/post.js"></script>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </body>

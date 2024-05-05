@@ -7,5 +7,7 @@ public enum Type {
     ANGRY,
     SAD,
     CARE,
-    WOW;
+    WOW,
+    DISLIKE,
+    OTHER;
 }

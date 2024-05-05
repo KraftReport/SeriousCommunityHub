@@ -11,4 +11,5 @@ public interface PostRepository extends JpaRepository<Post,Long>, JpaSpecificati
     @Query("SELECT p FROM Post p JOIN FETCH p.resources ORDER BY p.createdDate DESC")
     List<Post> findAllWithResources();
 
+    List<Post> findPostsByUserId(Long id);
 }

@@ -21,11 +21,11 @@ public class AppUserDetailsService implements UserDetailsService {
         return userRepository.findByStaffId(staff_id)
                 .map(user ->
                         User.withUsername(staff_id)
-                .password(user.getPassword())
-                .disabled(!user.isActive())
-                .accountExpired(!user.isActive())
-                .authorities(AuthorityUtils.createAuthorityList(user.getRole().name()))
-                .build())
+                                .password(user.getPassword())
+                                .disabled(!user.isActive())
+                                .accountExpired(!user.isActive())
+                                .authorities(AuthorityUtils.createAuthorityList(user.getRole().name()))
+                                .build())
                 .orElseThrow(() -> new UsernameNotFoundException("There is no user with that staff id"));
 
     }

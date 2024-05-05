@@ -1,40 +1,46 @@
-// Insert terms and conditions paragraph into the container
-document.getElementById("termsContainer").innerHTML = "<p>Vision\n" +
-    "\n" +
-    "DIR-ACE Technology aims to deliver top-tier IT solutions," +
-    " positioning Myanmar’s ICT industry at the forefront of " +
-    "technological innovation. With a team of highly skilled and " +
-    "experienced engineers, we are committed to developing and " +
-    "delivering cutting-edge IT systems and services that exceed standards." +
-    " By creating rewarding career opportunities and driving growth and" +
-    " innovation in the country’s IT sector, we strive to operate and e" +
-    "stablish one of the most mission critical system of Stock Exchange " +
-    "and one of leading provider of exceptional IT solutions in the region " +
-    "and beyond.\n" +
-    "Mission\n" +
-    "\n" +
-    "DIR-ACE Technology is to empower Myanmar’s IT industry " +
-    "by developing highly skilled and innovative IT engineers, " +
-    "delivering world-class IT systems and services, and contributing " +
-    "to the country’s socio-economic development through software " +
-    "and service exports. We are committed to providing our clien" +
-    "ts with the most reliable and cost-effective solutions while" +
-    " continually innovating and adapting to the latest technological " +
-    "advancements, all with integrity, professionalism, and a commitment " +
-    "to excellence.</p>";
+// Fetch policy content from the server
+fetch('/user/getAllPolicies')
+    .then(response => response.json())
+    .then(data => {
+        // Assuming data is an array of policy objects
+        data.forEach(policy => {
+            const policyContainer = document.createElement('div');
+
+            // Create a paragraph element for the policy content
+            const policyElement = document.createElement('p');
+            policyElement.innerHTML = policy.rule;
+            policyContainer.appendChild(policyElement);
+
+            // Create a span element for the user name
+            const userSpan = document.createElement('span');
+            userSpan.innerHTML = ` written by ${policy.user.name}(ADMIN)`;
+            userSpan.style.fontSize = 'smaller'; // Make user name smaller
+            userSpan.style.color = 'blue'; // Make user name blue
+            policyContainer.appendChild(userSpan);
+
+
+            // Add a gray line between each policy
+            policyContainer.style.borderBottom = '1px solid #ddd';
+
+            // Append the container to the termsContainer
+            document.getElementById("termsContainer").appendChild(policyContainer);
+        });
+    })
+    .catch(error => console.error('Error fetching policies:', error));
 
 // Enable the finished button when the checkbox is checked
-document.getElementById("acceptTerms").addEventListener("change", function() {
-    if(this.checked) {
+document.getElementById("acceptTerms").addEventListener("change", function () {
+    if (this.checked) {
         document.getElementById("finishedButton").disabled = false;
     } else {
         document.getElementById("finishedButton").disabled = true;
     }
 });
+
 const finishedButton = document.getElementById('finishedButton');
 
 // Add an event listener to the finished button
-finishedButton.addEventListener('click', function() {
+finishedButton.addEventListener('click', function () {
     // Retrieve the data from local storage
     const savedPassword = localStorage.getItem('savedPassword');
     const rawImage = localStorage.getItem('rawImage');
@@ -42,8 +48,8 @@ finishedButton.addEventListener('click', function() {
     const phoneNumber = localStorage.getItem('phoneNumber');
     const dob = localStorage.getItem('dob');
     const gender = localStorage.getItem('gender');
-    const skills=localStorage.getItem('selectedSkills');
-    const experience=localStorage.getItem('Experience');
+    const skills = localStorage.getItem('selectedSkills');
+    const experience = localStorage.getItem('Experience');
 
     // Send the data to the server
     fetch('/user/savePassword', {
@@ -51,7 +57,7 @@ finishedButton.addEventListener('click', function() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ password: savedPassword , phoneNumber, dob, gender ,hobbies: selectedHobbies })
+        body: JSON.stringify({password: savedPassword, phoneNumber, dob, gender, hobbies: selectedHobbies})
     })
         .then(response => response.json())
         .then(data => {
@@ -89,5 +95,12 @@ finishedButton.addEventListener('click', function() {
             console.error('Error saving image:', error);
         });
     // Clear the local storage
-    localStorage.clear();
+    localStorage.removeItem('savedPassword')
+    localStorage.removeItem('phoneNumber')
+    localStorage.removeItem('rawImage')
+    localStorage.removeItem('Hobbies')
+    localStorage.removeItem('dob')
+    localStorage.removeItem('gender')
+    localStorage.removeItem('selectedSkills')
+    localStorage.removeItem('Experience')
 });

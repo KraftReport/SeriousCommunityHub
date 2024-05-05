@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{index::head}">
+    <meta charset="UTF-8">
+    <title>Policy</title>
+</head>
+<body>
+<div th:replace="~{index::header}"></div>
+<div th:replace="~{index::navbar}"></div>
+<main id="main" class="main">
+    <div class="policies">
+        <h2>Our Term&Condition</h2>
+        <div class="policy-container"></div>
+    </div>
+    <div class="custom-modal" id="addPolicyModal" >
+        <link href="/static/assets/css/policy_modal.css" rel="stylesheet">
+        <div class="custom-modal-dialog">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h5 class="custom-modal-title">Update Policy</h5>
+                    <button type="button" class="custom-modal-close" aria-label="Close">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.7071 1.70711L11.2929 0.292893L7 5.58579L2.70711 0.292893L1.29289 1.70711L5.58579 7L1.29289 12.2929L2.70711 13.7071L7 8.41421L11.2929 13.7071L12.7071 12.2929L8.41421 7L12.7071 1.70711Z" fill="#337AB7"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="custom-modal-body">
+                    <!-- Text editor -->
+                    <div id="editor"></div>
+                    <!-- Other form elements go here -->
+                </div>
+                <div class="custom-modal-footer">
+                    <button type="button" id="closePolicyBtn" data-dismiss="modal" class="custom-modal-btn custom-modal-btn-secondary">Close</button>
+                    <button type="button" id="updatePolicyBtn" data-dismiss="modal" class="custom-modal-btn custom-modal-btn-primary">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<div th:replace="~{index::footer}"></div>
+<script th:inline="javascript">
+    const authenticationName = /*[[${#authentication.name}]]*/ '';
+</script>
+<script >
+    document.addEventListener("DOMContentLoaded", function() {
+        // Function to create an edit button
+        function createEditButton(policyId) {
+            const editButton = document.createElement('button');
+            editButton.classList.add('edit-button');
+            editButton.setAttribute('data-policy-id', policyId);
+            editButton.innerText = 'Edit';
+            editButton.addEventListener('click', function() {
+                console.log('Edit button clicked for policy ID: ' + policyId);
+            });
+            return editButton;
+        }
+
+        // Function to create a delete button
+        function createDeleteButton(policyId) {
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-button');
+            deleteButton.setAttribute('data-policy-id', policyId);
+            deleteButton.innerText = 'Delete';
+            deleteButton.addEventListener('click', function() {
+                console.log('Delete button clicked for policy ID: ' + policyId);
+            });
+            return deleteButton;
+        }
+
+        fetch('/user/getAllPolicies')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const policyContainer = document.querySelector('.policy-container');
+                data.forEach(policy => {
+                    const policyElement = document.createElement('div');
+                    policyElement.classList.add('policy');
+
+                    const idParagraph = document.createElement('p');
+                    idParagraph.hidden = true;
+                    idParagraph.innerHTML = policy.id;
+                    policyElement.appendChild(idParagraph);
+
+                    const ruleParagraph = document.createElement('p');
+                    ruleParagraph.innerHTML = policy.rule;
+                    policyElement.appendChild(ruleParagraph);
+
+                    if (policy.user.staffId === authenticationName) {
+                        // Create and append edit button
+                        const editButton = createEditButton(policy.id);
+                        policyElement.appendChild(editButton);
+
+                        // Create and append delete button
+                        const deleteButton = createDeleteButton(policy.id);
+                        policyElement.appendChild(deleteButton);
+                    }
+
+                    const writerParagraph = document.createElement('p');
+                    writerParagraph.innerHTML = 'Writer: <span>' + policy.user.name + '</span>';
+                    writerParagraph.style.fontSize = 'smaller';
+                    policyElement.appendChild(writerParagraph);
+
+                    const roleParagraph = document.createElement('p');
+                    roleParagraph.innerHTML = 'Role: <span>' + policy.user.role + '</span>';
+                    roleParagraph.style.fontSize='smaller';
+                    policyElement.appendChild(roleParagraph);
+
+                    const timeParagraph = document.createElement('p');
+                    const formattedDate = new Date(policy.date);
+                    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                    const formattedDateString = formattedDate.toLocaleDateString('en-GB', options);
+                    timeParagraph.innerHTML = 'Time: <span>' + formattedDateString + '</span>';
+                    timeParagraph.style.fontSize='smaller';
+                    policyElement.appendChild(timeParagraph);
+
+                    const hrElement = document.createElement('hr');
+                    policyElement.appendChild(hrElement);
+
+                    policyContainer.appendChild(policyElement);
+                });
+                document.querySelectorAll('.edit-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const policyId = this.getAttribute('data-policy-id');
+                        fetch('/user/getOnePolicy?policyId=' + policyId)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                const editor = document.getElementById('editor');
+                                if (editor) {
+                                    editor.innerHTML = data.rule;
+                                    const quill = new Quill('#editor', {
+                                        theme: 'snow'
+                                    });
+                                    document.getElementById('addPolicyModal').style.display = 'block';
+                                    // Update Policy
+                                    document.getElementById('updatePolicyBtn').addEventListener('click', function() {
+                                        data.rule = quill.root.innerHTML;
+                                        fetch('/user/updatePolicy', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify(data)
+                                        })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Network response was not ok');
+                                                }
+                                                // Close the modal after successful update
+                                                document.getElementById('addPolicyModal').style.display = 'none';
+                                            })
+                                            .catch(error => {
+                                                console.error('There was a problem with the update operation:', error);
+                                            });
+                                        location.reload();
+                                    });
+
+                                } else {
+                                    console.error("Editor element not found");
+                                }
+                            })
+                            .catch(error => {
+                                console.error('There was a problem with the fetch operation:', error);
+                            });
+                    });
+                });
+                // Delete Policy
+                document.querySelectorAll('.delete-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const policyId = this.getAttribute('data-policy-id');
+                        fetch('/user/deletePolicy/' + policyId, {
+                            method: 'DELETE'
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+
+                            })
+                            .catch(error => {
+                                console.error('There was a problem with the delete operation:', error);
+                            });
+                        location.reload();
+                    });
+                });
+
+                // Close modal function
+                document.querySelector('.custom-modal-close').addEventListener('click', function() {
+                    document.getElementById('addPolicyModal').style.display = 'none';
+                });
+
+                // Close modal on outside click
+                window.addEventListener('click', function(event) {
+                    if (event.target === document.getElementById('addPolicyModal')) {
+                        document.getElementById('addPolicyModal').style.display = 'none';
+                    }
+                });
+
+                // Prevent modal from closing when clicking inside the modal content
+                document.querySelector('.custom-modal-content').addEventListener('click', function(event) {
+                    event.stopPropagation();
+                });
+
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    });
+
+</script>
+</body>
+</html>

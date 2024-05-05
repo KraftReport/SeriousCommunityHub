@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{index::head}">
     <title>Create Community</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
 </head>
 <body>
 <div th:replace="~{index::header}"></div>
@@ -10,7 +11,7 @@
 <main id="main" class="main">
     <div class="container mt-5">
         <span id="message"></span>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCommunityModal">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCommunityModal" sec:authorize="hasAnyAuthority('ADMIN')">
             Create Community
         </button>
         <br><br>
@@ -62,25 +63,8 @@
         </div>
     </div>
     <div class="container">
-        <table class="table table-striped" id="groupTable">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Community ID</th>
-                <th scope="col">Group's Name</th>
-                <th scope="col">Description</th>
-                <th scope="col">Group's Photo</th>
-                <th scope="col">Owner's Name</th>
-                <th scope="col">Member's Names</th>
-                <th scope="col">Add User</th>
-                <th scope="col">Delete</th>
-                <th scope="col">Kick User</th>
-                <th scope="col">Chat Room</th>
-            </tr>
-            </thead>
-            <tbody id="communityTableBody">
-            </tbody>
-        </table>
+        <link rel="stylesheet" href="/assets/css/group-card.css">
+        <div class="row" id="communityCards"></div>
     </div>
     <!-- Add Community Modal -->
     <div class="container">
@@ -225,55 +209,70 @@
         fetchCommunities();
     });
 
-    function fetchCommunities() {
+    async function fetchCommunities() {
         fetch('/api/community/communityview')
             .then(response => response.json())
             .then(data => {
-                populateTable(data);
+                populateCommunityCards(data);
             })
             .catch(error => {
                 console.error('Error fetching communities:', error);
             });
     }
-
     async function fetchOwnerNames(communityId) {
         const response = await fetch(`/api/community/ownerNames/${communityId}`);
         const data = await response.json();
         return data;
     }
-
-    async function populateTable(communities) {
-        const tableBody = document.getElementById('communityTableBody');
-        let table = '';
+    async function populateCommunityCards(communities) {
+        const communityCardsContainer = document.getElementById('communityCards');
+        let cardsHtml = '';
         const currentUser = await getCurrentUser();
 
         for (let i = 0; i < communities.length; i++) {
             const community = communities[i];
-            const ownerNames = await fetchOwnerNames(community.id);
             let photo = '';
             if (community.image) {
                 photo = `<img src="data:image/*;base64,${community.image}" alt="Group's Photo" width="100" height="100">`;
             }
-            const isCurrentUserOwner = currentUser.name !== community.ownerName && currentUser.role === "USER";
+            const ownerNames = await fetchOwnerNames(community.id);
+            const isNotCurrentUserOwner = currentUser.name !== community.ownerName && currentUser.role === 'USER';
+            const isNotAdmin= currentUser.role !== 'ADMIN';
+            const memberNames = ownerNames.length > 1 ? ownerNames.slice(1, 4).join(', ') : '';
+            const moreMembersCount = ownerNames.length - 3;
+            const moreMembersText = moreMembersCount > 0 ? `+${moreMembersCount} more` : '';
 
-            table += `
-        <tr>
-            <td>${i + 1}</td>
-            <td>${community.id}</td>
-            <td>${community.name}</td>
-            <td>${community.description}</td>
-            <td>${photo}</td>
-            <td>${community.ownerName}</td>
-            <td>${ownerNames.join(', ')}</td>
-            <td><button type="button" class="btn btn-success" data-toggle="modal" data-target="#createGroupModal" onclick="populateCreateGroupForm(${community.id}, '${community.name}', '${community.ownerName}', '${community.description}', '${community.image}')">Add</button></td>
-            <td><button type="button" class="btn btn-danger" onclick="deleteCommunity(${community.id})">Delete</button></td>
-            <td><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#kickModal" ${isCurrentUserOwner ? 'disabled' : ''} onclick="populateKickGroupForm(${community.id})">Kick</button></td>
-            <td><button type="button" class="btn btn-primary">Chat</button></td>
-        </tr>
+            cardsHtml += `
+        <div class="card community-card">
+            ${photo}
+            <div class="card-body">
+                <h5 class="card-title">${community.name}</h5>
+                <p class="card-text">${community.description}</p>
+                <p class="card-text">Owner: ${community.ownerName}</p>
+                <div class="member-list">
+                    <span class="member-name">${memberNames}</span>
+                    ${moreMembersText ? `<span class="member-name">${moreMembersText}</span>` : ''}
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        ...
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">View Detail</a>
+                        <a class="dropdown-item" href="#" ${isNotCurrentUserOwner ? 'hidden' : ''} onclick="populateKickGroupForm(${community.id})">Kick a Member</a>
+                        <a class="dropdown-item" href="#" ${isNotAdmin ? 'hidden' : ''} onclick="deleteCommunity(${community.id})">Delete the Group</a>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary chat-button"><i class="fa fa-comments"></i></button>
+               <button type="button" class="btn btn-success add-button" ${isNotCurrentUserOwner ? 'hidden' : ''} onclick="populateCreateGroupForm(${community.id}, \'${community.name}\', \'${community.ownerName}\', \'${community.description}\', \'${community.image}\')"><i class="fa fa-factory"></i></button>
+            </div>
+        </div>
     `;
         }
 
-        tableBody.innerHTML = table;
+        communityCardsContainer.innerHTML = cardsHtml;
     }
 
     const getAllUsers = async () => {
@@ -354,10 +353,13 @@
         $('#createGroupModal').modal('show');
     }
 
+
+
     document.getElementById('createGroupBtn').addEventListener('click', async (e) => {
         e.preventDefault();
 
         const formData = new FormData(document.getElementById('createGroupForm'));
+
         const url = "/api/community/createGroup";
         const data = await fetch(url, {
             method: 'POST',
@@ -373,6 +375,7 @@
         }
 
     });
+
 
     const deleteCommunity = async (communityId) => {
         const url = `/api/community/delete/${communityId}`;

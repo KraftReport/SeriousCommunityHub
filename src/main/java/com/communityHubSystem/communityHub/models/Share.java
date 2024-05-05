@@ -27,7 +27,7 @@ public class Share implements Serializable {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id",referencedColumnName = "id")
     private User user;
 }

@@ -4,6 +4,7 @@ import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.models.User;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,14 @@ public interface UserService {
     Optional<User> findByStaffId(String staffId);
     public User findById(Long id);
     public List<User> getAllUserWithoutAdmin();
-    void updateUserStatus(Long userId, boolean isActive);
+    User updateProfilePhoto(MultipartFile multipartFile) throws IOException;
+    public User saveImage(MultipartFile multipartFile) throws IOException;
+    void updateUserStatus(Long userId, boolean isActive, String banReason);
     boolean existsByStaffId(String staffId);
+    public void updateUserToAdminStatus(Long userId, boolean pending, boolean done,boolean removed);
+    public void updateAdminToUserStatus(Long userId,  boolean isRemoved ,String removedReason);
+    public void rejectAdminRole(Long userId,boolean pending,boolean done,boolean removed,boolean reject,String rejectReason);
+    public void updateUserRoleToAdmin(Long userId);
+    public  void acceptReject(Long userId);
+
 }

@@ -1,0 +1,89 @@
+/* Modal styles */
+.modal-content {
+    background-color: #fff;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    background-image: none;
+    color: #090808;
+}
+
+.modal-header {
+    background-color: #007bff; /* Kept blue */
+    color: #fff;
+    padding: 15px;
+    border-bottom: none;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.modal-body-content {
+    padding: 20px;
+    background-color: #fff; /* Changed to white */
+    border-radius: 10px;
+    color: #000; /* Changed to black */
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #007bff; /* Kept blue */
+    border-color: #0069d9;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #005cbf;
+}
+
+/* Form styles */
+.form-control {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: #000; /* Changed to black */
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    color: #000; /* Changed to black */
+}
+
+/* Other styles */
+.container-fluid {
+    padding: 20px;
+}
+
+.row {
+    margin-bottom: 20px;
+}
+
+.col-md-12 {
+    padding: 20px;
+}
+
+/* Adjusted Form styles */
+.custom-select {
+    padding: 10px 12px;  /* Match the padding with the input fields */
+}
+
+/* Adjusted Other styles */
+input[type="date"] {
+    color: #000; /* Set text color to black for date input */
+}
