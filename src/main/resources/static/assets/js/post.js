@@ -1413,7 +1413,7 @@ const getAllComments = async (id) => {
 const displayMessage = async (sender, content, photo, id, postId, chatArea) => {
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
-    divItem.classList.add(`user-item`);
+    divItem.classList.add(`user-item-${id}`);
     const userImage = document.createElement('img');
     photo = photo || '/static/assets/img/card.jpg';
     userImage.src = `${photo}`;
@@ -2036,7 +2036,7 @@ const fetchAndDisplayReplies = async (id) => {
         userRpImage.style.width = '50px';
         userRpImage.style.marginLeft = '50px';
         userRpImage.style.backgroundColor = '#cccccc';
-        replyElement.classList.add('reply-item');
+        replyElement.classList.add(`reply-item-${reply.id}`);
         const replySender = document.createElement('span');
         if (reply.user.name === user.name) {
             replySender.innerHTML = `You : `;
@@ -2329,7 +2329,13 @@ const deleteComment = async (id) => {
     const data = await getData.json();
     const postId = data.postId;
     console.log('postId', postId);
-    await getAllComments(postId);
+    const userItem = document.querySelector(`.user-item-${id}`);
+    if (!userItem) {
+        console.error(`User item with id ${id} not found`);
+        return;
+    }
+    userItem.remove();
+    // await getAllComments(postId);
 };
 
 const deleteReply = async (id) => {
@@ -2342,7 +2348,13 @@ const deleteReply = async (id) => {
     const data = await getData.json();
     const postId = data.postId;
     console.log('postId', postId);
-    await getAllComments(postId);
+    const replyItem = document.querySelector(`.reply-item-${id}`)
+    if (!replyItem) {
+        console.error(`User item with id ${id} not found`);
+        return;
+    }
+    replyItem.remove();
+    // await getAllComments(postId);
 };
 
 const updateContentForReply = async (id, content) => {

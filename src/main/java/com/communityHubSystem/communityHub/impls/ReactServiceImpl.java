@@ -78,4 +78,21 @@ public class ReactServiceImpl implements ReactService {
     public React getReact(Long id, Long id1, Long id2, Long id3) {
         return reactRepository.findReactByUserIdAndPostIdAndCommentIdAndReplyId(id,id1,id2,id3);
     }
+
+    @Override
+    public React findReactByCommentId(Long id) {
+        return reactRepository.findByCommentId(id);
+    }
+
+
+    @Transactional
+    @Override
+    public void deleteById(Long id) {
+        reactRepository.deleteById(id);
+    }
+
+    @Override
+    public React findByReplyId(Long id) {
+        return reactRepository.findByReplyId(id);
+    }
 }
