@@ -171,4 +171,9 @@ public class PageController {
         helper.setText("Your OTP is: " + otp);
         emailSender.send(message);
     }
+
+    @GetMapping("/searcher")
+    public String goToSearchPage(){
+        return "/layout/searchPage";
+    }
 }

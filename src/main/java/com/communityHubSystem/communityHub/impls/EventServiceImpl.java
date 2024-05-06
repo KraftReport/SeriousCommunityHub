@@ -428,6 +428,10 @@ public class EventServiceImpl implements EventService {
         var specifications = new ArrayList<Specification<Event>>();
         if(StringUtils.hasLength(input)){
             specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("location")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(criteriaBuilder.lower(root.get("description")),"%".concat(input.toLowerCase()).concat("%")));
             specifications.add(eventUserJoin(input));
         }
