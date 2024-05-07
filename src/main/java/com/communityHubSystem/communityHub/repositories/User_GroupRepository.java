@@ -23,4 +23,7 @@ public interface User_GroupRepository extends JpaRepository<User_Group,Long> {
     @Query (value = "select distinct community_id from user_group where user_id = :userId",nativeQuery = true)
     List<Long> findDistinctCommunityIdByUserId(Long userId);
 
+    @Query(value = "select user_id from user_group where community_id = :communityId",nativeQuery = true)
+    List<Long> getUserIdsFromCommunityId(Long communityId);
+
 }

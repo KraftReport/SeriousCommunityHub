@@ -20,6 +20,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -137,7 +139,7 @@ public class EventServiceImpl implements EventService {
         var events = eventRepository.findByCreatedDateBetween(start,end);
         var result = new ArrayList<Event>();
         for(var e : events){
-            if(!ids.contains(e.getId())){
+            if(!ids.contains(e.getId()) && e.getEventType().equals(Event.EventType.EVENT)){
                 result.add(e);
                 ids.add(e.getId());
                 System.err.println("------------------------------->"+ids);
@@ -424,7 +426,8 @@ public class EventServiceImpl implements EventService {
         return Date.from(offSetDate.toInstant());
     }
 
-    private List<Event>  searchMethod(String input){
+    private List<Event> searchMethod(String in){
+        var input = URLDecoder.decode(in, StandardCharsets.UTF_8);
         var specifications = new ArrayList<Specification<Event>>();
         if(StringUtils.hasLength(input)){
             specifications.add((root, query, criteriaBuilder) ->
@@ -441,7 +444,7 @@ public class EventServiceImpl implements EventService {
         for(var s : specifications){
             eventSpec = eventSpec.or(s);
         }
-        return eventRepository.findAll((Sort) eventSpec);
+        return eventRepository.findAll(eventSpec);
     }
     public User getCurrentLoginUser() {
         return userRepository.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("user not found"));

@@ -5,7 +5,9 @@ let isFetchingForPost = false;
 let hasMoreForPost = true;
 
 window.onload = welcome(0);
-
+document.addEventListener('DOMContentLoaded', function() { 
+    localStorage.removeItem('searchInput');
+})
 function goToCreatePost() {
     window.location.href = '/user/goToCreatePost'
 }
@@ -2768,7 +2770,7 @@ async function goToSearchPage(){
 async function searchMethodWork(){
     let input = await document.getElementById('searchInput').value
     if(window.location.pathname === '/index'){
-        localStorage.setItem('searchInput',document.getElementById('searchInput').value)
+        localStorage.setItem('searchInput','')
         window.location.href = '/searcher'
         document.getElementById('searchInput').value = localStorage.getItem('searchInput')
         await createPostsForSearch()

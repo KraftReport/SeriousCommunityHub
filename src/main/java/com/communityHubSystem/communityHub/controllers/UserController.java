@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Controller
@@ -362,6 +363,12 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/userSearchMethod/{input}")
+    @ResponseBody
+    public ResponseEntity<List<User>> userSearchMethod(@PathVariable("input")String input) throws UnsupportedEncodingException {
+        return ResponseEntity.ok(userService.userSearchMethod(input));
     }
 }
 

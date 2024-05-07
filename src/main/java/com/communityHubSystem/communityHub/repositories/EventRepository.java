@@ -2,12 +2,13 @@ package com.communityHubSystem.communityHub.repositories;
 
 import com.communityHubSystem.communityHub.models.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Date;
 import java.util.List;
 
-public interface EventRepository extends JpaRepository<Event,Long> {
+public interface EventRepository extends JpaRepository<Event,Long>, JpaSpecificationExecutor<Event> {
 
     List<Event> findByEventType(Event.EventType eventType);
 

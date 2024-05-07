@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
 import java.util.*;
 
 @Controller
@@ -189,5 +190,17 @@ public class GroupController {
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
         }
+    }
+
+    @GetMapping("/communitySearchMethod/{input}")
+    @ResponseBody
+    public ResponseEntity<List<Community>> communitySearchMethod(@PathVariable("input")String  input){
+        return ResponseEntity.ok(communityService.communitySearchMethod(input));
+    }
+
+    @GetMapping("/getNumberOfMembers/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> getNumberOfMembers(@PathVariable("id")String id){
+        return ResponseEntity.ok(communityService.getNumberOfUsersOfACommunity(Long.valueOf(id)));
     }
 }

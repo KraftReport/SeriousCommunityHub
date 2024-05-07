@@ -29,5 +29,6 @@ public interface CommunityService {
 
     public List<Community> getAllCommunityWithUserId();
     public List<Community> communitySearchMethod(String input);
+    public Object getNumberOfUsersOfACommunity(Long id);
 
 }

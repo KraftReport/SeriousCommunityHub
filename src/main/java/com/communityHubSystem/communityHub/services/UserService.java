@@ -5,6 +5,7 @@ import com.communityHubSystem.communityHub.models.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +26,6 @@ public interface UserService {
     public void rejectAdminRole(Long userId,boolean pending,boolean done,boolean removed,boolean reject,String rejectReason);
     public void updateUserRoleToAdmin(Long userId);
     public  void acceptReject(Long userId);
+    public List<User> userSearchMethod(String input) throws UnsupportedEncodingException;
 
 }

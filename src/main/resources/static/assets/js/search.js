@@ -1,31 +1,147 @@
-window.onload = await createPostsForSearch()
+window.onload =  createPostsForSearch
 
-// async function searchMethodWork(){
-//     let input = await document.getElementById('searchInput').value
-//     if(window.location.pathname === '/index'){
-//         localStorage.setItem('searchInput',document.getElementById('searchInput').value)
-//         window.location.href = '/searcher'
-//         document.getElementById('searchInput').value = localStorage.getItem('searchInput')
-//         await createPostsForSearch()
-//     }
-//     console.log(input)
-//     localStorage.setItem('searchInput',document.getElementById('searchInput').value)
-//     document.getElementById('searchInput').value = localStorage.getItem('searchInput')
-//     await createPostsForSearch()
-// }
+async function searchMethod(){
+    let input = await document.getElementById('searchInput').value
+    console.log()
+    localStorage.setItem('searchInput',encodeURIComponent(input))
+    document.getElementById('searchInput').value = localStorage.getItem('searchInput')
+    await createPostsForSearch()
+    goToEventTab()
+    goToPollTab()
+    goToUserTab()
+    goToCommunityTab()
+}
 
-// async function goToEventTab(){
-//     console.log(localStorage.getItem('searchInput'))
-//     showSearchEvents(localStorage.getItem('searchInput'))
-// }
+async function goToCommunityTab(){
+    let data = await fetch('/api/community/communitySearchMethod/'+localStorage.getItem('searchInput'))
+    let response = await data.json()
+    let max = 10
+    let communityTab = document.getElementById('pills-community-search')
+    console.log(response)
+    let row = '' 
+    if(response.length<1){
+        document.getElementById('community-grid').innerHTML =  `
+        
+ 
+        <div class="card-body font-monospace fs-4" style="padding:30px; margin-left:100px;" >
+        <i class="fa-solid fa-question text-danger "></i> No result here <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+        </div>
+   
+        
+        `
+        return
+    }
+        for (let r of response){ 
+            let words = r.description;
+            if (words.split(' ').length > max) {
+                words = words.split(' ').slice(0, max).join(' ') + '....'; // Corrected from maxWords to max
+            }
+        let num = await getNumberOfMembers(r.id)
+        let amount = parseInt(num) > 1 ? 'members' : 'member' 
+        let photo = r.image === null ?  '/static/assets/img/profile-img.jpg'   : r.image
+        let rows = ''
+        rows+= `
+        
+        <div class="card col-3 m-2 " style="width: 18rem;">
+  <div class="card-body font-monospace">
+    <div class="d-flex">
+    <img src="${photo}"  style="width:80px;  height:80px; border-radius:10px; margin-right:30px; margin-bottom:20px; margin-top:15px;">
+    <h5 class="card-title font-monospace">${r.name}</h5>
+    </div>
+    <div class="d-flex">
+    <div class="d-block" style="margin-right:50px;"><code><i class="fa-solid fa-crown"></i> Owner</code><p class="text-primary font-monospace" style="width:110px;">${r.ownerName}</p>
+    </div>
+    <p  class="text-success font-monospace "><i class="fa-solid fa-users"></i>  ${num} ${amount}</p>
+    </div>
+    
+    <h6 class="card-subtitle font-monospace mb-2 text-muted"><i class="fa-solid fa-circle-info"></i> ${words}</h6>
+    <p class="card-text"></p>
+  </div>
+</div>
+
+ 
+
+        `
+
+        row+= rows
+        }
+    document.getElementById('community-grid').innerHTML = row
+    
+}
+
+async function getNumberOfMembers(id){
+    let data = await fetch(`/api/community/getNumberOfMembers/${id}`)
+    let response = await data.json()
+    console.log(response)
+    console.log(response[0])
+    return response[0]
+}
+
+async function goToUserTab(){
+    let data = await fetch ('/user/userSearchMethod/'+localStorage.getItem('searchInput'))
+    let userTab = document.getElementById('pills-user-search')
+    let response = await data.json()
+    console.log(response)
+    let row = ''
+    if(response.length<1){
+        userTab.innerHTML  =  `
+         
+        <div class="card-body font-monospace fs-4" style="padding:30px; margin-left:100px;" >
+        <i class="fa-solid fa-question text-danger "></i> No result here <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+        </div>
+   
+        
+        `
+        return
+    }
+    response.forEach(r=>{
+        let photo = r.photo === null ? '/static/assets/img/profile-img.jpg' : r.photo
+        let rows = ''
+        rows+=`
+      
+
+        <div class="card pt-3 font-monospace  rounded-3" style="width:370px;">
+        <div class="card-body d-flex">
+        <img style="width:70px" class="rounded-5 m-2 "src="${photo}">
+        <div class="d-block ">
+        <p class=""> <i class="fa-solid fa-user"></i> ${r.name} </p>
+        <code><i class="fa-solid fa-envelope"></i> ${r.email}</code>
+        <p class="text-success"><i class="fa-solid fa-building"></i> ${r.dept}</p>
+        </div> 
+        </div>
+      </div>
+        
+  
+  
+        `
+        row += rows
+    })
+    userTab.innerHTML = row
+}
+
+async function goToEventTab(){
+    console.log(localStorage.getItem('searchInput'))
+    showSearchEvents(localStorage.getItem('searchInput'))
+}
 
 async function createPostsForSearch(){
-    document.getElementById('searchInput').value = localStorage.getItem('searchInput')+''
     let data = await fetch('/post/searchPost/'+localStorage.getItem('searchInput'))
     let response = await data.json()
     console.log(response)
     let postTab = document.getElementById('pills-post-search')
     let row = ''
+    if(response.length < 1){
+        postTab.innerHTML = `
+        
+ 
+        <div class="card-body font-monospace fs-4" style="padding:30px; margin-left:100px;" >
+        <i class="fa-solid fa-question text-danger "></i> No result here <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+        </div>
+ 
+        
+        `
+        return
+    }
     response.forEach((p,index)=>{
         let rows = ''
         rows += `
@@ -441,9 +557,9 @@ async function createPostsForSearch(){
        `
         row += rows
     })
-    let range = document.createRange();
-    let fragment = range.createContextualFragment(row);
-    postTab.appendChild(fragment)
+    postTab.innerHTML = row
+    
+    document.getElementById('searchInput').value = localStorage.getItem('searchInput')+''
 }
 
 async function dateFormatter(startDate){
@@ -463,6 +579,18 @@ async function showSearchEvents(input){
         method : 'GET'
     })
     let response = await data.json()
+    if(response.length<1){
+        document.getElementById('pills-event-search').innerHTML =  `
+        
+       
+        <div class="card-body font-monospace fs-4" style="padding:30px; margin-left:100px;" >
+        <i class="fa-solid fa-question text-danger "></i> No result here <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+        </div>
+       
+        
+        `
+        return
+    }
     console.log(response)
     let row = ''
     response.forEach((r,index)=>{
@@ -581,10 +709,8 @@ async function showSearchEvents(input){
 
 
         row += rows
-    })
-    let range = document.createRange();
-    let fragment = range.createContextualFragment(row);
-    document.getElementById('pills-event-search').appendChild(fragment)
+    }) 
+    document.getElementById('pills-event-search').innerHTML = row
 }
 
 
@@ -1327,3 +1453,179 @@ async function getPollEventUpdateData(){
     console.log(res)
 }
 
+
+
+async function goToPollTab(){
+    let data = await fetch('/event/searchPolls/'+localStorage.getItem('searchInput'),{
+        method : 'GET'
+    })
+    let response = await data.json()
+    if(response.length<1){
+        document.getElementById('pills-poll-search').innerHTML =  `
+         
+        <div class="card-body font-monospace fs-4" style="padding:30px; margin-left:100px;" >
+        <i class="fa-solid fa-question text-danger "></i> No result here <i class="fa-solid fa-magnifying-glass text-secondary"></i>
+        </div>
+     
+        `
+        return
+    }
+    let rows = ''
+    for (let r of response) {
+        let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
+        let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
+        let row = ''
+        row += `
+        <div class="post" id="pollPostDiv-${r.id}">
+        <div class="post-top">
+            <div class="dp">
+                <img src="${r.user.photo}" alt="">
+            </div>
+            <div class="post-info">
+                <p class="name">${r.user.name}</p>
+                <span class="time">2 days ago</span>
+            </div>
+                        <div class="dropdown offset-8">
+      <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-ellipsis-h "></i>
+            </a>
+    
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
+        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
+      </ul>
+    </div>
+        </div> 
+        <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
+          <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
+        </div>
+      </nav>
+        <div class=" post-content" data-bs-toggle="modal"  > 
+
+
+        <div class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img src="${r.photo}" style="max-width:170px;" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+            <div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
+  
+  <h5 class="card-title align-middle font-monospace">${r.title}</h5>
+  <p class="card-text font-monospace">${r.description}</p>
+  
+  </div>
+  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+
+            
+            `
+    let totalVotes = 0;
+    for (let v of r.voteOptions) {
+        let count = await getCount(v.id);
+        totalVotes += count;
+    }
+    for (let v of r.voteOptions) {
+        let count = await getCount(v.id);
+        let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
+        row += `
+        <div class="vote-option d-flex mt-1">
+        <div class="d-block">
+        <div class="font-monospace ">${v.type}</div>
+                <div class="d-flex">
+                <div class="progress" style="height: 16px; width: 170px;">
+                
+                    <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
+                </div>`
+                row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
+
+                let yes = await checkVotedMark(v.id)
+                let markIcon = 'hidden'
+                if(yes === true){
+                    markIcon = ''
+                }
+                console.log(yes)
+
+                
+                    row += `<div id="mark-id-${v.id}" class="${markIcon}"><i class="fa-regular fa-circle-check"></i></div>
+                </div>
+                </div>
+                 ` 
+
+                   
+              
+                row+=`</div>`
+               
+    }
+     
+    row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
+     
+    row+=`</div> 
+    </div>
+          </div>
+    </div>
+  </div>
+</div>
+         
+        <div class="post-bottom">
+            <div class="action" style="height: 50px">
+    <div class="button_wrapper">
+          <div class="all_likes_wrapper">
+              <div data-title="LIKE">
+                  <img src="/static/assets/img/like.png" alt="Like" />
+              </div>
+              <div data-title="LOVE">
+                  <img src="/static/assets/img/love.png" alt="Love" />
+              </div>
+              <div data-title="CARE">
+                  <img src="/static/assets/img/care.png" alt="Care" />
+              </div>
+              <div data-title="HAHA">
+                  <img src="/static/assets/img/haha.png" alt="Haha" />
+              </div>
+              <div data-title="WOW">
+                  <img src="/static/assets/img/wow.png" alt="Wow" />
+              </div>
+              <div data-title="SAD">
+                  <img src="/static/assets/img/sad.png" alt="Sad" />
+              </div>
+              <div data-title="ANGRY">
+                  <img src="/static/assets/img/angry.png" alt="Angry" />
+              </div>
+          </div>
+          <button class="like_button" id=" "> 
+          </button>
+      </div>
+            </div>
+            <div class="action">
+                <i class="fa-regular fa-comment"></i>
+                <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
+            </div>
+            <div class="action">
+                <i class="fa fa-share"></i>
+                <span>Share</span>
+            </div>
+        </div>
+    </div>
+    </div>
+        `
+        rows+=row
+
+        
+        
+    }
+    // let range = document.createRange();
+    // let fragment = range.createContextualFragment(rows);       
+    // while (polls.children.length > 0) {
+    //   polls.children[0].remove();
+    // }
+    document.getElementById('pills-poll-search').innerHTML = rows
+    if(rows){
+        for(let r of response){
+            await updateVotePercentage(r.voteOptions)
+        }
+    }
+}

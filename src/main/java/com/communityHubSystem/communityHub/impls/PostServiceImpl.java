@@ -23,6 +23,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -75,7 +77,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> searchMethod(String input) {
+    public List<Post> searchMethod(String in) {
+        var input = URLDecoder.decode(in, StandardCharsets.UTF_8);
         var specifications = new ArrayList<Specification<Post>>();
         if (StringUtils.hasLength(input)) {
             specifications.add((root, query, criteriaBuilder) ->

@@ -21,6 +21,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -179,7 +181,8 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<Community> communitySearchMethod(String input) {
+    public List<Community> communitySearchMethod(String in) {
+        var input = URLDecoder.decode(in, StandardCharsets.UTF_8);
         var specification = new ArrayList<Specification<Community>>();
         if (StringUtils.hasLength(input)) {
             specification.add((root, query, criteriaBuilder) ->
@@ -194,6 +197,14 @@ public class CommunityServiceImpl implements CommunityService {
             communitySpecification = communitySpecification.or(s);
         }
         return communityRepository.findAll(communitySpecification);
+    }
+
+    @Override
+    public Object getNumberOfUsersOfACommunity(Long id) {
+        var list = user_groupRepository.getUserIdsFromCommunityId(id);
+        var objs = new ArrayList<Object>();
+        objs.add(list.size()+"");
+        return objs;
     }
 
     private List<Community> validateUserOrAdmin(List<Community> communities) {
