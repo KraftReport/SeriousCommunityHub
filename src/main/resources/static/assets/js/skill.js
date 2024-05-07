@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const skillsDropdown = document.getElementById('skillsDropdown');
             data.forEach(skill => {
                 const checkbox = document.createElement('input');
+                console.log('skdfdsf', skill.name)
                 checkbox.type = 'checkbox';
                 checkbox.name = 'skills';
                 checkbox.value = skill.id;
@@ -21,6 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 skillsDropdown.appendChild(div);
             });
         });
+
+
 
     document.getElementById('addNewSkillBtn').addEventListener('click', function() {
         const newSkillInput = document.getElementById('newSkillInput');
@@ -68,4 +71,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         localStorage.setItem('selectedSkills', selectedSkills.join(','));
     }
+
 });

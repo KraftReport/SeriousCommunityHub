@@ -1,0 +1,286 @@
+#createGroupModal * {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+#createGroupModal .modal-body {
+    margin: 0;
+}
+
+#createGroupModal #usersList {
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 10px; /* Adjust spacing between items */
+}
+
+#createGroupModal #usersList input[type="checkbox"] {
+    display: none;
+}
+
+#createGroupModal #usersList div {
+    display: inline;
+}
+
+#createGroupModal #usersList span {
+    display: inline-block; /* Display the spans inline */
+    vertical-align: middle; /* Align them vertically */
+    margin-right: 20px; /* Adjust spacing between photo and name */
+    white-space: nowrap;
+    font-size: 17px;
+    font-weight: bold;
+    font-family: ui-sans-serif;
+}
+
+#createGroupModal #usersList span img {
+    border-radius: 50%; /* Ensures the image is rounded */
+    overflow: hidden; /* Ensures the overflow is hidden */
+    width: 45px;
+    height: 45px;
+}
+
+#createGroupModal #usersList label {
+    position: relative;
+    display: inline-block; /* Keep label inline with checkbox */
+    width: 23px;
+    height: 23px;
+    background-color: #1b9fb3;
+    box-shadow: 0 7px 10px #37ceff;
+    border-radius: 50%;
+    transition: 0.2s ease transform, 0.2s ease background-color, 0.2s ease box-shadow;
+    overflow: hidden;
+    z-index: 1;
+    cursor: pointer;
+    display: block;
+    margin-top: -40px;
+}
+
+#createGroupModal #usersList label:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: inset 0 7px 10px #31dcff;
+    transition: 0.2s ease width, 0.2s ease height;
+}
+
+#createGroupModal #usersList label:hover:before {
+    width: 55px;
+    height: 55px;
+    box-shadow: inset 0 7px 10px #fff;
+}
+
+#createGroupModal #usersList label:active {
+    transform: scale(0.9);
+}
+
+#createGroupModal #usersList label .tick_mark {
+    position: absolute;
+    top: 15%;
+    left: 60%;
+    transform: translate(-50%, -50%) rotateZ(-40deg);
+    width: 29px; /* Adjusted width of the tick mark */
+    height: 20px; /* Adjusted height of the tick mark */
+}
+
+#createGroupModal #usersList label .tick_mark:before {
+    content: "";
+    position: absolute;
+    background-color: whitesmoke;
+    border-radius: 1px;
+    opacity: 1;
+    transition: 0.2s ease transform, 0.2s ease opacity;
+}
+
+#createGroupModal #usersList label .tick_mark:after {
+    content: "";
+    position: absolute;
+    background-color: whitesmoke;
+    border-radius: 1px;
+    opacity: 1;
+    transition: 0.2s ease transform, 0.2s ease opacity;
+}
+
+#createGroupModal #usersList label .tick_mark:before {
+    left: 0;
+    bottom: 0;
+    width: 4px; /* Adjusted width of the tick mark */
+    height: 10px; /* Adjusted height of the tick mark */
+    box-shadow: -1px 0 2.5px rgba(0, 0, 0, 0.23); /* Adjusted box shadow */
+    transform: translateY(-25px); /* Adjusted vertical position */
+}
+
+#createGroupModal #usersList label .tick_mark:after {
+    left: 0;
+    bottom: 0;
+    width: 70%; /* Adjusted width of the tick mark */
+    height: 3px; /* Adjusted height of the tick mark */
+    box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.23); /* Adjusted box shadow */
+    transform: translateX(10px); /* Adjusted horizontal position */
+}
+
+#createGroupModal #usersList input[type="checkbox"]:checked + label {
+    background-color:  blue;
+    box-shadow: 0 7px 10px #92ff97;
+}
+
+#createGroupModal #usersList input[type="checkbox"]:checked + label:before {
+    width: 0;
+    height: 0;
+}
+
+#createGroupModal #usersList input[type="checkbox"]:checked + label .tick_mark:before,
+#createGroupModal #usersList input[type="checkbox"]:checked + label .tick_mark:after {
+    transform: translate(0);
+    opacity: 1;
+}
+
+
+
+#kickModal * {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+#kickModal .modal-body {
+    margin: 0;
+}
+
+
+#kickModal #userList {
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 10px; /* Adjust spacing between items */
+}
+
+#kickModal #userList input[type="checkbox"] {
+    display: none;
+}
+
+#kickModal #userList div {
+    display: inline;
+}
+
+#kickModal #userList span {
+    display: inline-block; /* Display the spans inline */
+    vertical-align: middle; /* Align them vertically */
+    margin-right: 20px; /* Adjust spacing between photo and name */
+    white-space: nowrap;
+    font-size: 17px;
+    font-weight: bold;
+    font-family: ui-sans-serif;
+}
+
+#kickModal #userList span img {
+    border-radius: 50%; /* Ensures the image is rounded */
+    overflow: hidden; /* Ensures the overflow is hidden */
+    width: 45px;
+    height: 45px;
+}
+
+#kickModal #userList label {
+    position: relative;
+    display: inline-block; /* Keep label inline with checkbox */
+    width: 23px;
+    height: 23px;
+    background-color: #1b9fb3;
+    box-shadow: 0 7px 10px #37ceff;
+    border-radius: 50%;
+    transition: 0.2s ease transform, 0.2s ease background-color, 0.2s ease box-shadow;
+    overflow: hidden;
+    z-index: 1;
+    cursor: pointer;
+    display: block;
+    margin-top: -40px;
+}
+
+#kickModal #userList label:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: inset 0 7px 10px #31dcff;
+    transition: 0.2s ease width, 0.2s ease height;
+}
+
+#kickModal #userList label:hover:before {
+    width: 55px;
+    height: 55px;
+    box-shadow: inset 0 7px 10px #fff;
+}
+
+#kickModal #userList label:active {
+    transform: scale(0.9);
+}
+
+#kickModal #userList label .tick_mark {
+    position: absolute;
+    top: 15%;
+    left: 60%;
+    transform: translate(-50%, -50%) rotateZ(-40deg);
+    width: 29px; /* Adjusted width of the tick mark */
+    height: 20px; /* Adjusted height of the tick mark */
+}
+
+#kickModal #userList label .tick_mark:before {
+    content: "";
+    position: absolute;
+    background-color: whitesmoke;
+    border-radius: 1px;
+    opacity: 1;
+    transition: 0.2s ease transform, 0.2s ease opacity;
+}
+
+#kickModal #userList label .tick_mark:after {
+    content: "";
+    position: absolute;
+    background-color: whitesmoke;
+    border-radius: 1px;
+    opacity: 1;
+    transition: 0.2s ease transform, 0.2s ease opacity;
+}
+
+#kickModal #userList label .tick_mark:before {
+    left: 0;
+    bottom: 0;
+    width: 4px; /* Adjusted width of the tick mark */
+    height: 10px; /* Adjusted height of the tick mark */
+    box-shadow: -1px 0 2.5px rgba(0, 0, 0, 0.23); /* Adjusted box shadow */
+    transform: translateY(-25px); /* Adjusted vertical position */
+}
+
+#kickModal #userList label .tick_mark:after {
+    left: 0;
+    bottom: 0;
+    width: 70%; /* Adjusted width of the tick mark */
+    height: 3px; /* Adjusted height of the tick mark */
+    box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.23); /* Adjusted box shadow */
+    transform: translateX(10px); /* Adjusted horizontal position */
+}
+
+#kickModal #userList input[type="checkbox"]:checked + label {
+    background-color: blue;
+    box-shadow: 0 7px 10px #92ff97;
+}
+
+#kickModal #userList input[type="checkbox"]:checked + label:before {
+    width: 0;
+    height: 0;
+}
+
+#kickModal #userList input[type="checkbox"]:checked + label .tick_mark:before,
+#kickModal #userList input[type="checkbox"]:checked + label .tick_mark:after {
+    transform: translate(0);
+    opacity: 1;
+}

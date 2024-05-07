@@ -9,6 +9,7 @@ import com.communityHubSystem.communityHub.repositories.*;
 import com.communityHubSystem.communityHub.services.EventService;
 import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -444,7 +445,7 @@ public class EventServiceImpl implements EventService {
         for(var s : specifications){
             eventSpec = eventSpec.or(s);
         }
-        return eventRepository.findAll(eventSpec);
+        return eventRepository.findAll((Sort) eventSpec);
     }
     public User getCurrentLoginUser() {
         return userRepository.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("user not found"));
