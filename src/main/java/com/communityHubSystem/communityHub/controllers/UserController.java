@@ -185,8 +185,11 @@ public class UserController {
 
     @PostMapping("/updateProfilePhoto")
     @ResponseBody
-    public ResponseEntity<?> updateProfilePhoto(@ModelAttribute UserDTO userDTO) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.updateProfilePhoto(userDTO.getFile()));
+    public ResponseEntity<Map<String,String>> updateProfilePhoto(@ModelAttribute UserDTO userDTO) throws IOException {
+        var user = userService.updateProfilePhoto(userDTO.getFile());
+        Map<String,String> response = new HashMap<>();
+        response.put("photo",user.getPhoto());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/saveImage")
