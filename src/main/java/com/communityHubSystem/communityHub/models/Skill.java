@@ -1,17 +1,16 @@
 package com.communityHubSystem.communityHub.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Set;
 
 @Entity
 @Table(name = "skill")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,6 +22,7 @@ public class Skill implements Serializable {
     private String name;
 
 
-    @OneToMany(mappedBy = "skill",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "skill",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<User_Skill> user_skills;
 }

@@ -37,7 +37,7 @@
     <link th:href="@{/static/assets/css/style.css}" type="text/css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/loading.css}">
     <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/chatRoom.css}">
-
+  <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/group.css}">
     <!--     chatRomm js-->
     <script src="/static/assets/js/chatRoom.js"></script>
     <!--    react css-->
@@ -629,7 +629,7 @@
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" onclick="welcome(0)" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
+                <button class="nav-link active" onclick="welcome()" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>
@@ -1395,12 +1395,9 @@
 
 <div th:fragment="footer">
     <!-- ======= Footer ======= -->
-    <footer id="footer" class="footer">
+    <footer id="footer" class="footer" style="background-color: lightgrey">
         <div class="copyright">
-            &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
-        </div>
-        <div class="credits">
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+
         </div>
     </footer><!-- End Footer -->
 

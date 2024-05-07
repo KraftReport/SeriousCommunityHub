@@ -68,45 +68,38 @@
     </div>
     <!-- Add Community Modal -->
     <div class="container">
-        <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createCommunityModalLabel"
-             aria-hidden="true">
+        <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="createGroupModalLabel">Create Community</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <h5 class="modal-title" id="createGroupModalLabel">Add User in Community</h5>
                     </div>
                     <div class="modal-body">
                         <form id="createGroupForm">
                             <div class="form-group">
                                 <label for="name">Name:</label>
                                 <input type="text" class="form-control" id="name1" name="name">
-                            </div>
+                            </div><br>
                             <input type="hidden" id="communityId1" name="id">
                             <div class="row mb-4">
-                                <label class="col-md-2 col-form-label">Choose Owner's Name</label>
+                                <label>Choose Member's List:</label><br>
                                 <div class="col-md-4">
-                                    <div id="usersList">
-
-                                    </div>
+                                    <div id="usersList"></div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="description1">Description:</label>
                                 <input type="text" class="form-control" id="description1" name="description">
-                            </div>
+                            </div><br>
                             <div class="form-group">
                                 <label for="image1">Image:</label>
-                                <input type="file" class="form-control" accept="image/**" id="image1" name="file"
-                                       multiple="multiple"/>
+                                <input type="file" class="form-control" accept="image/**" id="image1" name="file" multiple="multiple"/>
                             </div>
                             <span id="photo"></span>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="createGroupModalCloseBtn">Close</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal" id="createGroupBtn">Create</button>
                     </div>
                 </div>
@@ -123,7 +116,7 @@
                     <div class="modal-body">
                         <form id="kickForm">
                             <div class="row mb-4">
-                                <label class="col-md-2 col-form-label">Member's Name</label>
+                                <label>Member's Name</label>
                                 <div class="col-md-4">
                                     <div id="userList">
 
@@ -134,7 +127,7 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="kickModalCloseBtn">Close</button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal" id="kickGroupBtn">Update</button>
                     </div>
                 </div>
@@ -233,7 +226,7 @@
             const community = communities[i];
             let photo = '';
             if (community.image) {
-                photo = `<img src="data:image/*;base64,${community.image}" alt="Group's Photo" width="100" height="100">`;
+                photo = `<img src="${community.image}" alt="Group's Photo" width="100" height="100">`;
             }
             const ownerNames = await fetchOwnerNames(community.id);
             const isNotCurrentUserOwner = currentUser.name !== community.ownerName && currentUser.role === 'USER';
@@ -324,26 +317,69 @@
 
 
         allUsers.forEach(user => {
-            const userDiv = document.createElement('div');
-            const isChecked = communityUsers.some(communityUser => communityUser.id === user.id);
 
-            userDiv.innerHTML = `
-               <input type="checkbox" name="user" id="user${user.id}" value="${user.id}" ${isChecked ? 'checked' : ''} ${isChecked ? 'disabled' : ''}/>
-                 <label class="form-check-label">
-                    <span>${user.name}</span>
-                    </label>
-                 `;
+            const userContainer = document.createElement('div');
+            userContainer.id = "container";
+            userContainer.style.padding = '20px';
+            userContainer.style.borderRadius = '10px';
+            userContainer.style.marginLeft = "280px";
 
-            usersList.appendChild(userDiv);
+            const container=document.createElement('div');
+            container.id="container1";
+            container.style.marginBottom="80px";
+
+            const photoSpan = document.createElement('span');
+            if (user.photo) {
+                const userPhoto = document.createElement('img');
+                userPhoto.src = user.photo;
+                userPhoto.alt = "User's Photo";
+                photoSpan.appendChild(userPhoto);
+            } else {
+                const userPhoto = document.createElement('img');
+                userPhoto.src = '/assets/img/default-logo.png';
+                userPhoto.alt = "User's Photo";
+                photoSpan.appendChild(userPhoto);
+            }
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = user.name;
+
+            const checkboxInput = document.createElement('input');
+            checkboxInput.type = "checkbox";
+            checkboxInput.id = `_checkbox${user.id}`;
+            checkboxInput.name = "user";
+            checkboxInput.value = user.id;
+            if (communityUsers.some(communityUser => communityUser.id === user.id)) {
+                checkboxInput.checked = true;
+                checkboxInput.disabled = true;
+            }
+
+            const checkboxLabel = document.createElement('label');
+            checkboxLabel.htmlFor = `_checkbox${user.id}`;
+            checkboxLabel.className = "form-check-label";
+            checkboxLabel.style.marginLeft = "390px";
+
+            const tickMarkDiv = document.createElement('div');
+            tickMarkDiv.className = `tick_mark`;
+
+            checkboxLabel.appendChild(tickMarkDiv);
+            userContainer.appendChild(photoSpan);
+            container.appendChild(photoSpan);
+            userContainer.appendChild(nameSpan);
+            container.appendChild(nameSpan);
+            userContainer.appendChild(container);
+            userContainer.appendChild(checkboxInput);
+            userContainer.appendChild(checkboxLabel);
+
+            usersList.appendChild(userContainer);
         });
-
 
         const photoContainer = document.getElementById('photo');
         photoContainer.innerHTML = '';
 
         if (image) {
             const img = document.createElement('img');
-            img.src = `data:image/*;base64,${image}`;
+            img.src = `${image}`;
             img.alt = "Community's Photo";
             img.width = 100;
             img.height = 100;
@@ -405,22 +441,111 @@
         usersList.innerHTML = '';
         communityUsers.forEach(user => {
             if (currentUser.role === "ADMIN") {
+
                 const userDiv = document.createElement('div');
-                userDiv.innerHTML = `
-                <input type="checkbox" name="userIds" id="user${user.id}" value="${user.id}" />
-                <label class="form-check-label">
-                    <span>${user.name}</span>
-                </label>
-            `;
+                userDiv.id = "container";
+                userDiv.style.padding = '20px';
+                userDiv.style.borderRadius = '10px';
+                userDiv.style.marginLeft = "280px";
+
+                const nestedDiv = document.createElement('div');
+                nestedDiv.id = "container1";
+                nestedDiv.style.marginBottom = "80px";
+
+                const photoSpan = document.createElement('span');
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = user.name;
+
+                if (user.photo) {
+                    const photoImg = document.createElement('img');
+                    photoImg.src = user.photo;
+                    photoImg.alt = "User's Photo";
+                    photoSpan.appendChild(photoImg);
+                }else {
+                    const userPhoto = document.createElement('img');
+                    userPhoto.src = '/assets/img/default-logo.png';
+                    userPhoto.alt = "User's Photo";
+                    photoSpan.appendChild(userPhoto);
+                }
+
+                const checkbox = document.createElement('input');
+                checkbox.type = "checkbox";
+                checkbox.id = `_kickcheckbox${user.id}`;
+                checkbox.name = "userIds";
+                checkbox.value = user.id;
+
+                const label = document.createElement('label');
+                label.htmlFor = `_kickcheckbox${user.id}`;
+                label.className = "form-check-label";
+                label.style.marginLeft = "390px";
+
+                const tickMarkDiv = document.createElement('div');
+                tickMarkDiv.className = "tick_mark";
+
+                nestedDiv.appendChild(photoSpan);
+                nestedDiv.appendChild(nameSpan);
+                label.appendChild(tickMarkDiv);
+
+                userDiv.appendChild(nestedDiv);
+                userDiv.appendChild(checkbox);
+                userDiv.appendChild(label);
+
                 usersList.appendChild(userDiv);
+
             } else if (user.name !== community.ownerName) {
+
                 const userDiv = document.createElement('div');
-                userDiv.innerHTML = `
-                <input type="checkbox" name="userIds" id="user${user.id}" value="${user.id}" />
-                <label class="form-check-label">
-                    <span>${user.name}</span>
-                </label>
-            `;
+                userDiv.id = "container";
+                userDiv.style.padding = '20px';
+                userDiv.style.borderRadius = '10px';
+                userDiv.style.marginLeft = "280px";
+
+                const nestedDiv = document.createElement('div');
+                nestedDiv.id = "container1";
+                nestedDiv.style.marginBottom = "80px";
+
+                const photoSpan = document.createElement('span');
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = user.name;
+
+                if (user.photo) {
+                    const photoImg = document.createElement('img');
+                    photoImg.src = user.photo;
+                    photoImg.alt = "User's Photo";
+                    photoSpan.appendChild(photoImg);
+                }else {
+                    const userPhoto = document.createElement('img');
+                    userPhoto.src = '/assets/img/default-logo.png';
+                    userPhoto.alt = "User's Photo";
+                    photoSpan.appendChild(userPhoto);
+                }
+
+                const checkbox = document.createElement('input');
+                checkbox.type = "checkbox";
+                checkbox.id = `_kickcheckbox${user.id}`;
+                checkbox.name = "userIds";
+                checkbox.value = user.id;
+
+                checkbox.addEventListener('change',()=>{
+                    console.log('checkbox is checked---->')
+                })
+
+                const label = document.createElement('label');
+                label.htmlFor = `_kickcheckbox${user.id}`;
+                label.className = "form-check-label";
+                label.style.marginLeft = "390px";
+
+                const tickMarkDiv = document.createElement('div');
+                tickMarkDiv.className = "tick_mark";
+
+                nestedDiv.appendChild(photoSpan);
+                nestedDiv.appendChild(nameSpan);
+                label.appendChild(tickMarkDiv);
+
+                userDiv.appendChild(nestedDiv);
+                userDiv.appendChild(checkbox);
+                userDiv.appendChild(label);
+
                 usersList.appendChild(userDiv);
             }
         });
@@ -448,6 +573,12 @@
         }
     });
 
+    document.getElementById('createGroupModalCloseBtn').addEventListener('click', function() {
+        $('#createGroupModal').modal('hide');
+    });
+    document.getElementById('kickModalCloseBtn').addEventListener('click', function() {
+        $('#kickModal').modal('hide');
+    });
 </script>
 </body>
 </html>

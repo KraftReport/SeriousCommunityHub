@@ -13,7 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @Controller
@@ -29,6 +31,7 @@ public class GroupController {
     private final UserService userService;
     private final ChatRoomRepository chatRoomRepository;
     private final User_ChatRoomService user_chatRoomService;
+    private final ImageUploadService imageUploadService;
 
     @GetMapping("/group")
     public String group(Model model) {
@@ -43,11 +46,20 @@ public class GroupController {
     }
 
     @PostMapping("/createCommunity")
-    public ResponseEntity<Map<String, String>> createGroup(@ModelAttribute Community community, @RequestParam("ownerId") Long ownerID) {
-        var svgCommunity = communityService.createCommunity(community, ownerID);
+    public ResponseEntity<Map<String, String>> createGroup(@ModelAttribute Community community, @RequestParam("ownerId") Long ownerID,
+                                                           @RequestParam("file")MultipartFile file) throws IOException {
+        if (communityService.existsByName(community.getName())) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Group name already exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        var svgCommunity = communityService.createCommunity(file,community, ownerID);
+        String photo = imageUploadService.uploadImage(file);
         var chatRoom = ChatRoom.builder()
                 .date(new Date())
                 .name(svgCommunity.getDescription())
+                .photo(photo)
                 .community(svgCommunity)
                 .build();
         chatRoomRepository.save(chatRoom);
@@ -96,14 +108,14 @@ public class GroupController {
 
 
     @PostMapping("/createGroup")
-    public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user) {
+    public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user,@RequestParam("file")MultipartFile file) {
         List<Long> userList;
         if (user == null) {
             userList = Collections.emptyList();
         } else {
             userList = Arrays.asList(user);
         }
-        communityService.createGroup(community, userList);
+        communityService.createGroup(file,community, userList);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);

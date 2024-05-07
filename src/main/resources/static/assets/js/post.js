@@ -1,10 +1,6 @@
 let postCount = 0;
 
-let currentPageForPost = '0';
-let isFetchingForPost = false;
-let hasMoreForPost = true;
-
-window.onload = welcome(0);
+window.onload = welcome;
 
 function goToCreatePost() {
     window.location.href = '/user/goToCreatePost'
@@ -209,27 +205,32 @@ async function createPost() {
         while (newsfeed.firstChild) {
             newsfeed.removeChild(newsfeed.firstChild)
         }
-        welcome(0)
-        postCount = 0
+        welcome()
+        // postCount = 0
     }
 
 }
 
+let currentPageForPost = '0';
+let isFetchingForPost = false;
+let hasMoreForPost = true;
 
-async function welcome(page) {
-    let data = await fetch('/post/fivePost/' + page, {
+async function welcome() {
+    isFetchingForPost = true;
+    let data = await fetch(`/post/fivePost/${currentPageForPost}`, {
         method: 'GET'
-    })
-    let response = await data.json()
+    });
+    let response = await data.json();
+    isFetchingForPost = false;
     console.log(response)
-    if (response[1].length === 5) {
+    console.log('Size',response.length)
         let posts = ''
-        if (response[1].length === 0) {
-            localStorage.setItem('currentPage', response[0]);
-            newsfeed.innerHTML = `<div>No Posts Available</div>`
-        } else {
-            localStorage.setItem('currentPage', response[0]);
-            for (const p of response[1]) {
+        if (response.length === 0) {
+            hasMoreForPost = false;
+            displayNoPostMessage();
+        }
+            // localStorage.setItem('currentPage', response);
+            for (const p of response) {
                 const reactCount = await fetchSizes(p.id);
                 const reactType = await fetchReactType(p.id);
                 let likeButtonContent = '';
@@ -294,7 +295,7 @@ async function welcome(page) {
     </ul>
   </div>
       </div>
-<div class=" post-content" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" > 
+<div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" > 
       ${p.description.replace(/\n/g, '<br>')}
       `
                 let oneTag = null
@@ -675,18 +676,12 @@ async function welcome(page) {
   </div>
   </div>`;
 
-
                 posts += post;
             }
             let range = document.createRange();
             let fragment = range.createContextualFragment(posts);
-
-            newsfeed.appendChild(fragment)
-        }
-
-    } else {
-        postCount--;
-    }
+            newsfeed.appendChild(fragment);
+   // }
 
     const likeButtons = document.querySelectorAll(".like_button");
     likeButtons.forEach(likeButton => {
@@ -779,6 +774,25 @@ async function welcome(page) {
         });
     });
 }
+const displayNoPostMessage = () => {
+    let footerDiv = document.querySelector('.copyright');
+    footerDiv.innerHTML = '';
+    const divEl = document.createElement('div');
+        divEl.style.fontSize = '20px';
+        divEl.innerHTML = 'No posts available';
+        footerDiv.appendChild(divEl);
+
+}
+
+window.addEventListener('scroll', async () => {
+    if(isFetchingForPost || !hasMoreForPost){
+        return;
+    }
+    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight){
+        currentPageForPost++;
+         await welcome();
+    }
+});
 
 async function getPostDetail(id) {
     let data = await fetch('/post/getPost/' + id, {
@@ -959,8 +973,8 @@ async function getUpdateData() {
         while (newsfeed.firstChild) {
             newsfeed.removeChild(newsfeed.firstChild)
         }
-        welcome(0)
-        postCount = 0
+        await welcome()
+        // postCount = 0
     }
 }
 
@@ -1135,8 +1149,8 @@ async function deletePost(id) {
     while (newsfeed.firstChild) {
         newsfeed.removeChild(newsfeed.firstChild)
     }
-    welcome(0)
-    postCount = 0
+   await  welcome()
+    // postCount = 0
 }
 
 async function createEventPost() {
@@ -1167,18 +1181,18 @@ async function setToNormal() {
 
 let isLoadingPosts = false;
 
-window.addEventListener('scroll', async function () {
-
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        getAllEventsForPost()
-        postCount++;
-        console.log('End of scroll reached!');
-        isLoadingPosts = true;
-        let posts = await welcome(postCount);
-        console.log(postCount);
-        isLoadingPosts = false;
-    }
-});
+// window.addEventListener('scroll', async function () {
+//
+//     if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+//         getAllEventsForPost()
+//         postCount++;
+//         console.log('End of scroll reached!');
+//         isLoadingPosts = true;
+//         let posts = await welcome(postCount);
+//         console.log(postCount);
+//         isLoadingPosts = false;
+//     }
+// });
 
 document.getElementById('eventForm').addEventListener('submit', function (event) {
     createEventPost(event, 'eventForm');

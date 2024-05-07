@@ -3,12 +3,14 @@ package com.communityHubSystem.communityHub.controllers;
 import com.communityHubSystem.communityHub.dto.FirstUpdateDto;
 import com.communityHubSystem.communityHub.dto.PostDto;
 import com.communityHubSystem.communityHub.dto.SecondUpdateDto;
+import com.communityHubSystem.communityHub.dto.ViewPostDto;
 import com.communityHubSystem.communityHub.models.Post;
 import com.communityHubSystem.communityHub.repositories.PostRepository;
 import com.communityHubSystem.communityHub.repositories.ResourceRepository;
 import com.communityHubSystem.communityHub.services.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,8 +73,12 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(postService.secondUpdate(secondUpdateDto));
     }
 
+
     @GetMapping("/fivePost/{page}")
-    public ResponseEntity<List<Object>> getTenPosts(@PathVariable("page") String page) {
-        return ResponseEntity.ok(postService.getFivePostsPerTime(page));
+    public ResponseEntity<List<Post>> getTenPosts(@PathVariable("page") String page) {
+        Page<Post> posts = postService.findPostRelatedToUser(page);
+        System.out.println("ALL OBject Size"+posts.getContent().size());
+        return ResponseEntity.ok(posts.getContent());
     }
+
 }

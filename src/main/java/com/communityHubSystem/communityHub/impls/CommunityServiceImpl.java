@@ -10,6 +10,7 @@ import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.repositories.User_GroupRepository;
 import com.communityHubSystem.communityHub.services.ChatRoomService;
 import com.communityHubSystem.communityHub.services.CommunityService;
+import com.communityHubSystem.communityHub.services.ImageUploadService;
 import com.communityHubSystem.communityHub.services.User_ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,22 +34,18 @@ public class CommunityServiceImpl implements CommunityService {
     private final User_GroupRepository user_groupRepository;
     private final ChatRoomService chatRoomService;
     private final User_ChatRoomService user_chatRoomService;
+    private final ImageUploadService imageUploadService;
 
 
     @Transactional
     @Override
-    public Community createCommunity(Community community, Long id) {
-        MultipartFile file = community.getFile();
+    public Community createCommunity(MultipartFile file,Community community, Long id) throws IOException {
         var user = userRepository.findById(id).orElseThrow();
         community.setOwnerName(user.getName());
         community.setActive(true);
         if (file != null) {
-            try {
-                byte[] photoByte = file.getBytes();
-                community.setImage(photoByte);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            String imageUrl = imageUploadService.uploadImage(file);
+            community.setImage(imageUrl);
         }
         Community com = communityRepository.save(community);
         User_Group user_group = new User_Group();
@@ -63,19 +60,19 @@ public class CommunityServiceImpl implements CommunityService {
         return userRepository.findAll();
     }
 
-    @Override
-    public List<Community> getAllCommunity(Model model) {
-        List<Community> communities = communityRepository.findAll();
-        Map<Long, String> photoMap = new HashMap<>();
-        for (Community community : communities) {
-            if (community.getImage() != null) {
-                String encodedString = Base64.getEncoder().encodeToString(community.getImage());
-                photoMap.put(community.getId(), encodedString);
-            }
-        }
-        model.addAttribute("photoMap", photoMap);
-        return communities;
-    }
+//    @Override
+//    public List<Community> getAllCommunity(Model model) {
+//        List<Community> communities = communityRepository.findAll();
+//        Map<Long, String> photoMap = new HashMap<>();
+//        for (Community community : communities) {
+//            if (community.getImage() != null) {
+//                String encodedString = Base64.getEncoder().encodeToString(community.getImage());
+//                photoMap.put(community.getId(), encodedString);
+//            }
+//        }
+//        model.addAttribute("photoMap", photoMap);
+//        return communities;
+//    }
 
     @Override
     public Community getCommunityBy(Long id) {
@@ -84,17 +81,24 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Transactional
     @Override
-    public void createGroup(Community community, List<Long> ids) {
+    public void createGroup(MultipartFile file,Community community, List<Long> ids) {
         communityRepository.findById(community.getId()).ifPresent(c -> {
             c.setName(community.getName());
             c.setDescription(community.getDescription());
-            MultipartFile file = community.getFile();
-            if (file != null) {
+            if (file != null && !file.isEmpty()) {
+
                 try {
-                    byte[] photoByte = file.getBytes();
-                    c.setImage(photoByte);
+                    String imageUrl = imageUploadService.uploadImage(file);
+                    community.setImage(imageUrl);
+                    c.setImage(community.getImage());
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            } else {
+                Community existingCommunity = communityRepository.findById(community.getId()).orElse(null);
+                if (existingCommunity != null) {
+                    community.setImage(existingCommunity.getImage());
+                    c.setImage(community.getImage());
                 }
             }
             communityRepository.save(c);
@@ -194,6 +198,11 @@ public class CommunityServiceImpl implements CommunityService {
             communitySpecification = communitySpecification.or(s);
         }
         return communityRepository.findAll(communitySpecification);
+    }
+
+    @Override
+    public boolean existsByName(String name) {
+        return communityRepository.existsByName(name);
     }
 
     private List<Community> validateUserOrAdmin(List<Community> communities) {

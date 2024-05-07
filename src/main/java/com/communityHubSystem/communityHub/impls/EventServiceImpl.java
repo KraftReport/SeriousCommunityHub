@@ -9,6 +9,7 @@ import com.communityHubSystem.communityHub.repositories.*;
 import com.communityHubSystem.communityHub.services.EventService;
 import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -137,14 +138,16 @@ public class EventServiceImpl implements EventService {
         var events = eventRepository.findByCreatedDateBetween(start,end);
         var result = new ArrayList<Event>();
         for(var e : events){
-            if(!ids.contains(e.getId())){
-                result.add(e);
-                ids.add(e.getId());
-                System.err.println("------------------------------->"+ids);
-            }
-            if(result.size()==3){
-                break;
-            }
+//            if (!DateUtils.isSameDay(e.getEnd_date(), end)) {
+                if (!ids.contains(e.getId())) {
+                    result.add(e);
+                    ids.add(e.getId());
+                    System.err.println("------------------------------->" + ids);
+                }
+                if (result.size() == 3) {
+                    break;
+                }
+           // }
         }
         return result;
     }
