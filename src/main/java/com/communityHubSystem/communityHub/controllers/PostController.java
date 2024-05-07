@@ -81,4 +81,10 @@ public class PostController {
         return ResponseEntity.ok(posts.getContent());
     }
 
+    @GetMapping("/checkPostOwnerOrAdmin/{id}")
+    @ResponseBody
+    public ResponseEntity<List<Object>> checkPostOwnerOrAdmin(@PathVariable("id")String id){
+        return ResponseEntity.ok(postService.checkPostOwnerOrAdmin(Long.valueOf(id)));
+    }
+
 }

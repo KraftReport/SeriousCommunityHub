@@ -30,6 +30,7 @@ public class Post implements Serializable {
     private PostType postType;
     @Enumerated(EnumType.STRING)
     private Access access;
+    private boolean isDeleted;
 
     public enum PostType{
         EVENT,CONTENT,POLL,RESOURCE

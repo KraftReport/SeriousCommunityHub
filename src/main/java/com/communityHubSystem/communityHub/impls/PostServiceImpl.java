@@ -78,8 +78,9 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(Long id) {
-        resourceRepository.deleteByPostId(id);
-        postRepository.deleteById(id);
+        var found = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        found.setDeleted(true);
+        postRepository.save(found);
     }
 
     @Override
@@ -192,13 +193,14 @@ public Page<Post> findPostRelatedToUser(String page) {
     var loginUser = userService.findByStaffId(loginStaffId)
             .orElseThrow(() -> new CommunityHubException("User not found!"));
 
-    List<Post> postList = new ArrayList<>();
     List<Post> publicPosts = postRepository.findPostsByAccessOrderByCreatedDateDesc(Access.PUBLIC);
-    postList.addAll(publicPosts);
+    var notDeletedPosts = publicPosts.stream().filter(p-> !p.isDeleted()).toList();
+    List<Post> postList = new ArrayList<>(notDeletedPosts);
     List<User_Group> userGroupList = user_groupRepository.findByUserId(loginUser.getId());
     for(User_Group user_group:userGroupList){
         List<Post> userGroupPosts = postRepository.findAllByUserIdAndUserGroupIdOrderByCreatedDateDesc(loginUser.getId(),user_group.getId());
-        postList.addAll(userGroupPosts);
+        var filteredList =  userGroupPosts.stream().filter(u-> !u.isDeleted()).toList();
+        postList.addAll(filteredList);
     }
     postList.sort(Comparator.comparing(Post::getCreatedDate).reversed());
 
@@ -213,6 +215,22 @@ public Page<Post> findPostRelatedToUser(String page) {
     return postPage;
 }
 
+    @Override
+    public List<Object> checkPostOwnerOrAdmin(Long id) {
+        var obj = new ArrayList<Object>();
+        var found = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        var loginUser = getCurrentLoginUser();
+        if(loginUser.getId().equals(found.getUser().getId())){
+            obj.add("OWNER");
+            return obj;
+        }else if(loginUser.getRole().equals(User.Role.ADMIN)){
+            obj.add("ADMIN");
+            return obj;
+        }else {
+            obj.add("NO");
+            return obj;
+        }
+    }
 
 
     public boolean isValidPhotoExtension(String extension) {
@@ -255,6 +273,7 @@ public Page<Post> findPostRelatedToUser(String page) {
         post.setPostType(Post.PostType.CONTENT);
         post.setCreatedDate(new Date());
         post.setUser(getCurrentLoginUser());
+        post.setDeleted(false);
         if (Long.parseLong(postDTO.getGroupId()) > 0) {
             post.setAccess(Access.PRIVATE);
             var user_group = new User_Group();

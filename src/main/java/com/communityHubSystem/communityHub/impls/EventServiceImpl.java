@@ -445,7 +445,7 @@ public class EventServiceImpl implements EventService {
         for(var s : specifications){
             eventSpec = eventSpec.or(s);
         }
-        return eventRepository.findAll((Sort) eventSpec);
+        return eventRepository.findAll( eventSpec);
     }
     public User getCurrentLoginUser() {
         return userRepository.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("user not found"));

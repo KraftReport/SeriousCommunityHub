@@ -32,4 +32,5 @@ public interface PostService {
 
 
     public Page<Post> findPostRelatedToUser(String page);
+    public List<Object> checkPostOwnerOrAdmin(Long id);
 }

@@ -287,18 +287,26 @@ async function welcome() {
           <div class="post-info">
               <p class="name">${p.user.name}</p>
               <span class="time">2 days ago</span>
-          </div>
-                      <div class="dropdown offset-8">
-    <a class=" dropdown-toggle" onclick="getPostDetail(${p.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fas fa-ellipsis-h "></i>
-          </a>
-  
-    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-      <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModalBox"  >Edit</a></li>
-      <li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
-    </ul>
-  </div>
-      </div>
+          </div>`
+          let user = await checkPostOwnerOrAdmin(p.id)
+          if(user === 'ADMIN' || user === 'OWNER'){
+            post += `<div class="dropdown offset-8">
+            <a class=" dropdown-toggle" onclick="getPostDetail(${p.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-h "></i>
+                  </a>
+          
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+
+            if(user=== 'OWNER'){
+                post+= `<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModalBox">Edit</a></li>`
+            }
+              
+               post +=`<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
+            </ul>
+          </div>`
+          }
+                     
+      post+=`</div>
 <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
       ${p.description.replace(/\n/g, '<br>')}
       `
@@ -4109,3 +4117,9 @@ async function getPollEventUpdateData(){
     console.log(res)
 }
 
+async function checkPostOwnerOrAdmin(id){
+    let data = await fetch(`post/checkPostOwnerOrAdmin/${id}`)
+    let response = await data.json()
+    console.log(response[0])
+    return response[0]
+}
