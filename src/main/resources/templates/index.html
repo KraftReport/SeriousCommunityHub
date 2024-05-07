@@ -309,9 +309,9 @@
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
+                        <img id="session-user-photo" src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
                              th:unless="${session.user.photo}"/>
-                        <img th:src="${session.user.photo}" alt="Profile" class="rounded-circle"/>
+                        <img id="session-user-photo-exist" th:src="${session.user.photo}" alt="Profile" class="rounded-circle"/>
                         <!--                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />-->
                         <span class="d-none d-md-block dropdown-toggle ps-2" th:text="${session.user.name}">Name</span>
                     </a><!-- End Profile Iamge Icon -->
