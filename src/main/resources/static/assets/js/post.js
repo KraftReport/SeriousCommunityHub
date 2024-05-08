@@ -219,6 +219,10 @@ let currentPageForPost = '0';
 let isFetchingForPost = false;
 let hasMoreForPost = true;
 
+let currentPageForEvent = '0'
+let isFetchingForEvent = false
+let hasMoreForEvent = true
+
 async function welcome() {
     isFetchingForPost = true;
     let data = await fetch(`/post/fivePost/${currentPageForPost}`, {
@@ -796,14 +800,50 @@ const displayNoPostMessage = () => {
 
 }
 
+let scrollPost = true
+let scrollEvent = false
+let scrollPoll = false
+
+let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('click',function(){
+    scrollPost = true
+    scrollEvent = false
+    scrollPoll = false
+})
+
+let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
+    scrollPost = false
+    scrollEvent = true
+    scrollPoll = false 
+    document.getElementById('events').innerHTML = ''
+})
+
+let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
+    scrollPost = false
+    scrollEvent = false
+    scrollPoll = true  
+})
+
 window.addEventListener('scroll', async () => {
     if(isFetchingForPost || !hasMoreForPost){
         return;
     }
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight){
+
+    if(isFetchingForEvent || !hasMoreForEvent){
+        return;
+    }
+
+    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && postTab === true){
         currentPageForPost++;
          await welcome();
     }
+    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && eventTab === true){
+        currentPageForEvent++;
+         await getAllEventsForPost();
+    }
+    // if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && pollTab === true){
+    //     currentPageForPost++;
+    //      await welcome();
+    // }
 });
 
 async function getPostDetail(id) {
@@ -1017,14 +1057,19 @@ async function createPollPost() {
 }
 
 async function getAllEventsForPost(){
+    isFetchingForEvent = true
     let rows =''
-    let data = await fetch('/event/recent',{
+    let data = await fetch(`/event/getEventsForNewsfeed/${currentPageForEvent}`,{
         method : 'GET'
     })
     let response = await data.json()
+    isFetchingForEvent = false
     let row = ''
     console.log(response)
-    if(response.length===3){
+    if(response.length===0){
+        hasMoreForEvent = false
+        displayNoPostMessage()
+    }else{
         response.forEach((r,index)=>{
 
             let photo = r.photo === null ? '/static/assets/img/eventImg.jpg' : r.photo
@@ -1146,7 +1191,7 @@ async function getAllEventsForPost(){
         let fragment = range.createContextualFragment(row);
 
         eventDiv.appendChild(fragment)
-    }else{
+     
 
     }
 
@@ -2813,8 +2858,8 @@ async function goToEventTab(){
 async function createPostsForSearch(){
     let data = await fetch('/post/searchPost/'+localStorage.getItem('searchInput'))
     let response = await data.json()
-    console.log(response)
-    let postTab = document.getElementById('pills-post-search')
+    console.log(response) 
+    let postTab =document.getElementById('pills-post-search')
     let row = ''
     response.forEach((p,index)=>{
         let rows = ''
@@ -3233,7 +3278,8 @@ async function createPostsForSearch(){
     })
     let range = document.createRange();
     let fragment = range.createContextualFragment(row);
-    postTab.appendChild(fragment)
+
+ postTab.appendChild(fragment)
 }
 
 async function dateFormatter(startDate){

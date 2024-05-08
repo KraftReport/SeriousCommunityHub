@@ -14,4 +14,7 @@ public interface EventRepository extends JpaRepository<Event,Long>, JpaSpecifica
 
     @Query(value = "select * from event where created_date between ?1 and ?2 order by created_date asc",nativeQuery = true)
     List<Event> findByCreatedDateBetween(Date startDate, Date endDate);
+
+    @Query(value = "select * from event where user_group_id = :id",nativeQuery = true)
+    List<Event> findByUserGroupId(Long id);
 }

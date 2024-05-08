@@ -10,6 +10,8 @@ import com.communityHubSystem.communityHub.services.EventService;
 import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -342,6 +344,44 @@ public class EventServiceImpl implements EventService {
         }else {
             return false;
         }
+    }
+
+    @Override
+    public Page<Event> getEventsForNewsfeed(String page) {
+        var all = eventRepository.findAll();
+        var filteredEvents = new ArrayList<>(all.stream().filter(e -> e.getEventType().equals(Event.EventType.EVENT) && !e
+                .isDeleted() && e
+                .getAccess().equals(Access.PUBLIC)).toList());
+        filteredEvents.addAll(getEventsOfGroupForLoginUser(Event.EventType.EVENT));
+        filteredEvents.sort(Comparator.comparing(Event::getCreated_date).reversed());
+        return getPaginationOfEvents(filteredEvents,page);
+    }
+
+    private Page<Event> getPaginationOfEvents(List<Event> filteredEvents,String page){
+        var pageable = PageRequest.of(Integer.parseInt(page),5);
+        var start = Math.toIntExact(pageable.getOffset());
+        if (start >= filteredEvents.size()) {
+            return Page.empty(pageable);
+        }
+        var end = Math.min(start + pageable.getPageSize(), filteredEvents.size());
+        var paginatedPosts = filteredEvents.subList(start, end);
+        var postPage = new PageImpl<>(paginatedPosts, pageable, filteredEvents.size());
+        return postPage;
+    }
+
+    private List<Event> getEventsOfGroupForLoginUser(Event.EventType eventType){
+        var userId = getLoginUser().getId();
+        var list = new ArrayList<Event>();
+        var communityIds = user_groupRepository.getCommunityIdFromUserId(getLoginUser().getId());
+        var userGroupIds = new ArrayList<Long>();
+        for(var c : communityIds){
+            userGroupIds.addAll(user_groupRepository.getIdFromCommunityId(c));
+        }
+        for(var g : userGroupIds){
+            list.addAll(eventRepository.findByUserGroupId(g));
+            System.err.println(g);
+        }
+        return list.stream().filter(l->l.getEventType().equals(eventType) && !l.isDeleted()).toList();
     }
 
 

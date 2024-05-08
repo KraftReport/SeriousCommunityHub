@@ -7,6 +7,7 @@ import com.communityHubSystem.communityHub.models.Event;
 import com.communityHubSystem.communityHub.models.Poll;
 import com.communityHubSystem.communityHub.services.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -193,5 +194,11 @@ public class EventController {
     @ResponseBody
     public ResponseEntity<Boolean> checkVotedMark(@PathVariable("voteOptionId") String voteOptionId) {
         return ResponseEntity.ok(eventService.checkVotedMark(Long.valueOf(voteOptionId)));
+    }
+
+    @GetMapping("/getEventsForNewsfeed/{page}")
+    @ResponseBody
+    public ResponseEntity<List<Event>> sendEvents(@PathVariable("page")String page){
+        return ResponseEntity.ok(eventService.getEventsForNewsfeed(page).getContent());
     }
 }
