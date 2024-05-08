@@ -11,4 +11,6 @@ public interface ChatRoomService {
  public ChatRoom findById(Long id);
 
   public  ChatRoom findByCommunityId(Long id);
+
+   public void deleteChatRoomByCommunityId(Long communityId);
 }

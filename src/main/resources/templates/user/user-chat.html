@@ -260,7 +260,7 @@
             <div class="chat-area" id="chat-messages">
             </div>
             <div id="mentionSuggestions"></div>
-            <form id="messageForm" name="messageForm">
+            <form id="messageForm" name="messageForm" class="hidden">
                 <div class="message-input">
                     <input autocomplete="off" type="text" id="message" placeholder="Type your message...">
                     <button style="margin-right: 30px; margin-top: -4px"><i class="fa-solid fa-paper-plane"></i>
@@ -282,6 +282,11 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="chat-room-id" name="id">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="memberSearchForAddChatRoom" placeholder="Search users..">
+                        </div>
+                    </div>
                     <div id="memberList">
 
                     </div>
@@ -307,6 +312,11 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="kick-room-id" name="id">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="memberSearchForKick" placeholder="Search users..">
+                        </div>
+                    </div>
                     <div id="memberListForKick">
 
                     </div>

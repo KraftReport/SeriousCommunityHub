@@ -33,6 +33,7 @@ public class GroupController {
     private final ChatRoomRepository chatRoomRepository;
     private final User_ChatRoomService user_chatRoomService;
     private final ImageUploadService imageUploadService;
+    private final ChatRoomService chatRoomService;
 
     @GetMapping("/group")
     public String group(Model model) {
@@ -61,6 +62,7 @@ public class GroupController {
                 .date(new Date())
                 .name(svgCommunity.getDescription())
                 .photo(photo)
+                .isDeleted(true)
                 .community(svgCommunity)
                 .build();
         chatRoomRepository.save(chatRoom);
@@ -90,14 +92,17 @@ public class GroupController {
         Optional<User> user = userService.findByStaffId(staffId.trim());
         if (user.isPresent()) {
             if (User.Role.ADMIN.equals(user.get().getRole())) {
-                return communityService.findAll();
+                return communityService.findAllByIsActive();
             } else {
                 List<User_Group> user_groups = user_groupRepository.findByUserId(user.get().getId());
 
                 List<Community> communities = new ArrayList<>();
 
                 for (User_Group user_group : user_groups) {
-                    communities.add(user_group.getCommunity());
+                    var community = communityService.getCommunityById(user_group.getCommunity().getId());
+                    if(community.isActive()) {
+                        communities.add(community);
+                    }
                 }
 
                 return communities;
@@ -133,8 +138,13 @@ public class GroupController {
     }
 
     @DeleteMapping("/delete/{communityId}")
-    public ResponseEntity<?> deletedUser(@PathVariable("communityId") Long communityId) {
-        communityRepository.deleteById(communityId);
+    public ResponseEntity<?> deleteUser(@PathVariable("communityId") Long communityId) {
+        chatRoomService.deleteChatRoomByCommunityId(communityId);
+        System.out.println("Deleting chat room with communityId: " + communityId);
+        communityRepository.findById(communityId).ifPresent(community -> {
+            community.setActive(false);
+            communityRepository.save(community);
+        });
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -195,7 +205,9 @@ public class GroupController {
                 List<User_Group> user_groups = user_groupService.findByUserId(user.getId());
                 for (User_Group user_group : user_groups) {
                     var community = communityService.getCommunityById(user_group.getCommunity().getId());
-                    communityList.add(community);
+                    if(community.isActive()) {
+                        communityList.add(community);
+                    }
                 }
                 return ResponseEntity.status(HttpStatus.OK).body(communityList);
             }

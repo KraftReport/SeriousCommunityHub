@@ -25,6 +25,7 @@ public class ChatRoom implements Serializable {
     private String name;
     private String photo;
     private Date date;
+    private boolean isDeleted;
 
     @OneToMany(mappedBy = "chatRoom",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JsonIgnore

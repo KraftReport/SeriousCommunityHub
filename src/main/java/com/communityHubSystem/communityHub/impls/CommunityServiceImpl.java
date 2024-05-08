@@ -45,6 +45,7 @@ public class CommunityServiceImpl implements CommunityService {
         var user = userRepository.findById(id).orElseThrow();
         community.setOwnerName(user.getName());
         community.setActive(true);
+        community.setDate(new Date());
         if (file != null) {
             String imageUrl = imageUploadService.uploadImage(file);
             community.setImage(imageUrl);

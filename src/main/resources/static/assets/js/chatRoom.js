@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageInput = document.querySelector('#message');
     const connectingElement = document.querySelector('.connecting');
     const chatAreaForChatRoom = document.querySelector('#chat-messages');
+    chatAreaForChatRoom.innerHTML =`<div id="defaultMessage-for-chatRoom">
+                           <i class="fa-solid fa-message" style="font-size: 100px; margin-left: 180px;"></i><br>
+                                      <span style="font-size: 50px;">Please select a room you want to chat!</span>
+                     </div>`;
     const mentionSuggestions = document.getElementById('mentionSuggestions');
 
     loginUserForChatRoom = localStorage.getItem('staff_id');
@@ -314,6 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('vd-icon').addEventListener('click', handleMeeting);
+
+
     document.getElementById('get-all-member-list').addEventListener('click', async () => {
         if (!selectedRoomId) {
             alert('Please choose the room u want to add member');
@@ -324,6 +330,14 @@ document.addEventListener('DOMContentLoaded', () => {
         showUserList.classList.add('container');
         document.getElementById('chat-room-id').value = selectedRoomId;
         showUserList.innerHTML = '';
+
+        const searchBar = document.getElementById('memberSearchForAddChatRoom');
+        if (memberList.length > 0) {
+            searchBar.parentElement.parentElement.style.display = 'block';
+        } else {
+            searchBar.parentElement.parentElement.style.display = 'none';
+        }
+
         if (memberList.length === 0) {
             showUserList.innerHTML = 'There is no member to add this chat room';
             return;
@@ -341,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkBoxElement.value = user.id;
             checkBoxElement.name = 'selectedIds';
             const label = document.createElement('label');
+            label.classList.add('add-member-chat-room-search');
             label.setAttribute('for', `checkbox-user-${user.id}`);
             label.textContent = user.name;
             const imgDiv = document.createElement('img');
@@ -355,6 +370,23 @@ document.addEventListener('DOMContentLoaded', () => {
             getData.appendChild(label);
             getData.appendChild(imgDiv);
             showUserList.appendChild(getData);
+
+            document.getElementById('memberSearchForAddChatRoom').addEventListener('input', function() {
+                const searchValue = this.value.toLowerCase();
+                const allUsers = document.querySelectorAll('#memberList .group');
+
+                allUsers.forEach(userContainer => {
+                    const userNameElement = userContainer.querySelector('.add-member-chat-room-search');
+                    if (userNameElement) {
+                        const userName = userNameElement.textContent.toLowerCase();
+                        if (userName.includes(searchValue)) {
+                            userContainer.style.display = 'block';
+                        } else {
+                            userContainer.style.display = 'none';
+                        }
+                    }
+                });
+            });
         });
     });
 
@@ -374,6 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
     document.getElementById('kick-room-member').addEventListener('click', async () => {
         if (!selectedRoomId) {
             alert('Please choose the room first!!!');
@@ -384,6 +417,19 @@ document.addEventListener('DOMContentLoaded', () => {
         showUserList.classList.add('container');
         showUserList.innerHTML = '';
         document.getElementById('kick-room-id').value = selectedRoomId;
+
+        const searchBar = document.getElementById('memberSearchForKick');
+        if (userList.length > 0) {
+            searchBar.parentElement.parentElement.style.display = 'block';
+        } else {
+            searchBar.parentElement.parentElement.style.display = 'none';
+        }
+
+        if (userList.length === 0) {
+            showUserList.innerHTML = 'There is no member to kick from this chat room';
+            return;
+        }
+
         userList.forEach(user => {
             const getData = document.createElement('div');
             getData.classList.add('group');
@@ -397,6 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkBoxElement.value = user.id;
             checkBoxElement.name = 'selectedIds';
             const label = document.createElement('label');
+            label.classList.add('kick-member-list-chatRoom');
             label.setAttribute('for', `checkbox-user-${user.id}`);
             label.textContent = user.name;
             const imgDiv = document.createElement('img');
@@ -411,6 +458,23 @@ document.addEventListener('DOMContentLoaded', () => {
             getData.appendChild(label);
             getData.appendChild(imgDiv);
             showUserList.appendChild(getData);
+
+            document.getElementById('memberSearchForKick').addEventListener('input', function() {
+                const searchValue = this.value.toLowerCase();
+                const allUsers = document.querySelectorAll('#memberListForKick .group');
+
+                allUsers.forEach(userContainer => {
+                    const userNameElement = userContainer.querySelector('.kick-member-list-chatRoom');
+                    if (userNameElement) {
+                        const userName = userNameElement.textContent.toLowerCase();
+                        if (userName.includes(searchValue)) {
+                            userContainer.style.display = 'block';
+                        } else {
+                            userContainer.style.display = 'none';
+                        }
+                    }
+                });
+            });
 
         });
     });

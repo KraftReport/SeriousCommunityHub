@@ -84,6 +84,7 @@
                             <div class="row mb-4">
                                 <label>Choose Member's List:</label><br>
                                 <div class="col-md-4">
+                                    <input type="text" class="form-control" id="userSearch" placeholder="Search users.." style="margin-left: 329px">
                                     <div id="usersList"></div>
                                 </div>
                             </div>
@@ -106,6 +107,8 @@
             </div>
         </div>
     </div>
+
+
     <!-- Kick Community Modal -->
     <div class="container">
         <div class="modal fade" id="kickModal" tabindex="-1" aria-labelledby="createCommunityModalLabel"
@@ -116,11 +119,10 @@
                     <div class="modal-body">
                         <form id="kickForm">
                             <div class="row mb-4">
-                                <label>Member's Name</label>
+                                <label>Member's List:</label><br>
                                 <div class="col-md-4">
-                                    <div id="userList">
-
-                                    </div>
+                                    <input type="text" class="form-control" id="userSearchForKick" placeholder="Search users.." style="margin-left: 329px">
+                                    <div id="userList"></div>
                                 </div>
                             </div>
                             <input type="hidden" id="communityId" name="id">
@@ -297,6 +299,23 @@
         const data = await response.json();
         return data;
     }
+    document.getElementById('userSearch').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const usersList = document.getElementById('usersList');
+        const allUsers = document.querySelectorAll('#usersList #container');
+
+        allUsers.forEach(userContainer => {
+            const userNameElement = userContainer.querySelector('.user-list-span');
+            if (userNameElement) {
+                const userName = userNameElement.textContent.toLowerCase();
+                if (userName.includes(searchValue)) {
+                    userContainer.style.display = 'block';
+                } else {
+                    userContainer.style.display = 'none';
+                }
+            }
+        });
+    });
 
 
     async function populateCreateGroupForm(id, name, ownerName, description, image) {
@@ -342,6 +361,7 @@
             }
 
             const nameSpan = document.createElement('span');
+            nameSpan.classList.add('user-list-span')
             nameSpan.textContent = user.name;
 
             const checkboxInput = document.createElement('input');
@@ -428,6 +448,24 @@
 
     let currentCommunityID;
 
+    document.getElementById('userSearchForKick').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const usersList = document.getElementById('userList');
+        const allUsers = document.querySelectorAll('#userList #container');
+
+        allUsers.forEach(userContainer => {
+            const userNameElement = userContainer.querySelector('.kick-user-list-member');
+            if (userNameElement) {
+                const userName = userNameElement.textContent.toLowerCase();
+                if (userName.includes(searchValue)) {
+                    userContainer.style.display = 'block';
+                } else {
+                    userContainer.style.display = 'none';
+                }
+            }
+        });
+    });
+
     async function populateKickGroupForm(id) {
         currentCommunityID = id;
         document.getElementById('communityId').value = id;
@@ -454,6 +492,7 @@
 
                 const photoSpan = document.createElement('span');
                 const nameSpan = document.createElement('span');
+                nameSpan.classList.add('kick-user-list-member');
                 nameSpan.textContent = user.name;
 
                 if (user.photo) {
