@@ -49,6 +49,18 @@ public class ChatRoomImpl implements ChatRoomService {
         return chatRoomRepository.findByCommunityId(id);
     }
 
+    @Transactional
+    @Override
+    public void deleteChatRoomByCommunityId(Long communityId) {
+      var chatRoom = chatRoomRepository.findByCommunityId(communityId);
+       if(chatRoom != null){
+       chatRoomRepository.findById(chatRoom.getId()).ifPresent(c -> {
+           c.setDeleted(false);
+           chatRoomRepository.save(c);
+       });
+       }
+    }
+
 
     public String uploadPhoto(MultipartFile file) throws IOException {
         return cloudinary.uploader()

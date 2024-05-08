@@ -12,6 +12,9 @@
     flex-direction: column; /* Align items vertically */
     align-items: center; /* Align items vertically */
     margin-bottom: 10px; /* Adjust spacing between items */
+    overflow-y: auto;
+    width: 450px;
+    height: 200px;
 }
 
 #createGroupModal #usersList input[type="checkbox"] {
@@ -157,6 +160,9 @@
     flex-direction: column; /* Align items vertically */
     align-items: center; /* Align items vertically */
     margin-bottom: 10px; /* Adjust spacing between items */
+    overflow-y: auto;
+    width: 450px;
+    height: 200px;
 }
 
 #kickModal #userList input[type="checkbox"] {
