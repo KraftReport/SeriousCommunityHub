@@ -808,6 +808,7 @@ let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('cli
     scrollPost = true
     scrollEvent = false
     scrollPoll = false
+    document.getElementById('newsfeed').innerHTML = '';
 })
 
 let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
