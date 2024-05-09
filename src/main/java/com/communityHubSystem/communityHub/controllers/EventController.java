@@ -208,4 +208,10 @@ public class EventController {
         return ResponseEntity.ok(eventService.getPolForNewsfeed(page).getContent());
     }
 
+    @GetMapping("/getCalendarEventsForEachLoginUser")
+    @ResponseBody
+    public ResponseEntity<List<Event>> giveEvents(){
+        return ResponseEntity.ok(eventService.getCalendarEventsForEachLoginUser());
+    }
+
 }

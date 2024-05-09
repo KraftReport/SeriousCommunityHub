@@ -547,6 +547,9 @@
     </aside><!-- End Sidebar-->
 </div>
 <main id="main" class="main">
+     <button type="button" class="btn btn-lg btn-danger" 
+     data-bs-toggle="popover" title="Epic Popover" data-content="very"
+     >hello hello</button>
     <button class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
         <i id="pen" class="fa-solid fa-marker"></i>
     </button>
@@ -1717,7 +1720,7 @@
         let calendar = null;
 
         async function seeEvents() {
-            let data = await fetch('/event', {
+            let data = await fetch('/event/getCalendarEventsForEachLoginUser', {
                 method: 'GET'
             });
             if (data.ok) {
@@ -1828,8 +1831,12 @@
             modal.style.display = 'block';
         });
 
-
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+})
     </script>
+ 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1852,6 +1859,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
 </body>
 
 </html>

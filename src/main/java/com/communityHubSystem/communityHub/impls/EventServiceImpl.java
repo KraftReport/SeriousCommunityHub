@@ -373,6 +373,19 @@ public class EventServiceImpl implements EventService {
         return getPaginationOfEvents(filteredPolls,page);
     }
 
+    @Override
+    public List<Event> getCalendarEventsForEachLoginUser() {
+        if(getLoginUser().getRole().equals(User.Role.ADMIN)){
+            return eventRepository.findAll();
+        }
+        var all = eventRepository.findAll();
+        var filteredEvents = new ArrayList<>(all.stream().filter(e->e.getEventType().equals(Event.EventType.EVENT) && !e
+                .isDeleted() && e
+                .getAccess().equals(Access.PUBLIC)).toList());
+        filteredEvents.addAll(getEventsOfGroupForLoginUser(Event.EventType.EVENT));
+        return filteredEvents;
+    }
+
     private Page<Event> getPaginationOfEvents(List<Event> filteredEvents,String page){
         var pageable = PageRequest.of(Integer.parseInt(page),5);
         var start = Math.toIntExact(pageable.getOffset());
