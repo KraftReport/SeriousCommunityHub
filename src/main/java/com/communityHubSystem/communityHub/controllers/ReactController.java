@@ -54,15 +54,6 @@ public class ReactController {
                     .user(loginUser)
                     .build();
             reactService.save(react);
-            messagingTemplate.convertAndSendToUser(postedUser.getStaffId(), "/like-private-message", new MessageDto(
-                    messageDto.getPostId(),
-                    postedUser.getStaffId(),
-                    loginUser.getName(),
-                    messageDto.getContent(),
-                    messageDto.getType(),
-                    loginUser.getPhoto(),
-                    new Date()
-            ));
                if(!loginUser.getId().equals(postedUser.getId())){
                    var noti = Notification.builder()
                            .content(messageDto.getContent())
@@ -72,6 +63,15 @@ public class ReactController {
                            .react(react)
                            .build();
                    notificationService.save(noti);
+                   messagingTemplate.convertAndSendToUser(postedUser.getStaffId(), "/like-private-message", new MessageDto(
+                           messageDto.getPostId(),
+                           postedUser.getStaffId(),
+                           loginUser.getName(),
+                           messageDto.getContent(),
+                           messageDto.getType(),
+                           loginUser.getPhoto(),
+                           new Date()
+                   ));
                }
         } else {
             var existedReact = reactService.findReactByPostIdAndUserId(post.getId(), loginUser.getId());
@@ -428,15 +428,6 @@ public class ReactController {
                 .user(loginUser)
                 .build();
         reactService.save(react);
-        messagingTemplate.convertAndSendToUser(postedUser.getStaffId(), "/like-private-message", new MessageDto(
-                messageDto.getPostId(),
-                postedUser.getStaffId(),
-                loginUser.getName(),
-                messageDto.getContent(),
-                messageDto.getType(),
-                loginUser.getPhoto(),
-                new Date()
-        ));
         if(!loginUser.getId().equals(postedUser.getId())) {
             var noti = Notification.builder()
                     .content(messageDto.getContent())
@@ -446,6 +437,15 @@ public class ReactController {
                     .react(react)
                     .build();
             notificationService.save(noti);
+            messagingTemplate.convertAndSendToUser(postedUser.getStaffId(), "/like-private-message", new MessageDto(
+                    messageDto.getPostId(),
+                    postedUser.getStaffId(),
+                    loginUser.getName(),
+                    messageDto.getContent(),
+                    messageDto.getType(),
+                    loginUser.getPhoto(),
+                    new Date()
+            ));
         }
     }else{
         if (!isExistedEventType.getType().equals(messageDto.getType())) {
