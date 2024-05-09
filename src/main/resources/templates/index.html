@@ -10,7 +10,6 @@
     <meta content="" name="keywords">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 
     <link th:href="@{/static/assets/css/policy_modal.css}" type="text/css" rel="stylesheet">
     <!-- Favicons -->
@@ -38,7 +37,7 @@
     <link th:href="@{/static/assets/css/style.css}" type="text/css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/loading.css}">
     <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/chatRoom.css}">
-
+  <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/group.css}">
     <!--     chatRomm js-->
     <script src="/static/assets/js/chatRoom.js"></script>
     <!--    react css-->
@@ -158,7 +157,7 @@
             color: blue;
         }
     </style>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
 
 <body>
@@ -174,18 +173,21 @@
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->
-        <div class="search-bar">
-            <form class="search-form d-flex align-items-center" method="POST" action="#">
-                <input type="text" name="query" placeholder="Search" title="Enter search keyword">
-                <button type="submit" title="Search"><i class="bi bi-search"></i></button>
-            </form>
-        </div><!-- End Search Bar -->
+        <a href="/searcher">
+            <div class="search-bar">
+                <form class="search-form d-flex align-items-center" >
+                    <input id="searchInput" type="text" name="query" placeholder="Search" title="Enter search keyword">
+                    <button type="button" title="Search"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+        </a>
+      <!-- End Search Bar -->
 
         <nav class="header-nav ms-auto">
             <ul class="d-flex align-items-center">
 
                 <li class="nav-item d-block d-lg-none">
-                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                    <a class="nav-link nav-icon search-bar-toggle " href="/searcher">
                         <i class="bi bi-search"></i>
                     </a>
                 </li><!-- End Search Icon-->
@@ -250,6 +252,9 @@
                         <li class="notification-item">
                             <!--                            <i class="bi bi-exclamation-circle text-warning"></i>-->
                             <div id="notifyMessage">
+                                <!--                            <h4>Lorem Ipsum</h4>-->
+                                <!--                            <p>Quae dolorem earum veritatis oditseno</p>-->
+                                <!--                            <p>30 min. ago</p>-->
                             </div>
                         </li>
 
@@ -307,12 +312,12 @@
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                       <!-- <img th:if="${user.photo!= null}" th:src="@{ ${user.photo}}" alt="User Photo"
-                             style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
-                        <img th:unless="${user.photo!= null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo"
-                             style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>-->
+                        <img id="session-user-photo" src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
+                             th:unless="${session.user.photo}"/>
+                        <img id="session-user-photo-exist" th:src="${session.user.photo}" alt="Profile" class="rounded-circle"/>
+                        <!--                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />-->
                         <span class="d-none d-md-block dropdown-toggle ps-2" th:text="${session.user.name}">Name</span>
-                    </a>
+                    </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li class="dropdown-header">
@@ -334,9 +339,9 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" >
+                            <a class="dropdown-item d-flex align-items-center" href="/user/profile">
                                 <i class="bi bi-gear"></i>
-                                <span><button id="changePasswordBtn">Change Password</button></span>
+                                <span>Change Password</span>
                             </a>
                         </li>
                         <li>
@@ -414,6 +419,53 @@
                     </li>
                 </ul>
             </li><!-- End Components Nav -->
+
+            <!--<li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="forms-elements.html">
+                            <i class="bi bi-circle"></i><span>Form Elements</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-layouts.html">
+                            <i class="bi bi-circle"></i><span>Form Layouts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-editors.html">
+                            <i class="bi bi-circle"></i><span>Form Editors</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="forms-validation.html">
+                            <i class="bi bi-circle"></i><span>Form Validation</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>&lt;!&ndash; End Forms Nav &ndash;&gt;-->
+
+            <!--<li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="tables-general.html">
+                            <i class="bi bi-circle"></i><span>General Tables</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="tables-data.html">
+                            <i class="bi bi-circle"></i><span>Data Tables</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>&lt;!&ndash; End Tables Nav &ndash;&gt;-->
+
             <li class="nav-item">
                 <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
                     <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
@@ -437,6 +489,28 @@
                 </ul>
             </li><!-- End Charts Nav -->
 
+            <!--<li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-gem"></i><span>Icons</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a href="icons-bootstrap.html">
+                            <i class="bi bi-circle"></i><span>Bootstrap Icons</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="icons-remix.html">
+                            <i class="bi bi-circle"></i><span>Remix Icons</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="icons-boxicons.html">
+                            <i class="bi bi-circle"></i><span>Boxicons</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>&lt;!&ndash; End Icons Nav &ndash;&gt;-->
 
             <li class="nav-heading">Pages</li>
 
@@ -477,6 +551,62 @@
         <i id="pen" class="fa-solid fa-marker"></i>
     </button>
 
+    <!--    <section class="section dashboard">-->
+    <!--        <div class="row">-->
+
+    <!--            &lt;!&ndash; Left side columns &ndash;&gt;-->
+    <!--            <div class="col-lg-8">-->
+    <!--        <div class="row">-->
+    <!--            <div class="middle-panel">-->
+
+    <!--                <ul class="nav nav-tabs" id="myTab" role="tablist">-->
+    <!--                    <li class="nav-item" role="presentation">-->
+    <!--                        <button class="nav-link active" onclick="welcome(0)" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>-->
+    <!--                    </li>-->
+    <!--                    <li class="nav-item" role="presentation">-->
+    <!--                        <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>-->
+    <!--                    </li>-->
+    <!--                    <li class="nav-item" role="presentation">-->
+    <!--                        <button class="nav-link" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>-->
+    <!--                    </li>-->
+    <!--                </ul>-->
+    <!--                <div class="tab-content" id="myTabContent">-->
+    <!--                    <div class="tab-pane fade show active" id="newsfeedTab" role="tabpanel" aria-labelledby="newsfeed-tab">-->
+    <!--                        <div id="newsfeed"  class=""></div>-->
+    <!--                    </div>-->
+    <!--                    <div class="tab-pane fade" id="eventsTab" role="tabpanel" aria-labelledby="events-tab">-->
+    <!--                        <div id="events"  class=""></div>-->
+    <!--                    </div>-->
+    <!--                    <div class="tab-pane fade" id="pollsTab" role="tabpanel" aria-labelledby="polls-tab">-->
+    <!--                        <div id="polls" class="hidden"></div>-->
+    <!--                    </div>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--            </div>-->
+
+
+    <!--            <div class="col-lg-4">-->
+    <!--                <div class="card">-->
+    <!--                    <div class="card-body">-->
+    <!--                        <h5 class="card-title">Recent Activity <span>| Today</span></h5>-->
+
+    <!--                        <div class="activity">-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
+    <!--                        </div>-->
+    <!--                    </div>-->
+    <!--                </div>-->
+    <!--            </div>-->
+
+    <!--        </div>-->
+    <!--    </section>-->
     <div class="middle-panel">
 
 
@@ -502,7 +632,7 @@
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" onclick="welcome(0)" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
+                <button class="nav-link active" onclick="welcome()" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>
@@ -747,6 +877,25 @@
 
     <!-- end edit modal box  -->
 
+    <!-- event edit moddal box start  -->
+
+    <div class="modal fade" id="eventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel-for-event-edit">Edit Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="eventEditModal">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- event edit modal box end  -->
+
 
     <!-- loading modal box start  -->
 
@@ -882,6 +1031,10 @@
     </div>
 
 
+    <!-- calendar modal box end  -->
+
+
+    <!-- event create modal box start  -->
 
     <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -950,6 +1103,7 @@
                         <input type="text" name="eventType" id="eventType" value="VOTE" hidden>
                         <label for="multipartFile">Enter Event Photo</label>
                         <input type="file" name="multipartFile" class="form-control" id="pollMultipartFile" >
+
                         <label for="options">Add vote options </label>
                         <div class="d-flex"><input type="text" name="voteOptionInput" id="voteOptionInput" class="form-control"><button type="button" class="btn btn-primary " onclick="createAVoteOption()"><i class="fa-solid fa-plus text-white"></i></button></div>
                         <div>
@@ -975,6 +1129,8 @@
             </div>
         </div>
     </div>
+    <!-- poll create modal box end  -->
+
     <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <link href="/static/assets/css/modals.css" rel="stylesheet">
         <div class="modal-dialog modal-dialog-centered">
@@ -1019,7 +1175,7 @@
                     <div id="phoneChangeForm" style="display: none">
                         <h2>Enter your information</h2>
                         <form>
-                            <div class="form-group" style="width: 465px;">
+                            <div class="form-group">
                                 <label for="phoneInput">Phone number:</label>
                                 <input type="tel" id="phoneInput" class="form-control" placeholder="Enter phone number">
                                 <div class="invalid-feedback">
@@ -1218,8 +1374,8 @@
                                 </div>
                             </div>
                             <button type="button" class="btn btn-primary next">Skip</button>
-                            <script src="/static/assets/js/hobbies.js"></script>
                         </form>
+                        <script src="/static/assets/js/hobbies.js"></script>
                     </div>
                     <div id="skillChangeForm">
                         <h2>Enter your skills</h2>
@@ -1256,36 +1412,14 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="finishedModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
-         aria-labelledby="successModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="finishedModalLabel">Congratulations!</h5>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <p>Your account has been set up successfully.Please login again to use the website.</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="loginButton" data-bs-dismiss="modal">Login
-                    </button>
-                </div>
-            </div>
-        </div>
-        <script src="/assets/js/congratulation.js"></script>
-    </div>
+
 </main><!-- End #main -->
 
 <div th:fragment="footer">
     <!-- ======= Footer ======= -->
-    <footer id="footer" class="footer">
+    <footer id="footer" class="footer" style="background-color: lightgrey">
         <div class="copyright">
-            &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
-        </div>
-        <div class="credits">
-            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+
         </div>
     </footer><!-- End Footer -->
 
@@ -1338,6 +1472,28 @@
         </div>
     </div>
 
+    //finished modal box
+    <div class="modal fade" id="finishedModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
+         aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="finishedModalLabel">Congratulations!</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <p>Your account has been set up successfully.Please login again to use the website.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="loginButton" data-bs-dismiss="modal">Login
+                    </button>
+                </div>
+            </div>
+        </div>
+        <script src="/assets/js/congratulation.js"></script>
+    </div>
+
     <div class="custom-modal" id="addPolicyModal">
         <div class="custom-modal-dialog">
             <div class="custom-modal-content">
@@ -1379,14 +1535,6 @@
 
 
         document.addEventListener('DOMContentLoaded', function () {
-            localStorage.removeItem('savedPassword')
-            localStorage.removeItem('phoneNumber')
-            localStorage.removeItem('rawImage')
-            localStorage.removeItem('Hobbies')
-            localStorage.removeItem('dob')
-            localStorage.removeItem('gender')
-            localStorage.removeItem('selectedSkills')
-            localStorage.removeItem('Experience')
             function checkPendingStatus() {
 
                 fetch('/user/checkPendingStatus')
@@ -1488,8 +1636,8 @@
                             // Add event listener to the "Next" buttons
                             document.querySelectorAll('.modal-content form button.next').forEach(button => {
                                 button.addEventListener("click", function (event) {
-                                    event.preventDefault();
-                                    currentIndex++;
+                                    event.preventDefault(); // Prevent form submission
+                                    currentIndex++; // Move to the next form
                                     if (currentIndex === 1) {
                                         hideForms(passwordForm);
                                         showForm(photoForm);
@@ -1720,8 +1868,9 @@
     <!-- Template Main JS File -->
     <script src="/static/assets/js/main.js"></script>
     <script src="https://kit.fontawesome.com/e2397b357b.js" crossorigin="anonymous"></script>
-    <script src="/static/assets/js/post.js"></script>
+   
 </div>
+<script src="/static/assets/js/post.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>

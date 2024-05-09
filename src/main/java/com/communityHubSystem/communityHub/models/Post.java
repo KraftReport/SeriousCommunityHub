@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,7 +13,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "post")
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -32,6 +30,7 @@ public class Post implements Serializable {
     private PostType postType;
     @Enumerated(EnumType.STRING)
     private Access access;
+    private boolean isDeleted;
 
     public enum PostType{
         EVENT,CONTENT,POLL,RESOURCE
@@ -48,7 +47,7 @@ public class Post implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_group_id")
-    private User_Group user_group;
+    private User_Group userGroup;
 
 
     @OneToMany(mappedBy = "post",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)

@@ -34,4 +34,8 @@ public interface ReactService {
    public void deleteById(Long id);
 
     public React findByReplyId(Long id);
+
+    public List<React> findByEventId(Long id);
+
+    public React findByUserIdAndEventId(Long id, Long id1);
 }

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         separateDialCode: true
     });
 
+
     document.getElementById('phoneInput').addEventListener('input', function() {
         const phoneInput = document.getElementById('phoneInput');
         const phoneNumber = phoneInput.value;

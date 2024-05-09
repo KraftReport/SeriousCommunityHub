@@ -35,8 +35,10 @@ public class ChatRoomController {
         List<ChatRoom> chatRooms = new ArrayList<>();
         for (User_ChatRoom user_chatRoom : user_chatRooms) {
             ChatRoom chatRoom = chatRoomService.findById(user_chatRoom.getChatRoom().getId());
-            chatRooms.add(chatRoom);
-        }
+             if(chatRoom.isDeleted()) {
+                 chatRooms.add(chatRoom);
+             }
+             }
         return ResponseEntity.status(HttpStatus.OK).body(chatRooms);
     }
 

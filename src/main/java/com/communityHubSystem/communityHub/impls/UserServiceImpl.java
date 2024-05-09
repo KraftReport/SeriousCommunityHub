@@ -3,10 +3,7 @@ package com.communityHubSystem.communityHub.impls;
 import com.cloudinary.Cloudinary;
 import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
-import com.communityHubSystem.communityHub.models.Skill;
-import com.communityHubSystem.communityHub.models.User;
-import com.communityHubSystem.communityHub.models.User_Group;
-import com.communityHubSystem.communityHub.models.User_Skill;
+import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import com.communityHubSystem.communityHub.services.UserService;
@@ -20,6 +17,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -254,6 +254,36 @@ public class UserServiceImpl implements UserService {
         user.setRejectReason(null);
         userRepository.save(user);
     }
+
+    @Override
+    public List<User> userSearchMethod(String in) throws UnsupportedEncodingException {
+        System.err.println(in+"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+        var input = URLDecoder.decode(in, StandardCharsets.UTF_8);
+        System.err.println(input+"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+        var specifications = new ArrayList<Specification<User>>();
+        if(StringUtils.hasLength(input)){
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("email")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("division")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("dept")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("team")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("hobby")),"%".concat(input.toLowerCase()).concat("%")));
+        }
+
+
+        Specification<User> userSpec = Specification.where(null);
+        for(var s : specifications){
+            userSpec = userSpec.or(s);
+        }
+        return userRepository.findAll(userSpec);
+    }
+
     @Override
     @Transactional
     public void updateAdminToUserStatus(Long userId, boolean isRemoved, String removedReason){

@@ -13,7 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.*;
 
 @Controller
@@ -29,6 +32,8 @@ public class GroupController {
     private final UserService userService;
     private final ChatRoomRepository chatRoomRepository;
     private final User_ChatRoomService user_chatRoomService;
+    private final ImageUploadService imageUploadService;
+    private final ChatRoomService chatRoomService;
 
     @GetMapping("/group")
     public String group(Model model) {
@@ -43,11 +48,21 @@ public class GroupController {
     }
 
     @PostMapping("/createCommunity")
-    public ResponseEntity<Map<String, String>> createGroup(@ModelAttribute Community community, @RequestParam("ownerId") Long ownerID) {
-        var svgCommunity = communityService.createCommunity(community, ownerID);
+    public ResponseEntity<Map<String, String>> createGroup(@ModelAttribute Community community, @RequestParam("ownerId") Long ownerID,
+                                                           @RequestParam("file")MultipartFile file) throws IOException {
+        if (communityService.existsByName(community.getName())) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Group name already exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        var svgCommunity = communityService.createCommunity(file,community, ownerID);
+        String photo = imageUploadService.uploadImage(file);
         var chatRoom = ChatRoom.builder()
                 .date(new Date())
                 .name(svgCommunity.getDescription())
+                .photo(photo)
+                .isDeleted(true)
                 .community(svgCommunity)
                 .build();
         chatRoomRepository.save(chatRoom);
@@ -77,14 +92,17 @@ public class GroupController {
         Optional<User> user = userService.findByStaffId(staffId.trim());
         if (user.isPresent()) {
             if (User.Role.ADMIN.equals(user.get().getRole())) {
-                return communityService.findAll();
+                return communityService.findAllByIsActive();
             } else {
                 List<User_Group> user_groups = user_groupRepository.findByUserId(user.get().getId());
 
                 List<Community> communities = new ArrayList<>();
 
                 for (User_Group user_group : user_groups) {
-                    communities.add(user_group.getCommunity());
+                    var community = communityService.getCommunityById(user_group.getCommunity().getId());
+                    if(community.isActive()) {
+                        communities.add(community);
+                    }
                 }
 
                 return communities;
@@ -96,14 +114,14 @@ public class GroupController {
 
 
     @PostMapping("/createGroup")
-    public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user) {
+    public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user,@RequestParam("file")MultipartFile file) {
         List<Long> userList;
         if (user == null) {
             userList = Collections.emptyList();
         } else {
             userList = Arrays.asList(user);
         }
-        communityService.createGroup(community, userList);
+        communityService.createGroup(file,community, userList);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -120,8 +138,13 @@ public class GroupController {
     }
 
     @DeleteMapping("/delete/{communityId}")
-    public ResponseEntity<?> deletedUser(@PathVariable("communityId") Long communityId) {
-        communityRepository.deleteById(communityId);
+    public ResponseEntity<?> deleteUser(@PathVariable("communityId") Long communityId) {
+        chatRoomService.deleteChatRoomByCommunityId(communityId);
+        System.out.println("Deleting chat room with communityId: " + communityId);
+        communityRepository.findById(communityId).ifPresent(community -> {
+            community.setActive(false);
+            communityRepository.save(community);
+        });
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -182,7 +205,9 @@ public class GroupController {
                 List<User_Group> user_groups = user_groupService.findByUserId(user.getId());
                 for (User_Group user_group : user_groups) {
                     var community = communityService.getCommunityById(user_group.getCommunity().getId());
-                    communityList.add(community);
+                    if(community.isActive()) {
+                        communityList.add(community);
+                    }
                 }
                 return ResponseEntity.status(HttpStatus.OK).body(communityList);
             }
@@ -190,4 +215,40 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
         }
     }
+
+    @GetMapping("/communitySearchMethod/{input}")
+    @ResponseBody
+    public ResponseEntity<List<Community>> communitySearchMethod(@PathVariable("input")String  input){
+        return ResponseEntity.ok(communityService.communitySearchMethod(input));
+    }
+
+    @GetMapping("/getNumberOfMembers/{id}")
+    @ResponseBody
+    public ResponseEntity<Object> getNumberOfMembers(@PathVariable("id")String id){
+        return ResponseEntity.ok(communityService.getNumberOfUsersOfACommunity(Long.valueOf(id)));
+    }
+
+    @GetMapping("/goToCommunityDetail")
+    public String goToDetail(){
+        return "/layout/group-post";
+    }
+
+    @GetMapping("/getPostsForCommunityDetailPage/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId")String communityId){
+     return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId)));
+    }
+
+    @GetMapping("/getEventsForCommunityDetailPage/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId)));
+    }
+
+    @GetMapping("/getPollsForCommunityDetailPage/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId)));
+    }
+
 }

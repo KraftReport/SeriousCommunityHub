@@ -9,6 +9,9 @@ import com.communityHubSystem.communityHub.repositories.*;
 import com.communityHubSystem.communityHub.services.EventService;
 import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,6 +23,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -137,7 +142,7 @@ public class EventServiceImpl implements EventService {
         var events = eventRepository.findByCreatedDateBetween(start,end);
         var result = new ArrayList<Event>();
         for(var e : events){
-            if(!ids.contains(e.getId())){
+            if(!ids.contains(e.getId()) && e.getEventType().equals(Event.EventType.EVENT)){
                 result.add(e);
                 ids.add(e.getId());
                 System.err.println("------------------------------->"+ids);
@@ -341,6 +346,60 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    @Override
+    public Page<Event> getEventsForNewsfeed(String page) {
+        var all = eventRepository.findAll();
+        var filteredEvents = new ArrayList<>(all.stream().filter(e -> e.getEventType().equals(Event.EventType.EVENT) && !e
+                .isDeleted() && e
+                .getAccess().equals(Access.PUBLIC)).toList());
+        filteredEvents.addAll(getEventsOfGroupForLoginUser(Event.EventType.EVENT));
+        filteredEvents.sort(Comparator.comparing(Event::getCreated_date).reversed());
+        return getPaginationOfEvents(filteredEvents,page);
+    }
+
+    @Override
+    public Event findById(Long id) {
+        return eventRepository.findById(id).orElseThrow(() -> new CommunityHubException("Event Not Found Exception!"));
+    }
+
+    @Override
+    public Page<Event> getPolForNewsfeed(String page) {
+        var all = eventRepository.findAll();
+        var filteredPolls = new ArrayList<>(all.stream().filter(e->e.getEventType().equals(Event.EventType.VOTE) && !e
+                .isDeleted() && e
+                .getAccess().equals(Access.PUBLIC)).toList());
+        filteredPolls.addAll(getEventsOfGroupForLoginUser(Event.EventType.VOTE));
+        filteredPolls.sort(Comparator.comparing(Event::getCreated_date).reversed());
+        return getPaginationOfEvents(filteredPolls,page);
+    }
+
+    private Page<Event> getPaginationOfEvents(List<Event> filteredEvents,String page){
+        var pageable = PageRequest.of(Integer.parseInt(page),5);
+        var start = Math.toIntExact(pageable.getOffset());
+        if (start >= filteredEvents.size()) {
+            return Page.empty(pageable);
+        }
+        var end = Math.min(start + pageable.getPageSize(), filteredEvents.size());
+        var paginatedPosts = filteredEvents.subList(start, end);
+        var postPage = new PageImpl<>(paginatedPosts, pageable, filteredEvents.size());
+        return postPage;
+    }
+
+    private List<Event> getEventsOfGroupForLoginUser(Event.EventType eventType){
+        var userId = getLoginUser().getId();
+        var list = new ArrayList<Event>();
+        var communityIds = user_groupRepository.getCommunityIdFromUserId(getLoginUser().getId());
+        var userGroupIds = new ArrayList<Long>();
+        for(var c : communityIds){
+            userGroupIds.addAll(user_groupRepository.getIdFromCommunityId(c));
+        }
+        for(var g : userGroupIds){
+            list.addAll(eventRepository.findByUserGroupId(g));
+            System.err.println(g);
+        }
+        return list.stream().filter(l->l.getEventType().equals(eventType) && !l.isDeleted()).toList();
+    }
+
 
     private static Specification<Event> eventUserJoin(String name){
         return (root, query, criteriaBuilder) -> {
@@ -424,9 +483,14 @@ public class EventServiceImpl implements EventService {
         return Date.from(offSetDate.toInstant());
     }
 
-    private List<Event>  searchMethod(String input){
+    private List<Event> searchMethod(String in){
+        var input = URLDecoder.decode(in, StandardCharsets.UTF_8);
         var specifications = new ArrayList<Specification<Event>>();
         if(StringUtils.hasLength(input)){
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("location")),"%".concat(input.toLowerCase()).concat("%")));
+            specifications.add((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")),"%".concat(input.toLowerCase()).concat("%")));
             specifications.add((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(criteriaBuilder.lower(root.get("description")),"%".concat(input.toLowerCase()).concat("%")));
             specifications.add(eventUserJoin(input));
@@ -437,7 +501,7 @@ public class EventServiceImpl implements EventService {
         for(var s : specifications){
             eventSpec = eventSpec.or(s);
         }
-        return eventRepository.findAll((Sort) eventSpec);
+        return eventRepository.findAll( eventSpec);
     }
     public User getCurrentLoginUser() {
         return userRepository.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("user not found"));

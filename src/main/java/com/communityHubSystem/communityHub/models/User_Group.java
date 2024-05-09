@@ -2,10 +2,7 @@ package com.communityHubSystem.communityHub.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,7 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user_group")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -32,7 +30,7 @@ public class User_Group implements Serializable {
     @JoinColumn(name = "community_id")
     private Community community;
 
-    @OneToMany(mappedBy = "user_group",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userGroup",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Post> posts;
 

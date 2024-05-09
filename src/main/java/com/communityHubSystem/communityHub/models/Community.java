@@ -29,9 +29,9 @@ public class Community implements Serializable {
     private Date date;
     private String ownerName;
     private String description;
-    @Lob
-    @Column(name="image",columnDefinition = "LONGBLOB")
-    private byte[] image;
+//    @Lob
+//    @Column(name="image",columnDefinition = "LONGBLOB")
+    private String image;
     @Transient
     private MultipartFile file;
 

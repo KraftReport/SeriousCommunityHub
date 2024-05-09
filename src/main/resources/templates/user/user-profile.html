@@ -37,12 +37,16 @@
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col col-lg-9 col-xl-7">
                     <div class="card">
-                        <div class="rounded-top text-white d-flex flex-row" style="height:200px;" onclick="showbgModal()" id="profile-background" >
-                            <img id="profile-background-img" src="/assets/img/pf-bg1.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; object-fit: cover; " alt="pf-bg">                        <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
-                            <img id="profile-photo" src="/assets/img/default-logo.png" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2"
-                                 style="width: 150px; z-index: 1" th:if="${user.photo == null}">
-                            <img  th:unless="${user.photo == null}" th:src="${user.photo}" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2"
-                                  style="width: 150px; z-index: 1" />
+                        <div class="rounded-top text-white d-flex flex-row" style="height:200px;" id="profile-background" >
+                            <img onclick="showbgModal()" id="profile-background-img" src="/assets/img/pf-bg1.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; object-fit: cover; " alt="pf-bg">
+                            <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
+                            <img id="profile-photo"  src="/assets/img/default-logo.png" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2 profile-photo"
+                                 style="width: 150px; z-index: 1; border-radius: 20px;" th:if="${user.photo == null}" onclick="chooseFile()"/>
+                                <form id="photoForm">
+                                    <input class="form-control" type="file" name="file" id="file-input" style="display: none">
+                                </form>
+                                <img id="profile-photo-exist" th:unless="${user.photo == null}" th:src="${user.photo}" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2 profile-photo"
+                                  style="width: 150px; z-index: 1; border-radius: 20px;"  onclick="chooseFile()"/>
                             <button id="edit-photo-btn" type="button" class="btn btn-outline-dark edit-button" data-mdb-ripple-color="dark" style="z-index: 1;">Edit Profile</button>
                             Edit profile
                         </div>
@@ -100,6 +104,30 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <p class="lead fw-normal mb-0">Recent photos</p>
+                                <p class="mb-0"><a href="#" class="text-muted">Show all</a></p>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col mb-2">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(112).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
+                                <div class="col mb-2">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(107).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(108).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
+                                <div class="col">
+                                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(114).webp"
+                                         alt="image 1" class="w-100 rounded-3">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,167 +144,330 @@
             </div>
             <div class="modal-body">
                 <form id="profile-form">
-                    <div class="mb-3">
-                        <label for="photo" class="form-label">Photo</label>
-                        <input type="file" id="photo" name="photo" class="form-control">
-                        <img th:if="${user.photo == null}" th:src="@{/assets/img/default-logo.png}" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2" style="width: 150px; z-index: 1">
-                        <img th:unless="${user.photo == null}" th:src="${user.photo}" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2" style="width: 150px; z-index: 1" />
-                    </div>
+
                     <div class="mb-3">
                         <label for="phone" class="form-label">Phone</label>
                         <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone" th:value="${user.phone}">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Hobby</label>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyReading">
-                                    <label class="form-check-label" for="hobbyReading">
-                                        <i class="fas fa-book" style="color: #4a86e8;"></i> Reading
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyHiking">
-                                    <label class="form-check-label" for="hobbyHiking">
-                                        <i class="fas fa-hiking" style="color: #f6b26b;"></i> Hiking
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyCooking">
-                                    <label class="form-check-label" for="hobbyCooking">
-                                        <i class="fas fa-utensils" style="color: #e55039;"></i> Cooking
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyGardening">
-                                    <label class="form-check-label" for="hobbyGardening">
-                                        <i class="fas fa-seedling" style="color: #8bc34a;"></i> Gardening
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyWriting">
-                                    <label class="form-check-label" for="hobbyWriting">
-                                        <i class="fas fa-pen" style="color: #673ab7;"></i> Writing
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyPhotography">
-                                    <label class="form-check-label" for="hobbyPhotography">
-                                        <i class="fas fa-camera" style="color: #9e9e9e;"></i> Photography
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyCoding">
-                                    <label class="form-check-label" for="hobbyCoding">
-                                        <i class="fas fa-laptop-code" style="color: #607d8b;"></i> Coding
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyDrawing">
-                                    <label class="form-check-label" for="hobbyDrawing">
-                                        <i class="fas fa-draw-polygon" style="color: #ff9800;"></i> Drawing
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbySwimming">
-                                    <label class="form-check-label" for="hobbySwimming">
-                                        <i class="fas fa-swimmer" style="color: #00bcd4;"></i> Swimming
-                                    </label>
+
+                    <div th:if="${user.hobby}">
+                        <div id="hobbyChangeForm">
+                            <div class="mb-3">
+                                <label class="form-label">Hobby</label>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyReading" th:checked="${#strings.contains(user.hobby, 'Reading')}">
+                                            <label class="form-check-label" for="hobbyReading">
+                                                <i class="fas fa-book" style="color: #4a86e8;"></i> Reading
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyHiking" th:checked="${#strings.contains(user.hobby, 'Hiking')}">
+                                            <label class="form-check-label" for="hobbyHiking">
+                                                <i class="fas fa-hiking" style="color: #f6b26b;"></i> Hiking
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyCooking" th:checked="${#strings.contains(user.hobby, 'Cooking')}">
+                                            <label class="form-check-label" for="hobbyCooking">
+                                                <i class="fas fa-utensils" style="color: #e55039;"></i> Cooking
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyGardening" th:checked="${#strings.contains(user.hobby, 'Gardening')}">
+                                            <label class="form-check-label" for="hobbyGardening">
+                                                <i class="fas fa-seedling" style="color: #8bc34a;"></i> Gardening
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyWriting" th:checked="${#strings.contains(user.hobby, 'Writing')}">
+                                            <label class="form-check-label" for="hobbyWriting">
+                                                <i class="fas fa-pen" style="color: #673ab7;"></i> Writing
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyPhotography" th:checked="${#strings.contains(user.hobby, 'Photography')}">
+                                            <label class="form-check-label" for="hobbyPhotography">
+                                                <i class="fas fa-camera" style="color: #9e9e9e;"></i> Photography
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyCoding" th:checked="${#strings.contains(user.hobby, 'Coding')}">
+                                            <label class="form-check-label" for="hobbyCoding">
+                                                <i class="fas fa-laptop-code" style="color: #607d8b;"></i> Coding
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyDrawing" th:checked="${#strings.contains(user.hobby, 'Drawing')}">
+                                            <label class="form-check-label" for="hobbyDrawing">
+                                                <i class="fas fa-draw-polygon" style="color: #ff9800;"></i> Drawing
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbySwimming" th:checked="${#strings.contains(user.hobby, 'Swimming')}">
+                                            <label class="form-check-label" for="hobbySwimming">
+                                                <i class="fas fa-swimmer" style="color: #00bcd4;"></i> Swimming
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyGaming" th:checked="${#strings.contains(user.hobby, 'Gaming')}">
+                                            <label class="form-check-label" for="hobbyGaming">
+                                                <i class="fas fa-gamepad" style="color: #4caf50;"></i> Gaming
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyPainting" th:checked="${#strings.contains(user.hobby, 'Painting')}">
+                                            <label class="form-check-label" for="hobbyPainting">
+                                                <i class="fas fa-paint-brush" style="color: #9c27b0;"></i> Painting
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyTraveling" th:checked="${#strings.contains(user.hobby, 'Traveling')}">
+                                            <label class="form-check-label" for="hobbyTraveling">
+                                                <i class="fas fa-globe-americas" style="color: #795548;"></i> Traveling
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyCycling" th:checked="${#strings.contains(user.hobby, 'Cycling')}">
+                                            <label class="form-check-label" for="hobbyCycling">
+                                                <i class="fas fa-bicycle" style="color: #607d8b;"></i> Cycling
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyCamping" th:checked="${#strings.contains(user.hobby, 'Camping')}">
+                                            <label class="form-check-label" for="hobbyCamping">
+                                                <i class="fas fa-campground" style="color: #ff9800;"></i> Camping
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyFishing" th:checked="${#strings.contains(user.hobby, 'Fishing')}">
+                                            <label class="form-check-label" for="hobbyFishing">
+                                                <i class="fas fa-fish" style="color: #00bcd4;"></i> Fishing
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyBirdwatching" th:checked="${#strings.contains(user.hobby, 'Birdwatching')}">
+                                            <label class="form-check-label" for="hobbyBirdwatching">
+                                                <i class="fas fa-binoculars" style="color: #4caf50;"></i> Birdwatching
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyMeditation" th:checked="${#strings.contains(user.hobby, 'Meditation')}">
+                                            <label class="form-check-label" for="hobbyMeditation">
+                                                <i class="fas fa-meditate" style="color: #9c27b0;"></i> Meditation
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyMusic" th:checked="${#strings.contains(user.hobby, 'Music')}">
+                                            <label class="form-check-label" for="hobbyMusic">
+                                                <i class="fas fa-music" style="color: #795548;"></i> Music
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyJogging" th:checked="${#strings.contains(user.hobby, 'Jogging')}">
+                                            <label class="form-check-label" for="hobbyJogging">
+                                                <i class="fas fa-running" style="color: #4a86e8;"></i> Jogging
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbySports" th:checked="${#strings.contains(user.hobby, 'Sports')}">
+                                            <label class="form-check-label" for="hobbySports">
+                                                <i class="fas fa-futbol" style="color: #f6b26b;"></i> Sports
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyCrafts" th:checked="${#strings.contains(user.hobby, 'Crafts')}">
+                                            <label class="form-check-label" for="hobbyCrafts">
+                                                <i class="fas fa-craft" style="color: #e55039;"></i> Crafts
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbySewing" th:checked="${#strings.contains(user.hobby, 'Sewing')}">
+                                            <label class="form-check-label" for="hobbySewing">
+                                                <i class="fas fa-scissors" style="color: #8bc34a;"></i> Sewing
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyCrochet" th:checked="${#strings.contains(user.hobby, 'Crochet')}">
+                                            <label class="form-check-label" for="hobbyCrochet">
+                                                <i class="fas fa-crop" style="color: #673ab7;"></i> Crochet
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="hobbyActing" th:checked="${#strings.contains(user.hobby, 'Acting')}">
+                                            <label class="form-check-label" for="hobbyActing">
+                                                <i class="fas fa-theater-masks" style="color: #9e9e9e;"></i> Acting
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyGaming">
-                                    <label class="form-check-label" for="hobbyGaming">
-                                        <i class="fas fa-gamepad" style="color: #4caf50;"></i> Gaming
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyPainting">
-                                    <label class="form-check-label" for="hobbyPainting">
-                                        <i class="fas fa-paint-brush" style="color: #9c27b0;"></i> Painting
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyTraveling">
-                                    <label class="form-check-label" for="hobbyTraveling">
-                                        <i class="fas fa-globe-americas" style="color: #795548;"></i> Traveling
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyCycling">
-                                    <label class="form-check-label" for="hobbyCycling">
-                                        <i class="fas fa-bicycle" style="color: #607d8b;"></i> Cycling
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyCamping">
-                                    <label class="form-check-label" for="hobbyCamping">
-                                        <i class="fas fa-campground" style="color: #ff9800;"></i> Camping
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyFishing">
-                                    <label class="form-check-label" for="hobbyFishing">
-                                        <i class="fas fa-fish" style="color: #00bcd4;"></i> Fishing
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyBirdwatching">
-                                    <label class="form-check-label" for="hobbyBirdwatching">
-                                        <i class="fas fa-binoculars" style="color: #4caf50;"></i> Birdwatching
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyMeditation">
-                                    <label class="form-check-label" for="hobbyMeditation">
-                                        <i class="fas fa-meditate" style="color: #9c27b0;"></i> Meditation
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyMusic">
-                                    <label class="form-check-label" for="hobbyMusic">
-                                        <i class="fas fa-music" style="color: #795548;"></i> Music
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyJogging">
-                                    <label class="form-check-label" for="hobbyJogging">
-                                        <i class="fas fa-running" style="color: #4a86e8;"></i> Jogging
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbySports">
-                                    <label class="form-check-label" for="hobbySports">
-                                        <i class="fas fa-futbol" style="color: #f6b26b;"></i> Sports
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyCrafts">
-                                    <label class="form-check-label" for="hobbyCrafts">
-                                        <i class="fas fa-craft" style="color: #e55039;"></i> Crafts
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbySewing">
-                                    <label class="form-check-label" for="hobbySewing">
-                                        <i class="fas fa-scissors" style="color: #8bc34a;"></i> Sewing
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyCrochet">
-                                    <label class="form-check-label" for="hobbyCrochet">
-                                        <i class="fas fa-crop" style="color: #673ab7;"></i> Crochet
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="hobbyActing">
-                                    <label class="form-check-label" for="hobbyActing">
-                                        <i class="fas fa-theater-masks" style="color: #9e9e9e;"></i> Acting
-                                    </label>
+                        </div>
+                    </div>
+                    <div th:unless="${user.hobby}">
+                        <div id="hobbyChangeForm">
+                            <div class="mb-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Hobby</label>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyReading1" >
+                                                <label class="form-check-label" for="hobbyReading">
+                                                    <i class="fas fa-book" style="color: #4a86e8;"></i> Reading
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyHiking2" >
+                                                <label class="form-check-label" for="hobbyHiking">
+                                                    <i class="fas fa-hiking" style="color: #f6b26b;"></i> Hiking
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyCooking3" >
+                                                <label class="form-check-label" for="hobbyCooking">
+                                                    <i class="fas fa-utensils" style="color: #e55039;"></i> Cooking
+                                                </label>
+                                            </div>
+
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyGardening4" >
+                                                <label class="form-check-label" for="hobbyGardening">
+                                                    <i class="fas fa-seedling" style="color: #8bc34a;"></i> Gardening
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyWriting5">
+                                                <label class="form-check-label" for="hobbyWriting">
+                                                    <i class="fas fa-pen" style="color: #673ab7;"></i> Writing
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyPhotography6">
+                                                <label class="form-check-label" for="hobbyPhotography">
+                                                    <i class="fas fa-camera" style="color: #9e9e9e;"></i> Photography
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyCoding7">
+                                                <label class="form-check-label" for="hobbyCoding">
+                                                    <i class="fas fa-laptop-code" style="color: #607d8b;"></i> Coding
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyDrawing8" >
+                                                <label class="form-check-label" for="hobbyDrawing">
+                                                    <i class="fas fa-draw-polygon" style="color: #ff9800;"></i> Drawing
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbySwimming9">
+                                                <label class="form-check-label" for="hobbySwimming">
+                                                    <i class="fas fa-swimmer" style="color: #00bcd4;"></i> Swimming
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyGaming10">
+                                                <label class="form-check-label" for="hobbyGaming">
+                                                    <i class="fas fa-gamepad" style="color: #4caf50;"></i> Gaming
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyPainting11" >
+                                                <label class="form-check-label" for="hobbyPainting">
+                                                    <i class="fas fa-paint-brush" style="color: #9c27b0;"></i> Painting
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyTraveling12">
+                                                <label class="form-check-label" for="hobbyTraveling">
+                                                    <i class="fas fa-globe-americas" style="color: #795548;"></i> Traveling
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyCycling" >
+                                                <label class="form-check-label" for="hobbyCycling">
+                                                    <i class="fas fa-bicycle" style="color: #607d8b;"></i> Cycling
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyCamping13" >
+                                                <label class="form-check-label" for="hobbyCamping">
+                                                    <i class="fas fa-campground" style="color: #ff9800;"></i> Camping
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyFishing14">
+                                                <label class="form-check-label" for="hobbyFishing">
+                                                    <i class="fas fa-fish" style="color: #00bcd4;"></i> Fishing
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyBirdwatching15">
+                                                <label class="form-check-label" for="hobbyBirdwatching">
+                                                    <i class="fas fa-binoculars" style="color: #4caf50;"></i> Birdwatching
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyMeditation16" >
+                                                <label class="form-check-label" for="hobbyMeditation">
+                                                    <i class="fas fa-meditate" style="color: #9c27b0;"></i> Meditation
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyMusic17">
+                                                <label class="form-check-label" for="hobbyMusic">
+                                                    <i class="fas fa-music" style="color: #795548;"></i> Music
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyJogging18">
+                                                <label class="form-check-label" for="hobbyJogging">
+                                                    <i class="fas fa-running" style="color: #4a86e8;"></i> Jogging
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbySports19">
+                                                <label class="form-check-label" for="hobbySports">
+                                                    <i class="fas fa-futbol" style="color: #f6b26b;"></i> Sports
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyCrafts20">
+                                                <label class="form-check-label" for="hobbyCrafts">
+                                                    <i class="fas fa-craft" style="color: #e55039;"></i> Crafts
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbySewing21" >
+                                                <label class="form-check-label" for="hobbySewing">
+                                                    <i class="fas fa-scissors" style="color: #8bc34a;"></i> Sewing
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyCrochet22" >
+                                                <label class="form-check-label" for="hobbyCrochet">
+                                                    <i class="fas fa-crop" style="color: #673ab7;"></i> Crochet
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="hobbyActing23">
+                                                <label class="form-check-label" for="hobbyActing">
+                                                    <i class="fas fa-theater-masks" style="color: #9e9e9e;"></i> Acting
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -302,6 +493,7 @@
                         <script src="/assets/js/skill.js" defer></script>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="updateBtn">Update</button>
                 </form>
             </div>
         </div>
@@ -322,7 +514,7 @@
                         <input type="file" class="form-control" accept="image/*" id="file" name="file" multiple="multiple"/>
                         <span id="fileError" class="text-danger"></span>
                     </div>
-                    <input type="hidden" id="userId" name="userId">
+                    <input type="hidden" id="userId" name="userId" th:value="${user.id}">
                 </form><br><br>
                 <div>
                     <div id="backgroundImages"></div>
@@ -337,26 +529,6 @@
     </div>
 </div>
 
-
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="photoForm">
-                    <input class="form-control" type="file" name="file" id="file1" >
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="changeProfilePhoto()">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
 <div th:replace="~{index::footer}"></div>
 
 <script>
@@ -384,6 +556,7 @@
             console.error('User id not found');
         }
     };
+
     document.getElementById('seeMoreBtn').addEventListener('click', function() {
         const moreUserInfo = document.getElementById('moreUserInfo');
         const seeMoreBtn = document.getElementById('seeMoreBtn');
@@ -494,13 +667,15 @@
     function displayUserBackgrounds(backgrounds, userId) {
         const backgroundImages = document.getElementById('backgroundImages');
         backgroundImages.innerHTML = '';
+        let index = 1;
+
         backgrounds.forEach(background => {
             const imageUrl = background.backgroundUrl;
 
             const button = document.createElement('button');
             button.setAttribute('type', 'button');
             button.setAttribute('class', 'btn btn-secondary me-2 mb-2');
-            button.innerText = 'Background ' + background.id;
+            button.innerText = 'Background ' + index;
             button.addEventListener('click', () => {
                 document.getElementById('profile-background-img').src = imageUrl;
                 saveSelectedImageToLocalStorage(userId, imageUrl);
@@ -514,8 +689,11 @@
 
             backgroundImages.appendChild(deleteButton);
             backgroundImages.appendChild(button);
+
+            index++;
         });
     }
+
 
     // Function to delete a background
     async function deleteBackground(backgroundId, userId) {
@@ -571,6 +749,21 @@
         console.error('User id not found');
     }
 
+ const chooseFile = () => {
+        document.getElementById('file-input').click();
+ };
+
+document.addEventListener('DOMContentLoaded',() => {
+
+    document.getElementById('file-input').addEventListener('change', (event) => {
+        if (event.target.files.length > 0) {
+            console.log('Oh shit ma ya tay')
+            changeProfilePhoto()
+        }
+    });
+
+});
+
     async function changeProfilePhoto(){
         let data = new FormData(document.getElementById('photoForm'))
         let response = await fetch('/user/updateProfilePhoto',{
@@ -578,7 +771,123 @@
             body : data
         });
         console.log(response)
+        if(response.ok){
+            const res =await response.json();
+            const photo = res.photo;
+            console.log("Shit lr",photo);
+           const imgTag =  document.getElementById('profile-photo');
+           const sessionImgTag = document.getElementById('session-user-photo');
+           if(imgTag){
+               console.log("Default photo",photo);
+               imgTag.src = photo;
+               sessionImgTag.src = photo;
+           }
+           const imgExistTag =  document.getElementById('profile-photo-exist');
+            const sessionExistImgTag = document.getElementById('session-user-photo-exist');
+           if(imgExistTag){
+               console.log("Replace Photo",photo);
+               imgExistTag.src = photo;
+               sessionExistImgTag.src = photo;
+           }
+
+        }
     }
+    $(document).ready(function() {
+        let selectedHobbies = [];
+
+        // $('#hobbyChangeForm input[type="checkbox"]').on('change', function() {
+        //     const hobby = $(this).parent().text().trim();
+        //     if ($(this).is(':checked')) {
+        //         if (!selectedHobbies.includes(hobby)) {
+        //             selectedHobbies.push(hobby);
+        //         }
+        //     } else {
+        //         const index = selectedHobbies.indexOf(hobby);
+        //         if (index !== -1) {
+        //             selectedHobbies.splice(index, 1);
+        //         }
+        //     }
+        // });
+
+        const updateBtn = document.getElementById('updateBtn');
+
+        updateBtn.addEventListener('click', function() {
+            const phoneNumber = $('#phone').val();
+            const gender = $('#gender').val();
+
+            // Get selected hobbies from the checkboxes
+            const newHobbies = $('#hobbyChangeForm input[type="checkbox"]:checked').map(function() {
+                return $(this).parent().text().trim();
+            }).get();
+
+            // Get newly created skill (if any)
+            const newSkillName = document.getElementById('newSkillNameInput').value;
+            const newSkillExperience = document.getElementById('newSkillExperienceInput').value;
+
+            // Initialize an array to hold all selected skills
+            let selectedSkills = [];
+
+            // If a new skill is created, add it to the array
+            if (newSkillName && newSkillExperience) {
+                selectedSkills.push(newSkillName);
+                localStorage.setItem('Experience', newSkillExperience);
+            }
+
+            // Get the updated experience value after potentially adding a new skill
+            const experience = localStorage.getItem('Experience');
+
+            // update with skill
+            if (selectedSkills.length > 0) {
+                fetch('/user/updateProfile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber, gender, hobbies: newHobbies, selectedSkills: selectedSkills.join(','), experience })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to update profile');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('User profile updated:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error updating user profile:', error);
+                    });
+
+                // Clear the local storage
+                localStorage.clear();
+            } else {
+                // update  without skills
+                fetch('/user/updateProfile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber, gender, hobbies: newHobbies, selectedSkills: null, experience })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to update profile');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('User profile updated:', data);
+                    })
+                    .catch(error => {
+                        console.error('Error updating user profile:', error);
+                    });
+
+                // Clear the local storage
+                localStorage.clear();
+            }
+            $('#editModal').modal('hide');
+        });
+    });
 
 </script>
 </body>

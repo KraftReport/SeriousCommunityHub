@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.communityHubSystem.communityHub.dto.FirstUpdateDto;
 import com.communityHubSystem.communityHub.dto.PostDto;
 import com.communityHubSystem.communityHub.dto.SecondUpdateDto;
+import com.communityHubSystem.communityHub.dto.ViewPostDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.*;
@@ -11,19 +12,24 @@ import com.communityHubSystem.communityHub.services.PostService;
 import com.communityHubSystem.communityHub.services.UserService;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +42,8 @@ public class PostServiceImpl implements PostService {
     private final Cloudinary cloudinary;
     private final ResourceRepository resourceRepository;
     private final UserService userService;
+    private final ModelMapper modelMapper;
+
     private final List<String> photoExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", "bmp", "tiff", "tif", "psv", "svg", "webp", "ico", "heic");
     private final List<String> videoExtensions = Arrays.asList(".mp4", ".avi", ".mov", ".wmv", "mkv", "flv", "mpeg", "mpg", "webm", "3gp", "ts");
 
@@ -70,12 +78,14 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(Long id) {
-        resourceRepository.deleteByPostId(id);
-        postRepository.deleteById(id);
+        var found = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        found.setDeleted(true);
+        postRepository.save(found);
     }
 
     @Override
-    public List<Post> searchMethod(String input) {
+    public List<Post> searchMethod(String in) {
+        var input = URLDecoder.decode(in, StandardCharsets.UTF_8);
         var specifications = new ArrayList<Specification<Post>>();
         if (StringUtils.hasLength(input)) {
             specifications.add((root, query, criteriaBuilder) ->
@@ -143,16 +153,6 @@ public class PostServiceImpl implements PostService {
         return found;
     }
 
-//    @Override
-//    public List<Post> getFivePostsPerTime(String page) {
-////        Sort sort = Sort.by(Sort.Direction.DESC, "createdDate");
-////        Pageable pageable = PageRequest.of(Math.toIntExact(Long.parseLong(page)), 7, sort);
-//        var pageable = PageRequest
-//                .of(Math.toIntExact(Long.parseLong(page)),
-//                        5, Sort.by("createdDate").ascending());
-//        var posts = postRepository.findAll(pageable);
-//        return posts.getContent();
-//    }
 
     @Override
     public List<Object> getFivePostsPerTime(String  page) {
@@ -162,6 +162,74 @@ public class PostServiceImpl implements PostService {
         objs.add(page);
         objs.add(posts.getContent());
         return objs;
+    }
+
+//    @Override
+//    public Page<Post> findPostRelatedToUser(String page) {
+//        var loginStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
+//        var loginUser = userService.findByStaffId(loginStaffId)
+//                .orElseThrow(() -> new CommunityHubException("User not found!"));
+//        List<Post> postList = new ArrayList<>();
+//        List<Post> publicPosts = postRepository.findPostsByAccess(Access.PUBLIC);
+//        postList.addAll(publicPosts);
+//        List<User_Group> userGroupList = user_groupRepository.findByUserId(loginUser.getId());
+//        for(User_Group user_group:userGroupList){
+//            List<Post> userGroupPosts = postRepository.findAllByUserIdAndUserGroupId(loginUser.getId(),user_group.getId());
+//            postList.addAll(userGroupPosts);
+//        }
+//        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+//        int start = Math.toIntExact(pageable.getOffset());
+//        if (start >= postList.size()) {
+//            return Page.empty(pageable);
+//        }
+//        int end = Math.min(start + pageable.getPageSize(), postList.size());
+//        List<Post> paginatedPosts = postList.subList(start, end);
+//        Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, postList.size());
+//        return postPage;
+//    }
+@Override
+public Page<Post> findPostRelatedToUser(String page) {
+    var loginStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
+    var loginUser = userService.findByStaffId(loginStaffId)
+            .orElseThrow(() -> new CommunityHubException("User not found!"));
+
+    List<Post> publicPosts = postRepository.findPostsByAccessOrderByCreatedDateDesc(Access.PUBLIC);
+    var notDeletedPosts = publicPosts.stream().filter(p-> !p.isDeleted()).toList();
+    List<Post> postList = new ArrayList<>(notDeletedPosts);
+    List<User_Group> userGroupList = user_groupRepository.findByUserId(loginUser.getId());
+    for(User_Group user_group:userGroupList){
+        List<Post> userGroupPosts = postRepository.findAllByUserIdAndUserGroupIdOrderByCreatedDateDesc(loginUser.getId(),user_group.getId());
+        var filteredList =  userGroupPosts.stream().filter(u-> !u.isDeleted()).toList();
+        postList.addAll(filteredList);
+    }
+    postList.sort(Comparator.comparing(Post::getCreatedDate).reversed());
+
+    Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+    int start = Math.toIntExact(pageable.getOffset());
+    if (start >= postList.size()) {
+        return Page.empty(pageable);
+    }
+    int end = Math.min(start + pageable.getPageSize(), postList.size());
+    List<Post> paginatedPosts = postList.subList(start, end);
+    Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, postList.size());
+    return postPage;
+}
+
+    @Override
+    public List<Object> checkPostOwnerOrAdmin(Long id) {
+        var obj = new ArrayList<Object>();
+        var found = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        var loginUser = getCurrentLoginUser();
+        if(loginUser.getId().equals(found.getUser().getId())){
+            obj.add("OWNER");
+            return obj;
+        }else if(loginUser.getRole().equals(User.Role.ADMIN)){
+            obj.add("ADMIN");
+            return obj;
+        }else {
+            obj.add("NO");
+            return obj;
+        }
     }
 
 
@@ -205,13 +273,14 @@ public class PostServiceImpl implements PostService {
         post.setPostType(Post.PostType.CONTENT);
         post.setCreatedDate(new Date());
         post.setUser(getCurrentLoginUser());
+        post.setDeleted(false);
         if (Long.parseLong(postDTO.getGroupId()) > 0) {
             post.setAccess(Access.PRIVATE);
             var user_group = new User_Group();
             user_group.setUser(getCurrentLoginUser());
             user_group.setCommunity(communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(() -> new CommunityHubException("not found community")));
             user_groupRepository.save(user_group);
-            post.setUser_group(user_group);
+            post.setUserGroup(user_group);
         } else {
             post.setAccess(Access.PUBLIC);
         }

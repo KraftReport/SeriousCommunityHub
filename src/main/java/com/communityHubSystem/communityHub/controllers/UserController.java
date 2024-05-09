@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Controller
@@ -39,6 +40,7 @@ public class UserController {
     private final User_ChatRoomRepository user_ChatRoomRepository;
     private final PolicyRepository policyRepository;
     private final ExcelUploadService excelUploadService;
+
 
     @GetMapping("/allUser")
     @ResponseBody
@@ -72,6 +74,7 @@ public class UserController {
         return "/user/user-profile";
     }
 
+
     @PostMapping("/upload-data")
     @ResponseBody
     public ResponseEntity<?> uploadUsersData(@RequestParam("file") MultipartFile file) throws IOException {
@@ -89,10 +92,22 @@ public class UserController {
 
     @GetMapping("/getSkills")
     @ResponseBody
-    public ResponseEntity<List<Skill>> getSkills() {
-        var skills = skillRepository.findAll();
-        System.out.println(skills);
-        return ResponseEntity.ok(skillRepository.findAll());
+    public List<Skill> getSkills() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isPresent()) {
+            List<User_Skill> user_skills = userSkillRepository.findByUserId(optionalUser.get().getId());
+            List<Skill> skills = new ArrayList<>();
+
+            for (User_Skill user_skill : user_skills) {
+                System.out.println(user_skill.getSkill().getName());
+                skills.add(user_skill.getSkill());
+            }
+            return skills;
+        }
+        // If user not found or no skills associated, return all skills
+        return Collections.EMPTY_LIST;
     }
 
     @PostMapping("/savePassword")
@@ -123,8 +138,9 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+
     @PostMapping("/saveSkill")
-    public ResponseEntity<String> saveSkill(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<String> saveSkill(@ModelAttribute Skill skill, @RequestBody Map<String, String> requestBody) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
@@ -137,13 +153,13 @@ public class UserController {
             String experience = requestBody.get("experience");
 
             // Split the selected skills string into an array of skill names
-            String[] selectedSkillsArray = selectedSkillsString.split(",");
+            String[] selectedSkillsArray = (selectedSkillsString != null) ? selectedSkillsString.split(",") : new String[0];
 
             // Iterate through the skill names
             for (String skillName : selectedSkillsArray) {
                 // Check if the skill name already exists in the database
                 Optional<Skill> existingSkill = skillRepository.findByName(skillName);
-                Skill skill;
+
                 if (existingSkill.isPresent()) {
                     // Skill exists, use the existing skill
                     skill = existingSkill.get();
@@ -155,16 +171,21 @@ public class UserController {
                     skill = skillRepository.save(skill);
                 }
 
-                // Create User_Skill association
-                User_Skill userSkill = new User_Skill();
-                userSkill.setUser(user);
-                userSkill.setSkill(skill);
-                userSkill.setExperience(experience);
-                userSkillRepository.save(userSkill);
+                Optional<User_Skill> existingUserSkill = userSkillRepository.findByUserIdAndSkillId(user.getId(), skill.getId());
+                User_Skill userSkill;
+                if (existingUserSkill.isPresent()) {
+                    userSkill = existingUserSkill.get();
+                } else {
+                    userSkill = new User_Skill();
+                    userSkill.setUser(user);
+                    userSkill.setSkill(skill);
+                    userSkill.setExperience(experience);
+                    userSkillRepository.save(userSkill);
+                }
             }
 
             // Save the updated user entity
-            userRepository.save(user);
+
             return ResponseEntity.ok("Skills saved");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
@@ -173,8 +194,11 @@ public class UserController {
 
     @PostMapping("/updateProfilePhoto")
     @ResponseBody
-    public ResponseEntity<?> updateProfilePhoto(@ModelAttribute UserDTO userDTO) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.updateProfilePhoto(userDTO.getFile()));
+    public ResponseEntity<Map<String, String>> updateProfilePhoto(@ModelAttribute UserDTO userDTO) throws IOException {
+        var user = userService.updateProfilePhoto(userDTO.getFile());
+        Map<String, String> response = new HashMap<>();
+        response.put("photo", user.getPhoto());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/saveImage")
@@ -368,6 +392,70 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/updateProfile")
+    public ResponseEntity<String> updateProfile(@RequestBody Map<String, Object> requestBody) {
+        String staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setPhone((String) requestBody.get("phoneNumber"));
+            user.setGender((String) requestBody.get("gender"));
+
+            // Convert hobbies list to comma-separated string
+            List<String> hobbies = (List<String>) requestBody.get("hobbies");
+            String selectedHobbies = String.join(",", hobbies);
+            user.setHobby(selectedHobbies);
+
+            String selectedSkillsString = (String) requestBody.get("selectedSkills");
+            String experience = (String) requestBody.get("experience");
+
+            if (selectedSkillsString != null) {
+                String[] selectedSkillsArray = selectedSkillsString.split(",");
+
+                for (String skillName : selectedSkillsArray) {
+                    // Check if the skill name already has this skill
+                    Optional<Skill> existingSkill = skillRepository.findByName(skillName);
+
+                    Skill skill;
+
+                    if (existingSkill.isPresent()) {
+                        skill = existingSkill.get();
+                    } else {
+                        skill = new Skill();
+                        skill.setName(skillName);
+                        skill = skillRepository.save(skill);
+                    }
+
+                    // Check if the user already has this skill
+                    Optional<User_Skill> existingUserSkill = userSkillRepository.findByUserIdAndSkillId(user.getId(), skill.getId());
+                    User_Skill userSkill;
+                    if (existingUserSkill.isPresent()) {
+                        userSkill = existingUserSkill.get();
+                    } else {
+                        userSkill = new User_Skill();
+                        userSkill.setUser(user);
+                        userSkill.setSkill(skill);
+                        userSkill.setExperience(experience);
+                        userSkillRepository.save(userSkill);
+                    }
+                }
+            }
+
+            userRepository.save(user);
+
+            return ResponseEntity.ok("User profile updated successfully");
+        } else {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+    }
+
+    @GetMapping("/userSearchMethod/{input}")
+    @ResponseBody
+    public ResponseEntity<List<User>> userSearchMethod(@PathVariable("input") String input) throws UnsupportedEncodingException {
+        return ResponseEntity.ok(userService.userSearchMethod(input));
     }
 
     @GetMapping("/other-user-profile")

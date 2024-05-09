@@ -50,22 +50,22 @@
                 <td>
                     <span th:text="${user.role}"></span>
                     <th:block th:if="${user.role != 'DEFAULT_USER'}">
-                    <th:block th:if="${user.pending}">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </th:block>
-                    <th:block th:if="${user.rejected}">
-                        <button type="button" class="btn btn-warning btn-sm">
-                            <i class="fas fa-exclamation-triangle" id="warningIcons"></i>
-                        </button>
-                    </th:block>
-                    <th:block th:unless="${user.pending}">
-                        <th:block th:unless="${user.rejected}">
-                            <button type="button" class="btn btn-primary btn-sm">
-                                <i th:unless="${user.done}" class="fas fa-pencil-alt" id="pencilIcons"></i>
-                                <i th:if="${user.done}" class="fas fa-trash-alt" id="trashIcons"></i>
+                        <th:block th:if="${user.pending}">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </th:block>
+                        <th:block th:if="${user.rejected}">
+                            <button type="button" class="btn btn-warning btn-sm">
+                                <i class="fas fa-exclamation-triangle" id="warningIcons"></i>
                             </button>
                         </th:block>
-                    </th:block>
+                        <th:block th:unless="${user.pending}">
+                            <th:block th:unless="${user.rejected}">
+                                <button type="button" class="btn btn-primary btn-sm">
+                                    <i th:unless="${user.done}" class="fas fa-pencil-alt" id="pencilIcons"></i>
+                                    <i th:if="${user.done}" class="fas fa-trash-alt" id="trashIcons"></i>
+                                </button>
+                            </th:block>
+                        </th:block>
                     </th:block>
                 </td>
                 <td>

@@ -19,4 +19,8 @@ public interface ReactRepository extends JpaRepository<React,Long> {
     React findByCommentId(Long id);
 
     React findByReplyId(Long id);
+
+    List<React> findByEventId(Long id);
+
+    React findByUserIdAndEventId(Long id, Long id1);
 }

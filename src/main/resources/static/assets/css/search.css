@@ -1,0 +1,54 @@
+* {
+    font-family: arial, Sans-serif;
+    margin:0;
+  }
+  .user-profile-details {
+    max-width: 500px;
+    margin: auto;
+    max-height: 500px;
+    overflow: auto;
+  }
+  .user-profile-details li {
+    list-style: none;
+  
+    padding: 20px 20px 20px 70px;
+    position: relative;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  
+  .user-profile-details img{Position: absolute;left: 0px;top: 30px;object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+  }
+  
+  .user-profile-details label{
+    margin: 10px 0;
+    display: inline-block;
+  }
+  
+  .user-profile-details .red img {
+    border-color: red;
+  }
+  .user-profile-details .blue img {
+    border-color: blue;
+  }
+  
+  
+  .user-profile-details .red {
+    border-color: red;
+  }
+  .user-profile-details .blue {
+    border-color: blue;
+  }
+  
+  
+  .date {
+    position:absolute;
+    right: 0;
+    top: 10px;
+  }
+
+  .container {
+     !important; /* Set background color to transparent */
+}

@@ -112,7 +112,7 @@ public class PageController {
                         .getAuthority().equals(User.Role.ADMIN.name()) ||
                         ((GrantedAuthority) a)
                                 .getAuthority()
-                                .equals(User.Role.USER.name()) || a.getAuthority().equals(User.Role.DEFAULT_USER.name()))) {
+                                .equals(User.Role.USER.name()) || ((GrantedAuthority) a).getAuthority().equals(User.Role.DEFAULT_USER.name()))) {
             session.setAttribute("user", user.get());
 
             return "redirect:/index";
@@ -170,5 +170,10 @@ public class PageController {
         helper.setSubject("Password Reset OTP");
         helper.setText("Your OTP is: " + otp);
         emailSender.send(message);
+    }
+
+    @GetMapping("/searcher")
+    public String goToSearchPage(){
+        return "/layout/searchPage";
     }
 }
