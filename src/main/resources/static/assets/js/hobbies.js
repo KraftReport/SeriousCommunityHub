@@ -1,21 +1,29 @@
-let selectedHobbies = '';
+var checkboxes = document.querySelectorAll('#hobbyChangeForm input[type="checkbox"]');
+var button = document.querySelector('#hobbyChangeForm button');
 
-$('#hobbyChangeForm input[type="checkbox"]').on('change', function() {
-    if ($(this).is(':checked')) {
-        selectedHobbies += $(this).parent().text().trim() + ',';
-        if (selectedHobbies!== '') {
-            $('#hobbyChangeForm button').text('Next');
+// Initialize selectedHobbies variable
+var selectedHobbies = '';
+
+// Attach change event listeners to checkboxes
+checkboxes.forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            selectedHobbies += this.parentElement.textContent.trim() + ',';
+            if (selectedHobbies !== '') {
+                button.textContent = 'Next';
+            }
+        } else {
+            selectedHobbies = selectedHobbies.replace(this.parentElement.textContent.trim() + ',', '');
+            if (selectedHobbies === '') {
+                button.textContent = 'Skip';
+            }
         }
-    } else {
-        selectedHobbies = selectedHobbies.replace($(this).parent().text().trim() + ',', '');
-        if (selectedHobbies === '') {
-            $('#hobbyChangeForm button').text('Skip');
-        }
-    }
+    });
 });
 
-$('#hobbyChangeForm button').on('click', function() {
-    if (selectedHobbies!== '') {
+// Attach click event listener to button
+button.addEventListener('click', function() {
+    if (selectedHobbies !== '') {
         // Store the selected hobbies as a string in the database
         localStorage.setItem('Hobbies', selectedHobbies.slice(0, -1));
         console.log('Selected hobbies: ' + selectedHobbies.slice(0, -1));

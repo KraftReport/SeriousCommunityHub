@@ -6,6 +6,7 @@ import com.communityHubSystem.communityHub.models.Skill;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.models.User_Skill;
 import com.communityHubSystem.communityHub.repositories.*;
+import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import com.communityHubSystem.communityHub.services.PostService;
 import com.communityHubSystem.communityHub.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,8 @@ public class UserController {
     private final User_SkillRepository userSkillRepository;
     private final User_ChatRoomRepository user_ChatRoomRepository;
     private final PolicyRepository policyRepository;
+    private final ExcelUploadService excelUploadService;
+
 
     @GetMapping("/allUser")
     @ResponseBody
@@ -71,10 +74,11 @@ public class UserController {
         return "/user/user-profile";
     }
 
+
     @PostMapping("/upload-data")
     @ResponseBody
     public ResponseEntity<?> uploadUsersData(@RequestParam("file") MultipartFile file) throws IOException {
-        this.userService.saveUserToDatabase(file);
+        this.excelUploadService.uploadEmployeeData(file);
         return ResponseEntity
                 .ok(Map.of("Message", " Employee data uploaded and saved to database successfully"));
     }
@@ -93,7 +97,7 @@ public class UserController {
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
         if (optionalUser.isPresent()) {
-            List<User_Skill>  user_skills= userSkillRepository.findByUserId(optionalUser.get().getId());
+            List<User_Skill> user_skills = userSkillRepository.findByUserId(optionalUser.get().getId());
             List<Skill> skills = new ArrayList<>();
 
             for (User_Skill user_skill : user_skills) {
@@ -107,11 +111,12 @@ public class UserController {
     }
 
     @PostMapping("/savePassword")
-    public ResponseEntity<String> savePassword(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Map<String, String>> savePassword(@RequestBody Map<String, String> requestBody) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
         if (optionalUser.isPresent()) {
+            System.out.println("user present");
             User user = optionalUser.get();
             String password = requestBody.get("password");
             String phoneNumber = requestBody.get("phoneNumber");
@@ -124,13 +129,18 @@ public class UserController {
             user.setDob(dob);
             user.setGender(gender);
             user.setHobby(hobbies);
+            user.setRole(User.Role.USER);
             userRepository.save(user);
+
         }
-        return ResponseEntity.ok("Password saved");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Password saved");
+        return ResponseEntity.ok(response);
     }
 
+
     @PostMapping("/saveSkill")
-    public ResponseEntity<String> saveSkill(@ModelAttribute Skill skill,@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<String> saveSkill(@ModelAttribute Skill skill, @RequestBody Map<String, String> requestBody) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
@@ -162,12 +172,11 @@ public class UserController {
                 }
 
                 Optional<User_Skill> existingUserSkill = userSkillRepository.findByUserIdAndSkillId(user.getId(), skill.getId());
-                User_Skill userSkill ;
+                User_Skill userSkill;
                 if (existingUserSkill.isPresent()) {
                     userSkill = existingUserSkill.get();
-                }
-                else {
-                    userSkill= new User_Skill();
+                } else {
+                    userSkill = new User_Skill();
                     userSkill.setUser(user);
                     userSkill.setSkill(skill);
                     userSkill.setExperience(experience);
@@ -185,10 +194,10 @@ public class UserController {
 
     @PostMapping("/updateProfilePhoto")
     @ResponseBody
-    public ResponseEntity<Map<String,String>> updateProfilePhoto(@ModelAttribute UserDTO userDTO) throws IOException {
+    public ResponseEntity<Map<String, String>> updateProfilePhoto(@ModelAttribute UserDTO userDTO) throws IOException {
         var user = userService.updateProfilePhoto(userDTO.getFile());
-        Map<String,String> response = new HashMap<>();
-        response.put("photo",user.getPhoto());
+        Map<String, String> response = new HashMap<>();
+        response.put("photo", user.getPhoto());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -198,7 +207,6 @@ public class UserController {
         var ips = new ByteArrayInputStream(image);
         var photo = new MockMultipartFile(Arrays.toString(image), ips);
         userService.saveImage(photo);
-        // Return a success response
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Image saved successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -423,12 +431,11 @@ public class UserController {
 
                     // Check if the user already has this skill
                     Optional<User_Skill> existingUserSkill = userSkillRepository.findByUserIdAndSkillId(user.getId(), skill.getId());
-                    User_Skill userSkill ;
+                    User_Skill userSkill;
                     if (existingUserSkill.isPresent()) {
                         userSkill = existingUserSkill.get();
-                    }
-                    else {
-                        userSkill= new User_Skill();
+                    } else {
+                        userSkill = new User_Skill();
                         userSkill.setUser(user);
                         userSkill.setSkill(skill);
                         userSkill.setExperience(experience);
@@ -447,8 +454,16 @@ public class UserController {
 
     @GetMapping("/userSearchMethod/{input}")
     @ResponseBody
-    public ResponseEntity<List<User>> userSearchMethod(@PathVariable("input")String input) throws UnsupportedEncodingException {
+    public ResponseEntity<List<User>> userSearchMethod(@PathVariable("input") String input) throws UnsupportedEncodingException {
         return ResponseEntity.ok(userService.userSearchMethod(input));
+    }
+
+    @GetMapping("/other-user-profile")
+    public String getUserProfile(@RequestParam("id") Long userId, Model model) {
+        User user = userService.findById(userId);
+        model.addAttribute("user", user);
+
+        return "/user/other-user-profile";
     }
 }
 

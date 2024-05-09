@@ -35,6 +35,60 @@ public class ExcelUploadServiceImpl implements ExcelUploadService {
     }
 
     @Override
+    public void uploadEmployeeData(MultipartFile file) throws IOException {
+        List<User> newEmployeeData = getEmployeeDataFromExcel(file.getInputStream());
+        List<User> existingEmployeeData = userRepository.findAll();
+
+        for (User newUser : newEmployeeData) {
+            if ("99-09999".equals(newUser.getStaffId())) {
+                continue;
+            }
+            boolean found = false;
+            for (User existingUser : existingEmployeeData) {
+                if (newUser.getStaffId().equals(existingUser.getStaffId())) {
+                    found = true;
+                    if (existingUser.isDeleted()) {
+                        // If user exists and is marked as deleted, update its delete status to false
+                        existingUser.setDeleted(false);
+                        userRepository.save(existingUser);
+                    }
+                    // Do not overwrite existing users, break out of the loop
+                    break;
+                }
+            }
+            if (!found) {
+                // If user does not exist in the database, add it as a new user
+                newUser.setPassword(passwordEncoder.encode("DAT@123"));
+                newUser.setRole(User.Role.DEFAULT_USER);
+                newUser.setActive(true);
+                newUser.setPending(false);
+                newUser.setDone(false);
+                newUser.setRemoved(false);
+                newUser.setRejected(false);
+                newUser.setDeleted(false);
+                userRepository.save(newUser);
+            }
+        }
+        for (User existingUser : existingEmployeeData) {
+            if ("99-09999".equals(existingUser.getStaffId())) {
+                continue;
+            }
+            boolean found = false;
+            for (User newUser : newEmployeeData) {
+                if (existingUser.getStaffId().equals(newUser.getStaffId())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+
+                existingUser.setDeleted(true);
+                userRepository.save(existingUser);
+            }
+        }
+    }
+
+    @Override
     public List<User> getEmployeeDataFromExcel(InputStream inputStream) {
         List<User> user_data = new ArrayList<>();
         try {
@@ -98,17 +152,4 @@ public class ExcelUploadServiceImpl implements ExcelUploadService {
         return user_data;
     }
 
-    @Override
-    public void uploadEmployeeData(MultipartFile file) throws IOException {
-        List<User> newEmployeeData = getEmployeeDataFromExcel(file.getInputStream());
-        List<User> existingEmployeeData = userRepository.findAll();
-
-        for (User existingEmployee : existingEmployeeData) {
-            if (!newEmployeeData.contains(existingEmployee) && (!existingEmployee.getStaffId().equals("99-09999"))) {
-                userRepository.delete(existingEmployee);
-            }
-        }
-
-        userRepository.saveAll(newEmployeeData);
-    }
 }

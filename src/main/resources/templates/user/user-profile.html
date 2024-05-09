@@ -75,10 +75,33 @@
                             <div class="mb-5">
                                 <p class="lead fw-normal mb-1">About</p>
                                 <div class="p-4" style="background-color: #f8f9fa;">
-                                    <p class="font-italic mb-1" th:text="${user.gender}"></p>
-                                    <p class="font-italic mb-1" th:text="${user.staffId}"></p>
-                                    <p class="font-italic mb-1" th:text="${user.email}"></p>
-                                    <p class="font-italic mb-1" th:text="${user.phone}"></p>
+                                    <p class="font-italic mb-1">
+                                        <strong>Date of Birth:</strong> <span th:text="${user.dob}?: 'Not provided'"></span>
+                                    </p>
+                                    <p class="font-italic mb-1">
+                                        <strong>Email:</strong> <span th:text="${user.email}?: 'Not provided'"></span>
+                                    </p>
+                                    <p class="font-italic mb-1">
+                                        <strong>Phone:</strong> <span th:text="${user.phone}?: 'Not provided'"></span>
+                                    </p>
+                                    <p class="font-italic mb-1">
+                                        <strong>Gender:</strong> <span th:text="${user.gender}?: 'Not provided'"></span>
+                                    </p>
+                                    <button id="seeMoreBtn" class="btn btn-link">See more...</button>
+                                    <div id="moreUserInfo" style="display: none;">
+                                        <p class="font-italic mb-1">
+                                            <strong>Department:</strong> <span th:text="${user.dept}?: 'Not provided'"></span>
+                                        </p>
+                                        <p class="font-italic mb-1">
+                                            <strong>Division:</strong> <span th:text="${user.division}?: 'Not provided'"></span>
+                                        </p>
+                                        <p class="font-italic mb-1">
+                                            <strong>Team:</strong> <span th:text="${user.team}?: 'Not provided'"></span>
+                                        </p>
+                                        <p class="font-italic mb-1">
+                                            <strong>Role:</strong> <span th:text="${user.role}?: 'Not provided'"></span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -534,6 +557,20 @@
         }
     };
 
+    document.getElementById('seeMoreBtn').addEventListener('click', function() {
+        const moreUserInfo = document.getElementById('moreUserInfo');
+        const seeMoreBtn = document.getElementById('seeMoreBtn');
+
+        if (moreUserInfo.style.display === 'none') {
+            // Show more user information
+            moreUserInfo.style.display = 'block';
+            seeMoreBtn.textContent = 'See less';
+        } else {
+            // Hide more user information
+            moreUserInfo.style.display = 'none';
+            seeMoreBtn.textContent = 'See more...';
+        }
+    });
     // Add a click event listener to the edit photo button to show the modal
     const editPhotoBtn = document.getElementById('edit-photo-btn');
     const profileForm = document.getElementById('editModal');

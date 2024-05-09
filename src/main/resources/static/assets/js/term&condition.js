@@ -5,20 +5,14 @@ fetch('/user/getAllPolicies')
         // Assuming data is an array of policy objects
         data.forEach(policy => {
             const policyContainer = document.createElement('div');
-
-            // Create a paragraph element for the policy content
             const policyElement = document.createElement('p');
             policyElement.innerHTML = policy.rule;
             policyContainer.appendChild(policyElement);
-
-            // Create a span element for the user name
             const userSpan = document.createElement('span');
             userSpan.innerHTML = ` written by ${policy.user.name}(ADMIN)`;
-            userSpan.style.fontSize = 'smaller'; // Make user name smaller
-            userSpan.style.color = 'blue'; // Make user name blue
+            userSpan.style.fontSize = 'smaller';
+            userSpan.style.color = 'blue';
             policyContainer.appendChild(userSpan);
-
-
             // Add a gray line between each policy
             policyContainer.style.borderBottom = '1px solid #ddd';
 
@@ -41,7 +35,7 @@ const finishedButton = document.getElementById('finishedButton');
 
 // Add an event listener to the finished button
 finishedButton.addEventListener('click', function () {
-    // Retrieve the data from local storage
+
     const savedPassword = localStorage.getItem('savedPassword');
     const rawImage = localStorage.getItem('rawImage');
     const selectedHobbies = localStorage.getItem('Hobbies');
@@ -51,35 +45,8 @@ finishedButton.addEventListener('click', function () {
     const skills = localStorage.getItem('selectedSkills');
     const experience = localStorage.getItem('Experience');
 
-    // Send the data to the server
-    fetch('/user/savePassword', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({password: savedPassword, phoneNumber, dob, gender, hobbies: selectedHobbies})
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Password saved:', data);
-        })
-        .catch(error => {
-            console.error('Error saving password:', error);
-        });
-    fetch('/user/saveSkill', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({selectedSkills: skills, experience})
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Skills saved:', data);
-        })
-        .catch(error => {
-            console.error('Error saving skills:', error);
-        });
+
+
     fetch('/user/saveImage', {
         method: 'POST',
         headers: {
@@ -90,17 +57,53 @@ finishedButton.addEventListener('click', function () {
         .then(response => response.json())
         .then(data => {
             console.log('Image saved:', data);
+            saveOtherDataAndClearLocalStorage();
         })
         .catch(error => {
             console.error('Error saving image:', error);
         });
+
     // Clear the local storage
-    localStorage.removeItem('savedPassword')
-    localStorage.removeItem('phoneNumber')
-    localStorage.removeItem('rawImage')
-    localStorage.removeItem('Hobbies')
-    localStorage.removeItem('dob')
-    localStorage.removeItem('gender')
-    localStorage.removeItem('selectedSkills')
-    localStorage.removeItem('Experience')
+    function saveOtherDataAndClearLocalStorage() {
+        // Send requests to save password and skills
+        Promise.all([
+            fetch('/user/savePassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({password: savedPassword, phoneNumber, dob, gender, hobbies: selectedHobbies})
+            }),
+            fetch('/user/saveSkill', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({selectedSkills: skills, experience})
+            })
+        ])
+            .then(responses => Promise.all(responses.map(response => response.json())))
+            .then(data => {
+                console.log('Password saved:', data[0]);
+                console.log('Skills saved:', data[1]);
+                clearLocalStorage();
+            })
+            .catch(error => {
+                console.error('Error saving password or skills:', error);
+            });
+    }
+    const finishedModal = new bootstrap.Modal(document.getElementById("finishedModal"), {
+        backdrop: 'static'
+    });
+    finishedModal.show();
+    function clearLocalStorage() {
+        localStorage.removeItem('savedPassword');
+        localStorage.removeItem('phoneNumber');
+        localStorage.removeItem('rawImage');
+        localStorage.removeItem('Hobbies');
+        localStorage.removeItem('dob');
+        localStorage.removeItem('gender');
+        localStorage.removeItem('selectedSkills');
+        localStorage.removeItem('Experience');
+    }
 });

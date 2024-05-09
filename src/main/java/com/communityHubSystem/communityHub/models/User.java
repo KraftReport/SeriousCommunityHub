@@ -44,6 +44,7 @@ public class User implements Serializable {
     private String RemovedReason;
     private String RejectReason;
     private String BannedReason;
+    private boolean isDeleted;
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -105,6 +106,6 @@ public class User implements Serializable {
 
 
     public enum Role{
-        ADMIN,USER;
+        ADMIN,USER,DEFAULT_USER;
     }
 }

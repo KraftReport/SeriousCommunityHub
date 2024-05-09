@@ -1,4 +1,13 @@
+
 document.addEventListener('DOMContentLoaded', function() {
+    const input = document.querySelector("#phoneInput");
+    const iti = window.intlTelInput(input, {
+        initialCountry: "mm",
+        preferredCountries: ["mm", "us", "cn", "in"],
+        separateDialCode: true
+    });
+
+
     document.getElementById('phoneInput').addEventListener('input', function() {
         const phoneInput = document.getElementById('phoneInput');
         const phoneNumber = phoneInput.value;
