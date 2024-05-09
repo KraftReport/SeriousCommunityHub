@@ -357,6 +357,11 @@ public class EventServiceImpl implements EventService {
         return getPaginationOfEvents(filteredEvents,page);
     }
 
+    @Override
+    public Event findById(Long id) {
+        return eventRepository.findById(id).orElseThrow(() -> new CommunityHubException("Event Not Found Exception!"));
+    }
+
     private Page<Event> getPaginationOfEvents(List<Event> filteredEvents,String page){
         var pageable = PageRequest.of(Integer.parseInt(page),5);
         var start = Math.toIntExact(pageable.getOffset());

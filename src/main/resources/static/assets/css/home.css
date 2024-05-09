@@ -170,7 +170,7 @@ nav .nav-middle a  > i{
 .post .post-bottom {
     box-shadow: 1px solid #ddd;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     padding: 5px 5px 0px 5px;
 }
 .post .post-bottom .action{

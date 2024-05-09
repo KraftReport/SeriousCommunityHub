@@ -41,4 +41,9 @@ public class React implements Serializable {
     @ManyToOne
     @JoinColumn(name = "reply_id")
     private Reply reply;
+
+
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 }

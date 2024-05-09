@@ -36,6 +36,7 @@ public class ReactController {
     private final CommentService commentService;
     private final ReplyService replyService;
     private final NotificationService notificationService;
+    private final EventService eventService;
 
     @MessageMapping("/react-message")
     public void processedReactMessage(@Payload MessageDto messageDto) {
@@ -62,14 +63,16 @@ public class ReactController {
                     loginUser.getPhoto(),
                     new Date()
             ));
-            var noti = Notification.builder()
-                    .content(messageDto.getContent())
-                    .date(new Date())
-                    .user(postedUser)
-                    .post(post)
-                    .react(react)
-                    .build();
-            notificationService.save(noti);
+               if(!loginUser.getId().equals(postedUser.getId())){
+                   var noti = Notification.builder()
+                           .content(messageDto.getContent())
+                           .date(new Date())
+                           .user(postedUser)
+                           .post(post)
+                           .react(react)
+                           .build();
+                   notificationService.save(noti);
+               }
         } else {
             var existedReact = reactService.findReactByPostIdAndUserId(post.getId(), loginUser.getId());
             System.out.println(existedReact.getType());
@@ -99,7 +102,7 @@ public class ReactController {
         List<React> reactList = reactService.findByPostId(id);
         var reacts = new ArrayList<>();
         for (React react : reactList) {
-            if (react.getComment() == null && react.getReply() == null) {
+            if (react.getComment() == null && react.getReply() == null && react.getType() != Type.OTHER) {
                 reacts.add(react);
             }
         }
@@ -129,14 +132,16 @@ public class ReactController {
                 loginUser.getPhoto(),
                 new Date()
         ));
-        var noti = Notification.builder()
-                .content(commentDto.getContent())
-                .date(new Date())
-                .user(postedUser)
-                .post(post)
-                .comment(comment)
-                .build();
-        notificationService.save(noti);
+        if(!loginUser.getId().equals(postedUser.getId())) {
+            var noti = Notification.builder()
+                    .content(commentDto.getContent())
+                    .date(new Date())
+                    .user(postedUser)
+                    .post(post)
+                    .comment(comment)
+                    .build();
+            notificationService.save(noti);
+        }
     }
 
     @MessageMapping("/comment-reply-message")
@@ -154,15 +159,17 @@ public class ReactController {
                         .comment(comment)
                         .build();
                 replyService.save(reply);
-                var noti = Notification.builder()
-                        .content(commentDto.getContent())
-                        .date(new Date())
-                        .user(user)
-                        .post(commentPost)
-                        .comment(comment)
-                        .reply(reply)
-                        .build();
-                notificationService.save(noti);
+                if(!loginUser.getId().equals(user.getId())) {
+                    var noti = Notification.builder()
+                            .content(commentDto.getContent())
+                            .date(new Date())
+                            .user(user)
+                            .post(commentPost)
+                            .comment(comment)
+                            .reply(reply)
+                            .build();
+                    notificationService.save(noti);
+                }
             }
             messagingTemplate.convertAndSend("/user/all/comment-reply-private-message", new CommentDto(
                     commentPost.getId(),
@@ -187,15 +194,17 @@ public class ReactController {
                         .comment(comment)
                         .build();
                 replyService.save(savedReply);
-                var noti = Notification.builder()
-                        .content(commentDto.getContent())
-                        .date(new Date())
-                        .user(user)
-                        .post(commentPost)
-                        .comment(comment)
-                        .reply(savedReply)
-                        .build();
-                notificationService.save(noti);
+                if(!loginUser.getId().equals(user.getId())) {
+                    var noti = Notification.builder()
+                            .content(commentDto.getContent())
+                            .date(new Date())
+                            .user(user)
+                            .post(commentPost)
+                            .comment(comment)
+                            .reply(savedReply)
+                            .build();
+                    notificationService.save(noti);
+                }
             }
             messagingTemplate.convertAndSend( "/user/all/comment-reply-private-message", new CommentDto(
                     commentPost.getId(),
@@ -275,7 +284,9 @@ public class ReactController {
         var user = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("user name not found exception"));
         var post = postService.findById(id);
         var react = reactService.findReactByPostIdAndUserId(id, user.getId());
-        reactService.removeReactType(react.getId());
+         if(react != null){
+             reactService.removeReactType(react.getId());
+         }
         System.out.println("Ya twar p");
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -285,6 +296,7 @@ public class ReactController {
     public void processLikedCommentMessage(@Payload MessageDtoForCommentReaction messageDto) {
         var loginUser = userService.findByStaffId(messageDto.getSender().trim()).orElseThrow(() -> new CommunityHubException("user name not found exception"));
         var comment = commentService.findById(messageDto.getCommentId());
+        var user = userService.findById(comment.getUser().getId());
         var post = postService.findById(comment.getPost().getId());
         var isReact = reactService.findReactByUserIdAndCommentId(loginUser.getId(), messageDto.getCommentId(), post.getId());
         if (isReact == null) {
@@ -305,14 +317,16 @@ public class ReactController {
                     loginUser.getPhoto(),
                     new Date()
             ));
-            var noti = Notification.builder()
-                    .date(new Date())
-                    .user(loginUser)
-                    .post(post)
-                    .comment(comment)
-                    .react(react)
-                    .build();
-            notificationService.save(noti);
+      if(!loginUser.getId().equals(user.getId())) {
+          var noti = Notification.builder()
+                  .date(new Date())
+                  .user(loginUser)
+                  .post(post)
+                  .comment(comment)
+                  .react(react)
+                  .build();
+          notificationService.save(noti);
+      }
         } else {
             if (isReact.getType() == null) {
                 reactService.modifyReact(isReact.getId(), messageDto.getType());
@@ -342,6 +356,7 @@ public class ReactController {
         var loginUser = userService.findByStaffId(messageDtoForCommentReaction.getSender().trim()).orElseThrow(() -> new CommunityHubException("user name not found exception"));
         var reply = replyService.findById(messageDtoForCommentReaction.getPostId());
         var comment = commentService.findById(messageDtoForCommentReaction.getCommentId());
+        var user = userService.findById(reply.getUser().getId());
         var post = postService.findById(comment.getPost().getId());
         var isReact = reactService.getReact(loginUser.getId(), post.getId(), comment.getId(), reply.getId());
         if (isReact == null) {
@@ -363,14 +378,16 @@ public class ReactController {
                     loginUser.getPhoto(),
                     new Date()
             ));
-            var noti = Notification.builder()
-                    .date(new Date())
-                    .user(loginUser)
-                    .post(post)
-                    .reply(reply)
-                    .react(react)
-                    .build();
-            notificationService.save(noti);
+            if(!loginUser.getId().equals(user.getId())) {
+                var noti = Notification.builder()
+                        .date(new Date())
+                        .user(loginUser)
+                        .post(post)
+                        .reply(reply)
+                        .react(react)
+                        .build();
+                notificationService.save(noti);
+            }
         } else {
             if (isReact.getType() == null) {
                 reactService.modifyReact(isReact.getId(), messageDtoForCommentReaction.getType());
@@ -395,4 +412,113 @@ public class ReactController {
             return ResponseEntity.status(HttpStatus.OK).body(react);
         }
     }
+
+
+    @MessageMapping("/react-event-message")
+    public void precessEventReactType(@Payload MessageDto messageDto){
+        var loginUser = userService.findByStaffId(messageDto.getSender()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
+         var event = eventService.findById(messageDto.getPostId());
+         var postedUser = userService.findById(event.getUser().getId());
+         var isExistedEventType = reactService.findByUserIdAndEventId(loginUser.getId(),event.getId());
+    if(isExistedEventType == null){
+        var react = React.builder()
+                .date(new Date())
+                .type(messageDto.getType())
+                .event(event)
+                .user(loginUser)
+                .build();
+        reactService.save(react);
+        messagingTemplate.convertAndSendToUser(postedUser.getStaffId(), "/like-private-message", new MessageDto(
+                messageDto.getPostId(),
+                postedUser.getStaffId(),
+                loginUser.getName(),
+                messageDto.getContent(),
+                messageDto.getType(),
+                loginUser.getPhoto(),
+                new Date()
+        ));
+        if(!loginUser.getId().equals(postedUser.getId())) {
+            var noti = Notification.builder()
+                    .content(messageDto.getContent())
+                    .date(new Date())
+                    .user(postedUser)
+                    .event(event)
+                    .react(react)
+                    .build();
+            notificationService.save(noti);
+        }
+    }else{
+        if (!isExistedEventType.getType().equals(messageDto.getType())) {
+            reactService.updatedReact(isExistedEventType.getId(), messageDto.getType());
+        }
+    }
+
+    }
+
+
+    @GetMapping("/remove-like-eventReact-type/{id}")
+    public ResponseEntity<?> eventRemoveReaction(@PathVariable("id")Long id){
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        var user = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("user name not found exception"));
+        var event = eventService.findById(id);
+        var react = reactService.findByUserIdAndEventId(user.getId(),event.getId());
+        if(react != null){
+            reactService.removeReactType(react.getId());
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

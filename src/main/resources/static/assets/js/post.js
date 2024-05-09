@@ -244,39 +244,35 @@ async function welcome() {
                 let likeButtonContent = '';
                 if (reactType === "LIKE") {
                     likeButtonContent = `<div class="button_icon">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="#2D86FE" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
     </div>
-            <span  style="color: #2D86FE;">LIKE</span>`
+            <span  style="color: black;">LIKE ${reactCount.length}</span>`
                     ;
                 } else if (reactType === "LOVE") {
-                    likeButtonContent = `<img src="/static/assets/img/love.png" alt="Love" style="width: 20px; height: 20px"/>   
+                    likeButtonContent = `<img src="/static/assets/img/love.png" alt="Love" style="width: 25px; height: 25px"/>   
                <span>LOVE</span>`;
                 } else if (reactType === "CARE") {
-                    likeButtonContent = `<img src="/static/assets/img/care.png" alt="Care" style="width: 20px; height: 20px" /> 
+                    likeButtonContent = `<img src="/static/assets/img/care.png" alt="Care" style="width: 25px; height: 25px" /> 
                       <span>CARE</span>`;
                 } else if (reactType === "ANGRY") {
-                    likeButtonContent = `<img src="/static/assets/img/angry.png" alt="Angry" style="width: 20px; height: 20px" />
+                    likeButtonContent = `<img src="/static/assets/img/angry.png" alt="Angry" style="width: 25px; height: 25px" />
                      <span>ANGRY</span>`;
                 } else if (reactType === "HAHA") {
-                    likeButtonContent = `<img src="/static/assets/img/haha.png" alt="Haha" style="width: 20px; height: 20px" />
+                    likeButtonContent = `<img src="/static/assets/img/haha.png" alt="Haha" style="width: 25px; height: 25px" />
                   <span>HAHA</span>`;
                 } else if (reactType === "SAD") {
-                    likeButtonContent = `<img src="/static/assets/img/sad.png" alt="Sad" style="width: 20px; height: 20px" /> 
+                    likeButtonContent = `<img src="/static/assets/img/sad.png" alt="Sad" style="width: 25px; height: 25px" /> 
         <span>SAD</span>`;
                 } else if (reactType === "WOW") {
-                    likeButtonContent = `<img src="/static/assets/img/wow.png" alt="Wow" style="width: 20px; height: 20px" /> 
+                    likeButtonContent = `<img src="/static/assets/img/wow.png" alt="Wow" style="width: 25px; height: 25px" /> 
                     <span>WOW</span>`;
                 } else {
                     likeButtonContent = `<div class="button_icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" style="width: 20px" />
-                </svg>
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16H286.5c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8H384c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/></svg>
             </div>
-            <span>Like</span>`
+            <span>Like ${reactCount.length}</span>`
                 }
 
                 const commentCountSize = await fetchCommentSizes(p.id);
@@ -621,17 +617,13 @@ async function welcome() {
             </div>
         </div>
         <button class="like_button" id="${p.id}">
-          ${likeButtonContent + reactCount.length}
+          ${likeButtonContent}
         </button>
     </div>
           </div>
           <div class="action">
               <i class="fa-regular fa-comment"></i>
-              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment ${commentCountSize}</span>
-          </div>
-          <div class="action">
-              <i class="fa fa-share"></i>
-              <span>Share</span>
+              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox">Comment ${commentCountSize}</span>
           </div>
       </div>
   </div> 
@@ -707,28 +699,25 @@ async function welcome() {
             console.log('sdd', currentReactType);
             if ((currentReactType !== "OTHER") || (currentReactType === null)) {
                 await removeReaction(postId);
+                const reactCount = await fetchSizes(postId);
                 likeButton.innerHTML = `<div class="button_icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
-                    </svg>
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16H286.5c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8H384c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/></svg>
                 </div>
-                <span>Like</span>`;
+                <span>Like ${reactCount.length}</span>`;
             } else {
                 await pressedLike(postId, "LIKE");
+                await new Promise(resolve => setTimeout(resolve, 200));
+                const reactCount = await fetchSizes(postId);
                 likeButton.innerHTML = `<div class="button_icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" style="width: 20px" />
-                </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
             </div>
-            <span>Like</span>`
+            <span>Like ${reactCount.length}</span>`
                 likeButton.classList.toggle('active');
 
                 if (likeButton.classList.contains('active')) {
-                    likeButton.style.color = "#2D86FE";
+                    likeButton.style.color = "black";
                 } else {
                     likeButton.classList.remove('active');
                     likeButton.style.color = "unset";
@@ -757,23 +746,22 @@ async function welcome() {
                 let dataTitle = event.currentTarget.dataset.title;
                 const postId = likeButton.id;
                 await pressedLike(postId, dataTitle);
+                await new Promise(resolve => setTimeout(resolve, 200));
+                const reactCount = await fetchSizes(postId);
                 if (dataTitle === "LIKE") {
                     likeButton.innerHTML = `<div class="button_icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
-                            </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
                         </div>
-                        <span>Like</span>`;
+                        <span>Like ${reactCount.length}</span>`;
 
-                    likeButton.classList.add("active")
+                    likeButton.classList.add("active")``
                 } else {
-                    likeButton.innerHTML = `<img src="/static/assets/img/${dataTitle.toLowerCase()}.png" style="width: 20px; height: 20px" /> ${dataTitle}`;
+                    likeButton.innerHTML = `<img src="/static/assets/img/${dataTitle.toLowerCase()}.png" style="width: 20px; height: 20px" /> ${dataTitle} ${reactCount.length}`;
                 }
 
                 if (dataTitle === "LIKE") {
-                    likeButton.style.color = "#2D86FE";
+                    likeButton.style.color = "black";
                 } else if (dataTitle === "LOVE") {
                     likeButton.style.color = "#EC2D50";
                 } else if (dataTitle === "CARE" || dataTitle === 'HAHA' || dataTitle === "WOW" || dataTitle === "SAD") {
@@ -1057,145 +1045,279 @@ async function createPollPost() {
 
 }
 
-async function getAllEventsForPost(){
-    isFetchingForEvent = true
-    let rows =''
-    let data = await fetch(`/event/getEventsForNewsfeed/${currentPageForEvent}`,{
-        method : 'GET'
-    })
-    let response = await data.json()
-    isFetchingForEvent = false
-    let row = ''
-    console.log(response)
-    if(response.length===0){
-        hasMoreForEvent = false
-        displayNoPostMessage()
-    }else{
-        response.forEach((r,index)=>{
+async function getAllEventsForPost() {
+    isFetchingForEvent = true;
+    let rows = '';
+    let data = await fetch(`/event/getEventsForNewsfeed/${currentPageForEvent}`, {
+        method: 'GET'
+    });
+    let response = await data.json();
+    isFetchingForEvent = false;
 
-            let photo = r.photo === null ? '/static/assets/img/eventImg.jpg' : r.photo
-            let startDate = new Date(r.start_date)
-            let startDay = startDate.getDate()
-            let startMonth = startDate.getMonth()+1
-            let startYear = startDate.getFullYear()
-            let startHours = startDate.getHours()
-            let startMinutes = startDate.getMinutes()
-            let endDate = new Date(r.end_date)
-            let endDay = endDate.getDate()
-            let endMonth = endDate.getMonth()+1
-            let endYear = endDate.getFullYear()
-            let endHours = endDate.getHours()
-            let endMinutes = endDate.getMinutes()
-            let formattedStartDate = `${startDay} / ${startMonth} / ${startYear}  `;
-            let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `
-            let rows =   `
-        
-            <div class="post">
-            <div class="post-top">
-                <div class="dp">
-                    <img src="${r.user.photo}" alt="">
-                </div>
-                <div class="post-info">
-                    <p class="name">${r.user.name}</p>
-                    <span class="time">2 days ago</span>
-                </div>
-                            <div class="dropdown offset-8">
-          <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-ellipsis-h "></i>
-                </a>
-        
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#eventEditModalBox">Edit</a></li>
-            <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
-          </ul>
-        </div>
-            </div> 
-            <div class=" post-content" data-bs-toggle="modal" data-bs-target="#searchPost" > 
-            <div class="card" style="width: 30rem;  margin-left:12px ;"> 
-      <div class="card-body">
-        <h5 class="card-title">${r.title}</h5> 
-        <div class="d-flex align-items-start">
-        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-        <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
-          <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
-          <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
-          <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button> 
-        </div>
-        <div class="tab-content" id="v-${r.id}-tabContent">
-          <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
-          <div class="text-center lh-sm font-monospace">
-          ${r.description}
-          </div>
-          </div>
-          <div class="tab-pane fade" id="v-${r.id}-location" role="tabpanel" aria-labelledby="v-${r.id}-location-tab">
-          <div class="text-center fs-5 fw-bold fst-italic font-monospace ml-3">
-          <div class="ml-5  mt-5 text-danger">${r.location}</div>
-          </div>
-          </div>
-          <div class="tab-pane fade" id="v-${r.id}-date" role="tabpanel" aria-labelledby="v-${r.id}-date-tab">
-          <div class="text-center fs-6 fw-bold mt-3  pl-2 font-monospace">
-          <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> START </div> <i class="fa-solid fa-play text-danger mx-1"></i></br></div><div class="fst-italic"> ${formattedStartDate}</div></br>
-          <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
-           </div>
-           </div>
-          <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div> 
-        </div>
-      </div>
-      </div>
+    console.log(response);
+
+    if (response.length === 0) {
+        hasMoreForEvent = false;
+        displayNoPostMessage();
+    } else {
+        for (const r of response) {
+            const reactCountForEvent = await fetchReactCountForEvent(r.id);
+            console.log('length',reactCountForEvent.length);
+            const reactTypeForEvent = await fetchReactTypeForEvent(r.id);
+            let likeButtonContent = '';
+            if (reactTypeForEvent === "LIKE") {
+                likeButtonContent = `<div class="button_icon1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
     </div>
+            <span  style="color: black;">LIKE</span>`
+                ;
+            } else if (reactTypeForEvent === "LOVE") {
+                likeButtonContent = `<img src="/static/assets/img/love.png" alt="Love" style="width: 20px; height: 20px"/>   
+               <span>LOVE</span>`;
+            } else if (reactTypeForEvent === "CARE") {
+                likeButtonContent = `<img src="/static/assets/img/care.png" alt="Care" style="width: 20px; height: 20px" /> 
+                      <span>CARE</span>`;
+            } else if (reactTypeForEvent === "ANGRY") {
+                likeButtonContent = `<img src="/static/assets/img/angry.png" alt="Angry" style="width: 20px; height: 20px" />
+                     <span>ANGRY</span>`;
+            } else if (reactTypeForEvent === "HAHA") {
+                likeButtonContent = `<img src="/static/assets/img/haha.png" alt="Haha" style="width: 20px; height: 20px" />
+                  <span>HAHA</span>`;
+            } else if (reactTypeForEvent === "SAD") {
+                likeButtonContent = `<img src="/static/assets/img/sad.png" alt="Sad" style="width: 20px; height: 20px" /> 
+        <span>SAD</span>`;
+            } else if (reactTypeForEvent === "WOW") {
+                likeButtonContent = `<img src="/static/assets/img/wow.png" alt="Wow" style="width: 20px; height: 20px" /> 
+                    <span>WOW</span>`;
+            } else {
+                likeButtonContent = `<div class="button_icon1">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16H286.5c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8H384c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/></svg>
             </div>
-            <div class="post-bottom">
-                <div class="action" style="height: 50px">
-        <div class="button_wrapper">
-              <div class="all_likes_wrapper">
-                  <div data-title="LIKE">
-                      <img src="/static/assets/img/like.png" alt="Like" />
-                  </div>
-                  <div data-title="LOVE">
-                      <img src="/static/assets/img/love.png" alt="Love" />
-                  </div>
-                  <div data-title="CARE">
-                      <img src="/static/assets/img/care.png" alt="Care" />
-                  </div>
-                  <div data-title="HAHA">
-                      <img src="/static/assets/img/haha.png" alt="Haha" />
-                  </div>
-                  <div data-title="WOW">
-                      <img src="/static/assets/img/wow.png" alt="Wow" />
-                  </div>
-                  <div data-title="SAD">
-                      <img src="/static/assets/img/sad.png" alt="Sad" />
-                  </div>
-                  <div data-title="ANGRY">
-                      <img src="/static/assets/img/angry.png" alt="Angry" />
-                  </div>
-              </div>
-              <button class="like_button" id=" "> 
-              </button>
-          </div>
+            <span>Like</span>`
+            }
+            console.log('Type',reactTypeForEvent);
+            let photo = r.photo === null ? '/static/assets/img/eventImg.jpg' : r.photo;
+            let startDate = new Date(r.start_date);
+            let startDay = startDate.getDate();
+            let startMonth = startDate.getMonth() + 1;
+            let startYear = startDate.getFullYear();
+            let startHours = startDate.getHours();
+            let startMinutes = startDate.getMinutes();
+            let endDate = new Date(r.end_date);
+            let endDay = endDate.getDate();
+            let endMonth = endDate.getMonth() + 1;
+            let endYear = endDate.getFullYear();
+            let endHours = endDate.getHours();
+            let endMinutes = endDate.getMinutes();
+            let formattedStartDate = `${startDay} / ${startMonth} / ${startYear}  `;
+            let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `;
+            let row = `
+                <div class="post">
+                    <div class="post-top">
+                        <div class="dp">
+                            <img src="${r.user.photo}" alt="">
+                        </div>
+                        <div class="post-info">
+                            <p class="name">${r.user.name}</p>
+                            <span class="time">2 days ago</span>
+                        </div>
+                        <div class="dropdown offset-8">
+                            <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-h "></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#eventEditModalBox">Edit</a></li>
+                                <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
+                            </ul>
+                        </div>
+                    </div> 
+                    <div class=" post-content" data-bs-toggle="modal" data-bs-target="#searchPost" > 
+                        <div class="card" style="width: 30rem;  margin-left:12px ;"> 
+                            <div class="card-body">
+                                <h5 class="card-title">${r.title}</h5> 
+                                <div class="d-flex align-items-start">
+                                    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
+                                        <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
+                                        <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
+                                        <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button> 
+                                    </div>
+                                    <div class="tab-content" id="v-${r.id}-tabContent">
+                                        <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
+                                            <div class="text-center lh-sm font-monospace">
+                                                ${r.description}
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-location" role="tabpanel" aria-labelledby="v-${r.id}-location-tab">
+                                            <div class="text-center fs-5 fw-bold fst-italic font-monospace ml-3">
+                                                <div class="ml-5  mt-5 text-danger">${r.location}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-date" role="tabpanel" aria-labelledby="v-${r.id}-date-tab">
+                                            <div class="text-center fs-6 fw-bold mt-3  pl-2 font-monospace">
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> START </div> <i class="fa-solid fa-play text-danger mx-1"></i></br></div><div class="fst-italic"> ${formattedStartDate}</div></br>
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   <div class="post-bottom" style="justify-content: center; margin-top: -40px">
+        <div class="button_wrapper1">
+            <div class="all_likes_wrapper1">
+                <div data-title="LIKE">
+                    <img src="/static/assets/img/like.png" alt="Like" />
                 </div>
-                <div class="action">
-                    <i class="fa-regular fa-comment"></i>
-                    <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
+                <div data-title="LOVE">
+                    <img src="/static/assets/img/love.png" alt="Love" />
                 </div>
-                <div class="action">
-                    <i class="fa fa-share"></i>
-                    <span>Share</span>
+                <div data-title="CARE">
+                    <img src="/static/assets/img/care.png" alt="Care" />
+                </div>
+                <div data-title="HAHA">
+                    <img src="/static/assets/img/haha.png" alt="Haha" />
+                </div>
+                <div data-title="WOW">
+                    <img src="/static/assets/img/wow.png" alt="Wow" />
+                </div>
+                <div data-title="SAD">
+                    <img src="/static/assets/img/sad.png" alt="Sad" />
+                </div>
+                <div data-title="ANGRY">
+                    <img src="/static/assets/img/angry.png" alt="Angry" />
                 </div>
             </div>
-        </div>`;
+            <button class="like_button1" id="${r.id}">
+                ${likeButtonContent}
+            </button>
+        </div>
+ 
+</div>
 
-            row+= rows
-        });
+                </div>`;
+            rows += row;
+        }
 
         let range = document.createRange();
-        let fragment = range.createContextualFragment(row);
+        let fragment = range.createContextualFragment(rows);
 
-        eventDiv.appendChild(fragment)
-     
+        eventDiv.appendChild(fragment);
+        const likeButtons = document.querySelectorAll(".like_button1");
+        likeButtons.forEach(likeButton => {
+            likeButton.addEventListener('click', async (event) => {
+                const eventId = likeButton.id;
+                const currentReactType = await fetchReactTypeForEvent(eventId);
+                console.log('sdd', currentReactType);
+                if ((currentReactType !== "OTHER") || (currentReactType === null)) {
+                    await removeReactionForEvent(eventId);
+                    const reactCountForButtonEvent = await fetchReactCountForEvent(eventId);
+                    console.log('FOr other',reactCountForButtonEvent.length)
+                    console.log("Press previous icon")
+                    likeButton.innerHTML = `<div class="button_icon1">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16H286.5c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8H384c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/></svg>
+                </div>
+                <span>Like ${reactCountForButtonEvent.length}</span>`;
+                } else {
+                    await pressedLikeForEvent(eventId, "LIKE");
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    const reactCountForButtonEvent = await fetchReactCountForEvent(eventId);
+                    console.log('FOr Like',reactCountForButtonEvent.length)
+                    console.log("Press Like Button for event")
+                    likeButton.innerHTML = `<div class="button_icon1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
+            </div>
+            <span>Like ${reactCountForButtonEvent.length}</span>`
+                    likeButton.classList.toggle('active');
 
+                    if (likeButton.classList.contains('active')) {
+                        likeButton.style.color = "black";
+                    } else {
+                        likeButton.classList.remove('active');
+                        likeButton.style.color = "unset";
+                    }
+                }
+            });
+
+            likeButton.addEventListener('mouseover', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper1").classList.add('active');
+            });
+
+            likeButton.addEventListener('mouseout', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper1").classList.remove('active');
+            });
+
+            likeButton.parentNode.addEventListener('mouseover', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper1").classList.add('active');
+            });
+
+            likeButton.parentNode.addEventListener('mouseout', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper1").classList.remove('active');
+            });
+
+            likeButton.parentNode.querySelectorAll('div').forEach((like_image1) => {
+                like_image1.addEventListener('click', async (event) => {
+                    let dataTitle = event.currentTarget.dataset.title;
+                    const eventId = likeButton.id;
+                    await pressedLikeForEvent(eventId, dataTitle);
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    const reactCountForButtonEvent = await fetchReactCountForEvent(eventId);
+                    if (dataTitle === "LIKE") {
+                        likeButton.innerHTML = `<div class="button_icon1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
+                        </div>
+                        <span>Like ${reactCountForButtonEvent.length}</span>`;
+
+                        likeButton.classList.add("active")
+                    } else {
+                        likeButton.innerHTML = `<img src="/static/assets/img/${dataTitle.toLowerCase()}.png" style="width: 20px; height: 20px" /> ${dataTitle} ${reactCountForButtonEvent.length}`;
+                    }
+
+                    if (dataTitle === "LIKE") {
+                        likeButton.style.color = "black";
+                    } else if (dataTitle === "LOVE") {
+                        likeButton.style.color = "#EC2D50";
+                    } else if (dataTitle === "CARE" || dataTitle === 'HAHA' || dataTitle === "WOW" || dataTitle === "SAD") {
+                        likeButton.style.color = "#FAC551";
+                    } else {
+                        likeButton.style.color = "#E24E05";
+                    }
+
+                    likeButton.parentNode.querySelector(".all_likes_wrapper1").classList.remove("active");
+                });
+                like_image1.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                });
+            });
+        });
     }
+}
 
+const removeReactionForEvent = async (id) => {
+    const cancelType = await fetch(`/remove-like-eventReact-type/${id}`);
+    if (!cancelType.ok) {
+        alert('something wrong');
+    }
+    console.log('hehhe')
+};
+
+const fetchReactCountForEvent =async (id) => {
+    const sizeData = await fetch(`/event-react-type/${id}`);
+    const eventReactCount = await sizeData.json();
+    return eventReactCount;
+}
+
+const fetchReactTypeForEvent = async (id) => {
+    const dataType = await fetch(`/event-user-react-type/${id}`);
+    const eventReactType = await dataType.json();
+    return eventReactType;
 }
 
 async function deletePost(id) {
@@ -1385,12 +1507,14 @@ const showNotiCount = async () => {
 const notifyMessage = async () => {
     const showMessage = document.getElementById('notifyMessage');
     const pElement = document.createElement('p');
+    pElement.classList.add('noti-p-element');
     if (notificationCount === 0) {
+        pElement.style.display = 'block';
         pElement.textContent = 'There is no notification yet!';
     } else {
+        pElement.style.display = 'none';
         pElement.textContent = '';
     }
-    showMessage.innerHTML = '';
     showMessage.appendChild(pElement);
 };
 
@@ -1398,12 +1522,12 @@ const notifyMessageForReact = async (message, sender, photo, type) => {
     const spanElement = document.getElementById('notiId');
     spanElement.innerText = `You have ${notificationCount} new notifications`;
     const showMessage = document.getElementById('notifyMessage');
+    document.querySelector('.noti-p-element').style.display = 'none';
     showMessage.style.whiteSpace = 'nowrap';
     const containerDiv = document.createElement('div');
     const pElement = document.createElement('p');
     const imgElement = document.createElement('img');
     const imgReactElement = document.createElement('img');
-
     photo = photo || '/static/assets/img/card.jpg';
     imgElement.src = `${photo}`;
     imgElement.width = 40;
@@ -1455,6 +1579,18 @@ const receivedMessageForReact = async (payload) => {
         await showNotiCount();
         await notifyMessageForReact(message.content, message.sender, message.photo, message.type);
     }
+};
+
+
+const pressedLikeForEvent = async (id, type) => {
+    console.log('PostId', id);
+    const myObj = {
+        postId: id,
+        sender: loginUser,
+        content: ` reacted to your announcement!`,
+        type: type
+    };
+    stompClient.send('/app/react-event-message', {}, JSON.stringify(myObj));
 };
 
 const pressedLike = async (id, type) => {
@@ -2506,8 +2642,10 @@ const receivedMessageForComment = async (payload) => {
         message.photo = message.photo || '/static/assets/img/card.jpg';
         await notifyMessageForReact(msg, message.sender, message.photo, null);
     }
+     const commentCountSize = await fetchCommentSizes(message.postId);
+    document.getElementById('commentCountStaticBox').innerHTML = '';
+    document.getElementById('commentCountStaticBox').innerHTML = `comment ${commentCountSize}`;
     // await welcome();
-
     message.photo = message.photo || '/static/assets/img/card.jpg';
     const chatArea = document.querySelector('#commentMessageText');
     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId, chatArea);
@@ -2526,6 +2664,9 @@ const receivedMessageForCommentReply = async (payload) => {
         await notifyMessageForReact(msg, message.sender, message.photo, null);
     }
     // await welcome();
+    const commentCountSize = await fetchCommentSizes(message.postId);
+    document.getElementById('commentCountStaticBox').innerHTML = '';
+    document.getElementById('commentCountStaticBox').innerHTML = `comment ${commentCountSize}`;
     console.log('Comment ide',message.commentId)
     if(message.commentId != null){
         console.log('haha')
@@ -2579,6 +2720,12 @@ commentModal.addEventListener('show.bs.modal', () => {
     console.log('Hello ya p hayy');
     resetModalContent();
 });
+
+const fetchPostedUser =async (id) => {
+  const postedUser =   await fetch(`/posted-user/${id}`);
+  const userData = await postedUser.json();
+  return userData;
+};
 
 const fetchUserDataByPostedUser = async (id) => {
     const fetchUserData = await fetch(`/get-userData/${id}`);

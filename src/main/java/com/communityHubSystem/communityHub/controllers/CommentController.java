@@ -3,9 +3,12 @@ package com.communityHubSystem.communityHub.controllers;
 import com.communityHubSystem.communityHub.dto.CommentUpdateDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Notification;
+import com.communityHubSystem.communityHub.models.React;
+import com.communityHubSystem.communityHub.models.Type;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.services.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,19 +35,19 @@ public class CommentController {
 
 
     @DeleteMapping("/delete-comment/{id}")
-    public ResponseEntity<Map<String,Long>> deletedComment(@PathVariable("id")Long id){
+    public ResponseEntity<Map<String, Long>> deletedComment(@PathVariable("id") Long id) {
         var loginUser = SecurityContextHolder.getContext().getAuthentication().getName();
         var user = userService.findByStaffId(loginUser).orElseThrow(() -> new CommunityHubException("user name not found exception"));
-        Map<String,Long> response = new HashMap<>();
+        Map<String, Long> response = new HashMap<>();
         var comment = commentService.findById(id);
         var post = postService.findById(comment.getPost().getId());
-        response.put("postId",post.getId());
-        var noti = notificationService.findByCommentIdAndUserId(id,user.getId());
-        for(Notification notification:noti){
+        response.put("postId", post.getId());
+        var noti = notificationService.findByCommentIdAndUserId(id, user.getId());
+        for (Notification notification : noti) {
             notificationService.deleteAll(notification.getId());
         }
         var react = reactService.findReactByCommentId(id);
-        if(react != null){
+        if (react != null) {
             reactService.deleteById(react.getId());
         }
         commentService.deleteComment(id);
@@ -52,19 +55,19 @@ public class CommentController {
     }
 
     @DeleteMapping("/delete-reply/{id}")
-    public ResponseEntity<Map<String,Long>> deletedReply(@PathVariable("id")Long id){
+    public ResponseEntity<Map<String, Long>> deletedReply(@PathVariable("id") Long id) {
         var loginUser = SecurityContextHolder.getContext().getAuthentication().getName();
         var user = userService.findByStaffId(loginUser).orElseThrow(() -> new CommunityHubException("user name not found exception"));
-        Map<String,Long> response = new HashMap<>();
+        Map<String, Long> response = new HashMap<>();
         var reply = replyService.findById(id);
         var post = postService.findById(reply.getComment().getPost().getId());
-        response.put("postId",post.getId());
-        var noti = notificationService.findByReplyIdAndUserId(id,user.getId());
-        for(Notification notification:noti){
+        response.put("postId", post.getId());
+        var noti = notificationService.findByReplyIdAndUserId(id, user.getId());
+        for (Notification notification : noti) {
             notificationService.deleteAll(notification.getId());
         }
         var react = reactService.findByReplyId(id);
-        if(react != null){
+        if (react != null) {
             reactService.deleteById(react.getId());
         }
         replyService.deleteReply(id);
@@ -72,28 +75,28 @@ public class CommentController {
     }
 
     @PutMapping("/comment-update")
-    public ResponseEntity<Map<String,Long>> updateComment(@RequestBody CommentUpdateDto commentUpdateDto){
-        Map<String,Long> response = new HashMap<>();
+    public ResponseEntity<Map<String, Long>> updateComment(@RequestBody CommentUpdateDto commentUpdateDto) {
+        Map<String, Long> response = new HashMap<>();
         var comment = commentService.findById(commentUpdateDto.getId());
         var post = postService.findById(comment.getPost().getId());
-        response.put("postId",post.getId());
+        response.put("postId", post.getId());
         commentService.updateComment(commentUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/reply-update")
-    public ResponseEntity<Map<String,Long>> updateReply(@RequestBody CommentUpdateDto commentUpdateDto){
-        Map<String,Long> response = new HashMap<>();
+    public ResponseEntity<Map<String, Long>> updateReply(@RequestBody CommentUpdateDto commentUpdateDto) {
+        Map<String, Long> response = new HashMap<>();
         var reply = replyService.findById(commentUpdateDto.getId());
         var post = postService.findById(reply.getComment().getPost().getId());
-        System.out.println("Post getId"+post.getId());
-        response.put("postId",post.getId());
+        System.out.println("Post getId" + post.getId());
+        response.put("postId", post.getId());
         replyService.updatedReply(commentUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/add-user-chat-room")
-    public ResponseEntity<Map<String,String>> addUserForChatRoom(@RequestParam("id") Long id,@RequestParam(required = false) List<Long> selectedIds  ) {
+    public ResponseEntity<Map<String, String>> addUserForChatRoom(@RequestParam("id") Long id, @RequestParam(required = false) List<Long> selectedIds) {
         Map<String, String> response = new HashMap<>();
         if (selectedIds == null || selectedIds.isEmpty()) {
             response.put("message", "Please select the person you want to add!!");
@@ -107,7 +110,7 @@ public class CommentController {
 
 
     @PostMapping("/kick-user-chat-room")
-    public ResponseEntity<Map<String,String>> kickUserForChatRoom(@RequestParam("id") Long id,@RequestParam(required = false) List<Long> selectedIds  ) {
+    public ResponseEntity<Map<String, String>> kickUserForChatRoom(@RequestParam("id") Long id, @RequestParam(required = false) List<Long> selectedIds) {
         Map<String, String> response = new HashMap<>();
         if (selectedIds == null || selectedIds.isEmpty()) {
             response.put("message", "Please select the person you want to kick!!");
@@ -120,14 +123,39 @@ public class CommentController {
     }
 
     @GetMapping("/get-all-active-user")
-    public ResponseEntity<List<User>> getAllActiveUsers(){
+    public ResponseEntity<List<User>> getAllActiveUsers() {
         var users = userService.getAllUser();
         List<User> userList = new ArrayList<>();
-        for(User user:users){
-            if(user.isActive() == true){
+        for (User user : users) {
+            if (user.isActive() == true) {
                 userList.add(user);
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(userList);
+    }
+
+
+    @GetMapping("/event-react-type/{id}")
+    public ResponseEntity<?> getEventReactType(@PathVariable("id") Long id) {
+        List<React> reactList = reactService.findByEventId(id);
+        List<React> reacts = new ArrayList<>();
+        for(React react:reactList){
+            if(react.getType() != Type.OTHER){
+                reacts.add(react);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(reacts);
+    }
+
+    @GetMapping("/event-user-react-type/{id}")
+    public ResponseEntity<?> getReactTypeForEventUser(@PathVariable("id") Long id) {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        var loginUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User name not found Exception"));
+        var react = reactService.findByUserIdAndEventId(loginUser.getId(), id);
+        if (react == null || react.getType() == null) {
+            return ResponseEntity.ok(HttpEntity.EMPTY);
+        } else {
+            return ResponseEntity.ok(react.getType());
+        }
     }
 }

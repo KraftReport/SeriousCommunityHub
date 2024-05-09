@@ -43,6 +43,14 @@ public class Event {
     @JsonManagedReference
     private List<VoteOption> voteOptions;
 
+    @OneToMany(mappedBy = "event",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Notification> notifications ;
+
+    @OneToMany(mappedBy = "event",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<React> reacts;
+
     @ManyToOne
     @JoinColumn(name = "user_group_id")
     private User_Group user_group;

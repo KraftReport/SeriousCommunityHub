@@ -95,4 +95,14 @@ public class ReactServiceImpl implements ReactService {
     public React findByReplyId(Long id) {
         return reactRepository.findByReplyId(id);
     }
+
+    @Override
+    public List<React> findByEventId(Long id) {
+        return reactRepository.findByEventId(id);
+    }
+
+    @Override
+    public React findByUserIdAndEventId(Long id, Long id1) {
+        return reactRepository.findByUserIdAndEventId(id,id1);
+    }
 }
