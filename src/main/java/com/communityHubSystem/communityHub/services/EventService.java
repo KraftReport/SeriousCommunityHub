@@ -4,6 +4,7 @@ import com.communityHubSystem.communityHub.dto.EventDTO;
 import com.communityHubSystem.communityHub.dto.PollDto;
 import com.communityHubSystem.communityHub.models.Event;
 import com.communityHubSystem.communityHub.models.Poll;
+import com.communityHubSystem.communityHub.models.React;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,5 +47,8 @@ public interface EventService {
     public void updatePollOptions(List<String> oldOpts, List<String> newOpts, Long eventId);
     public boolean checkVotedMark(Long voteOptionId);
     public Page<Event> getEventsForNewsfeed(String page);
+
+    public Event findById(Long postId);
+
     public Page<Event> getPolForNewsfeed(String page);
 }

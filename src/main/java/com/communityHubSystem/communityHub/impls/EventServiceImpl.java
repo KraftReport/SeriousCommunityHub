@@ -358,6 +358,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Event findById(Long id) {
+        return eventRepository.findById(id).orElseThrow(() -> new CommunityHubException("Event Not Found Exception!"));
+    }
+
+    @Override
     public Page<Event> getPolForNewsfeed(String page) {
         var all = eventRepository.findAll();
         var filteredPolls = new ArrayList<>(all.stream().filter(e->e.getEventType().equals(Event.EventType.VOTE) && !e
