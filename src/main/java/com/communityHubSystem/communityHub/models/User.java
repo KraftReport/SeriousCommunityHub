@@ -41,6 +41,7 @@ public class User implements Serializable {
     private boolean done;
     private boolean isRemoved;
     private boolean isRejected;
+    private boolean isDeleted;
     private String RemovedReason;
     private String RejectReason;
     private String BannedReason;
@@ -105,6 +106,6 @@ public class User implements Serializable {
 
 
     public enum Role{
-        ADMIN,USER;
+        ADMIN,USER,DEFAULT_USER;
     }
 }

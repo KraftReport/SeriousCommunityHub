@@ -6,6 +6,7 @@ import com.communityHubSystem.communityHub.models.Skill;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.models.User_Skill;
 import com.communityHubSystem.communityHub.repositories.*;
+import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import com.communityHubSystem.communityHub.services.PostService;
 import com.communityHubSystem.communityHub.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class UserController {
     private final User_SkillRepository userSkillRepository;
     private final User_ChatRoomRepository user_ChatRoomRepository;
     private final PolicyRepository policyRepository;
+    private final ExcelUploadService excelUploadService;
 
     @GetMapping("/allUser")
     @ResponseBody
@@ -73,7 +75,7 @@ public class UserController {
     @PostMapping("/upload-data")
     @ResponseBody
     public ResponseEntity<?> uploadUsersData(@RequestParam("file") MultipartFile file) throws IOException {
-        this.userService.saveUserToDatabase(file);
+        this.excelUploadService.uploadEmployeeData(file);
         return ResponseEntity
                 .ok(Map.of("Message", " Employee data uploaded and saved to database successfully"));
     }
@@ -94,11 +96,12 @@ public class UserController {
     }
 
     @PostMapping("/savePassword")
-    public ResponseEntity<String> savePassword(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Map<String, String>> savePassword(@RequestBody Map<String, String> requestBody) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
         if (optionalUser.isPresent()) {
+            System.out.println("user present");
             User user = optionalUser.get();
             String password = requestBody.get("password");
             String phoneNumber = requestBody.get("phoneNumber");
@@ -111,9 +114,13 @@ public class UserController {
             user.setDob(dob);
             user.setGender(gender);
             user.setHobby(hobbies);
+            user.setRole(User.Role.USER);
             userRepository.save(user);
+
         }
-        return ResponseEntity.ok("Password saved");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Password saved");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/saveSkill")
@@ -176,7 +183,6 @@ public class UserController {
         var ips = new ByteArrayInputStream(image);
         var photo = new MockMultipartFile(Arrays.toString(image), ips);
         userService.saveImage(photo);
-        // Return a success response
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Image saved successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -362,6 +368,14 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/other-user-profile")
+    public String getUserProfile(@RequestParam("id") Long userId, Model model) {
+        User user = userService.findById(userId);
+        model.addAttribute("user", user);
+
+        return "/user/other-user-profile";
     }
 }
 

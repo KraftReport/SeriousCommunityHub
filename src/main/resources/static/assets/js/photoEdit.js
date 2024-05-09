@@ -18,15 +18,6 @@ document.getElementById('inputImage').addEventListener('change', function() {
             croppedImagePreview.style.justifyContent = 'center';
             croppedImagePreview.appendChild(resizedImage);
 
-            // Initialize Jcrop
-            $(resizedImage).Jcrop({
-                aspectRatio: 1, // Adjust this as needed for your application
-                onSelect: function(c) {
-                    // Update the selected area coordinates
-                    selectedArea = c;
-
-                }
-            });
         };
         image.src = e.target.result;
     };

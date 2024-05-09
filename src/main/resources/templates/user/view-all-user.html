@@ -33,13 +33,15 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="user : ${users}">
+            <tr th:each="user : ${users}" th:unless="${user.staffId == '99-09999'}">
                 <td th:text="${user.id}"></td>
                 <td>
-                    <img th:if="${user.photo!= null}" th:src="@{ ${user.photo}}" alt="User Photo"
-                         style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
-                    <img th:unless="${user.photo!= null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo"
-                         style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
+                    <a th:href="@{/user/other-user-profile(id=${user.id})}">
+                        <img th:if="${user.photo!= null}" th:src="@{ ${user.photo}}" alt="User Photo"
+                             style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
+                        <img th:unless="${user.photo!= null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo"
+                             style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
+                    </a>
                 </td>
                 <td th:text="${user.name}"></td>
                 <td th:text="${user.email}"></td>
@@ -47,6 +49,7 @@
                 <td th:text="${user.staffId}"></td>
                 <td>
                     <span th:text="${user.role}"></span>
+                    <th:block th:if="${user.role != 'DEFAULT_USER'}">
                     <th:block th:if="${user.pending}">
                         <i class="fas fa-spinner fa-spin"></i>
                     </th:block>
@@ -63,6 +66,7 @@
                             </button>
                         </th:block>
                     </th:block>
+                    </th:block>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
@@ -76,29 +80,26 @@
         </table>
     </div>
 
-    <div id="cardView" sec:authorize="hasAnyAuthority('USER','ADMIN')">
+    <div id="cardView" sec:authorize="hasAnyAuthority('USER','ADMIN')" >
         <link rel="stylesheet" href="/assets/css/userView.css">
-        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
         <div class="container">
             <div class="row">
                 <!-- Single Advisor-->
                 <div class="col-12 col-sm-6 col-lg-3" th:each="user : ${users}">
-                    <div class="single_advisor_profile wow fadeInUp" data-wow-delay="0.2s"
-                         style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
+                    <div class="single_advisor_profile wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;" th:data-userid="${user.id}">
                         <!-- Team Thumb-->
                         <div class="advisor_thumb">
-                            <img th:if="${user.photo != null}" th:src="@{${user.photo}}" alt="User Photo"
-                                 class="img-fluid rounded-circle">
-                            <img th:unless="${user.photo != null}" th:src="@{/assets/img/default-logo.png}"
-                                 alt="Default Photo" class="img-fluid rounded-circle">
+                            <img th:if="${user.photo != null}" th:src="@{${user.photo}}" alt="User Photo" class="img-fluid rounded-circle">
+                            <img th:unless="${user.photo != null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo" class="img-fluid rounded-circle">
                             <!-- Social Info-->
-                            <div class="social-info"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i
-                                    class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-linkedin"></i></a></div>
+                            <div class="social-info"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-linkedin"></i></a></div>
                         </div>
                         <!-- Team Details-->
                         <div class="single_advisor_details_info">
-                            <h6 th:text="${user.name}">Samantha Sarah</h6>
-                            <p class="designation">Founder &amp; CEO</p>
+                            <h6 th:text="${user.name}"></h6>
+                            <p class="designation" th:text="${user.dept}"></p>
+                            <p class="designation" th:text="${user.email}"></p>
                         </div>
                     </div>
                 </div>
@@ -230,10 +231,30 @@
                                         <div class="mb-5">
                                             <p class="lead fw-normal mb-1">About</p>
                                             <div class="p-4" style="background-color: #f8f9fa;">
-                                                <p class="font-italic mb-1" th:text="${user.gender}"></p>
-                                                <p class="font-italic mb-1" th:text="${user.staffId}"></p>
-                                                <p class="font-italic mb-1" th:text="${user.email}"></p>
-                                                <p class="font-italic mb-1" th:text="${user.phone}"></p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Date of Birth:</strong> <span th:text="${user.dob}?: 'Not provided'"></span>
+                                                </p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Email:</strong> <span th:text="${user.email}?: 'Not provided'"></span>
+                                                </p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Phone:</strong> <span th:text="${user.phone}?: 'Not provided'"></span>
+                                                </p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Gender:</strong> <span th:text="${user.gender}?: 'Not provided'"></span>
+                                                </p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Department:</strong> <span th:text="${user.dept}?: 'Not provided'"></span>
+                                                </p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Division:</strong> <span th:text="${user.division}?: 'Not provided'"></span>
+                                                </p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Team:</strong> <span th:text="${user.team}?: 'Not provided'"></span>
+                                                </p>
+                                                <p class="font-italic mb-1">
+                                                    <strong>Role:</strong> <span th:text="${user.role}?: 'Not provided'"></span>
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -243,7 +264,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" style="background-color: red">Ban</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -397,6 +417,10 @@
         }
     });
     $(document).ready(function () {
+        $('.single_advisor_profile').on('click', function() {
+            const userId = $(this).data('userid');
+            window.location.href = '/user/other-user-profile?id=' + userId;
+        });
         const tableView = $('#tableView');
         const cardView = $('#cardView');
         const modeToggleBtn = $('#modeToggleBtn');

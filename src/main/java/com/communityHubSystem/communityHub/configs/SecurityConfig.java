@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .requestMatchers("/","/forgotPassword","/saveNewPassword","/sendEmail", "/signIn","/check-password","/checkStaffId","/video","/index", "/ws/**", "/forms/**", "/static/**").permitAll()
                 .requestMatchers("/css/**", "/img/**", "/js/**", "/scss/**", "/vendor/**").permitAll()
                 .requestMatchers("/assets/**").permitAll()
+                .requestMatchers("/user/savePassword","/user/saveSkill","/user/saveImage","/user/getAllPolicies","/user/getSkills").hasAnyAuthority(User.Role.DEFAULT_USER.name())
                 .requestMatchers("/user/**").hasAnyAuthority(User.Role.USER.name(), User.Role.ADMIN.name())
                 .requestMatchers("/admin/**").hasAnyAuthority(User.Role.ADMIN.name())
                 .anyRequest().authenticated());

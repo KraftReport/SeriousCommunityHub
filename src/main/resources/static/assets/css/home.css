@@ -32,7 +32,6 @@ nav .nav-middle a  > i{
 }
 .container{
     background: #eee;
-    display: flex;
 }
 .middle-panel{
     flex: 1;

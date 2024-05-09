@@ -3,6 +3,7 @@ package com.communityHubSystem.communityHub.impls;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.services.ExcelUploadService;
+import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -35,6 +36,61 @@ public class ExcelUploadServiceImpl implements ExcelUploadService {
     }
 
     @Override
+
+    public void uploadEmployeeData(MultipartFile file) throws IOException {
+        List<User> newEmployeeData = getEmployeeDataFromExcel(file.getInputStream());
+        List<User> existingEmployeeData = userRepository.findAll();
+
+        for (User newUser : newEmployeeData) {
+            if ("99-09999".equals(newUser.getStaffId())) {
+                continue;
+            }
+            boolean found = false;
+            for (User existingUser : existingEmployeeData) {
+                if (newUser.getStaffId().equals(existingUser.getStaffId())) {
+                    found = true;
+                    if (existingUser.isDeleted()) {
+                        // If user exists and is marked as deleted, update its delete status to false
+                        existingUser.setDeleted(false);
+                        userRepository.save(existingUser);
+                    }
+                    // Do not overwrite existing users, break out of the loop
+                    break;
+                }
+            }
+            if (!found) {
+                // If user does not exist in the database, add it as a new user
+                newUser.setPassword(passwordEncoder.encode("DAT@123"));
+                newUser.setRole(User.Role.DEFAULT_USER);
+                newUser.setActive(true);
+                newUser.setPending(false);
+                newUser.setDone(false);
+                newUser.setRemoved(false);
+                newUser.setRejected(false);
+                newUser.setDeleted(false);
+                userRepository.save(newUser);
+            }
+        }
+        for (User existingUser : existingEmployeeData) {
+            if ("99-09999".equals(existingUser.getStaffId())) {
+                continue;
+            }
+            boolean found = false;
+            for (User newUser : newEmployeeData) {
+                if (existingUser.getStaffId().equals(newUser.getStaffId())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+
+                existingUser.setDeleted(true);
+                userRepository.save(existingUser);
+            }
+        }
+    }
+
+    @Override
     public List<User> getEmployeeDataFromExcel(InputStream inputStream) {
         List<User> user_data = new ArrayList<>();
         try {
@@ -52,63 +108,32 @@ public class ExcelUploadServiceImpl implements ExcelUploadService {
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
                     switch (cellIndex) {
-                        case 0:
-                            user.setId((long) cell.getNumericCellValue());
-                            break;
-                        case 1:
-                            user.setDivision(cell.getStringCellValue());
-                            break;
-                        case 2:
-                            user.setStaffId(cell.getStringCellValue());
-                            break;
-                        case 3:
-                            user.setName(cell.getStringCellValue());
-                            break;
-                        case 4:
-                            user.setDoorLogNum((long) cell.getNumericCellValue());
-                            break;
-                        case 5:
-                            user.setDept(cell.getStringCellValue());
-                            break;
-                        case 6:
-                            user.setTeam(cell.getStringCellValue());
-                            break;
-                        case 7:
-                            user.setEmail(cell.getStringCellValue());
-                            break;
-
-
-                        default: {
+                        case 0 -> user.setId((long) cell.getNumericCellValue());
+                        case 1 -> user.setDivision(cell.getStringCellValue());
+                        case 2 -> user.setStaffId(cell.getStringCellValue());
+                        case 3 -> user.setName(cell.getStringCellValue());
+                        case 4 -> user.setDoorLogNum((long) cell.getNumericCellValue());
+                        case 5 -> user.setDept(cell.getStringCellValue());
+                        case 6 -> user.setTeam(cell.getStringCellValue());
+                        case 7 -> user.setEmail(cell.getStringCellValue());
+                        default -> {
                         }
                     }
                     cellIndex++;
                 }
                 user.setPassword(passwordEncoder.encode("DAT@123"));
-                user.setRole(User.Role.USER);
+                user.setRole(User.Role.DEFAULT_USER);
                 user.setActive(true);
                 user.setPending(false);
                 user.setDone(false);
                 user.setRemoved(false);
                 user.setRejected(false);
+                user.setDeleted(false);
                 user_data.add(user);
             }
         } catch (IOException e) {
             e.getStackTrace();
         }
         return user_data;
-    }
-
-    @Override
-    public void uploadEmployeeData(MultipartFile file) throws IOException {
-        List<User> newEmployeeData = getEmployeeDataFromExcel(file.getInputStream());
-        List<User> existingEmployeeData = userRepository.findAll();
-
-        for (User existingEmployee : existingEmployeeData) {
-            if (!newEmployeeData.contains(existingEmployee) && (!existingEmployee.getStaffId().equals("99-09999"))) {
-                userRepository.delete(existingEmployee);
-            }
-        }
-
-        userRepository.saveAll(newEmployeeData);
     }
 }

@@ -31,6 +31,8 @@ public class AppUserInitializer {
             user.setPassword(passwordEncoder.encode("admin"));
             user.setPhone("09978564121");
             user.setStaffId("99-09999");
+            user.setDone(true);
+            user.setDeleted(false);
             userRepository.save(user);
         }
     }

@@ -112,7 +112,7 @@ public class PageController {
                         .getAuthority().equals(User.Role.ADMIN.name()) ||
                         ((GrantedAuthority) a)
                                 .getAuthority()
-                                .equals(User.Role.USER.name()))) {
+                                .equals(User.Role.USER.name()) || a.getAuthority().equals(User.Role.DEFAULT_USER.name()))) {
             session.setAttribute("user", user.get());
 
             return "redirect:/index";
