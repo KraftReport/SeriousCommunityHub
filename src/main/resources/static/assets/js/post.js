@@ -223,6 +223,10 @@ let currentPageForEvent = '0'
 let isFetchingForEvent = false
 let hasMoreForEvent = true
 
+let currentPageForPoll = '0'
+let isFetchingForPoll = false;
+let hasMoreForPoll = true;
+
 async function welcome() {
     isFetchingForPost = true;
     let data = await fetch(`/post/fivePost/${currentPageForPost}`, {
@@ -239,6 +243,7 @@ async function welcome() {
         }
             // localStorage.setItem('currentPage', response);
             for (const p of response) {
+                let createdTime = await timeAgo(new Date(p.created_date))
                 const reactCount = await fetchSizes(p.id);
                 const reactType = await fetchReactType(p.id);
                 let likeButtonContent = '';
@@ -290,7 +295,7 @@ async function welcome() {
           </div>
           <div class="post-info">
               <p class="name">${p.user.name}</p>
-              <span class="time">2 days ago</span>
+              <span class="time">${createdTime}</span>
           </div>`
           let user = await checkPostOwnerOrAdmin(p.id)
           if(user === 'ADMIN' || user === 'OWNER'){
@@ -808,6 +813,7 @@ let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('cli
     scrollPost = true
     scrollEvent = false
     scrollPoll = false
+    document.getElementById('newsfeed').innerHTML = ''
 })
 
 let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
@@ -820,7 +826,8 @@ let eventTabIndex = document.getElementById('events-tab').addEventListener('clic
 let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
     scrollPost = false
     scrollEvent = false
-    scrollPoll = true  
+    scrollPoll = true 
+    document.getElementById('polls').innerHTML = '' 
 })
 
 window.addEventListener('scroll', async () => {
@@ -832,6 +839,10 @@ window.addEventListener('scroll', async () => {
         return;
     }
 
+    if(isFetchingForPoll || !hasMoreForPoll){
+        return;
+    }
+
     if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && postTab === true){
         currentPageForPost++;
          await welcome();
@@ -840,10 +851,10 @@ window.addEventListener('scroll', async () => {
         currentPageForEvent++;
          await getAllEventsForPost();
     }
-    // if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && pollTab === true){
-    //     currentPageForPost++;
-    //      await welcome();
-    // }
+    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && pollTab === true){
+        currentPageForPoll++;
+         await getAllPollPost();
+    }
 });
 
 async function getPostDetail(id) {
@@ -1053,7 +1064,6 @@ async function createPollPost() {
     });
     let result = await response.json()
     console.log(result)
-
 }
 
 async function getAllEventsForPost(){
@@ -1070,7 +1080,23 @@ async function getAllEventsForPost(){
         hasMoreForEvent = false
         displayNoPostMessage()
     }else{
-        response.forEach((r,index)=>{
+        for(const pr of response){
+            let createdTime = await timeAgo(new Date(r.created_date))
+            let expired = ''
+            if(new Date()>new Date(r.end_date)){
+                expired=`
+                
+    <div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 135px;  z-index: 1;" role="alert">
+    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+    <div>
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    EVENT IS EXPIRED
+    </div>
+    </div>
+                
+                `
+            }
+            
 
             let photo = r.photo === null ? '/static/assets/img/eventImg.jpg' : r.photo
             let startDate = new Date(r.start_date)
@@ -1096,7 +1122,7 @@ async function getAllEventsForPost(){
                 </div>
                 <div class="post-info">
                     <p class="name">${r.user.name}</p>
-                    <span class="time">2 days ago</span>
+                    <span class="time">${createdTime}</span>
                 </div>
                             <div class="dropdown offset-8">
           <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
@@ -1137,7 +1163,10 @@ async function getAllEventsForPost(){
           <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
            </div>
            </div>
-          <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div> 
+          <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"> 
+          ${expired}
+          <b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px; position:relative;">
+          </div> 
         </div>
       </div>
       </div>
@@ -1182,10 +1211,11 @@ async function getAllEventsForPost(){
                     <span>Share</span>
                 </div>
             </div>
-        </div>`;
+        </div>
+        `;
 
             row+= rows
-        });
+        };
 
         let range = document.createRange();
         let fragment = range.createContextualFragment(row);
@@ -3466,7 +3496,7 @@ async function getEventDetail(id){
     <label for="updateEventPhoto"  >Edit Photo</label>
     <input class="form-control" type="file" id="updateEventPhoto" name="updateEventPhoto">
     <img class="from-control" src="${response.photo}" style="width:100px; height;100px;" id="${response.id}-event-edit-url">
-    <button  id="restoreBtn" class="btn btn-success hidden" onclick="restorePollPhoto(${response.id})">Restore</button>
+    <button  id="restoreBtn" class="btn btn-success hidden" onclick="restoreEventPhoto(${response.id})">Restore</button>
     <button class="btn btn-danger" id="photoRemoveBtn" onclick="deleteEditEventPhoto(${response.id})">Delete</button> 
     </div>
     <div class="modal-footer">
@@ -3491,7 +3521,7 @@ async function deleteEditPollEventPhoto(id){
     document.getElementById('photoRemoveBtn').classList.add('hidden')
 }
 
-async function restorePollPhoto(id){
+async function restoreEventPhoto(id){
     let src = document.getElementById(id+'-event-edit-url').src
     console.log(src)
     let li = src.lastIndexOf('deleted')
@@ -3719,21 +3749,63 @@ function validationFails() {
     return (start_date === '' || end_date === '' || title === '' || arr.length < 2 ||start_date>end_date);
 }
 
+async function timeAgo(createdDate) {
+    const now = new Date();
+    const diff = now - createdDate;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) {
+      return `just now`;
+    } else if (minutes < 60) {
+      return `${minutes} minute${minutes > 1? '' : ''} ago`;
+    } else if (hours < 24) {
+      return `${hours} hour${hours > 1? '' : ''} ago`;
+    } else {
+      return `${days} day${days > 1? '' : ''} ago`;
+    }
+  }
 
 async function getAllPollPost(){
+    isFetchingForPoll = true
     let polls = document.getElementById('polls');
     let pollTab = document.getElementById('polls')
 
-    let data = await fetch('/event/getAllPollPost',{
+    let data = await fetch(`/event/getPollsForNewsfeed/${currentPageForPoll}`,{
         method : 'GET'
     })
     let response = await data.json()
+    isFetchingForPoll = false
+    if(response.length===0){
+        hasMoreForPoll = false
+        displayNoPostMessage()
+    }else{
     console.log(response)
     let rows = ''
     for (let r of response) {
+        let expired = ''
+        if(new Date()>new Date(r.end_date)){
+            expired=`
+            
+<div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 55px; left:120px;  z-index: 1;" role="alert">
+<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+<div>
+<i class="fa-solid fa-triangle-exclamation"></i>
+POLL IS EXPIRED
+</div>
+</div>
+            
+            `
+        }
         let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
         let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
         let row = ''
+        let created = new Date(r.created_date)
+        let now = new Date()
+        let createdTime = await timeAgo(new Date(r.created_date))
+        
         row += `
         <div class="post" id="pollPostDiv-${r.id}">
         <div class="post-top">
@@ -3742,7 +3814,7 @@ async function getAllPollPost(){
             </div>
             <div class="post-info">
                 <p class="name">${r.user.name}</p>
-                <span class="time">2 days ago</span>
+                <span class="time">${createdTime}</span>
             </div>
                         <div class="dropdown offset-8">
       <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
@@ -3767,7 +3839,8 @@ async function getAllPollPost(){
         <div class="card mb-3" style="max-width: 540px;">
         <div class="row g-0">
           <div class="col-md-4">
-            <img src="${r.photo}" style="max-width:170px;" class="img-fluid rounded-start" alt="...">
+            ${expired}
+            <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
           </div>
           <div class="col-md-8">
             <div class="card-body" style="max-height: 200px; overflow-y: auto;">
@@ -3799,8 +3872,9 @@ async function getAllPollPost(){
                 
                     <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
                 </div>`
+                if(new Date()<new Date(r.end_date)){
             row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
-
+                }
             let yes = await checkVotedMark(v.id)
             let markIcon = 'hidden'
             if(yes === true){
@@ -3819,9 +3893,9 @@ async function getAllPollPost(){
             row+=`</div>`
 
         }
-
+        if(new Date()<new Date(r.end_date)){
         row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
-
+        }
         row+=`</div> 
     </div>
           </div>
@@ -3887,6 +3961,7 @@ async function getAllPollPost(){
             await updateVotePercentage(r.voteOptions)
         }
     }
+}
 
 }
 

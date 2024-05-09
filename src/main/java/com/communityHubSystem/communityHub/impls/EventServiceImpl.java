@@ -357,6 +357,17 @@ public class EventServiceImpl implements EventService {
         return getPaginationOfEvents(filteredEvents,page);
     }
 
+    @Override
+    public Page<Event> getPolForNewsfeed(String page) {
+        var all = eventRepository.findAll();
+        var filteredPolls = new ArrayList<>(all.stream().filter(e->e.getEventType().equals(Event.EventType.VOTE) && !e
+                .isDeleted() && e
+                .getAccess().equals(Access.PUBLIC)).toList());
+        filteredPolls.addAll(getEventsOfGroupForLoginUser(Event.EventType.VOTE));
+        filteredPolls.sort(Comparator.comparing(Event::getCreated_date).reversed());
+        return getPaginationOfEvents(filteredPolls,page);
+    }
+
     private Page<Event> getPaginationOfEvents(List<Event> filteredEvents,String page){
         var pageable = PageRequest.of(Integer.parseInt(page),5);
         var start = Math.toIntExact(pageable.getOffset());

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{index::head}">
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        .gradient-custom-2 {
+            /* fallback for old browsers */
+            background: #fbc2eb;
+
+            /* Chrome 10-25, Safari 5.1-6 */
+            background: -webkit-linear-gradient(to right, rgba(251, 194, 235, 1), rgba(166, 193, 238, 1));
+
+            /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            background: linear-gradient(to right, rgba(251, 194, 235, 1), rgba(166, 193, 238, 1))
+        }
+        .container{
+            background: #eee;
+            display: flex;
+        }
+        .middle-panel{
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .post{
+            width: 550px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px;
+        }
+        .post .post-top{
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+        .post .post-top .dp{
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .post .post-top .dp > img{
+            width: 100%;
+            cursor: pointer;
+        }
+        .post .post-top .post-info{
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        .post .post-top .post-info .name{
+            cursor: pointer;
+            font-size: 16px;
+
+        }
+        .post .post-top .post-info .time{
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .post .post-top i{
+            margin-left: auto;
+            cursor: pointer;
+        }
+        .post .post-top > input{
+            height: 40px;
+            padding: 5px 10px;
+            border-radius: 25px;
+            outline: none;
+            border: none;
+            flex: 1;
+            background: #eee;
+            margin-left: 10px;
+        }
+        .post .post-content {
+            font-size: 16px;
+            font-weight: normal;
+            padding: 10px;
+        }
+        .post .post-content > img ,.post .post-content > video{
+            width: 100%;
+            margin: 5px 0px;
+        }
+        .post .post-bottom {
+            box-shadow: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 5px 0px 5px;
+        }
+        .post .post-bottom .action{
+            padding: 10px;
+            border-radius: 10px;
+            transition: .3s ease-in;
+            cursor: pointer;
+        }
+        .post .post-bottom .action:hover{
+            background: #eee;
+        }
+        .post.create .post-bottom > .action{
+            color: #d74;
+
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{index::header}"></div>
+<div th:replace="~{index::navbar}"></div>
+<main id="main" class="main">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <img id="communityImage" src="/assets/img/pf-bg1.gif" width="300" height="300">
+            <h1 id="communityName" style="font-weight: bold">Spider Man</h1>
+            <p id="communityMembers" ><i class="fa-solid fa-earth-americas"></i>Public group 10members</p>
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary btn-lg" value="Joined"><i class="fa-solid fa-users-gear"></i>Joined</button>
+                <button type="button" class="btn btn-primary btn-lg" value="Invite"><i class="fa-solid fa-user-plus"></i>Invite</button>
+            </div>
+            <div class="container">
+            <div class="middle-panel">
+
+                <div class="post create">
+                    <div class="post-top">
+                        <div class="dp">
+                            <img src="/assets/img/pf-bg1.gif" alt="">
+                        </div>
+                        <input type="text" placeholder="What's on your mind?">
+                    </div>
+                    <div class="post-bottom">
+                        <div class="action">
+                            <i class="fa fa-video"></i>
+                            <span>Live Video</span>
+                        </div>
+                        <div class="action">
+                            <i class="fa fa-photo"></i>
+                            <span>Photo/Video</span>
+                        </div>
+                        <div class="action">
+                            <i class="fa-solid fa-face-smile"></i>
+                            <span>Feeling/Activity</span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" onclick="getPosts()" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" onclick="getAllPollPost()" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="newsfeedTab" role="tabpanel" aria-labelledby="newsfeed-tab">
+                        <div id="newsfeed"  class=""></div>
+                    </div>
+                    <div class="tab-pane fade" id="eventsTab" role="tabpanel" aria-labelledby="events-tab">
+                        <div id="events"  class=""></div>
+                    </div>
+                    <div class="tab-pane fade" id="pollsTab" role="tabpanel" aria-labelledby="polls-tab">
+                        <div id="polls" class=" "></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</main>
+<div th:replace="~{index::footer}"></div>
+<script>
+</script>
+<script src="/static/assets/js/communityDetail.js"></script>
+</body>
+</html>

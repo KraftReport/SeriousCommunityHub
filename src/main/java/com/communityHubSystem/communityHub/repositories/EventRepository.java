@@ -17,4 +17,7 @@ public interface EventRepository extends JpaRepository<Event,Long>, JpaSpecifica
 
     @Query(value = "select * from event where user_group_id = :id",nativeQuery = true)
     List<Event> findByUserGroupId(Long id);
+
+    @Query(value = "select * from event where user_group_id = :id ",nativeQuery = true)
+    List<Event> getEventsForCommunityDetailPage(Long id);
 }

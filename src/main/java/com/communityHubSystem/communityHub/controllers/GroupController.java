@@ -227,4 +227,28 @@ public class GroupController {
     public ResponseEntity<Object> getNumberOfMembers(@PathVariable("id")String id){
         return ResponseEntity.ok(communityService.getNumberOfUsersOfACommunity(Long.valueOf(id)));
     }
+
+    @GetMapping("/goToCommunityDetail")
+    public String goToDetail(){
+        return "/layout/group-post";
+    }
+
+    @GetMapping("/getPostsForCommunityDetailPage/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId")String communityId){
+     return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId)));
+    }
+
+    @GetMapping("/getEventsForCommunityDetailPage/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId)));
+    }
+
+    @GetMapping("/getPollsForCommunityDetailPage/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId)));
+    }
+
 }

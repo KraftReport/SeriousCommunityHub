@@ -42,7 +42,7 @@ async function goToCommunityTab(){
         let rows = ''
         rows+= `
         
-        <div class="card col-3 m-2 " style="width: 18rem;">
+        <div class="card col-3 m-2 " style="width: 18rem;" onclick="goToCommunityDetail(${r.id})">
   <div class="card-body font-monospace">
     <div class="d-flex">
     <img src="${photo}"  style="width:80px;  height:80px; border-radius:10px; margin-right:30px; margin-bottom:20px; margin-top:15px;">
@@ -67,6 +67,11 @@ async function goToCommunityTab(){
         }
     document.getElementById('community-grid').innerHTML = row
     
+}
+
+async function goToCommunityDetail(id){
+    localStorage.setItem('communityIdForDetailPage',id)
+    window.location.href = 'api/community/goToCommunityDetail'
 }
 
 async function getNumberOfMembers(id){
@@ -594,6 +599,19 @@ async function showSearchEvents(input){
     console.log(response)
     let row = ''
     response.forEach((r,index)=>{
+        if(new Date()>new Date(r.end_date)){
+            expired=`
+            
+<div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 135px;  z-index: 1;" role="alert">
+<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+<div>
+<i class="fa-solid fa-triangle-exclamation"></i>
+EVENT IS EXPIRED
+</div>
+</div>
+            
+            `
+        }
         let photo = r.photo === null ? '/static/assets/img/eventImg.jpg' : r.photo
         let startDate = new Date(r.start_date)
         let startDay = startDate.getDate()
@@ -660,8 +678,10 @@ async function showSearchEvents(input){
       <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
        </div>
        </div>
-      <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div> 
-    </div>
+       <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"> 
+       ${expired}
+       <b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px; position:relative;">
+       </div>  
   </div>
   </div>
 </div>

@@ -26,6 +26,9 @@ public interface PostRepository extends JpaRepository<Post,Long>, JpaSpecificati
     List<Post> findPostsByAccessOrderByCreatedDateDesc(Access access);
 
     List<Post> findAllByUserIdAndUserGroupIdOrderByCreatedDateDesc(Long userId, Long userGroupId);
+
+    @Query(value = "select * from post where user_group_id = :id order by created_date desc",nativeQuery = true)
+    List<Post> findAllByUserGroupId(Long id);
    // Page<Post> findAllByUserIdAndUserGroupId(Long userId, Long userGroupId, Pageable pageable);
 
 //    @Query("SELECT p FROM Post p JOIN FETCH p.resources WHERE p.access = :access ORDER BY p.createdDate DESC")

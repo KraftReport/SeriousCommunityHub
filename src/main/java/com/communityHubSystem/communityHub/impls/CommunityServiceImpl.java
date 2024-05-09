@@ -1,13 +1,8 @@
 package com.communityHubSystem.communityHub.impls;
 
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
-import com.communityHubSystem.communityHub.models.Community;
-import com.communityHubSystem.communityHub.models.User;
-import com.communityHubSystem.communityHub.models.User_ChatRoom;
-import com.communityHubSystem.communityHub.models.User_Group;
-import com.communityHubSystem.communityHub.repositories.CommunityRepository;
-import com.communityHubSystem.communityHub.repositories.UserRepository;
-import com.communityHubSystem.communityHub.repositories.User_GroupRepository;
+import com.communityHubSystem.communityHub.models.*;
+import com.communityHubSystem.communityHub.repositories.*;
 import com.communityHubSystem.communityHub.services.ChatRoomService;
 import com.communityHubSystem.communityHub.services.CommunityService;
 import com.communityHubSystem.communityHub.services.ImageUploadService;
@@ -37,6 +32,8 @@ public class CommunityServiceImpl implements CommunityService {
     private final ChatRoomService chatRoomService;
     private final User_ChatRoomService user_chatRoomService;
     private final ImageUploadService imageUploadService;
+    private final PostRepository postRepository;
+    private final EventRepository eventRepository;
 
 
     @Transactional
@@ -215,6 +212,30 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public boolean existsByName(String name) {
         return communityRepository.existsByName(name);
+    }
+
+    @Override
+    public List<Post> getPostsForCommunityDetailPage(Long communityId) {
+        var userGroupIds = user_groupRepository.getIdFromCommunityId(communityId);
+        return userGroupIds.stream().flatMap(u->postRepository.findAllByUserGroupId(u).stream()).toList();
+    }
+
+    @Override
+    public List<Event> getEventsForCommunityDetailPage(Long aLong) {
+        var userGroupIs = user_groupRepository.getUserIdsFromCommunityId(aLong);
+        return userGroupIs.
+                stream().
+                flatMap(u->eventRepository.getEventsForCommunityDetailPage(aLong).stream()).
+                filter(e->e.getEventType().equals(Event.EventType.EVENT)).toList();
+    }
+
+    @Override
+    public List<Event> getPollsForCommunityDetailPage(Long aLong) {
+        var userGroupIs = user_groupRepository.getUserIdsFromCommunityId(aLong);
+        return userGroupIs.
+                stream().
+                flatMap(u->eventRepository.getEventsForCommunityDetailPage(aLong).stream()).
+                filter(e->e.getEventType().equals(Event.EventType.VOTE)).toList();
     }
 
     private List<Community> validateUserOrAdmin(List<Community> communities) {

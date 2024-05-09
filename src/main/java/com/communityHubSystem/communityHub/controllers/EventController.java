@@ -201,4 +201,11 @@ public class EventController {
     public ResponseEntity<List<Event>> sendEvents(@PathVariable("page")String page){
         return ResponseEntity.ok(eventService.getEventsForNewsfeed(page).getContent());
     }
+
+    @GetMapping("/getPollsForNewsfeed/{page}")
+    @ResponseBody
+    public ResponseEntity<List<Event>> sendPolls(@PathVariable("page")String page){
+        return ResponseEntity.ok(eventService.getPolForNewsfeed(page).getContent());
+    }
+
 }

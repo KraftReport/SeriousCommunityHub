@@ -46,4 +46,5 @@ public interface EventService {
     public void updatePollOptions(List<String> oldOpts, List<String> newOpts, Long eventId);
     public boolean checkVotedMark(Long voteOptionId);
     public Page<Event> getEventsForNewsfeed(String page);
+    public Page<Event> getPolForNewsfeed(String page);
 }

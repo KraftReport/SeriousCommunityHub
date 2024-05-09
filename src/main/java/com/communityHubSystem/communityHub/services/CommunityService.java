@@ -1,6 +1,8 @@
 package com.communityHubSystem.communityHub.services;
 
 import com.communityHubSystem.communityHub.models.Community;
+import com.communityHubSystem.communityHub.models.Event;
+import com.communityHubSystem.communityHub.models.Post;
 import com.communityHubSystem.communityHub.models.User;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -34,4 +36,9 @@ public interface CommunityService {
     public Object getNumberOfUsersOfACommunity(Long id);
 
     public boolean existsByName(String name);
+    public List<Post> getPostsForCommunityDetailPage(Long communityId);
+
+    List<Event> getEventsForCommunityDetailPage(Long aLong);
+
+    List<Event> getPollsForCommunityDetailPage(Long aLong);
 }
