@@ -215,17 +215,17 @@ async function createPost() {
 
 }
 
-let currentPageForPost = '0';
-let isFetchingForPost = false;
-let hasMoreForPost = true;
-
-let currentPageForEvent = '0'
-let isFetchingForEvent = false
-let hasMoreForEvent = true
-
-let currentPageForPoll = '0'
-let isFetchingForPoll = false;
-let hasMoreForPoll = true;
+// let currentPageForPost = '0';
+// let isFetchingForPost = false;
+// let hasMoreForPost = true;
+//
+// let currentPageForEvent = '0'
+// let isFetchingForEvent = false
+// let hasMoreForEvent = true
+//
+// let currentPageForPoll = '0'
+// let isFetchingForPoll = false;
+// let hasMoreForPoll = true;
 
 async function welcome() {
     isFetchingForPost = true;
@@ -628,7 +628,7 @@ async function welcome() {
           </div>
           <div class="action">
               <i class="fa-regular fa-comment"></i>
-              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox">Comment ${commentCountSize}</span>
+              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox-${p.id}">Comment ${commentCountSize}</span>
           </div>
       </div>
   </div> 
@@ -793,57 +793,96 @@ const displayNoPostMessage = () => {
 
 }
 
-let scrollPost = true
-let scrollEvent = false
-let scrollPoll = false
+let scrollPost = true;
+let scrollEvent = false;
+let scrollPoll = false;
 
-let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('click',function(){
-    scrollPost = true
-    scrollEvent = false
-    scrollPoll = false
-    document.getElementById('newsfeed').innerHTML = ''
-})
+let currentPageForPost = '0';
+let currentPageForEvent = '0';
+let currentPageForPoll = '0';
 
-let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
-    scrollPost = false
-    scrollEvent = true
-    scrollPoll = false 
-    document.getElementById('events').innerHTML = ''
-})
+let isFetchingForPost = false;
+let isFetchingForEvent = false;
+let isFetchingForPoll = false;
 
-let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
-    scrollPost = false
-    scrollEvent = false
-    scrollPoll = true
-    document.getElementById('polls').innerHTML = ''
-})
+let hasMoreForPost = true;
+let hasMoreForEvent = true;
+let hasMoreForPoll = true;
+
+let scrollPositions = {
+    'newsfeed': 0,
+    'events': 0,
+    'polls': 0
+};
+
+document.getElementById('newsfeed-tab').addEventListener('click', function(){
+    scrollPost = true;
+    scrollEvent = false;
+    scrollPoll = false;
+    clearContent('newsfeed');
+    restoreScrollPosition('newsfeed');
+    currentPageForPost = '0';
+    hasMoreForPost = true;
+});
+
+document.getElementById('events-tab').addEventListener('click', function(){
+    scrollPost = false;
+    scrollEvent = true;
+    scrollPoll = false;
+    clearContent('events');
+    restoreScrollPosition('events');
+    currentPageForEvent = '0';
+    hasMoreForEvent = true;
+});
+
+document.getElementById('polls-tab').addEventListener('click', function(){
+    scrollPost = false;
+    scrollEvent = false;
+    scrollPoll = true;
+    clearContent('polls');
+    restoreScrollPosition('polls');
+    currentPageForPoll = '0';
+    hasMoreForPoll = true;
+});
 
 window.addEventListener('scroll', async () => {
-    if(isFetchingForPost || !hasMoreForPost){
-        return;
-    }
+    const bottomOffset = window.innerHeight + window.scrollY;
+    const documentHeight = document.body.offsetHeight;
 
-    if(isFetchingForEvent || !hasMoreForEvent){
-        return;
-    }
-
-    if(isFetchingForPoll || !hasMoreForPoll){
-        return;
-    }
-
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && postTab === true){
-        currentPageForPost++;
-         await welcome();
-    }
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && eventTab === true){
-        currentPageForEvent++;
-         await getAllEventsForPost();
-    }
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && pollTab === true){
-        currentPageForPoll++;
-         await getAllPollPost();
+    if (bottomOffset >= documentHeight - 100) {
+        if (scrollPost && !isFetchingForPost && hasMoreForPost) {
+            currentPageForPost++;
+            isFetchingForPost = true;
+            await welcome();
+            isFetchingForPost = false;
+        } else if (scrollEvent && !isFetchingForEvent && hasMoreForEvent) {
+            currentPageForEvent++;
+            isFetchingForEvent = true;
+            await getAllEventsForPost();
+            isFetchingForEvent = false;
+        } else if (scrollPoll && !isFetchingForPoll && hasMoreForPoll) {
+            currentPageForPoll++;
+            isFetchingForPoll = true;
+            await getAllPollPost();
+            isFetchingForPoll = false;
+        }
     }
 });
+
+function restoreScrollPosition(tabName) {
+    window.scrollTo(0, scrollPositions[tabName]);
+}
+
+function clearContent(tabName) {
+    document.getElementById(tabName).innerHTML = '';
+}
+
+window.addEventListener('scroll', function() {
+    scrollPositions[scrollPost ? 'newsfeed' : scrollEvent ? 'events' : 'polls'] = window.scrollY;
+});
+
+
+
 
 async function getPostDetail(id) {
     let data = await fetch('/post/getPost/' + id, {
@@ -2547,6 +2586,9 @@ const deleteComment = async (id) => {
     const data = await getData.json();
     const postId = data.postId;
     console.log('postId', postId);
+    const commentCountSize = await fetchCommentSizes(postId);
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = `comment ${commentCountSize}`;
     const userItem = document.querySelector(`.user-item-${id}`);
     if (!userItem) {
         console.error(`User item with id ${id} not found`);
@@ -2566,6 +2608,9 @@ const deleteReply = async (id) => {
     const data = await getData.json();
     const postId = data.postId;
     console.log('postId', postId);
+    const commentCountSize = await fetchCommentSizes(postId);
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = `comment ${commentCountSize}`;
     const replyItem = document.querySelector(`.reply-item-${id}`)
     if (!replyItem) {
         console.error(`User item with id ${id} not found`);
@@ -2653,8 +2698,8 @@ const receivedMessageForComment = async (payload) => {
         await notifyMessageForReact(msg, message.sender, message.photo, null);
     }
      const commentCountSize = await fetchCommentSizes(message.postId);
-    document.getElementById('commentCountStaticBox').innerHTML = '';
-    document.getElementById('commentCountStaticBox').innerHTML = `comment ${commentCountSize}`;
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = `comment ${commentCountSize}`;
     // await welcome();
     message.photo = message.photo || '/static/assets/img/card.jpg';
     const chatArea = document.querySelector('#commentMessageText');
@@ -2675,8 +2720,8 @@ const receivedMessageForCommentReply = async (payload) => {
     }
     // await welcome();
     const commentCountSize = await fetchCommentSizes(message.postId);
-    document.getElementById('commentCountStaticBox').innerHTML = '';
-    document.getElementById('commentCountStaticBox').innerHTML = `comment ${commentCountSize}`;
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = `comment ${commentCountSize}`;
     console.log('Comment ide',message.commentId)
     if(message.commentId != null){
         console.log('haha')
@@ -2700,10 +2745,15 @@ const pressedComment = async (id) => {
             date: new Date(),
         };
         document.getElementById('commentForm').reset();
-        // const user = await fetchUserDataByPostedUser(loginUser);
-        // console.log("ss",user.name);
-        // const chatArea = document.querySelector('#commentMessageText');
-        // displayMessage(user.name,cmtValue,user.photo,null,id,chatArea);
+      //   const user = await fetchUserDataByPostedUser(loginUser);
+      //   // console.log("ss",user.name);
+      //   const commentCountSize = await fetchCommentSizes(id);
+      // let  commentId = commentCountSize.length + 1;
+      //    const postedUser = await fetchPostedUser(id);
+      //    if(user.staffId === postedUser.staffId) {
+      //        const chatArea = document.querySelector('#commentMessageText');
+      //        await displayMessage(user.name, cmtValue, user.photo, commentId, id, chatArea);
+      //    }
         stompClient.send('/app/comment-message', {}, JSON.stringify(myObj));
     });
 };
@@ -2771,12 +2821,17 @@ const fetchNotificationPerPage = async () => {
         method: 'GET'
     });
     let root = document.getElementById('root');
+    root.innerHTML = '';
 
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
     let data = await response.json();
     isFetching = false;
+    // if (data.length === 0) {
+    //     hasMore = false;
+    //     return;
+    // }
     if (data.length === 0) {
         hasMore = false;
         return;
@@ -2784,8 +2839,22 @@ const fetchNotificationPerPage = async () => {
     for (let noti of data) {
         let divElement = document.createElement('div');
         divElement.classList.add('notificationForNoti', `postId-${noti.postId}`);
+        divElement.id = `noti-deleted-${noti.id}`;
         divElement.dataset.postId = noti.postId;
         divElement.style.borderRadius = '10px';
+        divElement.style.width = '380px';
+        attachNotificationEventListeners();
+        const trashIcon = document.createElement('i');
+        trashIcon.id = `trashIcon-deleted-${noti.id}`
+        trashIcon.classList.add('fa-solid','fa-trash-can');
+        trashIcon.style.marginLeft = '400px';
+        trashIcon.addEventListener('click',async () => {
+            const notiID = noti.id;
+          await deletedNotification(notiID);
+        });
+        const spEle = document.createElement('span');
+        spEle.style.marginTop = '-40px';
+        spEle.appendChild(trashIcon);
         if (noti.reactId && !noti.commentId && !noti.replyId) {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
@@ -2946,10 +3015,59 @@ const fetchNotificationPerPage = async () => {
             divElement.appendChild(imgReactElement);
             divElement.appendChild(pElement);
         }
-
-
-        root.appendChild(divElement);
+       const container =  document.createElement('div');
+        container.classList.add('container-trash-div')
+        container.style.display = 'inline-grid';
+        container.appendChild(divElement);
+        container.appendChild(spEle);
+        root.appendChild(container);
     }
+};
+
+const deleteAllNotifications =async  () => {
+    const deleteAllNoti = await fetch(`/delete-all-noti`,{
+        method:'DELETE'
+    });
+    if(!deleteAllNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`root`);
+        if (divElement) {
+            divElement.remove();
+        }
+    }
+}
+
+const deletedNotification = async (id) =>{
+    const deleteNoti = await fetch(`/delete-noti/${id}`,{
+        method:'DELETE'
+    });
+    if(!deleteNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`noti-deleted-${id}`);
+        const trashIconEl = document.getElementById(`trashIcon-deleted-${id}`);
+        if (divElement && trashIconEl ) {
+            console.log("it's fine",id)
+            divElement.remove();
+            trashIconEl.remove();
+                    }
+    }
+}
+
+const attachNotificationEventListeners = () => {
+    const notificationElements = document.querySelectorAll('.notificationForNoti');
+    notificationElements.forEach(notificationElement => {
+        notificationElement.addEventListener('click', async function() {
+            console.log("Clicked on notification element");
+            const postId = this.dataset.postId; // 'this' refers to the current notification element
+            console.log('PostId', postId);
+            const postElement = document.getElementById(postId);
+            if (postElement) {
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -2967,19 +3085,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             await fetchNotificationPerPage();
         }
     });
-
-    const notificationElements = document.querySelectorAll('.notificationForNoti');
-    notificationElements.forEach(notification => {
-        notification.addEventListener('click', async () => {
-            const postId = notification.dataset.postId;
-            console.log('PostId', postId);
-            const postElement = document.getElementById(postId);
-            if (postElement) {
-                postElement.scrollIntoView({behavior: 'smooth', block: 'center'});
-            }
-        });
-    });
 });
+
+
+
+
 
 // const receivedMessageForComment = async (payload) => {
 //     console.log('Message Received')

@@ -139,8 +139,8 @@ public class CommentController {
     public ResponseEntity<?> getEventReactType(@PathVariable("id") Long id) {
         List<React> reactList = reactService.findByEventId(id);
         List<React> reacts = new ArrayList<>();
-        for(React react:reactList){
-            if(react.getType() != Type.OTHER){
+        for (React react : reactList) {
+            if (react.getType() != Type.OTHER) {
                 reacts.add(react);
             }
         }
@@ -157,5 +157,33 @@ public class CommentController {
         } else {
             return ResponseEntity.ok(react.getType());
         }
+    }
+
+    @DeleteMapping("/delete-noti/{id}")
+    public ResponseEntity<?> deleteNotification(@PathVariable("id") Long id) {
+        notificationService.deleteAll(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete-all-noti")
+    public ResponseEntity<?> deleteAllNotForLoginUser() {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        var loginUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User Name No found Exception"));
+//        List<React> reactList = reactService.findByUserId(loginUser.getId());
+        List<Notification> notificationList = notificationService.findByUserId(loginUser.getId());
+        if (!notificationList.isEmpty()) {
+            notificationService.deleteAllForLoginUser(notificationList);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/posted-user/{id}")
+    public ResponseEntity<User> getPostedUser(@PathVariable("id")Long id){
+        var post = postService.findById(id);
+        User user = null;
+        if(post != null){
+             user = userService.findById(post.getUser().getId());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 }

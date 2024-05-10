@@ -38,4 +38,7 @@ public interface ReactService {
     public List<React> findByEventId(Long id);
 
     public React findByUserIdAndEventId(Long id, Long id1);
+
+  public    List<React> findByUserId(Long id);
+
 }

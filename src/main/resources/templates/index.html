@@ -119,7 +119,7 @@
 
         @media (min-width: 576px) {
             #notificationStaticBox .modal-dialog {
-                max-width: 400px;
+                max-width: 450px;
             }
         }
 
@@ -263,7 +263,7 @@
                         </li>
                         <li class="dropdown-footer">
                             <i class="bi bi-bell-fill"></i><a type="button" data-bs-toggle="modal"
-                                                              data-bs-target="#notificationStaticBox">Show all
+                                                              data-bs-target="#notificationStaticBox" onclick="fetchNotificationPerPage()">Show all
                             notifications</a>
                         </li>
 
@@ -1580,18 +1580,18 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="notificationStaticBoxLabel">Notifications....</h5>
+                    <h5 class="modal-title" id="notificationStaticBoxLabel">Notifications....<i class="fa-solid fa-trash-can" onclick="deleteAllNotifications()" style="margin-left: 240px;"></i></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="content-notification"
-                     style="overflow-y: auto; height: 350px; width: 400px;">
+                     style="overflow-y: auto; height: 350px; width: 450px;">
                     <div id="root"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    //finished modal box
+<!--   finished modal box-->
     <div class="modal fade" id="finishedModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
          aria-labelledby="successModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">

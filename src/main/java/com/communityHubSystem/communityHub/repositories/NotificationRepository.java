@@ -15,4 +15,6 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     List<Notification> findByReplyIdAndUserId(Long id, Long id1);
 
     List<Notification> findByCommentIdAndUserId(Long id, Long id1);
+
+    List<Notification> findByUserId(Long id);
 }
