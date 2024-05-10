@@ -18,6 +18,10 @@ public interface NotificationService {
 
    public List<Notification> findByCommentIdAndUserId(Long id, Long id1);
 
+   public   List<Notification> findByUserId(Long id);
+
+  public  void deleteAllForLoginUser(List<Notification> notificationList);
+
 //   public Page<NotificationDto> findAllNotifications(Long id, int page);
 
 }

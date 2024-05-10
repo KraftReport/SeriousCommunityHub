@@ -32,4 +32,6 @@ public interface User_GroupRepository extends JpaRepository<User_Group,Long> {
     @Query(value = "select id from user_group where community_id = :communityId",nativeQuery = true)
     List<Long> getIdFromCommunityId(Long communityId);
 
+    User_Group findByUserIdAndCommunityId(Long id,Long userGroupId);
+
 }

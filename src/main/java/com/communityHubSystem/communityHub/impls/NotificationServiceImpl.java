@@ -55,4 +55,15 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.findByCommentIdAndUserId(id,id1);
     }
 
+    @Override
+    public List<Notification> findByUserId(Long id) {
+        return notificationRepository.findByUserId(id);
+    }
+
+    @Transactional
+    @Override
+    public void deleteAllForLoginUser(List<Notification> notificationList) {
+        notificationRepository.deleteAll(notificationList);
+    }
+
 }
