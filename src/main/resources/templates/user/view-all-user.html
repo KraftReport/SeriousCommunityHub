@@ -419,7 +419,9 @@
     $(document).ready(function () {
         $('.single_advisor_profile').on('click', function() {
             const userId = $(this).data('userid');
+            localStorage.setItem('userIdForDetailPage',userId)
             window.location.href = '/user/other-user-profile?id=' + userId;
+
         });
         const tableView = $('#tableView');
         const cardView = $('#cardView');

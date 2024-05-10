@@ -547,12 +547,77 @@
     </aside><!-- End Sidebar-->
 </div>
 <main id="main" class="main">
-     <button type="button" class="btn btn-lg btn-danger" 
-     data-bs-toggle="popover" title="Epic Popover" data-content="very"
-     >hello hello</button>
-    <button class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <p>Try scrolling the rest of the page to see this option in action.</p>
+        </div>
+      </div>
+
+<div style="left:400px;">
+    <div id="action-btn"  style="   left:300px; width:400px; height:100px; background-color: #62bdf1;
+    border:none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center; position: relative;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    margin: 4px 2px;
+    cursor: pointer;
+    position: relative;
+    border-radius: 20px; /* Adjust as needed */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3); /* Adjust as needed */
+    outline: none;" >
+        <div id="hammer-icon"><i class="fa-regular fa-square-plus"></i> Create </div> 
+    <div class="d-flex my-2 ">
+        <div class="mx-5">
+            <i id="plane" class="fa-solid fa-paper-plane" data-bs-toggle="offcanvas" data-bs-target="#postMaker" aria-controls="postMaker"></i> 
+        </div>
+        <div class="mx-5">
+            <i id="eveCal" class="fa-solid fa-calendar" data-bs-toggle="offcanvas" data-bs-target="#eventMaker" aria-controls="eventMaker"></i> 
+        </div>
+        <div class="mx-5">
+            <i id="voBar" class="fa-solid fa-chart-simple" data-bs-toggle="offcanvas" data-bs-target="#pollMaker" aria-controls="pollMaker"></i> 
+        </div>
+    </div>
+</butt>
+</div>
+  
+    <button id="App" class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
         <i id="pen" class="fa-solid fa-marker"></i>
     </button>
+
+
+
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="eventMaker" aria-labelledby="eventMaker">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="eventMaker">Backdroped with scrolling</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <p>create a event</p>
+        </div>
+      </div>
+
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="pollMaker" aria-labelledby="pollMaker">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="pollMaker">Backdroped with scrolling</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <p>create a poll</p>
+        </div>
+      </div>
+
+
+    <!-- <button id="App" class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
+        <i id="pen" class="fa-solid fa-marker"></i>
+    </button> -->
+
 
     <!--    <section class="section dashboard">-->
     <!--        <div class="row">-->
@@ -633,7 +698,7 @@
             </div>
         </div>
 
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <ul class="nav nav-tabs my-3" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" onclick="welcome()" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
             </li>
@@ -951,6 +1016,57 @@
 
     <!-- post create modal box start -->
 
+
+    
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="postMaker">Backdroped with scrolling</h5>
+          <button type="button"   onclick="removePreview()" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">  
+                    <h5 class="modal-title">Create Status</h5>  
+                    <form id="postForm">
+                        <!-- Quill Editor Default -->
+                        <div class="row mb-3">
+                            <label for="inputPassword" class="col-sm-2 col-form-label ">Title</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control quill-editor-default" style="height: 100px" name="content"
+                                          id="content"></textarea>
+                                <div id="mentionSuggestions"></div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="formFile" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <label for="formFile" style="width: 50px; height: 50px;">
+                                    Select Photo/Video
+                                </label>
+                                <input class="form-control" type="file" id="file" name="file" multiple>
+                            </div>
+                        </div>
+                        <div></div>
+                        <div class="row mb-3">
+                            <label class="col-sm-2 col-form-label">Select</label>
+                            <div class="col-sm-10">
+                                <select class="form-select" id="groupSelect1" name="groupId"
+                                        aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>
+                        <div id="preview"></div>
+
+                    </form><!-- End General Form Elements -->
+                    <!-- End Quill Editor Default -->
+                 
+                 
+                    
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="offcanvas" onclick="createPost()"
+                            data-bs-toggle="modal" data-bs-target="#loadingModalBox">POST
+                    </button> 
+        </div>
+      </div>
 
     <div class="modal fade" id="modalDialogScrollable" tabindex="-1" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-scrollable">

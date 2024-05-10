@@ -58,6 +58,7 @@ finishedButton.addEventListener('click', function () {
         .then(data => {
             console.log('Image saved:', data);
             saveOtherDataAndClearLocalStorage();
+            clearLocalStorage();
         })
         .catch(error => {
             console.error('Error saving image:', error);
@@ -86,7 +87,7 @@ finishedButton.addEventListener('click', function () {
             .then(data => {
                 console.log('Password saved:', data[0]);
                 console.log('Skills saved:', data[1]);
-                clearLocalStorage();
+               
             })
             .catch(error => {
                 console.error('Error saving password or skills:', error);

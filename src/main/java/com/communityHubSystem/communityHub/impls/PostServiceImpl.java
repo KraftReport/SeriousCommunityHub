@@ -232,6 +232,21 @@ public Page<Post> findPostRelatedToUser(String page) {
         }
     }
 
+    @Override
+    public Page<Post> returnPostForUserDetailPage(Long id,String page) {
+        var posts = postRepository.findPostsByUserId(id);
+        posts.sort(Comparator.comparing(Post::getCreatedDate).reversed());
+        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+        int start = Math.toIntExact(pageable.getOffset());
+        if (start >= posts.size()) {
+            return Page.empty(pageable);
+        }
+        int end = Math.min(start + pageable.getPageSize(), posts.size());
+        List<Post> paginatedPosts = posts.subList(start, end);
+        Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, posts.size());
+        return postPage;
+    }
+
 
     public boolean isValidPhotoExtension(String extension) {
         return photoExtensions.contains(extension);
@@ -274,7 +289,7 @@ public Page<Post> findPostRelatedToUser(String page) {
         post.setCreatedDate(new Date());
         post.setUser(getCurrentLoginUser());
         post.setDeleted(false);
-        if (Long.parseLong(postDTO.getGroupId()) > 0) {
+        if ( postDTO.getGroupId()!= null && Long.parseLong(postDTO.getGroupId()) > 0) {
             post.setAccess(Access.PRIVATE);
             var user_group = new User_Group();
             user_group.setUser(getCurrentLoginUser());
