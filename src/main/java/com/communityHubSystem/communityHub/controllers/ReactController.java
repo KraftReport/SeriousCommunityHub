@@ -117,7 +117,7 @@ public class ReactController {
         var postedUser = userService.findById(post.getUser().getId());
         var comment = Comment.builder()
                 .content(commentDto.getContent())
-                .localDateTime(LocalDateTime.now())
+                .localDateTime(new Date())
                 .post(post)
                 .user(loginUser)
                 .build();
@@ -153,7 +153,7 @@ public class ReactController {
             var user = userService.findById(comment.getUser().getId());
             if (comment != null) {
                 var reply = Reply.builder()
-                        .localDateTime(LocalDateTime.now())
+                        .localDateTime(new Date())
                         .content(commentDto.getContent())
                         .user(loginUser)
                         .comment(comment)
@@ -188,7 +188,7 @@ public class ReactController {
             var user = userService.findById(reply.getUser().getId());
             if (reply != null) {
                 var savedReply = Reply.builder()
-                        .localDateTime(LocalDateTime.now())
+                        .localDateTime(new Date())
                         .content(commentDto.getContent())
                         .user(loginUser)
                         .comment(comment)
