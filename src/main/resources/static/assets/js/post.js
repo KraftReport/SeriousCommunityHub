@@ -1106,6 +1106,7 @@ async function getUpdateData() {
         await removeCat()
     }
     if (secondResult) {
+        await removeCat()
         // while (newsfeed.firstChild) {
         //     newsfeed.removeChild(newsfeed.firstChild)
         // }
@@ -1735,6 +1736,7 @@ async function deletePost(id) {
     let response = await data.json()
     console.log(response)
     if(response){
+        await removeCat()
         const postList = document.getElementById(`post-delete-section-${id}`);
         if(postList){
             postList.remove();
@@ -4241,9 +4243,11 @@ async function getEventUpdateData(){
     })
     let r = await send.json()
   if(r){
+    await removeCat()
       const eventContent = document.getElementById(`event-update-section-${r.id}`);
       const eventPostContent = document.querySelector(`.post-content-${r.id}`);
       if(eventPostContent){
+        console.log('removed successfully')
           eventPostContent.remove();
       }
       eventContent.innerHTML = `<div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
@@ -4291,6 +4295,7 @@ async function deleteEvent(id){
     let result = data.json()
     console.log(result)
     if(result){
+        await removeCat()
         const eventDiv = document.getElementById(`delete-event-section-${id}`);
         if(eventDiv){
             eventDiv.remove();
@@ -4498,10 +4503,8 @@ POLL IS EXPIRED
           <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
         </div>
       </nav>
-        <div class=" post-content" data-bs-toggle="modal"  > 
-
-
-        <div class="card mb-3" style="max-width: 540px;">
+        <div id="poll-post-update-${r.id}" class="post-content" data-bs-toggle="modal"  > 
+        <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
         <div class="row g-0">
           <div class="col-md-4">
             ${expired}
@@ -4568,46 +4571,48 @@ POLL IS EXPIRED
   </div>
 </div>
          
-        <div class="post-bottom">
-            <div class="action" style="height: 50px">
-    <div class="button_wrapper">
-          <div class="all_likes_wrapper">
-              <div data-title="LIKE">
-                  <img src="/static/assets/img/like.png" alt="Like" />
-              </div>
-              <div data-title="LOVE">
-                  <img src="/static/assets/img/love.png" alt="Love" />
-              </div>
-              <div data-title="CARE">
-                  <img src="/static/assets/img/care.png" alt="Care" />
-              </div>
-              <div data-title="HAHA">
-                  <img src="/static/assets/img/haha.png" alt="Haha" />
-              </div>
-              <div data-title="WOW">
-                  <img src="/static/assets/img/wow.png" alt="Wow" />
-              </div>
-              <div data-title="SAD">
-                  <img src="/static/assets/img/sad.png" alt="Sad" />
-              </div>
-              <div data-title="ANGRY">
-                  <img src="/static/assets/img/angry.png" alt="Angry" />
-              </div>
-          </div>
-          <button class="like_button" id=" "> 
-          </button>
-      </div>
-            </div>
-            <div class="action">
-                <i class="fa-regular fa-comment"></i>
-                <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
-            </div>
-            <div class="action">
-                <i class="fa fa-share"></i>
-                <span>Share</span>
-            </div>
-        </div>
+ 
     </div>
+
+    <div class="post-bottom">
+    <div class="action" style="height: 50px">
+<div class="button_wrapper">
+  <div class="all_likes_wrapper">
+      <div data-title="LIKE">
+          <img src="/static/assets/img/like.png" alt="Like" />
+      </div>
+      <div data-title="LOVE">
+          <img src="/static/assets/img/love.png" alt="Love" />
+      </div>
+      <div data-title="CARE">
+          <img src="/static/assets/img/care.png" alt="Care" />
+      </div>
+      <div data-title="HAHA">
+          <img src="/static/assets/img/haha.png" alt="Haha" />
+      </div>
+      <div data-title="WOW">
+          <img src="/static/assets/img/wow.png" alt="Wow" />
+      </div>
+      <div data-title="SAD">
+          <img src="/static/assets/img/sad.png" alt="Sad" />
+      </div>
+      <div data-title="ANGRY">
+          <img src="/static/assets/img/angry.png" alt="Angry" />
+      </div>
+  </div>
+  <button class="like_button" id=" "> 
+  </button>
+</div>
+    </div>
+    <div class="action">
+        <i class="fa-regular fa-comment"></i>
+        <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
+    </div>
+    <div class="action">
+        <i class="fa fa-share"></i>
+        <span>Share</span>
+    </div>
+</div>
     </div>
         `
         rows+=row
@@ -4901,10 +4906,107 @@ async function getPollEventUpdateData(){
         method : 'POST',
         body : formData
     })
-    let res = await send.json()
-    console.log(res)
-    if(res){
-        await removeCat()
+    let r = await send.json()
+    console.log(r)
+    if(r){
+        let mainContent = document.getElementById('poll-post-update-'+r.id)
+        console.log(mainContent)
+        let pollContent = document.getElementById('poll-post-update-content-'+r.id);
+        if(pollContent){
+            console.log('poll is deleted successfully')
+            pollContent.remove()
+        }
+        let row = ''
+        let hidden = await checkVoted(r.id) === false ? '' : 'hidden' 
+        let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
+        let expired = ''
+        if(new Date()>new Date(r.end_date)){
+            expired=`
+
+<div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 55px; left:120px;  z-index: 1;" role="alert">
+<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+<div>
+<i class="fa-solid fa-triangle-exclamation"></i>
+POLL IS EXPIRED
+</div>
+</div>
+
+            `
+        }
+        row +=  `  
+        <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            ${expired}
+            <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+            <div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
+  
+  <h5 class="card-title align-middle font-monospace">${r.title}</h5>
+  <p class="card-text font-monospace">${r.description}</p>
+  
+  </div>
+  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+
+            
+            `
+        let totalVotes = 0;
+        for (let v of r.voteOptions) {
+            let count = await getCount(v.id);
+            totalVotes += count;
+        }
+        for (let v of r.voteOptions) {
+            let count = await getCount(v.id);
+            let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
+            row += `
+        <div class="vote-option d-flex mt-1">
+        <div class="d-block">
+        <div class="font-monospace ">${v.type}</div>
+                <div class="d-flex">
+                <div class="progress" style="height: 16px; width: 170px;">
+                
+                    <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
+                </div>`
+                if(new Date()<new Date(r.end_date)){
+            row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
+                }
+            let yes = await checkVotedMark(v.id)
+            let markIcon = 'hidden'
+            if(yes === true){
+                markIcon = ''
+            }
+            console.log(yes)
+
+
+            row += ` <div id="mark-id-${v.id}" class="${markIcon}"> <i class="fa-regular fa-circle-check"></i> </div>
+                </div>
+                </div>
+                 `
+
+
+
+            row+=`</div>`
+
+        }
+        if(new Date()<new Date(r.end_date)){
+        row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
+        }
+        row+=`</div> 
+    </div>
+          </div>
+    </div>
+  </div>
+</div>
+         
+ 
+    ` 
+    console.log("---------row"+row)
+    mainContent.innerHTML = row
+    
+    await removeCat()
     }
 }
 

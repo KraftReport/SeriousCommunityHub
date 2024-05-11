@@ -187,6 +187,7 @@ public class EventController {
                                                  @RequestParam(value = "oldOpts", required = false) List<String> oldOpts,
                                                  @RequestParam(value = "newOpts", required = false) List<String> newOpts) throws IOException, IOException {
         var eventDto = eventService.makeEventDto(eventId, title, description, startDate, endDate, location, photo, newPhoto);
+        eventService.updateEventPost(eventDto);
         eventService.updatePollOptions(oldOpts, newOpts, Long.valueOf(eventId));
         var event = eventService.findById(Long.valueOf(eventId));
         return ResponseEntity.status(HttpStatus.OK).body(event);
