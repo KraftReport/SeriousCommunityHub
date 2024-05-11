@@ -93,4 +93,10 @@ public class PostController {
                                                                 @PathVariable("page")String page){
         return ResponseEntity.ok(postService.returnPostForUserDetailPage(Long.valueOf(id),page).getContent());
     }
+    @GetMapping("/fetch-post/{id}")
+    @ResponseBody
+    public ResponseEntity<Post> getPostById(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(postService.findById(id));
+    }
+
 }

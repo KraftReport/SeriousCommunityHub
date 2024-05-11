@@ -136,11 +136,12 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public Post secondUpdate(List<SecondUpdateDto> secondUpdateDto) {
         var found = new Post();
+//        Long postId = null;
         for (var s : secondUpdateDto) {
             if (Objects.equals(s.getPostCaption(), "deleted")) {
                 var del = resourceRepository.findById(Long.valueOf(s.getResourceId())).orElseThrow(() -> new CommunityHubException("resource not found"));
                 resourceRepository.deleteWithId(Long.parseLong(s.getResourceId()));
-                var postId = del.getPost().getId();
+                Long   postId = del.getPost().getId();
                 var post = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("not found"));
                 postRepository.save(post);
             } else {
@@ -150,6 +151,7 @@ public class PostServiceImpl implements PostService {
                 found = resource.getPost();
             }
         }
+   //   var originalPost = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("Post not found Exception"));
         return found;
     }
 
