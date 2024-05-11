@@ -920,7 +920,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" onclick="getUpdateData()" data-bs-dismiss="modal" class="btn btn-primary"
-                            data-bs-toggle="modal" data-bs-target="#loadingModalBox">Update
+                            data-bs-toggle="modal"  >Update
                     </button>
                 </div>
             </div>
@@ -1019,51 +1019,55 @@
 
     
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
+        
+        
+        <div id="mentionSuggestions" class="font-monospace"></div>
         <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="postMaker">Backdroped with scrolling</h5>
+          <h5 class="offcanvas-title font-monospace" id="postMaker">Create Status</h5>
           <button type="button"   onclick="removePreview()" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body">  
-                    <h5 class="modal-title">Create Status</h5>  
+        <div class="offcanvas-body font-monospace">    
                     <form id="postForm">
+                        
+                 
+                       
                         <!-- Quill Editor Default -->
                         <div class="row mb-3">
-                            <label for="inputPassword" class="col-sm-2 col-form-label ">Title</label>
+                            <label for="status" class="font-monospace ">Your Status <i class="fa-solid fa-text-slash"></i></label>
                             <div class="col-sm-10">
-                                <textarea class="form-control quill-editor-default" style="height: 100px" name="content"
+                                <textarea class="form-control  font-monospace" style="height: 200px; border-radius: 20px; border: none;" name="content"
                                           id="content"></textarea>
-                                <div id="mentionSuggestions"></div>
+                               
                             </div>
                         </div>
+                  
 
                         <div class="row mb-3">
-                            <label for="formFile" class="col-sm-2 col-form-label"></label>
+                            <label for="formFile" class="font-monospace">Video/Image <i id="video-icon" class="fa-solid fa-photo-film"> <input class="form-control font-monospace" type="file" id="file" name="file" multiple style="display: none;"></i></label>
                             <div class="col-sm-10">
-                                <label for="formFile" style="width: 50px; height: 50px;">
-                                    Select Photo/Video
-                                </label>
-                                <input class="form-control" type="file" id="file" name="file" multiple>
                             </div>
-                        </div>
-                        <div></div>
+                        </div> 
                         <div class="row mb-3">
-                            <label class="col-sm-2 col-form-label">Select</label>
+                            <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
                             <div class="col-sm-10">
-                                <select class="form-select" id="groupSelect1" name="groupId"
+                                <select class="form-select font-monospace" id="groupSelect1" name="groupId"
                                         aria-label="Default select example">
 
                                 </select>
                             </div>
                         </div>
-                        <div id="preview"></div>
+
+                      
 
                     </form><!-- End General Form Elements -->
                     <!-- End Quill Editor Default -->
-                 
+                    <div class="container">
+                        <div id="preview" class="row" ></div>
+                    </div>
                  
                     
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="offcanvas" onclick="createPost()"
-                            data-bs-toggle="modal" data-bs-target="#loadingModalBox">POST
+                    <button type="button" class="btn btn-primary" onclick="createPost()" data-bs-dismiss="offcanvas"  aria-label="Close"
+                              >POST
                     </button> 
         </div>
       </div>
@@ -1074,7 +1078,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title">Create Status</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                            onclick="removePreview()"></button>
+                            onclick="removePreview()" ></button>
                 </div>
                 <div class="modal-body">
                     <form id="postForm">
@@ -1117,7 +1121,7 @@
                         Close
                     </button>
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="createPost()"
-                            data-bs-toggle="modal" data-bs-target="#loadingModalBox">POST
+                            data-bs-toggle="modal"  >POST
                     </button>
                 </div>
             </div>
@@ -1188,7 +1192,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loadingModalBox"  >POST</button>
+                            <button type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="modal" data-bs-toggle="modal"    >POST</button>
                         </div>
                     </form>
                 </div>

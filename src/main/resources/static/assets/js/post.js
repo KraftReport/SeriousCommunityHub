@@ -1,10 +1,21 @@
 let postCount = 0;
+const fileInput = document.getElementById('file');
+const type = document.getElementById('')
+let newsfeed = document.getElementById('newsfeed')
+let cal = document.getElementById('cal')
+let pol = document.getElementById('pol')
+let cat = document.getElementById('catBox')
+let mark = document.getElementById('markBox')
+let eventDiv = document.getElementById('events')
+const mentionSuggestions = document.getElementById('mentionSuggestions');
+let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
 
 window.onload = welcome;
 
 
 document.addEventListener('DOMContentLoaded', function() {
     localStorage.removeItem('searchInput');
+    loadingModalBox.show()
 })
 function goToCreatePost() {
     window.location.href = '/user/goToCreatePost'
@@ -51,15 +62,7 @@ const removeReaction = async (id) => {
     console.log('hehhe')
 };
 
-const fileInput = document.getElementById('file');
-const type = document.getElementById('')
-let newsfeed = document.getElementById('newsfeed')
-let cal = document.getElementById('cal')
-let pol = document.getElementById('pol')
-let cat = document.getElementById('catBox')
-let mark = document.getElementById('markBox')
-let eventDiv = document.getElementById('events')
-const mentionSuggestions = document.getElementById('mentionSuggestions');
+
 
 const mentionCommunityMember= () => {
      const messageInput = document.getElementById('content');
@@ -118,7 +121,9 @@ fileInput.addEventListener('change', function () {
 });
 
 fileInput.addEventListener('change', function () {
+    console.log('here')
     const preview = document.getElementById('preview');
+
     preview.innerHTML = '';
     const files = fileInput.files;
     for (let i = 0; i < files.length; i++) {
@@ -133,31 +138,59 @@ fileInput.addEventListener('change', function () {
             previewItem.className = 'preview-item';
             if (validImageExtensions.includes(fileName.split('.').pop())) {
                 const reader = new FileReader();
-                reader.onload = function (event) {
+                reader.onload = function (event) {  
                     const img = document.createElement('img');
                     img.src = event.target.result;
                     img.style.maxWidth = '100px';
-                    img.style.maxHeight = '100px';
+                    img.style.maxHeight = '100px'; 
                     previewItem.appendChild(img);
                 };
                 reader.readAsDataURL(file);
-            } else if (validVideoExtensions.includes(fileName.split('.').pop())) {
+            } else if (validVideoExtensions.includes(fileName.split('.').pop())) { 
+
                 const video = document.createElement('video');
+                video.id = "myVideo"
                 video.src = URL.createObjectURL(file);
                 video.style.maxWidth = '100px';
                 video.style.maxHeight = '100px';
-                video.controls = true;
-                previewItem.appendChild(video);
+                video.controls = true; 
+                previewItem.appendChild(video); 
             }
+
+            const pDiv = document.createElement('div')
+            pDiv.classList.add('col-3') 
 
             // Create caption input
             const captionInput = document.createElement('input');
             captionInput.type = 'text';
             captionInput.placeholder = 'Enter caption';
             captionInput.name = `caption-${i}`;
+            captionInput.style.maxWidth = '100px'
+            captionInput.style.maxHeight = '100px'
+            captionInput.style.borderRadius = '20px'
 
-            preview.appendChild(previewItem);
-            preview.appendChild(captionInput);
+            const deleteBtn = document.createElement('button')
+            deleteBtn.textContent = 'X'
+            deleteBtn.style.backgroundColor = 'red'
+            deleteBtn.style.text = 'white'
+            deleteBtn.style.width = '30px'
+            deleteBtn.style.height = '30px'
+            deleteBtn.style.borderRadius = '8px' 
+            deleteBtn.style.left = '100px'
+            deleteBtn.style.zIndex = '1'
+
+            pDiv.appendChild(deleteBtn)
+            pDiv.appendChild(previewItem)
+            pDiv.appendChild(captionInput)
+
+
+
+            preview.appendChild(pDiv); 
+
+            
+            deleteBtn.addEventListener('click',()=>{
+                pDiv.remove()
+            })
         } else {
             alert('Invalid file type. Please select a JPG, JPEG or PNG file.');
             document.querySelector('input[value="RESOURCE"]').value = "CONTENT";
@@ -171,6 +204,7 @@ fileInput.addEventListener('change', function () {
 
 
 async function createPost() {
+    loadingModalBox.show()
     let postText = document.getElementById('content').value
     let postFile = document.getElementById('file').files[0]
 
@@ -202,8 +236,7 @@ async function createPost() {
         document.getElementById('postForm').reset()
         console.log(response)
         if (response) {
-            cat.classList.add('hidden')
-            mark.classList.remove('hidden')
+            removeCat()
             removePreview()
         }
         while (newsfeed.firstChild) {
@@ -243,7 +276,7 @@ async function welcome() {
         }
             // localStorage.setItem('currentPage', response);
             for (const p of response) {
-                let createdTime = await timeAgo(new Date(p.created_date))
+                let createdTime = await timeAgo(new Date(p.createdDate))
                 const reactCount = await fetchSizes(p.id);
                 const reactType = await fetchReactType(p.id);
                 let likeButtonContent = '';
@@ -354,7 +387,7 @@ async function welcome() {
                         if (one !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
   </div>
   `
                         }
@@ -388,8 +421,8 @@ async function welcome() {
                         if (one !== null && two !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
   </div> `
                         }
                     })
@@ -433,11 +466,11 @@ async function welcome() {
                         if (one !== null && two !== null && three !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
   </div>
   <div class="d-flex"> 
-  <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
+  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
   </div>`
                         }
                     })
@@ -496,12 +529,12 @@ async function welcome() {
                         if (one !== null && two !== null && three !== null && four !== null) {
                             post+= `
       <div class="d-flex" > 
-      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
       </div>
       <div class="d-flex"> 
-      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
       </div>`
                         }
                     })
@@ -509,7 +542,7 @@ async function welcome() {
                 }
 
                 if(p.resources.length > 4 ){
-                    let text = p.resources.length -4
+                    let text = p.resources.length === 5 ? '' : p.resources.length - 5
                     console.log(text)
                     p.resources.forEach((r, index) => {
                         if(index === 0 && r.photo !== null){
@@ -577,14 +610,14 @@ async function welcome() {
 
                             post+= `
       <div class="d-flex" > 
-      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
       </div>
       <div class="d-flex"> 
-      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
       <div style="position: relative; display: inline-block;">
-      <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+      <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
       </div>
       </div>`
@@ -644,21 +677,21 @@ async function welcome() {
                     let active = index == 0 ? 'active' : ''
                     if (r.photo === null && r.video !== null) {
                         post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
-              <video controls  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+              <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
               </div> `
                     } else if (r.video === null && r.photo !== null) {
                         post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <img src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
+              <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
             </div>`
                     } else {
                         post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <video controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
@@ -691,10 +724,15 @@ async function welcome() {
 
                 posts += post;
             }
+            
             let range = document.createRange();
             let fragment = range.createContextualFragment(posts);
             newsfeed.appendChild(fragment);
+            await removeCat()
+
    // }
+
+ 
 
     const likeButtons = document.querySelectorAll(".like_button");
     likeButtons.forEach(likeButton => {
@@ -793,6 +831,11 @@ const displayNoPostMessage = () => {
 
 }
 
+const removeCat = async () =>{
+    cat.classList.add('hidden')
+    mark.classList.remove('hidden')
+   }
+
 let scrollPost = true;
 let scrollEvent = false;
 let scrollPoll = false;
@@ -846,6 +889,7 @@ document.getElementById('polls-tab').addEventListener('click', function(){
 });
 
 window.addEventListener('scroll', async () => {
+    await videoObserver()
     const bottomOffset = window.innerHeight + window.scrollY;
     const documentHeight = document.body.offsetHeight;
 
@@ -1059,6 +1103,9 @@ async function getUpdateData() {
     })
     let secondResult = await secondResponse.json()
     console.log(secondResult)
+    if(secondResult){
+        await removeCat()
+    }
     if (secondResult) {
         while (newsfeed.firstChild) {
             newsfeed.removeChild(newsfeed.firstChild)
@@ -1083,6 +1130,7 @@ window.addEventListener('load', async function () {
 })
 
 async function createPollPost() {
+    loadingModalBox.show()
     let data = new FormData(document.getElementById('pollForm'));
     console.log(Object.fromEntries(data.entries()));
     let response = await fetch('/event/createEvent', {
@@ -1091,10 +1139,13 @@ async function createPollPost() {
     });
     let result = await response.json()
     console.log(result)
+    if(result){
+        await removeCat()
+    }
 
 }
 
-async function getAllEventsForPost() {
+async function getAllEventsForPost() { 
     isFetchingForEvent = true;
     let rows = '';
     let data = await fetch(`/event/getEventsForNewsfeed/${currentPageForEvent}`, {
@@ -1256,6 +1307,7 @@ async function getAllEventsForPost() {
         let fragment = range.createContextualFragment(rows);
 
         eventDiv.appendChild(fragment);
+        await removeCat()
         const likeButtons = document.querySelectorAll(".like_button1");
         likeButtons.forEach(likeButton => {
             likeButton.addEventListener('click', async (event) => {
@@ -1370,11 +1422,15 @@ const fetchReactTypeForEvent = async (id) => {
 }
 
 async function deletePost(id) {
+    loadingModalBox.show()
     let data = await fetch('/post/deletePost/' + id, {
         method: 'GET'
     })
     let response = await data.json()
     console.log(response)
+    if(response){
+        await removeCat()
+    }
     while (newsfeed.firstChild) {
         newsfeed.removeChild(newsfeed.firstChild)
     }
@@ -1383,6 +1439,7 @@ async function deletePost(id) {
 }
 
 async function createEventPost() {
+    loadingModalBox.show()
     let data = new FormData(document.getElementById('eventForm'));
     console.log(Object.fromEntries(data.entries()));
     let response = await fetch('/event/createEvent', {
@@ -1391,6 +1448,9 @@ async function createEventPost() {
     });
     let result = await response.json()
     console.log(result)
+    if(result){
+        await removeCat()
+    }
 
 }
 
@@ -3786,6 +3846,7 @@ async function restorePollPhoto(id){
 }
 
 async function getEventUpdateData(){
+    loadingModalBox.show()
     let eventId = document.getElementById('updateEventId').value
     let eventTitle = document.getElementById('updateEventTitle').value
     let updateEventDescription = document.getElementById('updateEventDescription').value
@@ -3870,14 +3931,21 @@ async function getEventUpdateData(){
     })
     let res = await send.json()
     console.log(res)
+    if(res){
+        await removeCat()
+    }
 }
 
 async function deleteEvent(id){
+    loadingModalBox.show()
     let data = await fetch('/event/deleteAEvent/'+id,{
         method : 'DELETE'
     })
     let result = data.json()
     console.log(result)
+    if(result){
+        await removeCat()
+    }
 }
 
 
@@ -3937,6 +4005,7 @@ async function createAVoteOptionForUpdate(){
 }
 
 async function createAPollPost(){
+    loadingModalBox.show()
     if(validationFails()){
         alert('start date , end date , vote option of two and title is at least require')
     }else{
@@ -3958,6 +4027,9 @@ async function createAPollPost(){
         })
         let response = await datas.json()
         console.log(response)
+        if(response){
+            await removeCat()
+        }
     }
 }
 
@@ -4006,7 +4078,7 @@ async function timeAgo(createdDate) {
     }
   }
 
-async function getAllPollPost(){
+async function getAllPollPost(){ 
     isFetchingForPoll = true
     let polls = document.getElementById('polls');
     let pollTab = document.getElementById('polls')
@@ -4121,7 +4193,7 @@ POLL IS EXPIRED
             console.log(yes)
 
 
-            row += `<div id="mark-id-${v.id}" class="${markIcon}"><i class="fa-regular fa-circle-check"></i></div>
+            row += ` <div id="mark-id-${v.id}" class="${markIcon}"> <i class="fa-regular fa-circle-check"></i> </div>
                 </div>
                 </div>
                  `
@@ -4194,6 +4266,7 @@ POLL IS EXPIRED
         polls.children[0].remove();
     }
     pollTab.appendChild(fragment)
+    await removeCat()
     if(fragment){
         for(let r of response){
             await updateVotePercentage(r.voteOptions)
@@ -4375,6 +4448,7 @@ async function getPollEventDetail(id){
 }
 
 async function getPollEventUpdateData(){
+    loadingModalBox.show()
     let eventId = document.getElementById('updatePollEventId').value
     let eventTitle = document.getElementById('updatePollEventTitle').value
     let updateEventDescription = document.getElementById('updatePollEventDescription').value
@@ -4474,6 +4548,9 @@ async function getPollEventUpdateData(){
     })
     let res = await send.json()
     console.log(res)
+    if(res){
+        await removeCat()
+    }
 }
 
 async function checkPostOwnerOrAdmin(id){
@@ -4485,28 +4562,35 @@ async function checkPostOwnerOrAdmin(id){
 
 
 
-/*
-  We can use [body] or the element class/id that wraps the elements with tooltip/popover.
-  Include the data-[] attribute in each element that needs it.
-*/
-$(document).ready(function () {
-    //can also be wrapped with:
-    //1. $(function () {...});
-    //2. $(window).load(function () {...});
-    //3. Or your own custom named function block.
-    //It's better to wrap it.
+ 
+
+  let videoIcon = document.getElementById('video-icon')
+  videoIcon.addEventListener('click',function(){
+    document.getElementById('file').click()
+  })
+
+  videoObserver()
+
+  async function videoObserver(){
+      console.log('observing------->')
+      const videos = document.querySelectorAll('#myVideo');
   
-    //Tooltip, activated by hover event
-    $("body").tooltip({   
-      selector: "[data-toggle='tooltip']",
-      container: "body"
-    })
-      //Popover, activated by clicking
-      .popover({
-      selector: "[data-toggle='popover']",
-      container: "body",
-      html: true
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.play();
+          } else {
+            entry.target.pause();
+          }
+        });
+      });
+      
+      videos.forEach(video => {
+          console.log('ha ha ha ha  =====----=-=-=-=-')
+        observer.observe(video);
+      });
+  }
+  
+  document.body.addEventListener('hidden.bs.modal', async function (event) {
+      await videoObserver()
     });
-    //They can be chained like the example above (when using the same selector).
-    
-  });
