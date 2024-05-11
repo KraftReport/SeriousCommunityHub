@@ -24,7 +24,7 @@ public class Reply implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String content;
-    private LocalDateTime localDateTime;
+    private Date localDateTime;
 
     @ManyToOne
     @JoinColumn(name = "comment_id")

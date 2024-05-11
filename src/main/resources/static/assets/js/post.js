@@ -1976,7 +1976,7 @@ const getAllComments = async (id) => {
     const chatArea = document.querySelector('#commentMessageText');
     chatArea.innerHTML = '';
     for (const c of getData) {
- let localDateTime = await dateFormatter(new Date((c.localDateTime)));
+        let localDateTime = new Date(c.localDateTime);
         await displayMessage(c.user.name, c.content, c.user.photo, c.id, c.post.id, localDateTime, chatArea);
         console.log('data time',localDateTime)
     }
@@ -1986,9 +1986,6 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
-    let createdTime = await timeAgo(new Date(localDateTime))
-    divItem.setAttribute('data-toggle', 'tooltip');
-    divItem.setAttribute('title', `${createdTime}`);
     const userImage = document.createElement('img');
     photo = photo || '/static/assets/img/card.jpg';
     userImage.src = `${photo}`;
@@ -2014,6 +2011,9 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
 
     const convertDiv = document.createElement('div');
     convertDiv.classList.add('content-container');
+    let createdTime = await timeAgo(new Date(localDateTime))
+    convertDiv.setAttribute('data-toggle', 'tooltip');
+    convertDiv.setAttribute('title', `${createdTime}`);
     const spanElementForImg = document.createElement('span');
     spanElementForImg.appendChild(userImage);
     divItem.appendChild(spanElementForImg);
@@ -2219,6 +2219,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
     const repliesContainer = document.createElement('div');
     repliesContainer.classList.add(`replies-container-${id}`);
     repliesContainer.style.display = 'none';
+
 
     for (const reply of replies) {
         repliesContainer.appendChild(reply);
@@ -2602,6 +2603,7 @@ const fetchAndDisplayReplies = async (id) => {
     for (const reply of fetchDataForReplies) {
         const user = await fetchUserDataByPostedUser(loginUser);
         const replyElement = document.createElement('div');
+
         const userRpImage = document.createElement('img');
         const photo = reply.user.photo || '/static/assets/img/card.jpg';
         userRpImage.src = `${photo}`;
@@ -2626,6 +2628,9 @@ const fetchAndDisplayReplies = async (id) => {
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
         divEl.classList.add(`reply-container-div-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        divEl.setAttribute('data-toggle', 'tooltip');
+        divEl.setAttribute('title', `${createdTimeForReply}`);
         divEl.style.marginLeft = '110px';
         divEl.style.padding = '20px';
         divEl.style.backgroundColor = 'lightgrey';
