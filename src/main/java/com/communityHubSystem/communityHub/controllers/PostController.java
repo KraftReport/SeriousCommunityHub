@@ -87,4 +87,10 @@ public class PostController {
         return ResponseEntity.ok(postService.checkPostOwnerOrAdmin(Long.valueOf(id)));
     }
 
+    @GetMapping("/fetch-post/{id}")
+    @ResponseBody
+    public ResponseEntity<Post> getPostById(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(postService.findById(id));
+    }
+
 }

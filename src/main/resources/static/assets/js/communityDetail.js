@@ -22,7 +22,7 @@ async function startUp(){
     let community = await fetch(`/api/community/getCommunity/${communityId}`)
     let data = await community.json()
     console.log(data)
-    document.getElementById('communityImage').src = data.photo
+    document.getElementById('communityImage').src = data.image
     document.getElementById('communityName').textContent = data.name
     document.getElementById('communityMembers').textContent = 10
 }

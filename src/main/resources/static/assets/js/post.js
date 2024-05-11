@@ -243,7 +243,7 @@ async function welcome() {
         }
             // localStorage.setItem('currentPage', response);
             for (const p of response) {
-                let createdTime = await timeAgo(new Date(p.created_date))
+                let createdTime = await timeAgo(new Date(p.createdDate))
                 const reactCount = await fetchSizes(p.id);
                 const reactType = await fetchReactType(p.id);
                 let likeButtonContent = '';
@@ -284,7 +284,7 @@ async function welcome() {
                 let post = '';
                 post += `
 
-      <div class="post">
+      <div class="post" id="post-delete-section-${p.id}">
       <div class="post-top">
           <div class="dp">
               <img src="${p.user.photo}" alt="">
@@ -312,6 +312,7 @@ async function welcome() {
           }
                      
       post+=`</div>
+<div id="post-update-section-${p.id}">
 <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
       ${p.description.replace(/\n/g, '<br>')}
       `
@@ -594,6 +595,7 @@ async function welcome() {
 
                 }
                 post += `
+      </div>
       </div>
       <div class="post-bottom">
           <div class="action" style="height: 50px">
@@ -1011,7 +1013,7 @@ async function getUpdateData() {
         const url = document.getElementById(`${v.value}-url`)
         let resourceUrl = url.src
         console.log(resourceUrl)
-        if (resourceUrl == 'http://localhost:8080/null' || resourceUrl == 'http://localhost:8080/deleted') {
+        if (resourceUrl === 'http://localhost:8080/null' || resourceUrl === 'http://localhost:8080/deleted') {
             let dto = {
                 resourceId: v.value,
                 postCaption: 'deleted',
@@ -1043,12 +1045,13 @@ async function getUpdateData() {
         }
     }
     data.append('captions', captions);
-    console.log(Object.fromEntries(data.entries()))
+    console.log(Object.fromEntries(data.entries()).postId+'---------------------')
     let firstResponse = await fetch('/post/firstUpdate', {
         method: 'POST',
         body: data
     })
     let firstResult = await firstResponse.json()
+    console.log("Kyi Kya mal", firstResult.postId)
     console.log(firstResult)
     let secondResponse = await fetch('/post/secondUpdate', {
         method: 'POST',
@@ -1060,12 +1063,317 @@ async function getUpdateData() {
     let secondResult = await secondResponse.json()
     console.log(secondResult)
     if (secondResult) {
-        while (newsfeed.firstChild) {
-            newsfeed.removeChild(newsfeed.firstChild)
-        }
-        await welcome()
-        // postCount = 0
+        // while (newsfeed.firstChild) {
+        //     newsfeed.removeChild(newsfeed.firstChild)
+        // }
+        const p = await fetchPostById(Object.fromEntries(data.entries()).postId);
+        console.log('8888888888888888888888888888888888888'+p)
+            const contentSection = document.getElementById(`post-update-section-${p.id}`);
+                const postId = p.id;
+                console.log("Want to know",postId);
+                const postContent = document.querySelector(`.post-content-${postId}`);
+                if (postContent) {
+                    console.log('Remove Successfully')
+                    postContent.remove();
+                }
+                // const divContent = document.createElement('div');
+                // divContent.classList.add(`post-content-${postId}`);
+                // divContent.setAttribute('data-bs-toggle', 'modal');
+                // divContent.setAttribute('data-bs-target', `#newsfeedPost${postId}`);
+                // console.log('post added ');
+                let post = '';
+                post+= `<div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+            ${p.description.replace(/\n/g, '<br>')}
+            `
+                let oneTag = null
+                let oneCloseTag = null
+                let twoTag = null
+                let twoCloseTag = null
+                let threeTag = null
+                let threeCloseTag = null
+                let fourTag = null
+                let fourCloseTag = null
+                let fiveTag = null
+                let fiveCloseTag = null
+                let oneControlAttr = null
+                let twoControlAttr = null
+                let threeControlAttr = null
+                let fourControlAttr = null
+                let fiveControlAttr = null
+                let one = null
+                let two = null
+                let three = null
+                let four = null
+                let five = null
+                let six = null
+
+                if(p.resources.length === 1){
+                    p.resources.forEach((r, index) => {
+                        if(index === 0 && r.photo !== null){
+                            console.log('two')
+                            one = r.photo
+                            oneTag = 'img'
+                            oneCloseTag = ''
+                            oneControlAttr = ''
+                        }else if(index === 0 && r.video !== null){
+                            one = r.video
+                            oneTag = 'video'
+                            oneCloseTag = '</video>'
+                            oneControlAttr = 'controls'
+                        }
+                        if (one !== null  ) {
+                            post+= `
+            <div class="d-flex" >
+        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+            </div>
+                `
+                        }
+                    })
+                }
+                if(p.resources.length === 2){
+                    p.resources.forEach((r, index) => {
+                        if(index === 0 && r.photo !== null){
+                            console.log('two')
+                            one = r.photo
+                            oneTag = 'img'
+                            oneCloseTag = ''
+                            oneControlAttr = ''
+                        }else if(index === 0 && r.video !== null){
+                            one = r.video
+                            oneTag = 'video'
+                            oneCloseTag = '</video>'
+                            oneControlAttr = 'controls'
+                        }
+                        if(index === 1 && r.photo !== null){
+                            two = r.photo
+                            twoTag = 'img'
+                            twoCloseTag = ''
+                            twoControlAttr = ''
+                        }else if(index === 1 && r.video !== null){
+                            two = r.video
+                            twoTag = 'video'
+                            twoCloseTag = '</video>'
+                            twoControlAttr = 'controls'
+                        }
+                        if (one !== null && two !== null  ) {
+                            post+= `
+            <div class="d-flex" >
+        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
+        <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
+            </div> `
     }
+})
+}
+if(p.resources.length === 3){
+    p.resources.forEach((r, index) => {
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if (one !== null && two !== null && three !== null  ) {
+            post+= `
+  <div class="d-flex" > 
+  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+  </div>
+  <div class="d-flex"> 
+  <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
+  </div>`
+        }
+    })
+}
+if(p.resources.length === 4){
+    p.resources.forEach((r, index) => {
+        console.log(r)
+
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if(index === 3 && r.photo !== null){
+            four = r.photo
+            fourTag = 'img'
+            fourCloseTag = ''
+            fourControlAttr = ''
+        }else if(index === 3 && r.video !== null){
+            four = r.video
+            fourTag = 'video'
+            fourCloseTag = '</video>'
+            fourControlAttr = 'controls'
+        }
+
+
+        if (one !== null && two !== null && three !== null && four !== null) {
+            post+= `
+      <div class="d-flex" > 
+      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      </div>
+      <div class="d-flex"> 
+      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+      </div>`
+        }
+    })
+
+}
+
+if(p.resources.length > 4 ){
+    let text = p.resources.length -4
+    console.log(text)
+    p.resources.forEach((r, index) => {
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if(index === 3 && r.photo !== null){
+            four = r.photo
+            fourTag = 'img'
+            fourCloseTag = ''
+            fourControlAttr = ''
+        }else if(index === 3 && r.video !== null){
+            four = r.video
+            fourTag = 'video'
+            fourCloseTag = '</video>'
+            fourControlAttr = 'controls'
+        }
+        if(index === 4 && r.photo !== null){
+            five = r.photo
+            fiveTag = 'img'
+            fiveCloseTag = ''
+            fiveControlAttr = ''
+        }else if(index === 4 && r.video !== null){
+            five = r.video
+            fiveTag = 'video'
+            fiveCloseTag = '</video>'
+            fiveControlAttr = 'controls'
+        }
+
+        if(index === 5 ){
+            six = 'hello'
+        }
+
+        if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
+
+            post+= `
+      <div class="d-flex" > 
+      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      </div>
+      <div class="d-flex"> 
+      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
+      <div style="position: relative; display: inline-block;">
+      <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
+      </div>
+      </div>`
+        }
+
+    })
+
+}
+post += `
+      </div>`
+
+        contentSection.innerHTML = post
+
+    }
+}
+const fetchPostById = async (id) => {
+    const postData = await fetch(`/post/fetch-post/${id}`);
+    const postRes = await postData.json();
+    return postRes;
 }
 
 function deleteResource(id) {
@@ -1112,6 +1420,7 @@ async function getAllEventsForPost() {
         for (const r of response) {
             const reactCountForEvent = await fetchReactCountForEvent(r.id);
             console.log('length',reactCountForEvent.length);
+            let createdTime = await timeAgo(new Date(r.created_date))
             const reactTypeForEvent = await fetchReactTypeForEvent(r.id);
             let likeButtonContent = '';
             if (reactTypeForEvent === "LIKE") {
@@ -1163,14 +1472,14 @@ async function getAllEventsForPost() {
             let formattedStartDate = `${startDay} / ${startMonth} / ${startYear}  `;
             let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `;
             let row = `
-                <div class="post">
+                <div class="post" id="delete-event-section-${r.id}">
                     <div class="post-top">
                         <div class="dp">
                             <img src="${r.user.photo}" alt="">
                         </div>
                         <div class="post-info">
                             <p class="name">${r.user.name}</p>
-                            <span class="time">2 days ago</span>
+                            <span class="time">${createdTime}</span>
                         </div>
                         <div class="dropdown offset-8">
                             <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
@@ -1182,7 +1491,8 @@ async function getAllEventsForPost() {
                             </ul>
                         </div>
                     </div>
-                    <div class=" post-content" data-bs-toggle="modal" data-bs-target="#searchPost" >
+                    <div id="event-update-section-${r.id}">
+                    <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
                         <div class="card" style="width: 30rem;  margin-left:12px ;">
                             <div class="card-body">
                                 <h5 class="card-title">${r.title}</h5>
@@ -1215,6 +1525,7 @@ async function getAllEventsForPost() {
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                    <div class="post-bottom" style="justify-content: center; margin-top: -40px">
         <div class="button_wrapper1">
@@ -1375,11 +1686,13 @@ async function deletePost(id) {
     })
     let response = await data.json()
     console.log(response)
-    while (newsfeed.firstChild) {
-        newsfeed.removeChild(newsfeed.firstChild)
+    if(response){
+        const postList = document.getElementById(`post-delete-section-${id}`);
+        if(postList){
+            postList.remove();
+        }
     }
-   await  welcome()
-    // postCount = 0
+
 }
 
 async function createEventPost() {
@@ -1662,15 +1975,20 @@ const getAllComments = async (id) => {
     const getData = await fetchComments.json();
     const chatArea = document.querySelector('#commentMessageText');
     chatArea.innerHTML = '';
-    getData.forEach(c => {
-        displayMessage(c.user.name, c.content, c.user.photo, c.id, c.post.id, chatArea);
-    });
+    for (const c of getData) {
+ let localDateTime = await dateFormatter(new Date((c.localDateTime)));
+        await displayMessage(c.user.name, c.content, c.user.photo, c.id, c.post.id, localDateTime, chatArea);
+        console.log('data time',localDateTime)
+    }
 };
 
-const displayMessage = async (sender, content, photo, id, postId, chatArea) => {
+const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
+    let createdTime = await timeAgo(new Date(localDateTime))
+    divItem.setAttribute('data-toggle', 'tooltip');
+    divItem.setAttribute('title', `${createdTime}`);
     const userImage = document.createElement('img');
     photo = photo || '/static/assets/img/card.jpg';
     userImage.src = `${photo}`;
@@ -2703,7 +3021,8 @@ const receivedMessageForComment = async (payload) => {
     // await welcome();
     message.photo = message.photo || '/static/assets/img/card.jpg';
     const chatArea = document.querySelector('#commentMessageText');
-    await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId, chatArea);
+    const localDateTime = new Date().toLocaleString();
+    await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
 };
 
 
@@ -2742,7 +3061,6 @@ const pressedComment = async (id) => {
             postId: id,
             sender: loginUser,
             content: cmtValue,
-            date: new Date(),
         };
         document.getElementById('commentForm').reset();
       //   const user = await fetchUserDataByPostedUser(loginUser);
@@ -3868,8 +4186,48 @@ async function getEventUpdateData(){
         method : 'POST',
         body : formData
     })
-    let res = await send.json()
-    console.log(res)
+    let r = await send.json()
+  if(r){
+      const eventContent = document.getElementById(`event-update-section-${r.id}`);
+      const eventPostContent = document.querySelector(`.post-content-${r.id}`);
+      if(eventPostContent){
+          eventPostContent.remove();
+      }
+      eventContent.innerHTML = `<div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
+                        <div class="card" style="width: 30rem;  margin-left:12px ;">
+                            <div class="card-body">
+                                <h5 class="card-title">${r.title}</h5>
+                                <div class="d-flex align-items-start">
+                                    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
+                                        <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
+                                        <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
+                                        <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button> 
+                                    </div>
+                                    <div class="tab-content" id="v-${r.id}-tabContent">
+                                        <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
+                                            <div class="text-center lh-sm font-monospace">
+                                                ${r.description}
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-location" role="tabpanel" aria-labelledby="v-${r.id}-location-tab">
+                                            <div class="text-center fs-5 fw-bold fst-italic font-monospace ml-3">
+                                                <div class="ml-5  mt-5 text-danger">${r.location}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-date" role="tabpanel" aria-labelledby="v-${r.id}-date-tab">
+                                            <div class="text-center fs-6 fw-bold mt-3  pl-2 font-monospace">
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> START </div> <i class="fa-solid fa-play text-danger mx-1"></i></br></div><div class="fst-italic"> ${formattedStartDate}</div></br>
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+  }
 }
 
 async function deleteEvent(id){
@@ -3878,6 +4236,16 @@ async function deleteEvent(id){
     })
     let result = data.json()
     console.log(result)
+    if(result){
+        const eventDiv = document.getElementById(`delete-event-section-${id}`);
+        if(eventDiv){
+            eventDiv.remove();
+        }
+        const pollDiv = document.getElementById(`pollPostDiv-${id}`);
+        if(pollDiv){
+            pollDiv.remove();
+        }
+    }
 }
 
 
@@ -3988,6 +4356,7 @@ function validationFails() {
 }
 
 async function timeAgo(createdDate) {
+    console.log("ddd",createdDate)
     const now = new Date();
     const diff = now - createdDate;
     const seconds = Math.floor(diff / 1000);
@@ -3998,11 +4367,11 @@ async function timeAgo(createdDate) {
     if (seconds < 60) {
       return `just now`;
     } else if (minutes < 60) {
-      return `${minutes} minute${minutes > 1? '' : ''} ago`;
+      return `${minutes} minutes${minutes > 1? '' : ''} ago`;
     } else if (hours < 24) {
-      return `${hours} hour${hours > 1? '' : ''} ago`;
+      return `${hours} hours${hours > 1? '' : ''} ago`;
     } else {
-      return `${days} day${days > 1? '' : ''} ago`;
+      return `${days} days${days > 1? '' : ''} ago`;
     }
   }
 
