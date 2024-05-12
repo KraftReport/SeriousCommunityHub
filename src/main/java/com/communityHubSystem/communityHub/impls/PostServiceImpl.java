@@ -296,6 +296,7 @@ public class PostServiceImpl implements PostService {
         if ( postDTO.getGroupId()!= null && Long.parseLong(postDTO.getGroupId()) > 0) {
             post.setAccess(Access.PRIVATE);
             var community = communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(() -> new CommunityHubException("Group Name Not found Exception!"));
+
             var user_group = user_groupRepository.findByUserIdAndCommunityId(loginUser.getId(),community.getId());
             post.setUserGroup(user_group);
         } else {

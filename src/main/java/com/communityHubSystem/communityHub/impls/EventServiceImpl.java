@@ -475,11 +475,13 @@ public class EventServiceImpl implements EventService {
 
     public User_Group setGroup(EventDTO eventDTO){
         if(checkAccess(eventDTO).equals(Access.PRIVATE)){
-            var group = new User_Group();
-            group.setCommunity(communityRepository.findById(Long.valueOf(eventDTO.getGroupId())).orElseThrow(()->new CommunityHubException("group not found")));
-            group.setDate(new Date());
-            group.setUser(getLoginUser());
-            return user_groupRepository.save(group);
+//            var group = new User_Group();
+//            group.setCommunity(communityRepository.findById(Long.valueOf(eventDTO.getGroupId())).orElseThrow(()->new CommunityHubException("group not found")));
+//            group.setDate(new Date());
+//            group.setUser(getLoginUser());
+//            return user_groupRepository.save(group);
+            var group = user_groupRepository.findByUserIdAndCommunityId(getLoginUser().getId(),Long.valueOf(eventDTO.getGroupId()));
+            return group;
         }else {
             return null;
         }
