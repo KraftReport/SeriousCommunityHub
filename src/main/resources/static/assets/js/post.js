@@ -1,10 +1,21 @@
 let postCount = 0;
+const fileInput = document.getElementById('file');
+const type = document.getElementById('')
+let newsfeed = document.getElementById('newsfeed')
+let cal = document.getElementById('cal')
+let pol = document.getElementById('pol')
+let cat = document.getElementById('catBox')
+let mark = document.getElementById('markBox')
+let eventDiv = document.getElementById('events')
+const mentionSuggestions = document.getElementById('mentionSuggestions');
+let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
 
 window.onload = welcome;
 
 
 document.addEventListener('DOMContentLoaded', function() {
     localStorage.removeItem('searchInput');
+    loadingModalBox.show()
 })
 function goToCreatePost() {
     window.location.href = '/user/goToCreatePost'
@@ -51,15 +62,7 @@ const removeReaction = async (id) => {
     console.log('hehhe')
 };
 
-const fileInput = document.getElementById('file');
-const type = document.getElementById('')
-let newsfeed = document.getElementById('newsfeed')
-let cal = document.getElementById('cal')
-let pol = document.getElementById('pol')
-let cat = document.getElementById('catBox')
-let mark = document.getElementById('markBox')
-let eventDiv = document.getElementById('events')
-const mentionSuggestions = document.getElementById('mentionSuggestions');
+
 
 const mentionCommunityMember= () => {
      const messageInput = document.getElementById('content');
@@ -118,7 +121,9 @@ fileInput.addEventListener('change', function () {
 });
 
 fileInput.addEventListener('change', function () {
+    console.log('here')
     const preview = document.getElementById('preview');
+
     preview.innerHTML = '';
     const files = fileInput.files;
     for (let i = 0; i < files.length; i++) {
@@ -142,7 +147,9 @@ fileInput.addEventListener('change', function () {
                 };
                 reader.readAsDataURL(file);
             } else if (validVideoExtensions.includes(fileName.split('.').pop())) {
+
                 const video = document.createElement('video');
+                video.id = "myVideo"
                 video.src = URL.createObjectURL(file);
                 video.style.maxWidth = '100px';
                 video.style.maxHeight = '100px';
@@ -150,11 +157,33 @@ fileInput.addEventListener('change', function () {
                 previewItem.appendChild(video);
             }
 
+            const pDiv = document.createElement('div')
+            pDiv.classList.add('col-3')
+
             // Create caption input
             const captionInput = document.createElement('input');
             captionInput.type = 'text';
             captionInput.placeholder = 'Enter caption';
             captionInput.name = `caption-${i}`;
+            captionInput.style.maxWidth = '100px'
+            captionInput.style.maxHeight = '100px'
+            captionInput.style.borderRadius = '20px'
+
+            const deleteBtn = document.createElement('button')
+            deleteBtn.textContent = 'X'
+            deleteBtn.style.backgroundColor = 'red'
+            deleteBtn.style.text = 'white'
+            deleteBtn.style.width = '30px'
+            deleteBtn.style.height = '30px'
+            deleteBtn.style.borderRadius = '8px'
+            deleteBtn.style.left = '100px'
+            deleteBtn.style.zIndex = '1'
+
+            pDiv.appendChild(deleteBtn)
+            pDiv.appendChild(previewItem)
+            pDiv.appendChild(captionInput)
+
+
 
             preview.appendChild(previewItem);
             preview.appendChild(captionInput);
@@ -171,6 +200,7 @@ fileInput.addEventListener('change', function () {
 
 
 async function createPost() {
+    loadingModalBox.show()
     let postText = document.getElementById('content').value
     let postFile = document.getElementById('file').files[0]
 
@@ -202,8 +232,7 @@ async function createPost() {
         document.getElementById('postForm').reset()
         console.log(response)
         if (response) {
-            cat.classList.add('hidden')
-            mark.classList.remove('hidden')
+            removeCat()
             removePreview()
         }
         while (newsfeed.firstChild) {
@@ -215,17 +244,17 @@ async function createPost() {
 
 }
 
-let currentPageForPost = '0';
-let isFetchingForPost = false;
-let hasMoreForPost = true;
-
-let currentPageForEvent = '0'
-let isFetchingForEvent = false
-let hasMoreForEvent = true
-
-let currentPageForPoll = '0'
-let isFetchingForPoll = false;
-let hasMoreForPoll = true;
+// let currentPageForPost = '0';
+// let isFetchingForPost = false;
+// let hasMoreForPost = true;
+//
+// let currentPageForEvent = '0'
+// let isFetchingForEvent = false
+// let hasMoreForEvent = true
+//
+// let currentPageForPoll = '0'
+// let isFetchingForPoll = false;
+// let hasMoreForPoll = true;
 
 async function welcome() {
     isFetchingForPost = true;
@@ -243,7 +272,7 @@ async function welcome() {
         }
             // localStorage.setItem('currentPage', response);
             for (const p of response) {
-                let createdTime = await timeAgo(new Date(p.created_date))
+                let createdTime = await timeAgo(new Date(p.createdDate))
                 const reactCount = await fetchSizes(p.id);
                 const reactType = await fetchReactType(p.id);
                 let likeButtonContent = '';
@@ -284,7 +313,7 @@ async function welcome() {
                 let post = '';
                 post += `
 
-      <div class="post">
+      <div class="post" id="post-delete-section-${p.id}">
       <div class="post-top">
           <div class="dp">
               <img src="${p.user.photo}" alt="">
@@ -312,6 +341,7 @@ async function welcome() {
           }
                      
       post+=`</div>
+<div id="post-update-section-${p.id}">
 <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
       ${p.description.replace(/\n/g, '<br>')}
       `
@@ -354,7 +384,7 @@ async function welcome() {
                         if (one !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
   </div>
   `
                         }
@@ -388,8 +418,8 @@ async function welcome() {
                         if (one !== null && two !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
   </div> `
                         }
                     })
@@ -433,11 +463,11 @@ async function welcome() {
                         if (one !== null && two !== null && three !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
   </div>
   <div class="d-flex"> 
-  <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
+  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag}
   </div>`
                         }
                     })
@@ -496,12 +526,12 @@ async function welcome() {
                         if (one !== null && two !== null && three !== null && four !== null) {
                             post+= `
       <div class="d-flex" > 
-      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
       </div>
       <div class="d-flex"> 
-      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
       </div>`
                         }
                     })
@@ -509,7 +539,7 @@ async function welcome() {
                 }
 
                 if(p.resources.length > 4 ){
-                    let text = p.resources.length -4
+                    let text = p.resources.length === 5 ? '' : p.resources.length - 5
                     console.log(text)
                     p.resources.forEach((r, index) => {
                         if(index === 0 && r.photo !== null){
@@ -577,14 +607,14 @@ async function welcome() {
 
                             post+= `
       <div class="d-flex" > 
-      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
       </div>
       <div class="d-flex"> 
-      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
       <div style="position: relative; display: inline-block;">
-      <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+      <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
       </div>
       </div>`
@@ -594,6 +624,7 @@ async function welcome() {
 
                 }
                 post += `
+      </div>
       </div>
       <div class="post-bottom">
           <div class="action" style="height: 50px">
@@ -628,7 +659,7 @@ async function welcome() {
           </div>
           <div class="action">
               <i class="fa-regular fa-comment"></i>
-              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox">Comment ${commentCountSize}</span>
+              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox-${p.id}">Comment ${commentCountSize}</span>
           </div>
       </div>
   </div> 
@@ -644,21 +675,21 @@ async function welcome() {
                     let active = index == 0 ? 'active' : ''
                     if (r.photo === null && r.video !== null) {
                         post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
-              <video controls  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+              <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
               </div> `
                     } else if (r.video === null && r.photo !== null) {
                         post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <img src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
+              <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
             </div>`
                     } else {
                         post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <video controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
@@ -691,10 +722,15 @@ async function welcome() {
 
                 posts += post;
             }
+
             let range = document.createRange();
             let fragment = range.createContextualFragment(posts);
             newsfeed.appendChild(fragment);
+            await removeCat()
+
    // }
+
+
 
     const likeButtons = document.querySelectorAll(".like_button");
     likeButtons.forEach(likeButton => {
@@ -793,57 +829,102 @@ const displayNoPostMessage = () => {
 
 }
 
-let scrollPost = true
-let scrollEvent = false
-let scrollPoll = false
+const removeCat = async () =>{
+    cat.classList.add('hidden')
+    mark.classList.remove('hidden')
+   }
 
-let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('click',function(){
-    scrollPost = true
-    scrollEvent = false
-    scrollPoll = false
-    document.getElementById('newsfeed').innerHTML = ''
-})
+let scrollPost = true;
+let scrollEvent = false;
+let scrollPoll = false;
 
-let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
-    scrollPost = false
-    scrollEvent = true
-    scrollPoll = false 
-    document.getElementById('events').innerHTML = ''
-})
+let currentPageForPost = '0';
+let currentPageForEvent = '0';
+let currentPageForPoll = '0';
 
-let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
-    scrollPost = false
-    scrollEvent = false
-    scrollPoll = true
-    document.getElementById('polls').innerHTML = ''
-})
+let isFetchingForPost = false;
+let isFetchingForEvent = false;
+let isFetchingForPoll = false;
+
+let hasMoreForPost = true;
+let hasMoreForEvent = true;
+let hasMoreForPoll = true;
+
+let scrollPositions = {
+    'newsfeed': 0,
+    'events': 0,
+    'polls': 0
+};
+
+document.getElementById('newsfeed-tab').addEventListener('click', function(){
+    scrollPost = true;
+    scrollEvent = false;
+    scrollPoll = false;
+    clearContent('newsfeed');
+    restoreScrollPosition('newsfeed');
+    currentPageForPost = '0';
+    hasMoreForPost = true;
+});
+
+document.getElementById('events-tab').addEventListener('click', function(){
+    scrollPost = false;
+    scrollEvent = true;
+    scrollPoll = false;
+    clearContent('events');
+    restoreScrollPosition('events');
+    currentPageForEvent = '0';
+    hasMoreForEvent = true;
+});
+
+document.getElementById('polls-tab').addEventListener('click', function(){
+    scrollPost = false;
+    scrollEvent = false;
+    scrollPoll = true;
+    clearContent('polls');
+    restoreScrollPosition('polls');
+    currentPageForPoll = '0';
+    hasMoreForPoll = true;
+});
 
 window.addEventListener('scroll', async () => {
-    if(isFetchingForPost || !hasMoreForPost){
-        return;
-    }
+    await videoObserver()
+    const bottomOffset = window.innerHeight + window.scrollY;
+    const documentHeight = document.body.offsetHeight;
 
-    if(isFetchingForEvent || !hasMoreForEvent){
-        return;
-    }
-
-    if(isFetchingForPoll || !hasMoreForPoll){
-        return;
-    }
-
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && postTab === true){
-        currentPageForPost++;
-         await welcome();
-    }
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && eventTab === true){
-        currentPageForEvent++;
-         await getAllEventsForPost();
-    }
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && pollTab === true){
-        currentPageForPoll++;
-         await getAllPollPost();
+    if (bottomOffset >= documentHeight - 100) {
+        if (scrollPost && !isFetchingForPost && hasMoreForPost) {
+            currentPageForPost++;
+            isFetchingForPost = true;
+            await welcome();
+            isFetchingForPost = false;
+        } else if (scrollEvent && !isFetchingForEvent && hasMoreForEvent) {
+            currentPageForEvent++;
+            isFetchingForEvent = true;
+            await getAllEventsForPost();
+            isFetchingForEvent = false;
+        } else if (scrollPoll && !isFetchingForPoll && hasMoreForPoll) {
+            currentPageForPoll++;
+            isFetchingForPoll = true;
+            await getAllPollPost();
+            isFetchingForPoll = false;
+        }
     }
 });
+
+function restoreScrollPosition(tabName) {
+    window.scrollTo(0, scrollPositions[tabName]);
+}
+
+function clearContent(tabName) {
+    document.getElementById(tabName).innerHTML = '';
+}
+
+window.addEventListener('scroll', function() {
+    scrollPositions[scrollPost ? 'newsfeed' : scrollEvent ? 'events' : 'polls'] = window.scrollY;
+});
+
+
+
 
 async function getPostDetail(id) {
     let data = await fetch('/post/getPost/' + id, {
@@ -972,7 +1053,7 @@ async function getUpdateData() {
         const url = document.getElementById(`${v.value}-url`)
         let resourceUrl = url.src
         console.log(resourceUrl)
-        if (resourceUrl == 'http://localhost:8080/null' || resourceUrl == 'http://localhost:8080/deleted') {
+        if (resourceUrl === 'http://localhost:8080/null' || resourceUrl === 'http://localhost:8080/deleted') {
             let dto = {
                 resourceId: v.value,
                 postCaption: 'deleted',
@@ -1004,12 +1085,13 @@ async function getUpdateData() {
         }
     }
     data.append('captions', captions);
-    console.log(Object.fromEntries(data.entries()))
+    console.log(Object.fromEntries(data.entries()).postId+'---------------------')
     let firstResponse = await fetch('/post/firstUpdate', {
         method: 'POST',
         body: data
     })
     let firstResult = await firstResponse.json()
+    console.log("Kyi Kya mal", firstResult.postId)
     console.log(firstResult)
     let secondResponse = await fetch('/post/secondUpdate', {
         method: 'POST',
@@ -1020,13 +1102,322 @@ async function getUpdateData() {
     })
     let secondResult = await secondResponse.json()
     console.log(secondResult)
-    if (secondResult) {
-        while (newsfeed.firstChild) {
-            newsfeed.removeChild(newsfeed.firstChild)
-        }
-        await welcome()
-        // postCount = 0
+    if(secondResult){
+        await removeCat()
     }
+    if (secondResult) {
+        await removeCat()
+        // while (newsfeed.firstChild) {
+        //     newsfeed.removeChild(newsfeed.firstChild)
+        // }
+        const p = await fetchPostById(Object.fromEntries(data.entries()).postId);
+        console.log('8888888888888888888888888888888888888'+p)
+            const contentSection = document.getElementById(`post-update-section-${p.id}`);
+                const postId = p.id;
+                console.log("Want to know",postId);
+                const postContent = document.querySelector(`.post-content-${postId}`);
+                if (postContent) {
+                    console.log('Remove Successfully')
+                    postContent.remove();
+                }
+                // const divContent = document.createElement('div');
+                // divContent.classList.add(`post-content-${postId}`);
+                // divContent.setAttribute('data-bs-toggle', 'modal');
+                // divContent.setAttribute('data-bs-target', `#newsfeedPost${postId}`);
+                // console.log('post added ');
+                let post = '';
+                post+= `<div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+            ${p.description.replace(/\n/g, '<br>')}
+            `
+                let oneTag = null
+                let oneCloseTag = null
+                let twoTag = null
+                let twoCloseTag = null
+                let threeTag = null
+                let threeCloseTag = null
+                let fourTag = null
+                let fourCloseTag = null
+                let fiveTag = null
+                let fiveCloseTag = null
+                let oneControlAttr = null
+                let twoControlAttr = null
+                let threeControlAttr = null
+                let fourControlAttr = null
+                let fiveControlAttr = null
+                let one = null
+                let two = null
+                let three = null
+                let four = null
+                let five = null
+                let six = null
+
+                if(p.resources.length === 1){
+                    p.resources.forEach((r, index) => {
+                        if(index === 0 && r.photo !== null){
+                            console.log('two')
+                            one = r.photo
+                            oneTag = 'img'
+                            oneCloseTag = ''
+                            oneControlAttr = ''
+                        }else if(index === 0 && r.video !== null){
+                            one = r.video
+                            oneTag = 'video'
+                            oneCloseTag = '</video>'
+                            oneControlAttr = 'controls'
+                        }
+                        if (one !== null  ) {
+                            post+= `
+            <div class="d-flex" >
+        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+            </div>
+                `
+                        }
+                    })
+                }
+                if(p.resources.length === 2){
+                    p.resources.forEach((r, index) => {
+                        if(index === 0 && r.photo !== null){
+                            console.log('two')
+                            one = r.photo
+                            oneTag = 'img'
+                            oneCloseTag = ''
+                            oneControlAttr = ''
+                        }else if(index === 0 && r.video !== null){
+                            one = r.video
+                            oneTag = 'video'
+                            oneCloseTag = '</video>'
+                            oneControlAttr = 'controls'
+                        }
+                        if(index === 1 && r.photo !== null){
+                            two = r.photo
+                            twoTag = 'img'
+                            twoCloseTag = ''
+                            twoControlAttr = ''
+                        }else if(index === 1 && r.video !== null){
+                            two = r.video
+                            twoTag = 'video'
+                            twoCloseTag = '</video>'
+                            twoControlAttr = 'controls'
+                        }
+                        if (one !== null && two !== null  ) {
+                            post+= `
+            <div class="d-flex" >
+        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
+        <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
+            </div> `
+    }
+})
+}
+if(p.resources.length === 3){
+    p.resources.forEach((r, index) => {
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if (one !== null && two !== null && three !== null  ) {
+            post+= `
+  <div class="d-flex" >
+  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+  </div>
+  <div class="d-flex">
+  <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag}
+  </div>`
+        }
+    })
+}
+if(p.resources.length === 4){
+    p.resources.forEach((r, index) => {
+        console.log(r)
+
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if(index === 3 && r.photo !== null){
+            four = r.photo
+            fourTag = 'img'
+            fourCloseTag = ''
+            fourControlAttr = ''
+        }else if(index === 3 && r.video !== null){
+            four = r.video
+            fourTag = 'video'
+            fourCloseTag = '</video>'
+            fourControlAttr = 'controls'
+        }
+
+
+        if (one !== null && two !== null && three !== null && four !== null) {
+            post+= `
+      <div class="d-flex" >
+      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+      </div>
+      <div class="d-flex">
+      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+      </div>`
+        }
+    })
+
+}
+
+if(p.resources.length > 4 ){
+    let text = p.resources.length -4
+    console.log(text)
+    p.resources.forEach((r, index) => {
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if(index === 3 && r.photo !== null){
+            four = r.photo
+            fourTag = 'img'
+            fourCloseTag = ''
+            fourControlAttr = ''
+        }else if(index === 3 && r.video !== null){
+            four = r.video
+            fourTag = 'video'
+            fourCloseTag = '</video>'
+            fourControlAttr = 'controls'
+        }
+        if(index === 4 && r.photo !== null){
+            five = r.photo
+            fiveTag = 'img'
+            fiveCloseTag = ''
+            fiveControlAttr = ''
+        }else if(index === 4 && r.video !== null){
+            five = r.video
+            fiveTag = 'video'
+            fiveCloseTag = '</video>'
+            fiveControlAttr = 'controls'
+        }
+
+        if(index === 5 ){
+            six = 'hello'
+        }
+
+        if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
+
+            post+= `
+      <div class="d-flex" >
+      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+      </div>
+      <div class="d-flex">
+      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
+      <div style="position: relative; display: inline-block;">
+      <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
+      </div>
+      </div>`
+        }
+
+    })
+
+}
+post += `
+      </div>`
+
+        contentSection.innerHTML = post
+
+    }
+}
+const fetchPostById = async (id) => {
+    const postData = await fetch(`/post/fetch-post/${id}`);
+    const postRes = await postData.json();
+    return postRes;
 }
 
 function deleteResource(id) {
@@ -1044,6 +1435,7 @@ window.addEventListener('load', async function () {
 })
 
 async function createPollPost() {
+    loadingModalBox.show()
     let data = new FormData(document.getElementById('pollForm'));
     console.log(Object.fromEntries(data.entries()));
     let response = await fetch('/event/createEvent', {
@@ -1052,6 +1444,9 @@ async function createPollPost() {
     });
     let result = await response.json()
     console.log(result)
+    if(result){
+        await removeCat()
+    }
 
 }
 
@@ -1073,6 +1468,7 @@ async function getAllEventsForPost() {
         for (const r of response) {
             const reactCountForEvent = await fetchReactCountForEvent(r.id);
             console.log('length',reactCountForEvent.length);
+            let createdTime = await timeAgo(new Date(r.created_date))
             const reactTypeForEvent = await fetchReactTypeForEvent(r.id);
             let likeButtonContent = '';
             if (reactTypeForEvent === "LIKE") {
@@ -1124,14 +1520,14 @@ async function getAllEventsForPost() {
             let formattedStartDate = `${startDay} / ${startMonth} / ${startYear}  `;
             let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `;
             let row = `
-                <div class="post">
+                <div class="post" id="delete-event-section-${r.id}">
                     <div class="post-top">
                         <div class="dp">
                             <img src="${r.user.photo}" alt="">
                         </div>
                         <div class="post-info">
                             <p class="name">${r.user.name}</p>
-                            <span class="time">2 days ago</span>
+                            <span class="time">${createdTime}</span>
                         </div>
                         <div class="dropdown offset-8">
                             <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
@@ -1143,7 +1539,8 @@ async function getAllEventsForPost() {
                             </ul>
                         </div>
                     </div>
-                    <div class=" post-content" data-bs-toggle="modal" data-bs-target="#searchPost" >
+                    <div id="event-update-section-${r.id}">
+                    <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
                         <div class="card" style="width: 30rem;  margin-left:12px ;">
                             <div class="card-body">
                                 <h5 class="card-title">${r.title}</h5>
@@ -1176,6 +1573,7 @@ async function getAllEventsForPost() {
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                    <div class="post-bottom" style="justify-content: center; margin-top: -40px">
         <div class="button_wrapper1">
@@ -1331,19 +1729,24 @@ const fetchReactTypeForEvent = async (id) => {
 }
 
 async function deletePost(id) {
+    loadingModalBox.show()
     let data = await fetch('/post/deletePost/' + id, {
         method: 'GET'
     })
     let response = await data.json()
     console.log(response)
-    while (newsfeed.firstChild) {
-        newsfeed.removeChild(newsfeed.firstChild)
+    if(response){
+        await removeCat()
+        const postList = document.getElementById(`post-delete-section-${id}`);
+        if(postList){
+            postList.remove();
+        }
     }
-   await  welcome()
-    // postCount = 0
+
 }
 
 async function createEventPost() {
+    loadingModalBox.show()
     let data = new FormData(document.getElementById('eventForm'));
     console.log(Object.fromEntries(data.entries()));
     let response = await fetch('/event/createEvent', {
@@ -1352,6 +1755,9 @@ async function createEventPost() {
     });
     let result = await response.json()
     console.log(result)
+    if(result){
+        await removeCat()
+    }
 
 }
 
@@ -1623,12 +2029,14 @@ const getAllComments = async (id) => {
     const getData = await fetchComments.json();
     const chatArea = document.querySelector('#commentMessageText');
     chatArea.innerHTML = '';
-    getData.forEach(c => {
-        displayMessage(c.user.name, c.content, c.user.photo, c.id, c.post.id, chatArea);
-    });
+    for (const c of getData) {
+        let localDateTime = new Date(c.localDateTime);
+        await displayMessage(c.user.name, c.content, c.user.photo, c.id, c.post.id, localDateTime, chatArea);
+        console.log('data time',localDateTime)
+    }
 };
 
-const displayMessage = async (sender, content, photo, id, postId, chatArea) => {
+const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
@@ -1657,6 +2065,9 @@ const displayMessage = async (sender, content, photo, id, postId, chatArea) => {
 
     const convertDiv = document.createElement('div');
     convertDiv.classList.add('content-container');
+    let createdTime = await timeAgo(new Date(localDateTime))
+    convertDiv.setAttribute('data-toggle', 'tooltip');
+    convertDiv.setAttribute('title', `${createdTime}`);
     const spanElementForImg = document.createElement('span');
     spanElementForImg.appendChild(userImage);
     divItem.appendChild(spanElementForImg);
@@ -1862,6 +2273,7 @@ const displayMessage = async (sender, content, photo, id, postId, chatArea) => {
     const repliesContainer = document.createElement('div');
     repliesContainer.classList.add(`replies-container-${id}`);
     repliesContainer.style.display = 'none';
+
 
     for (const reply of replies) {
         repliesContainer.appendChild(reply);
@@ -2245,6 +2657,7 @@ const fetchAndDisplayReplies = async (id) => {
     for (const reply of fetchDataForReplies) {
         const user = await fetchUserDataByPostedUser(loginUser);
         const replyElement = document.createElement('div');
+
         const userRpImage = document.createElement('img');
         const photo = reply.user.photo || '/static/assets/img/card.jpg';
         userRpImage.src = `${photo}`;
@@ -2269,6 +2682,9 @@ const fetchAndDisplayReplies = async (id) => {
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
         divEl.classList.add(`reply-container-div-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        divEl.setAttribute('data-toggle', 'tooltip');
+        divEl.setAttribute('title', `${createdTimeForReply}`);
         divEl.style.marginLeft = '110px';
         divEl.style.padding = '20px';
         divEl.style.backgroundColor = 'lightgrey';
@@ -2547,6 +2963,9 @@ const deleteComment = async (id) => {
     const data = await getData.json();
     const postId = data.postId;
     console.log('postId', postId);
+    const commentCountSize = await fetchCommentSizes(postId);
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = `comment ${commentCountSize}`;
     const userItem = document.querySelector(`.user-item-${id}`);
     if (!userItem) {
         console.error(`User item with id ${id} not found`);
@@ -2566,6 +2985,9 @@ const deleteReply = async (id) => {
     const data = await getData.json();
     const postId = data.postId;
     console.log('postId', postId);
+    const commentCountSize = await fetchCommentSizes(postId);
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${postId}`).innerHTML = `comment ${commentCountSize}`;
     const replyItem = document.querySelector(`.reply-item-${id}`)
     if (!replyItem) {
         console.error(`User item with id ${id} not found`);
@@ -2653,12 +3075,13 @@ const receivedMessageForComment = async (payload) => {
         await notifyMessageForReact(msg, message.sender, message.photo, null);
     }
      const commentCountSize = await fetchCommentSizes(message.postId);
-    document.getElementById('commentCountStaticBox').innerHTML = '';
-    document.getElementById('commentCountStaticBox').innerHTML = `comment ${commentCountSize}`;
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = `comment ${commentCountSize}`;
     // await welcome();
     message.photo = message.photo || '/static/assets/img/card.jpg';
     const chatArea = document.querySelector('#commentMessageText');
-    await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId, chatArea);
+    const localDateTime = new Date().toLocaleString();
+    await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
 };
 
 
@@ -2675,8 +3098,8 @@ const receivedMessageForCommentReply = async (payload) => {
     }
     // await welcome();
     const commentCountSize = await fetchCommentSizes(message.postId);
-    document.getElementById('commentCountStaticBox').innerHTML = '';
-    document.getElementById('commentCountStaticBox').innerHTML = `comment ${commentCountSize}`;
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
+    document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = `comment ${commentCountSize}`;
     console.log('Comment ide',message.commentId)
     if(message.commentId != null){
         console.log('haha')
@@ -2697,13 +3120,17 @@ const pressedComment = async (id) => {
             postId: id,
             sender: loginUser,
             content: cmtValue,
-            date: new Date(),
         };
         document.getElementById('commentForm').reset();
-        // const user = await fetchUserDataByPostedUser(loginUser);
-        // console.log("ss",user.name);
-        // const chatArea = document.querySelector('#commentMessageText');
-        // displayMessage(user.name,cmtValue,user.photo,null,id,chatArea);
+      //   const user = await fetchUserDataByPostedUser(loginUser);
+      //   // console.log("ss",user.name);
+      //   const commentCountSize = await fetchCommentSizes(id);
+      // let  commentId = commentCountSize.length + 1;
+      //    const postedUser = await fetchPostedUser(id);
+      //    if(user.staffId === postedUser.staffId) {
+      //        const chatArea = document.querySelector('#commentMessageText');
+      //        await displayMessage(user.name, cmtValue, user.photo, commentId, id, chatArea);
+      //    }
         stompClient.send('/app/comment-message', {}, JSON.stringify(myObj));
     });
 };
@@ -2771,12 +3198,17 @@ const fetchNotificationPerPage = async () => {
         method: 'GET'
     });
     let root = document.getElementById('root');
+    root.innerHTML = '';
 
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
     let data = await response.json();
     isFetching = false;
+    // if (data.length === 0) {
+    //     hasMore = false;
+    //     return;
+    // }
     if (data.length === 0) {
         hasMore = false;
         return;
@@ -2784,8 +3216,22 @@ const fetchNotificationPerPage = async () => {
     for (let noti of data) {
         let divElement = document.createElement('div');
         divElement.classList.add('notificationForNoti', `postId-${noti.postId}`);
+        divElement.id = `noti-deleted-${noti.id}`;
         divElement.dataset.postId = noti.postId;
         divElement.style.borderRadius = '10px';
+        divElement.style.width = '380px';
+        attachNotificationEventListeners();
+        const trashIcon = document.createElement('i');
+        trashIcon.id = `trashIcon-deleted-${noti.id}`
+        trashIcon.classList.add('fa-solid','fa-trash-can');
+        trashIcon.style.marginLeft = '400px';
+        trashIcon.addEventListener('click',async () => {
+            const notiID = noti.id;
+          await deletedNotification(notiID);
+        });
+        const spEle = document.createElement('span');
+        spEle.style.marginTop = '-40px';
+        spEle.appendChild(trashIcon);
         if (noti.reactId && !noti.commentId && !noti.replyId) {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
@@ -2946,10 +3392,59 @@ const fetchNotificationPerPage = async () => {
             divElement.appendChild(imgReactElement);
             divElement.appendChild(pElement);
         }
-
-
-        root.appendChild(divElement);
+       const container =  document.createElement('div');
+        container.classList.add('container-trash-div')
+        container.style.display = 'inline-grid';
+        container.appendChild(divElement);
+        container.appendChild(spEle);
+        root.appendChild(container);
     }
+};
+
+const deleteAllNotifications =async  () => {
+    const deleteAllNoti = await fetch(`/delete-all-noti`,{
+        method:'DELETE'
+    });
+    if(!deleteAllNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`root`);
+        if (divElement) {
+            divElement.remove();
+        }
+    }
+}
+
+const deletedNotification = async (id) =>{
+    const deleteNoti = await fetch(`/delete-noti/${id}`,{
+        method:'DELETE'
+    });
+    if(!deleteNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`noti-deleted-${id}`);
+        const trashIconEl = document.getElementById(`trashIcon-deleted-${id}`);
+        if (divElement && trashIconEl ) {
+            console.log("it's fine",id)
+            divElement.remove();
+            trashIconEl.remove();
+                    }
+    }
+}
+
+const attachNotificationEventListeners = () => {
+    const notificationElements = document.querySelectorAll('.notificationForNoti');
+    notificationElements.forEach(notificationElement => {
+        notificationElement.addEventListener('click', async function() {
+            console.log("Clicked on notification element");
+            const postId = this.dataset.postId; // 'this' refers to the current notification element
+            console.log('PostId', postId);
+            const postElement = document.getElementById(postId);
+            if (postElement) {
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -2967,19 +3462,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             await fetchNotificationPerPage();
         }
     });
-
-    const notificationElements = document.querySelectorAll('.notificationForNoti');
-    notificationElements.forEach(notification => {
-        notification.addEventListener('click', async () => {
-            const postId = notification.dataset.postId;
-            console.log('PostId', postId);
-            const postElement = document.getElementById(postId);
-            if (postElement) {
-                postElement.scrollIntoView({behavior: 'smooth', block: 'center'});
-            }
-        });
-    });
 });
+
+
+
+
 
 // const receivedMessageForComment = async (payload) => {
 //     console.log('Message Received')
@@ -3676,6 +4163,7 @@ async function restorePollPhoto(id){
 }
 
 async function getEventUpdateData(){
+    loadingModalBox.show()
     let eventId = document.getElementById('updateEventId').value
     let eventTitle = document.getElementById('updateEventTitle').value
     let updateEventDescription = document.getElementById('updateEventDescription').value
@@ -3758,16 +4246,70 @@ async function getEventUpdateData(){
         method : 'POST',
         body : formData
     })
-    let res = await send.json()
-    console.log(res)
+    let r = await send.json()
+  if(r){
+    await removeCat()
+      const eventContent = document.getElementById(`event-update-section-${r.id}`);
+      const eventPostContent = document.querySelector(`.post-content-${r.id}`);
+      if(eventPostContent){
+        console.log('removed successfully')
+          eventPostContent.remove();
+      }
+      eventContent.innerHTML = `<div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
+                        <div class="card" style="width: 30rem;  margin-left:12px ;">
+                            <div class="card-body">
+                                <h5 class="card-title">${r.title}</h5>
+                                <div class="d-flex align-items-start">
+                                    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
+                                        <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
+                                        <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
+                                        <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button>
+                                    </div>
+                                    <div class="tab-content" id="v-${r.id}-tabContent">
+                                        <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
+                                            <div class="text-center lh-sm font-monospace">
+                                                ${r.description}
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-location" role="tabpanel" aria-labelledby="v-${r.id}-location-tab">
+                                            <div class="text-center fs-5 fw-bold fst-italic font-monospace ml-3">
+                                                <div class="ml-5  mt-5 text-danger">${r.location}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-date" role="tabpanel" aria-labelledby="v-${r.id}-date-tab">
+                                            <div class="text-center fs-6 fw-bold mt-3  pl-2 font-monospace">
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> START </div> <i class="fa-solid fa-play text-danger mx-1"></i></br></div><div class="fst-italic"> ${formattedStartDate}</div></br>
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+  }
 }
 
 async function deleteEvent(id){
+    loadingModalBox.show()
     let data = await fetch('/event/deleteAEvent/'+id,{
         method : 'DELETE'
     })
     let result = data.json()
     console.log(result)
+    if(result){
+        await removeCat()
+        const eventDiv = document.getElementById(`delete-event-section-${id}`);
+        if(eventDiv){
+            eventDiv.remove();
+        }
+        const pollDiv = document.getElementById(`pollPostDiv-${id}`);
+        if(pollDiv){
+            pollDiv.remove();
+        }
+    }
 }
 
 
@@ -3827,6 +4369,7 @@ async function createAVoteOptionForUpdate(){
 }
 
 async function createAPollPost(){
+    loadingModalBox.show()
     if(validationFails()){
         alert('start date , end date , vote option of two and title is at least require')
     }else{
@@ -3848,6 +4391,9 @@ async function createAPollPost(){
         })
         let response = await datas.json()
         console.log(response)
+        if(response){
+            await removeCat()
+        }
     }
 }
 
@@ -3878,6 +4424,7 @@ function validationFails() {
 }
 
 async function timeAgo(createdDate) {
+    console.log("ddd",createdDate)
     const now = new Date();
     const diff = now - createdDate;
     const seconds = Math.floor(diff / 1000);
@@ -3888,11 +4435,11 @@ async function timeAgo(createdDate) {
     if (seconds < 60) {
       return `just now`;
     } else if (minutes < 60) {
-      return `${minutes} minute${minutes > 1? '' : ''} ago`;
+      return `${minutes} minutes${minutes > 1? '' : ''} ago`;
     } else if (hours < 24) {
-      return `${hours} hour${hours > 1? '' : ''} ago`;
+      return `${hours} hours${hours > 1? '' : ''} ago`;
     } else {
-      return `${days} day${days > 1? '' : ''} ago`;
+      return `${days} days${days > 1? '' : ''} ago`;
     }
   }
 
@@ -3961,10 +4508,8 @@ POLL IS EXPIRED
           <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
         </div>
       </nav>
-        <div class=" post-content" data-bs-toggle="modal"  > 
-
-
-        <div class="card mb-3" style="max-width: 540px;">
+        <div id="poll-post-update-${r.id}" class="post-content" data-bs-toggle="modal"  > 
+        <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
         <div class="row g-0">
           <div class="col-md-4">
             ${expired}
@@ -4011,7 +4556,7 @@ POLL IS EXPIRED
             console.log(yes)
 
 
-            row += `<div id="mark-id-${v.id}" class="${markIcon}"><i class="fa-regular fa-circle-check"></i></div>
+            row += ` <div id="mark-id-${v.id}" class="${markIcon}"> <i class="fa-regular fa-circle-check"></i> </div>
                 </div>
                 </div>
                  `
@@ -4031,46 +4576,48 @@ POLL IS EXPIRED
   </div>
 </div>
          
-        <div class="post-bottom">
-            <div class="action" style="height: 50px">
-    <div class="button_wrapper">
-          <div class="all_likes_wrapper">
-              <div data-title="LIKE">
-                  <img src="/static/assets/img/like.png" alt="Like" />
-              </div>
-              <div data-title="LOVE">
-                  <img src="/static/assets/img/love.png" alt="Love" />
-              </div>
-              <div data-title="CARE">
-                  <img src="/static/assets/img/care.png" alt="Care" />
-              </div>
-              <div data-title="HAHA">
-                  <img src="/static/assets/img/haha.png" alt="Haha" />
-              </div>
-              <div data-title="WOW">
-                  <img src="/static/assets/img/wow.png" alt="Wow" />
-              </div>
-              <div data-title="SAD">
-                  <img src="/static/assets/img/sad.png" alt="Sad" />
-              </div>
-              <div data-title="ANGRY">
-                  <img src="/static/assets/img/angry.png" alt="Angry" />
-              </div>
-          </div>
-          <button class="like_button" id=" "> 
-          </button>
-      </div>
-            </div>
-            <div class="action">
-                <i class="fa-regular fa-comment"></i>
-                <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
-            </div>
-            <div class="action">
-                <i class="fa fa-share"></i>
-                <span>Share</span>
-            </div>
-        </div>
+ 
     </div>
+
+    <div class="post-bottom">
+    <div class="action" style="height: 50px">
+<div class="button_wrapper">
+  <div class="all_likes_wrapper">
+      <div data-title="LIKE">
+          <img src="/static/assets/img/like.png" alt="Like" />
+      </div>
+      <div data-title="LOVE">
+          <img src="/static/assets/img/love.png" alt="Love" />
+      </div>
+      <div data-title="CARE">
+          <img src="/static/assets/img/care.png" alt="Care" />
+      </div>
+      <div data-title="HAHA">
+          <img src="/static/assets/img/haha.png" alt="Haha" />
+      </div>
+      <div data-title="WOW">
+          <img src="/static/assets/img/wow.png" alt="Wow" />
+      </div>
+      <div data-title="SAD">
+          <img src="/static/assets/img/sad.png" alt="Sad" />
+      </div>
+      <div data-title="ANGRY">
+          <img src="/static/assets/img/angry.png" alt="Angry" />
+      </div>
+  </div>
+  <button class="like_button" id=" "> 
+  </button>
+</div>
+    </div>
+    <div class="action">
+        <i class="fa-regular fa-comment"></i>
+        <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
+    </div>
+    <div class="action">
+        <i class="fa fa-share"></i>
+        <span>Share</span>
+    </div>
+</div>
     </div>
         `
         rows+=row
@@ -4084,6 +4631,7 @@ POLL IS EXPIRED
         polls.children[0].remove();
     }
     pollTab.appendChild(fragment)
+    await removeCat()
     if(fragment){
         for(let r of response){
             await updateVotePercentage(r.voteOptions)
@@ -4265,6 +4813,7 @@ async function getPollEventDetail(id){
 }
 
 async function getPollEventUpdateData(){
+    loadingModalBox.show()
     let eventId = document.getElementById('updatePollEventId').value
     let eventTitle = document.getElementById('updatePollEventTitle').value
     let updateEventDescription = document.getElementById('updatePollEventDescription').value
@@ -4362,8 +4911,108 @@ async function getPollEventUpdateData(){
         method : 'POST',
         body : formData
     })
-    let res = await send.json()
-    console.log(res)
+    let r = await send.json()
+    console.log(r)
+    if(r){
+        let mainContent = document.getElementById('poll-post-update-'+r.id)
+        console.log(mainContent)
+        let pollContent = document.getElementById('poll-post-update-content-'+r.id);
+        if(pollContent){
+            console.log('poll is deleted successfully')
+            pollContent.remove()
+        }
+        let row = ''
+        let hidden = await checkVoted(r.id) === false ? '' : 'hidden' 
+        let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
+        let expired = ''
+        if(new Date()>new Date(r.end_date)){
+            expired=`
+
+<div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 55px; left:120px;  z-index: 1;" role="alert">
+<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+<div>
+<i class="fa-solid fa-triangle-exclamation"></i>
+POLL IS EXPIRED
+</div>
+</div>
+
+            `
+        }
+        row +=  `  
+        <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            ${expired}
+            <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+            <div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
+  
+  <h5 class="card-title align-middle font-monospace">${r.title}</h5>
+  <p class="card-text font-monospace">${r.description}</p>
+  
+  </div>
+  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+
+            
+            `
+        let totalVotes = 0;
+        for (let v of r.voteOptions) {
+            let count = await getCount(v.id);
+            totalVotes += count;
+        }
+        for (let v of r.voteOptions) {
+            let count = await getCount(v.id);
+            let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
+            row += `
+        <div class="vote-option d-flex mt-1">
+        <div class="d-block">
+        <div class="font-monospace ">${v.type}</div>
+                <div class="d-flex">
+                <div class="progress" style="height: 16px; width: 170px;">
+                
+                    <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
+                </div>`
+                if(new Date()<new Date(r.end_date)){
+            row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
+                }
+            let yes = await checkVotedMark(v.id)
+            let markIcon = 'hidden'
+            if(yes === true){
+                markIcon = ''
+            }
+            console.log(yes)
+
+
+            row += ` <div id="mark-id-${v.id}" class="${markIcon}"> <i class="fa-regular fa-circle-check"></i> </div>
+                </div>
+                </div>
+                 `
+
+
+
+            row+=`</div>`
+
+        }
+        if(new Date()<new Date(r.end_date)){
+        row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
+        }
+        row+=`</div> 
+    </div>
+          </div>
+    </div>
+  </div>
+</div>
+         
+ 
+    ` 
+    console.log("---------row"+row)
+    mainContent.innerHTML = row
+    
+    await removeCat()
+    }
 }
 
 async function checkPostOwnerOrAdmin(id){
@@ -4372,3 +5021,38 @@ async function checkPostOwnerOrAdmin(id){
     console.log(response[0])
     return response[0]
 }
+
+
+
+
+
+  let videoIcon = document.getElementById('video-icon')
+  videoIcon.addEventListener('click',function(){
+    document.getElementById('file').click()
+  })
+
+  videoObserver()
+
+  async function videoObserver(){
+      console.log('observing------->')
+      const videos = document.querySelectorAll('#myVideo');
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.play();
+          } else {
+            entry.target.pause();
+          }
+        });
+      });
+
+      videos.forEach(video => {
+          console.log('ha ha ha ha  =====----=-=-=-=-')
+        observer.observe(video);
+      });
+  }
+
+  document.body.addEventListener('hidden.bs.modal', async function (event) {
+      await videoObserver()
+    });

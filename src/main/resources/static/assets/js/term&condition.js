@@ -87,6 +87,7 @@ finishedButton.addEventListener('click', function () {
                 console.log('Password saved:', data[0]);
                 console.log('Skills saved:', data[1]);
 
+
             })
             .catch(error => {
                 console.error('Error saving password or skills:', error);

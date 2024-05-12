@@ -123,7 +123,9 @@ public class EventController {
                                              @RequestParam(value = "photo", required = false) String photo,
                                              @RequestParam(value = "newPhoto", required = false) MultipartFile newPhoto) throws IOException {
         var eventDto = eventService.makeEventDto(eventId, title, description, startDate, endDate, location, photo, newPhoto);
-        return ResponseEntity.ok(eventService.updateEventPost(eventDto));
+        eventService.updateEventPost(eventDto);
+         var event = eventService.findById(Long.valueOf(eventId));
+        return ResponseEntity.status(HttpStatus.OK).body(event);
     }
 
     @DeleteMapping("/deleteAEvent/{id}")
@@ -185,9 +187,10 @@ public class EventController {
                                                  @RequestParam(value = "oldOpts", required = false) List<String> oldOpts,
                                                  @RequestParam(value = "newOpts", required = false) List<String> newOpts) throws IOException, IOException {
         var eventDto = eventService.makeEventDto(eventId, title, description, startDate, endDate, location, photo, newPhoto);
-
+        eventService.updateEventPost(eventDto);
         eventService.updatePollOptions(oldOpts, newOpts, Long.valueOf(eventId));
-        return ResponseEntity.ok(eventService.updateEventPost(eventDto));
+        var event = eventService.findById(Long.valueOf(eventId));
+        return ResponseEntity.status(HttpStatus.OK).body(event);
     }
 
     @GetMapping("/checkVotedMark/{voteOptionId}")
@@ -206,6 +209,12 @@ public class EventController {
     @ResponseBody
     public ResponseEntity<List<Event>> sendPolls(@PathVariable("page")String page){
         return ResponseEntity.ok(eventService.getPolForNewsfeed(page).getContent());
+    }
+
+    @GetMapping("/getCalendarEventsForEachLoginUser")
+    @ResponseBody
+    public ResponseEntity<List<Event>> giveEvents(){
+        return ResponseEntity.ok(eventService.getCalendarEventsForEachLoginUser());
     }
 
 }

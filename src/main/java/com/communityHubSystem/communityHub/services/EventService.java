@@ -51,4 +51,6 @@ public interface EventService {
     public Event findById(Long postId);
 
     public Page<Event> getPolForNewsfeed(String page);
+
+    List<Event> getCalendarEventsForEachLoginUser();
 }

@@ -51,7 +51,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     @Override
     public Post createPost(PostDto postDTO, MultipartFile[] files, String[] captions) throws IOException {
-        System.out.println("Service"+postDTO);
+        System.out.println("Service" + postDTO);
         if (files == null) {
             return createCaption(postDTO);
         } else {
@@ -78,7 +78,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(Long id) {
-        var found = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        var found = postRepository.findById(id).orElseThrow(() -> new CommunityHubException("post not found"));
         found.setDeleted(true);
         postRepository.save(found);
     }
@@ -136,11 +136,12 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public Post secondUpdate(List<SecondUpdateDto> secondUpdateDto) {
         var found = new Post();
+//        Long postId = null;
         for (var s : secondUpdateDto) {
             if (Objects.equals(s.getPostCaption(), "deleted")) {
                 var del = resourceRepository.findById(Long.valueOf(s.getResourceId())).orElseThrow(() -> new CommunityHubException("resource not found"));
                 resourceRepository.deleteWithId(Long.parseLong(s.getResourceId()));
-                var postId = del.getPost().getId();
+                Long   postId = del.getPost().getId();
                 var post = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("not found"));
                 postRepository.save(post);
             } else {
@@ -150,13 +151,14 @@ public class PostServiceImpl implements PostService {
                 found = resource.getPost();
             }
         }
+   //   var originalPost = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("Post not found Exception"));
         return found;
     }
 
 
     @Override
-    public List<Object> getFivePostsPerTime(String  page) {
-        var pageable = PageRequest.of(Math.toIntExact(Long.parseLong(page)),5,Sort.by("createdDate").ascending());
+    public List<Object> getFivePostsPerTime(String page) {
+        var pageable = PageRequest.of(Math.toIntExact(Long.parseLong(page)), 5, Sort.by("createdDate").ascending());
         var posts = postRepository.findAll(pageable);
         var objs = new ArrayList<Object>();
         objs.add(page);
@@ -164,7 +166,7 @@ public class PostServiceImpl implements PostService {
         return objs;
     }
 
-//    @Override
+    //    @Override
 //    public Page<Post> findPostRelatedToUser(String page) {
 //        var loginStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
 //        var loginUser = userService.findByStaffId(loginStaffId)
@@ -187,49 +189,65 @@ public class PostServiceImpl implements PostService {
 //        Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, postList.size());
 //        return postPage;
 //    }
-@Override
-public Page<Post> findPostRelatedToUser(String page) {
-    var loginStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
-    var loginUser = userService.findByStaffId(loginStaffId)
-            .orElseThrow(() -> new CommunityHubException("User not found!"));
+    @Override
+    public Page<Post> findPostRelatedToUser(String page) {
+        var loginStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        var loginUser = userService.findByStaffId(loginStaffId)
+                .orElseThrow(() -> new CommunityHubException("User not found!"));
 
-    List<Post> publicPosts = postRepository.findPostsByAccessOrderByCreatedDateDesc(Access.PUBLIC);
-    var notDeletedPosts = publicPosts.stream().filter(p-> !p.isDeleted()).toList();
-    List<Post> postList = new ArrayList<>(notDeletedPosts);
-    List<User_Group> userGroupList = user_groupRepository.findByUserId(loginUser.getId());
-    for(User_Group user_group:userGroupList){
-        List<Post> userGroupPosts = postRepository.findAllByUserIdAndUserGroupIdOrderByCreatedDateDesc(loginUser.getId(),user_group.getId());
-        var filteredList =  userGroupPosts.stream().filter(u-> !u.isDeleted()).toList();
-        postList.addAll(filteredList);
-    }
-    postList.sort(Comparator.comparing(Post::getCreatedDate).reversed());
+        List<Post> publicPosts = postRepository.findPostsByAccessOrderByCreatedDateDesc(Access.PUBLIC);
+        var notDeletedPosts = publicPosts.stream().filter(p -> !p.isDeleted()).toList();
+        List<Post> postList = new ArrayList<>(notDeletedPosts);
+        List<User_Group> userGroupList = user_groupRepository.findByUserId(loginUser.getId());
+        for (User_Group user_group : userGroupList) {
+            List<Post> userGroupPosts = postRepository.findAllByUserIdAndUserGroupIdByCreatedDate(loginUser.getId(), user_group.getId());
+            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted()).toList();
+            System.err.println("WOWOOWOWOWO"+user_group.getId());
+            postList.addAll(userGroupPosts);
+        }
+        postList.sort(Comparator.comparing(Post::getCreatedDate).reversed());
 
-    Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
-    int start = Math.toIntExact(pageable.getOffset());
-    if (start >= postList.size()) {
-        return Page.empty(pageable);
+        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+        int start = Math.toIntExact(pageable.getOffset());
+        if (start >= postList.size()) {
+            return Page.empty(pageable);
+        }
+        int end = Math.min(start + pageable.getPageSize(), postList.size());
+        List<Post> paginatedPosts = postList.subList(start, end);
+        Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, postList.size());
+        return postPage;
     }
-    int end = Math.min(start + pageable.getPageSize(), postList.size());
-    List<Post> paginatedPosts = postList.subList(start, end);
-    Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, postList.size());
-    return postPage;
-}
 
     @Override
     public List<Object> checkPostOwnerOrAdmin(Long id) {
         var obj = new ArrayList<Object>();
-        var found = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        var found = postRepository.findById(id).orElseThrow(() -> new CommunityHubException("post not found"));
         var loginUser = getCurrentLoginUser();
-        if(loginUser.getId().equals(found.getUser().getId())){
+        if (loginUser.getId().equals(found.getUser().getId())) {
             obj.add("OWNER");
             return obj;
-        }else if(loginUser.getRole().equals(User.Role.ADMIN)){
+        } else if (loginUser.getRole().equals(User.Role.ADMIN)) {
             obj.add("ADMIN");
             return obj;
-        }else {
+        } else {
             obj.add("NO");
             return obj;
         }
+    }
+
+    @Override
+    public Page<Post> returnPostForUserDetailPage(Long id,String page) {
+        var posts = postRepository.findPostsByUserId(id);
+        posts.sort(Comparator.comparing(Post::getCreatedDate).reversed());
+        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+        int start = Math.toIntExact(pageable.getOffset());
+        if (start >= posts.size()) {
+            return Page.empty(pageable);
+        }
+        int end = Math.min(start + pageable.getPageSize(), posts.size());
+        List<Post> paginatedPosts = posts.subList(start, end);
+        Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, posts.size());
+        return postPage;
     }
 
 
@@ -268,18 +286,18 @@ public Page<Post> findPostRelatedToUser(String page) {
 
     @Transactional
     public Post createCaption(PostDto postDTO) {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        var loginUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User Name not found Exception"));
         var post = new Post();
         post.setDescription(postDTO.getContent());
         post.setPostType(Post.PostType.CONTENT);
         post.setCreatedDate(new Date());
         post.setUser(getCurrentLoginUser());
         post.setDeleted(false);
-        if (Long.parseLong(postDTO.getGroupId()) > 0) {
+        if ( postDTO.getGroupId()!= null && Long.parseLong(postDTO.getGroupId()) > 0) {
             post.setAccess(Access.PRIVATE);
-            var user_group = new User_Group();
-            user_group.setUser(getCurrentLoginUser());
-            user_group.setCommunity(communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(() -> new CommunityHubException("not found community")));
-            user_groupRepository.save(user_group);
+            var community = communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(() -> new CommunityHubException("Group Name Not found Exception!"));
+            var user_group = user_groupRepository.findByUserIdAndCommunityId(loginUser.getId(),community.getId());
             post.setUserGroup(user_group);
         } else {
             post.setAccess(Access.PUBLIC);

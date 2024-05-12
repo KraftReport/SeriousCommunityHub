@@ -22,7 +22,7 @@ async function startUp(){
     let community = await fetch(`/api/community/getCommunity/${communityId}`)
     let data = await community.json()
     console.log(data)
-    document.getElementById('communityImage').src = data.photo
+    document.getElementById('communityImage').src = data.image
     document.getElementById('communityName').textContent = data.name
     document.getElementById('communityMembers').textContent = 10
 }
@@ -78,8 +78,11 @@ window.addEventListener('scroll', async () => {
     }
 
     if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollPost === true){
+        await videoObserver()
+        console.log('here here here')
         currentPageForPost++;
          await getPosts();
+         await videoObserver()
     }
     if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollEvent === true){
         currentPageForEvent++;
@@ -3014,7 +3017,7 @@ async function checkPostOwnerOrAdmin(id){
 async function getPosts(){
     isFetchingForPost = true
     let communityId = localStorage.getItem('communityIdForDetailPage')
-    let data = await fetch(`/api/community/getPostsForCommunityDetailPage/${communityId}`)
+    let data = await fetch(`/api/community/getPostsForCommunityDetailPage/${currentPageForPost}`)
     let response = await data.json()
     isFetchingForPost = false
     console.log(response)
@@ -3141,7 +3144,7 @@ async function getPosts(){
                         if (one !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
   </div>
   `
                         }
@@ -3175,8 +3178,8 @@ async function getPosts(){
                         if (one !== null && two !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
   </div> `
                         }
                     })
@@ -3220,11 +3223,11 @@ async function getPosts(){
                         if (one !== null && two !== null && three !== null  ) {
                             post+= `
   <div class="d-flex" > 
-  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
   </div>
   <div class="d-flex"> 
-  <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
+  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
   </div>`
                         }
                     })
@@ -3283,12 +3286,12 @@ async function getPosts(){
                         if (one !== null && two !== null && three !== null && four !== null) {
                             post+= `
       <div class="d-flex" > 
-      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
       </div>
       <div class="d-flex"> 
-      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
       </div>`
                         }
                     })
@@ -3364,14 +3367,14 @@ async function getPosts(){
 
                             post+= `
       <div class="d-flex" > 
-      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
       </div>
       <div class="d-flex"> 
-      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
       <div style="position: relative; display: inline-block;">
-      <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+      <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
       </div>
       </div>`
@@ -3435,7 +3438,7 @@ async function getPosts(){
                     let active = index == 0 ? 'active' : ''
                     if (r.photo === null && r.video !== null) {
                         post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
-              <video controls  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+              <video id="myVideo" controls  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
@@ -3449,7 +3452,7 @@ async function getPosts(){
             </div>`
                     } else {
                         post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <video controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
               <div class="carousel-caption d-none d-md-block"> 
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
@@ -3936,3 +3939,30 @@ POLL IS EXPIRED
 }
 
 }
+
+
+videoObserver()
+
+async function videoObserver(){
+    console.log('observing------->')
+    const videos = document.querySelectorAll('#myVideo');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.play();
+        } else {
+          entry.target.pause();
+        }
+      });
+    });
+    
+    videos.forEach(video => {
+        console.log('ha ha ha ha  =====----=-=-=-=-')
+      observer.observe(video);
+    });
+}
+
+document.body.addEventListener('hidden.bs.modal', async function (event) {
+    await videoObserver()
+  });
