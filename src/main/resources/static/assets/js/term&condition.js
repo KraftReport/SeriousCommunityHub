@@ -58,12 +58,12 @@ finishedButton.addEventListener('click', function () {
         .then(data => {
             console.log('Image saved:', data);
             saveOtherDataAndClearLocalStorage();
+            clearLocalStorage();
         })
         .catch(error => {
             console.error('Error saving image:', error);
         });
 
-    // Clear the local storage
     function saveOtherDataAndClearLocalStorage() {
         // Send requests to save password and skills
         Promise.all([
@@ -86,7 +86,7 @@ finishedButton.addEventListener('click', function () {
             .then(data => {
                 console.log('Password saved:', data[0]);
                 console.log('Skills saved:', data[1]);
-                clearLocalStorage();
+
             })
             .catch(error => {
                 console.error('Error saving password or skills:', error);
@@ -97,6 +97,7 @@ finishedButton.addEventListener('click', function () {
     });
     finishedModal.show();
     function clearLocalStorage() {
+        console.log("it reach here.")
         localStorage.removeItem('savedPassword');
         localStorage.removeItem('phoneNumber');
         localStorage.removeItem('rawImage');
