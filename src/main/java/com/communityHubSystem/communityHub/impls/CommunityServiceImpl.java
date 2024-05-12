@@ -222,11 +222,23 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<Event> getEventsForCommunityDetailPage(Long aLong) {
-        var userGroupIs = user_groupRepository.getUserIdsFromCommunityId(aLong);
+        var userGroupIs = user_groupRepository.getIdFromCommunityId(aLong);
+//        System.out.println("sdfsdf"+userGroupIs.size());
         return userGroupIs.
                 stream().
-                flatMap(u->eventRepository.getEventsForCommunityDetailPage(aLong).stream()).
+                flatMap(u->eventRepository.getEventsForCommunityDetailPage(u).stream()).
                 filter(e->e.getEventType().equals(Event.EventType.EVENT)).toList();
+//       List<Event> eventList = new ArrayList<>();
+//       for(Long id:userGroupIs){
+//           List<Event> events =eventRepository.getEventsForCommunityDetailPage(id);
+//           for (Event event : events) {
+//               if (event.getEventType().equals(Event.EventType.EVENT)) {
+//                   eventList.add(event);
+//               }
+//           }
+//       }
+//       return eventList;
+
     }
 
     @Override

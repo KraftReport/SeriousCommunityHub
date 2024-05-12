@@ -2370,6 +2370,10 @@ const fetchAndDisplayLastReply = async (id) => {
     const lastReplyIndex = fetchDataForReplies.length - 1;
     if (lastReplyIndex >= 0) {
         const reply = fetchDataForReplies[lastReplyIndex];
+        replyElement.classList.add(`reply-item-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        replyElement.setAttribute('data-toggle', 'tooltip');
+        replyElement.setAttribute('title', `${createdTimeForReply}`);
         const user = await fetchUserDataByPostedUser(loginUser);
         const userRpImage = document.createElement('img');
         const photo = reply.user.photo || '/static/assets/img/card.jpg';
@@ -2668,6 +2672,9 @@ const fetchAndDisplayReplies = async (id) => {
         userRpImage.style.marginLeft = '50px';
         userRpImage.style.backgroundColor = '#cccccc';
         replyElement.classList.add(`reply-item-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        replyElement.setAttribute('data-toggle', 'tooltip');
+        replyElement.setAttribute('title', `${createdTimeForReply}`);
         const replySender = document.createElement('span');
         if (reply.user.name === user.name) {
             replySender.innerHTML = `You : `;
@@ -2682,9 +2689,6 @@ const fetchAndDisplayReplies = async (id) => {
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
         divEl.classList.add(`reply-container-div-${reply.id}`);
-        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
-        divEl.setAttribute('data-toggle', 'tooltip');
-        divEl.setAttribute('title', `${createdTimeForReply}`);
         divEl.style.marginLeft = '110px';
         divEl.style.padding = '20px';
         divEl.style.backgroundColor = 'lightgrey';
