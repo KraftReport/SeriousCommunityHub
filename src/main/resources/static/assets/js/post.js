@@ -663,7 +663,7 @@ async function welcome() {
           </div>
       </div>
   </div> 
-
+<div id="detail-modal-${p.id}">
 <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg"  >
     <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
@@ -716,6 +716,7 @@ async function welcome() {
         </div>
       </div> 
     </div>
+  </div>
   </div>
   </div>
   </div>`;
@@ -1111,14 +1112,17 @@ async function getUpdateData() {
         //     newsfeed.removeChild(newsfeed.firstChild)
         // }
         const p = await fetchPostById(Object.fromEntries(data.entries()).postId);
+        const ParentDetailModal = document.getElementById('detail-modal-'+p.id)
+        const childModalBox  = document.getElementById('newsfeedPost'+p.id)
         console.log('8888888888888888888888888888888888888'+p)
             const contentSection = document.getElementById(`post-update-section-${p.id}`);
                 const postId = p.id;
                 console.log("Want to know",postId);
                 const postContent = document.querySelector(`.post-content-${postId}`);
-                if (postContent) {
+                if (postContent && childModalBox) {
                     console.log('Remove Successfully')
                     postContent.remove();
+                    childModalBox.remove()
                 }
                 // const divContent = document.createElement('div');
                 // divContent.classList.add(`post-content-${postId}`);
@@ -1409,7 +1413,66 @@ if(p.resources.length > 4 ){
 }
 post += `
       </div>`
+      let mod = ''
+    
+mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"  >
+    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
+      <div class="modal-body p-0">
+        <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">`
 
+                p.resources.forEach((r, index) => {
+                    let active = index == 0 ? 'active' : ''
+                    if (r.photo === null && r.video !== null) {
+                        mod += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
+              <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+              </div> `
+                    } else if (r.video === null && r.photo !== null) {
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+              <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+            </div>`
+                    } else {
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+            </div>`
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+            <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
+            <div class="carousel-caption d-none d-md-block"> 
+            <p>${r.description.replace(/\n/g, '<br>')}</p>
+          </div>
+          </div>
+           `
+                    }
+                })
+                mod+=`
+             
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div> 
+    </div>
+  </div>
+  </div>
+  </div>
+  `
+
+        ParentDetailModal.innerHTML = mod
         contentSection.innerHTML = post
 
     }
@@ -1452,6 +1515,7 @@ async function createPollPost() {
 
 async function getAllEventsForPost() {
     isFetchingForEvent = true;
+    let expired = ''
     let rows = '';
     let data = await fetch(`/event/getEventsForNewsfeed/${currentPageForEvent}`, {
         method: 'GET'
@@ -1466,6 +1530,18 @@ async function getAllEventsForPost() {
         displayNoPostMessage();
     } else {
         for (const r of response) {
+            
+
+            if(new Date()>new Date(r.end_date)){
+                expired=`
+                
+    <div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 135px;  z-index: 1;" role="alert">
+    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+    <div>
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    EVENT IS EXPIRED
+    </div>
+    </div>`}
             const reactCountForEvent = await fetchReactCountForEvent(r.id);
             console.log('length',reactCountForEvent.length);
             let createdTime = await timeAgo(new Date(r.created_date))
@@ -5033,8 +5109,7 @@ async function checkPostOwnerOrAdmin(id){
 
   videoObserver()
 
-  async function videoObserver(){
-      console.log('observing------->')
+  async function videoObserver(){ 
       const videos = document.querySelectorAll('#myVideo');
 
       const observer = new IntersectionObserver(entries => {
@@ -5047,8 +5122,7 @@ async function checkPostOwnerOrAdmin(id){
         });
       });
 
-      videos.forEach(video => {
-          console.log('ha ha ha ha  =====----=-=-=-=-')
+      videos.forEach(video => { 
         observer.observe(video);
       });
   }

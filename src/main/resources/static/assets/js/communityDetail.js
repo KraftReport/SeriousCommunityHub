@@ -14,8 +14,9 @@
  
  
 
-window.onload =  getPosts
+
 window.onload = startUp
+window.onload =  getPosts
 
 async function startUp(){
     let communityId = localStorage.getItem('communityIdForDetailPage')
@@ -46,22 +47,19 @@ let scrollPoll = false
 let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('click',function(){
     scrollPost = true
     scrollEvent = false
-    scrollPoll = false
-    document.getElementById('newsfeed').innerHTML = ''
+    scrollPoll = false  
 })
 
 let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
     scrollPost = false
     scrollEvent = true
-    scrollPoll = false 
-    document.getElementById('events').innerHTML = ''
+    scrollPoll = false  
 })
 
 let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
     scrollPost = false
     scrollEvent = false
-    scrollPoll = true 
-    document.getElementById('polls').innerHTML = '' 
+    scrollPoll = true  
 })
 
 window.addEventListener('scroll', async () => {
@@ -3013,11 +3011,10 @@ async function checkPostOwnerOrAdmin(id){
     return response[0]
 }
 
-
+let communityId = localStorage.getItem('communityIdForDetailPage')
 async function getPosts(){
     isFetchingForPost = true
-    let communityId = localStorage.getItem('communityIdForDetailPage')
-    let data = await fetch(`/api/community/getPostsForCommunityDetailPage/${currentPageForPost}`)
+    let data = await fetch(`/api/community/getPostsForCommunityDetailPage/${communityId}/${currentPageForPost}`)
     let response = await data.json()
     isFetchingForPost = false
     console.log(response)
@@ -3585,7 +3582,7 @@ async function getPosts(){
 async function getEvents(){
     isFetchingForEvent = true
     let rows =''
-    let data = await fetch(`/api/community/getEventsForCommunityDetailPage/${currentPageForEvent}`,{
+    let data = await fetch(`/api/community/getEventsForCommunityDetailPage/${communityId}/${currentPageForEvent}`,{
         method : 'GET'
     })
     let response = await data.json()
@@ -3596,7 +3593,7 @@ async function getEvents(){
         hasMoreForEvent = false
         displayNoPostMessage()
     }else{
-        for(const pr of response){
+        for(const r of response){
             let createdTime = await timeAgo(new Date(r.created_date))
             let expired = ''
             if(new Date()>new Date(r.end_date)){
@@ -3748,7 +3745,7 @@ async function getPolls(){
     let polls = document.getElementById('polls');
     let pollTab = document.getElementById('polls')
 
-    let data = await fetch(`/api/community/getPollsForCommunityDetailPage/${currentPageForPoll}`,{
+    let data = await fetch(`/api/community/getPollsForCommunityDetailPage/${communityId}/${currentPageForPoll}`,{
         method : 'GET'
     })
     let response = await data.json()

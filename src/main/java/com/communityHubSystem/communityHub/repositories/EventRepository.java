@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.repositories;
 
 import com.communityHubSystem.communityHub.models.Event;
+import com.communityHubSystem.communityHub.models.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,5 @@ public interface EventRepository extends JpaRepository<Event,Long>, JpaSpecifica
 
     @Query(value = "select * from event where user_group_id = :id ",nativeQuery = true)
     List<Event> getEventsForCommunityDetailPage(Long id);
+
 }

@@ -233,22 +233,25 @@ public class GroupController {
         return "/layout/group-post";
     }
 
-    @GetMapping("/getPostsForCommunityDetailPage/{communityId}")
+    @GetMapping("/getPostsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId")String communityId){
-     return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId)));
+    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId")String communityId,
+                                               @PathVariable("page")String page){
+     return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
     }
 
-    @GetMapping("/getEventsForCommunityDetailPage/{communityId}")
+    @GetMapping("/getEventsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId")String communityId){
-        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId)));
+    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId")String communityId,
+                                                 @PathVariable("page")String page){
+        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
     }
 
-    @GetMapping("/getPollsForCommunityDetailPage/{communityId}")
+    @GetMapping("/getPollsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId){
-        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId)));
+    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId,
+                                                @PathVariable("page")String page){
+        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
     }
 
 }

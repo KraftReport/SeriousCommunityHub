@@ -8,6 +8,10 @@ import com.communityHubSystem.communityHub.services.CommunityService;
 import com.communityHubSystem.communityHub.services.ImageUploadService;
 import com.communityHubSystem.communityHub.services.User_ChatRoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -215,28 +219,66 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<Post> getPostsForCommunityDetailPage(Long communityId) {
-        var userGroupIds = user_groupRepository.getIdFromCommunityId(communityId);
-        return userGroupIds.stream().flatMap(u->postRepository.findAllByUserGroupId(u).stream()).toList();
+    public Page<Post> getPostsForCommunityDetailPage(Long communityId,String page) {
+//        var userGroupIds = user_groupRepository.getIdFromCommunityId(communityId);
+//        return userGroupIds.stream().flatMap(u->postRepository.findAllByUserGroupId(u).stream()).toList();
+        return fetchPostsForCommunity(communityId,page);
     }
 
     @Override
-    public List<Event> getEventsForCommunityDetailPage(Long aLong) {
-        var userGroupIs = user_groupRepository.getUserIdsFromCommunityId(aLong);
-        return userGroupIs.
-                stream().
-                flatMap(u->eventRepository.getEventsForCommunityDetailPage(aLong).stream()).
-                filter(e->e.getEventType().equals(Event.EventType.EVENT)).toList();
+    public Page<Event> getEventsForCommunityDetailPage(Long aLong,String page) {
+        return fetchEventsForCommunity(aLong,page, Event.EventType.EVENT);
     }
 
     @Override
-    public List<Event> getPollsForCommunityDetailPage(Long aLong) {
-        var userGroupIs = user_groupRepository.getUserIdsFromCommunityId(aLong);
-        return userGroupIs.
-                stream().
-                flatMap(u->eventRepository.getEventsForCommunityDetailPage(aLong).stream()).
-                filter(e->e.getEventType().equals(Event.EventType.VOTE)).toList();
+    public Page<Event> getPollsForCommunityDetailPage(Long aLong,String page) {
+        return fetchEventsForCommunity(aLong,page, Event.EventType.VOTE);
     }
+
+    public Page<Event> fetchEventsForCommunity(Long id, String page, Event.EventType eventType) {
+        List<Event> postList = new ArrayList<>();
+        List<User_Group> userGroupList = user_groupRepository.findByCommunityId(id);
+        for (User_Group user_group : userGroupList) {
+            List<Event> userGroupPosts = eventRepository.findByUserGroupId(user_group.getId());
+            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted() && eventType.equals(Event.EventType.EVENT)).toList();
+            System.err.println("WOWOOWOWOWO"+user_group.getId());
+            postList.addAll(userGroupPosts);
+        }
+        postList.sort(Comparator.comparing(Event::getCreated_date).reversed());
+
+        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+        int start = Math.toIntExact(pageable.getOffset());
+        if (start >= postList.size()) {
+            return Page.empty(pageable);
+        }
+        int end = Math.min(start + pageable.getPageSize(), postList.size());
+        List<Event> paginatedPosts = postList.subList(start, end);
+        Page<Event> postPage = new PageImpl<>(paginatedPosts, pageable, postList.size());
+        return postPage;
+    }
+
+    public Page<Post> fetchPostsForCommunity(Long id,String page) {
+        List<Post> postList = new ArrayList<>();
+        List<User_Group> userGroupList = user_groupRepository.findByCommunityId(id);
+        for (User_Group user_group : userGroupList) {
+            List<Post> userGroupPosts = postRepository.findAllByUserGroupId(user_group.getId());
+            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted()).toList();
+            System.err.println("WOWOOWOWOWO"+user_group.getId());
+            postList.addAll(userGroupPosts);
+        }
+        postList.sort(Comparator.comparing(Post::getCreatedDate).reversed());
+
+        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+        int start = Math.toIntExact(pageable.getOffset());
+        if (start >= postList.size()) {
+            return Page.empty(pageable);
+        }
+        int end = Math.min(start + pageable.getPageSize(), postList.size());
+        List<Post> paginatedPosts = postList.subList(start, end);
+        Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, postList.size());
+        return postPage;
+    }
+
 
     private List<Community> validateUserOrAdmin(List<Community> communities) {
         if (getLoginUser().getRole().equals(User.Role.ADMIN)) {

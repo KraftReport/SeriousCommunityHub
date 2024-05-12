@@ -237,7 +237,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<Post> returnPostForUserDetailPage(Long id,String page) {
-        var posts = postRepository.findPostsByUserId(id);
+        var posts = new ArrayList<>(postRepository.findPostsByUserId(id).stream().filter(p -> !p.isDeleted()).toList());
         posts.sort(Comparator.comparing(Post::getCreatedDate).reversed());
         Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
         int start = Math.toIntExact(pageable.getOffset());
@@ -246,8 +246,7 @@ public class PostServiceImpl implements PostService {
         }
         int end = Math.min(start + pageable.getPageSize(), posts.size());
         List<Post> paginatedPosts = posts.subList(start, end);
-        Page<Post> postPage = new PageImpl<>(paginatedPosts, pageable, posts.size());
-        return postPage;
+        return new PageImpl<>(paginatedPosts, pageable, posts.size());
     }
 
 
