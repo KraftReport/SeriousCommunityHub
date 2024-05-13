@@ -96,18 +96,92 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="user-post-div">
-
+       
+      
         </div>
+     
     </section>
+
+    <div id="user-post-div">
+    </div>
+
+    <!-- edit modal box start  -->
+
+
+    <div class="modal fade" id="editModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+           </div>
+           <div class="modal-body" id="editModal">
+               ...
+           </div>
+           <div class="modal-footer">
+               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+               <button type="button" onclick="getUpdateData()" data-bs-dismiss="modal" class="btn btn-primary"
+                       data-bs-toggle="modal"  >Update
+               </button>
+           </div>
+       </div>
+   </div>
+</div>
+
+    <!-- edit modal box end -->
+
+    <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content border rounded-1">
+
+           <div id="markBox" class="hidden">
+               <div class="check_mark">
+                   <div class="sa-icon sa-success animate">
+                       <span class="sa-line sa-tip animateSuccessTip"></span>
+                       <span class="sa-line sa-long animateSuccessLong"></span>
+                       <div class="sa-placeholder"></div>
+                       <div class="sa-fix"></div>
+                   </div>
+               </div>
+               <div>
+                   <button id="restart" class="btn btn-success offset-10" data-bs-dismiss="modal"
+                           onclick="setToNormal()">OK
+                   </button>
+               </div>
+           </div>
+
+           <div id="catBox" class="">
+               <div class="box">
+                   <div class="cat">
+                       <div class="cat__body"></div>
+                       <div class="cat__body"></div>
+                       <div class="cat__tail"></div>
+                       <div class="cat__head"></div>
+                   </div>
+               </div>
+           </div>
+
+
+       </div>
+   </div>
+</div>
+
+
+<!-- loading modal box end  -->
 </main>
+
+
 <div th:replace="~{index::footer}"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="/static/assets/js/userDetail.js"></script>
 <script>
     document.getElementById('seeMoreBtn').addEventListener('click', function() {

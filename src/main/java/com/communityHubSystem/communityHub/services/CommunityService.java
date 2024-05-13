@@ -4,6 +4,7 @@ import com.communityHubSystem.communityHub.models.Community;
 import com.communityHubSystem.communityHub.models.Event;
 import com.communityHubSystem.communityHub.models.Post;
 import com.communityHubSystem.communityHub.models.User;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,9 +37,9 @@ public interface CommunityService {
     public Object getNumberOfUsersOfACommunity(Long id);
 
     public boolean existsByName(String name);
-    public List<Post> getPostsForCommunityDetailPage(Long communityId);
+    public Page<Post> getPostsForCommunityDetailPage(Long communityId, String page);
 
-    List<Event> getEventsForCommunityDetailPage(Long aLong);
+    Page<Event> getEventsForCommunityDetailPage(Long aLong,String page);
 
-    List<Event> getPollsForCommunityDetailPage(Long aLong);
+    Page<Event> getPollsForCommunityDetailPage(Long aLong,String page);
 }

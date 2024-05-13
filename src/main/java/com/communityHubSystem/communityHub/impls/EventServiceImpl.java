@@ -266,8 +266,7 @@ public class EventServiceImpl implements EventService {
         var list = eventRepository.findAll();
         var result = new ArrayList<Event>();
         for(var l : list){
-            if (!l.isDeleted()
-                    && l.getAccess().equals(Access.PUBLIC)
+            if (!l.isDeleted() 
                     && l.getEventType().equals(Event.EventType.VOTE)){
                 result.add(l);
             }
@@ -475,11 +474,13 @@ public class EventServiceImpl implements EventService {
 
     public User_Group setGroup(EventDTO eventDTO){
         if(checkAccess(eventDTO).equals(Access.PRIVATE)){
-            var group = new User_Group();
-            group.setCommunity(communityRepository.findById(Long.valueOf(eventDTO.getGroupId())).orElseThrow(()->new CommunityHubException("group not found")));
-            group.setDate(new Date());
-            group.setUser(getLoginUser());
-            return user_groupRepository.save(group);
+//            var group = new User_Group();
+//            group.setCommunity(communityRepository.findById(Long.valueOf(eventDTO.getGroupId())).orElseThrow(()->new CommunityHubException("group not found")));
+//            group.setDate(new Date());
+//            group.setUser(getLoginUser());
+//            return user_groupRepository.save(group);
+            var group = user_groupRepository.findByUserIdAndCommunityId(getLoginUser().getId(),Long.valueOf(eventDTO.getGroupId()));
+            return group;
         }else {
             return null;
         }

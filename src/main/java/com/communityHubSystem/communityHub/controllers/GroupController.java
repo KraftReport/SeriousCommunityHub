@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/community")
@@ -44,7 +45,26 @@ public class GroupController {
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUser());
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> user = userService.findByStaffId(staffId.trim());
+
+        if (user.isPresent()) {
+            if (User.Role.ADMIN.equals(user.get().getRole())) {
+                List<User> users = userService.getAllUser().stream()
+                        .filter(u -> !User.Role.ADMIN.equals(u.getRole()))
+                        .collect(Collectors.toList());
+                return ResponseEntity.status(HttpStatus.OK).body(users);
+            }
+            if (User.Role.USER.equals(user.get().getRole())) {
+                List<User> users = userService.getAllUser().stream()
+                        .filter(u -> !User.Role.ADMIN.equals(u.getRole()))
+                        .collect(Collectors.toList());
+                return ResponseEntity.status(HttpStatus.OK).body(users);
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.emptyList());
     }
 
     @PostMapping("/createCommunity")
@@ -233,22 +253,25 @@ public class GroupController {
         return "/layout/group-post";
     }
 
-    @GetMapping("/getPostsForCommunityDetailPage/{communityId}")
+    @GetMapping("/getPostsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId")String communityId){
-     return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId)));
+    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId")String communityId,
+                                               @PathVariable("page")String page){
+     return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
     }
 
-    @GetMapping("/getEventsForCommunityDetailPage/{communityId}")
+    @GetMapping("/getEventsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId")String communityId){
-        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId)));
+    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId")String communityId,
+                                                 @PathVariable("page")String page){
+        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
     }
 
-    @GetMapping("/getPollsForCommunityDetailPage/{communityId}")
+    @GetMapping("/getPollsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId){
-        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId)));
+    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId,
+                                                @PathVariable("page")String page){
+        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
     }
 
 }

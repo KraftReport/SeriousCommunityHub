@@ -10,11 +10,15 @@
 #createGroupModal #usersList {
     display: flex;
     flex-direction: column; /* Align items vertically */
-    align-items: center; /* Align items vertically */
+    align-items: flex-end; /* Align items vertically to the end */
     margin-bottom: 10px; /* Adjust spacing between items */
-    overflow-y: auto;
+    overflow-y: auto; /* Add scrollbar if content overflows */
     width: 450px;
-    height: 200px;
+    height: 200px; /* Set the height to fit all items */
+}
+
+#createGroupModal #usersList::-webkit-scrollbar {
+    display: none; /* Hide the scrollbar */
 }
 
 #createGroupModal #usersList input[type="checkbox"] {
@@ -158,11 +162,15 @@
 #kickModal #userList {
     display: flex;
     flex-direction: column; /* Align items vertically */
-    align-items: center; /* Align items vertically */
+    align-items: flex-end; /* Align items vertically to the end */
     margin-bottom: 10px; /* Adjust spacing between items */
-    overflow-y: auto;
+    overflow-y: auto; /* Add scrollbar if content overflows */
     width: 450px;
-    height: 200px;
+    height: 200px; /* Set the height to fit all items */
+}
+
+#kickModal #userList::-webkit-scrollbar {
+    display: none; /* Hide the scrollbar */
 }
 
 #kickModal #userList input[type="checkbox"] {
@@ -287,6 +295,156 @@
 
 #kickModal #userList input[type="checkbox"]:checked + label .tick_mark:before,
 #kickModal #userList input[type="checkbox"]:checked + label .tick_mark:after {
+    transform: translate(0);
+    opacity: 1;
+}
+
+#invitationFormModal * {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+#invitationFormModal .modal-body {
+    margin: 0;
+}
+
+
+#invitationFormModal #usersList {
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+    align-items: flex-end; /* Align items vertically to the end */
+    margin-bottom: 10px; /* Adjust spacing between items */
+    overflow-y: auto; /* Add scrollbar if content overflows */
+    width: 450px;
+    height: 200px; /* Set the height to fit all items */
+}
+
+#invitationFormModal #usersList::-webkit-scrollbar {
+    display: none; /* Hide the scrollbar */
+}
+
+#invitationFormModal #usersList input[type="checkbox"] {
+    display: none;
+}
+
+#invitationFormModal #usersList div {
+    display: inline;
+}
+
+#invitationFormModal #usersList span {
+    display: inline-block; /* Display the spans inline */
+    vertical-align: middle; /* Align them vertically */
+    margin-right: 20px; /* Adjust spacing between photo and name */
+    white-space: nowrap;
+    font-size: 17px;
+    font-weight: bold;
+    font-family: ui-sans-serif;
+}
+
+#invitationFormModal #usersList span img {
+    border-radius: 50%; /* Ensures the image is rounded */
+    overflow: hidden; /* Ensures the overflow is hidden */
+    width: 45px;
+    height: 45px;
+}
+
+#invitationFormModal #usersList label {
+    position: relative;
+    display: inline-block; /* Keep label inline with checkbox */
+    width: 23px;
+    height: 23px;
+    background-color: #1b9fb3;
+    box-shadow: 0 7px 10px #37ceff;
+    border-radius: 50%;
+    transition: 0.2s ease transform, 0.2s ease background-color, 0.2s ease box-shadow;
+    overflow: hidden;
+    z-index: 1;
+    cursor: pointer;
+    display: block;
+    margin-top: -40px;
+}
+
+#invitationFormModal #usersList label:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: inset 0 7px 10px #31dcff;
+    transition: 0.2s ease width, 0.2s ease height;
+}
+
+#invitationFormModal #usersList label:hover:before {
+    width: 55px;
+    height: 55px;
+    box-shadow: inset 0 7px 10px #fff;
+}
+
+#invitationFormModal #usersList label:active {
+    transform: scale(0.9);
+}
+
+#invitationFormModal #usersList label .tick_mark {
+    position: absolute;
+    top: 15%;
+    left: 60%;
+    transform: translate(-50%, -50%) rotateZ(-40deg);
+    width: 29px; /* Adjusted width of the tick mark */
+    height: 20px; /* Adjusted height of the tick mark */
+}
+
+#invitationFormModal #usersList label .tick_mark:before {
+    content: "";
+    position: absolute;
+    background-color: whitesmoke;
+    border-radius: 1px;
+    opacity: 1;
+    transition: 0.2s ease transform, 0.2s ease opacity;
+}
+
+#invitationFormModal #usersList label .tick_mark:after {
+    content: "";
+    position: absolute;
+    background-color: whitesmoke;
+    border-radius: 1px;
+    opacity: 1;
+    transition: 0.2s ease transform, 0.2s ease opacity;
+}
+
+#invitationFormModal #usersList label .tick_mark:before {
+    left: 0;
+    bottom: 0;
+    width: 4px; /* Adjusted width of the tick mark */
+    height: 10px; /* Adjusted height of the tick mark */
+    box-shadow: -1px 0 2.5px rgba(0, 0, 0, 0.23); /* Adjusted box shadow */
+    transform: translateY(-25px); /* Adjusted vertical position */
+}
+
+#invitationFormModal #usersList label .tick_mark:after {
+    left: 0;
+    bottom: 0;
+    width: 70%; /* Adjusted width of the tick mark */
+    height: 3px; /* Adjusted height of the tick mark */
+    box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.23); /* Adjusted box shadow */
+    transform: translateX(10px); /* Adjusted horizontal position */
+}
+
+#invitationFormModal #usersList input[type="checkbox"]:checked + label {
+    background-color: blue;
+    box-shadow: 0 7px 10px #92ff97;
+}
+
+#invitationFormModal #usersList input[type="checkbox"]:checked + label:before {
+    width: 0;
+    height: 0;
+}
+
+#invitationFormModal #usersList input[type="checkbox"]:checked + label .tick_mark:before,
+#invitationFormModal #usersList input[type="checkbox"]:checked + label .tick_mark:after {
     transform: translate(0);
     opacity: 1;
 }

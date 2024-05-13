@@ -9,4 +9,8 @@ public interface User_GroupService  {
     public List<User_Group> findByCommunityId(Long id);
 
     List<User_Group> findByUserId(Long id);
+
+   public User_Group findByUserIdAndCommunityId(Long id, Long id1);
+
+    void save(User_Group groupUser);
 }

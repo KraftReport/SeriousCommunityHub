@@ -107,6 +107,7 @@
 <div th:replace="~{index::header}"></div>
 <div th:replace="~{index::navbar}"></div>
 <main id="main" class="main">
+     <span id="invitationMessage"></span>
     <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <img id="communityImage" src="/assets/img/pf-bg1.gif" width="300" height="300">
@@ -114,7 +115,34 @@
             <p id="communityMembers" ><i class="fa-solid fa-earth-americas"></i>Public group 10members</p>
             <div class="button-group">
                 <button type="button" class="btn btn-secondary btn-lg" value="Joined"><i class="fa-solid fa-users-gear"></i>Joined</button>
-                <button type="button" class="btn btn-primary btn-lg" value="Invite"><i class="fa-solid fa-user-plus"></i>Invite</button>
+                <button type="button" class="btn btn-primary btn-lg" value="Invite" id="inviteBtn" onclick="populateCreateGroupFormForInvitation()"><i class="fa-solid fa-user-plus"></i>Invite</button>            </div>
+
+            <div class="container">
+                <div class="modal fade" id="invitationFormModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="createGroupModalLabel">Invite friends</h5>
+                            </div>
+                            <div class="modal-body">
+                                <form id="inviteForm">
+                                    <input type="hidden" id="communityId1" name="communityId">
+                                    <div class="row mb-4">
+                                        <label>Choose Member's List:</label><br>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" id="userSearch" placeholder="Search users.." style="margin-left: 329px">
+                                            <div id="usersList"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="inviteModalCloseBtn">Close</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="inviteFriendBtn" >Invite</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="container">
             <div class="middle-panel">
@@ -148,10 +176,10 @@
                         <button class="nav-link active" onclick="getPosts()" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>
+                        <button class="nav-link" onclick="getEvents()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" onclick="getAllPollPost()" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>
+                        <button class="nav-link" onclick="getPolls()" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -169,10 +197,119 @@
         </div>
     </div>
     </div>
+
+    <!-- loading modal box start  -->
+    <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border rounded-1">
+
+                <div id="markBox" class="hidden">
+                    <div class="check_mark">
+                        <div class="sa-icon sa-success animate">
+                            <span class="sa-line sa-tip animateSuccessTip"></span>
+                            <span class="sa-line sa-long animateSuccessLong"></span>
+                            <div class="sa-placeholder"></div>
+                            <div class="sa-fix"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="restart" class="btn btn-success offset-10" data-bs-dismiss="modal"
+                                onclick="setToNormal()">OK
+                        </button>
+                    </div>
+                </div>
+
+                <div id="catBox" class="">
+                    <div class="box">
+                        <div class="cat">
+                            <div class="cat__body"></div>
+                            <div class="cat__body"></div>
+                            <div class="cat__tail"></div>
+                            <div class="cat__head"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- loading modal box end  -->
+
+        <!-- edit modal box  -->
+        <div class="modal fade" id="editModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+       <div class="modal-dialog">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body" id="editModal">
+                   ...
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                   <button type="button" onclick="getUpdateData()" data-bs-dismiss="modal" class="btn btn-primary"
+                           data-bs-toggle="modal"  >Update
+                   </button>
+               </div>
+           </div>
+       </div>
+   </div>
+
+
+
+    <div class="modal fade" id="pollEventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Edit Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="pollEventEditModal">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- end edit modal box  -->
+
+
+        <!-- event edit moddal box start  -->
+
+        <div class="modal fade" id="eventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel-for-event-edit">Edit Event</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="eventEditModal">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- event edit modal box end  -->
+
+
 </main>
 <div th:replace="~{index::footer}"></div>
-<script>
-</script>
-<script src="/static/assets/js/communityDetail.js"></script>
+    <script src="/static/assets/js/communityDetail.js"></script>
+<!--    <script>-->
+<!--        let communityId = localStorage.getItem('communityIdForDetailPage')-->
+<!--    </script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
 </body>
 </html>

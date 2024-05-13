@@ -64,6 +64,25 @@ const removeReaction = async (id) => {
 
 
 
+const showInvitation = async ()=> {
+    const showCount = document.getElementById('inviteMessageCount');
+    const size = await getInvitation();
+    console.log('adfdfdfdfdf',size)
+    if(size === 0){
+    showCount.innerText = ''
+    }else{
+        showCount.innerText = size;
+    }
+}
+
+document.addEventListener('DOMContentLoaded',showInvitation);
+
+const getInvitation = async () => {
+    const msgCount = await fetch('/user/invited-user-count');
+    const msgSize = await msgCount.json();
+    return msgSize;
+}
+
 const mentionCommunityMember= () => {
      const messageInput = document.getElementById('content');
     messageInput.addEventListener('input',  async (event) => {
@@ -102,6 +121,170 @@ const mentionCommunityMember= () => {
         }
     });
 };
+
+const showEmptyContent = async () => {
+    const invitations = await fetchInvitationMessage();
+    const root = document.getElementById('messageRoot');
+    if(invitations.length === 0){
+        root.style.fontSize = '30px';
+        root.innerHTML = 'There is no invitations yet...';
+    }
+}
+
+document.addEventListener('DOMContentLoaded',showEmptyContent);
+
+const getAllInvitations = async () => {
+    const invitation = await fetchInvitationMessage();
+    for (const i of invitation) {
+        await displayMessageForInvitation(i.id,i.community.image,i.community.name,i.community.id);
+    }
+}
+
+const displayMessageForInvitation =async (id,image,name,communityId) => {
+    const root = document.getElementById('messageRoot');
+ const divElement = document.createElement('div');
+ divElement.classList.add(`invitation-message-${id}`)
+    divElement.style.padding = '10px';
+ divElement.style.border = '1px solid black';
+ divElement.style.borderRadius = '10px';
+ divElement.style.margin = '3px';
+ divElement.style.marginLeft = '55px';
+ divElement.style.marginTop = '-35px';
+ divElement.style.borderBottomLeftRadius = '40px';
+ divElement.style.backgroundColor = 'lightgrey';
+      const spElementForImage = document.createElement('span');
+      spElementForImage.classList.add(`span-image-${id}`);
+         const imgTag = document.createElement('img');
+          const photo = `${image}`|| `/static/assets/img/card.jpg`;
+          imgTag.src = photo;
+          imgTag.style.width = '50px';
+          imgTag.style.height = '50px';
+          imgTag.style.borderRadius = '50%';
+          spElementForImage.appendChild(imgTag);
+        const spElementForContent = document.createElement('span');
+        spElementForContent.innerHTML = `You has been invited from ${name} group`;
+        const buttonsWrapper = document.createElement('div');
+        buttonsWrapper.classList.add(`button-wrapper-${id}`)
+        buttonsWrapper.style.marginLeft = '220px';
+        const acceptButton = document.createElement('button');
+        acceptButton.innerHTML = 'Accept'
+        acceptButton.classList.add('btn','btn-outline-success')
+    acceptButton.id = id;
+         acceptButton.addEventListener('click',async () => {
+          await acceptInvitation(id,communityId,name);
+         });
+    const denyButton = document.createElement('button');
+    denyButton.innerHTML = 'Reject';
+    denyButton.classList.add('btn','btn-outline-danger')
+    denyButton.addEventListener('click', async () => {
+       await rejectInvitation(id);
+    });
+    buttonsWrapper.appendChild(acceptButton);
+    buttonsWrapper.appendChild(denyButton);
+        divElement.appendChild(spElementForContent);
+        // divElement.appendChild(buttonsWrapper);
+    const allWrapDiv = document.createElement('div');
+    allWrapDiv.classList.add(`all-wrap-div-${id}`);
+    allWrapDiv.appendChild(spElementForImage)
+    allWrapDiv.appendChild(divElement);
+    allWrapDiv.appendChild(buttonsWrapper);
+    root.appendChild(allWrapDiv);
+}
+
+document.addEventListener('DOMContentLoaded',getAllInvitations);
+
+
+const acceptInvitation = async (id,communityId,name) => {
+    const data = await fetch(`/user/accept-invitation/${id}/${communityId}`);
+    const response = await data.json();
+    if(response){
+        const divEl = document.querySelector(`.all-wrap-div-${id}`);
+        if(divEl){
+            await showInvitation();
+            divEl.remove();
+        }
+        let alertMessage = response.message + ` ${name}`;
+        let alertStyle = `
+            background-color: white;
+            color: blue;
+            border: 1px solid #cc0000;
+            border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+
+
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function() {
+            styledAlert.style.display = 'none';
+        }, 5000);
+    }
+}
+
+
+const rejectInvitation = async (id) => {
+ const data = await fetch(`/user/reject-invitation/${id}`);
+const response = await data.json();
+  if(response){
+      const divEl = document.querySelector(`.all-wrap-div-${id}`);
+      if(divEl){
+         await showInvitation();
+          divEl.remove();
+
+      }
+      let alertMessage = response.message;
+      let alertStyle = `
+            background-color: #ffcccc;
+            color: #cc0000;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+      let styledAlert = document.createElement('div');
+      styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+      styledAlert.innerHTML = alertMessage;
+
+
+      document.body.appendChild(styledAlert);
+
+
+      styledAlert.style.display = 'block';
+
+      setTimeout(function() {
+          styledAlert.style.display = 'none';
+      }, 3000);
+  }
+}
+
+const fetchInvitationMessage = async () => {
+    const data = await fetch('/user/invited-user-display');
+    const response = await data.json();
+    return response;
+}
 
 const getAllMember = async () => {
     const getAllData = await fetch('/get-all-active-user');
@@ -663,7 +846,7 @@ async function welcome() {
           </div>
       </div>
   </div> 
-
+<div id="detail-modal-${p.id}">
 <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg"  >
     <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
@@ -716,6 +899,7 @@ async function welcome() {
         </div>
       </div> 
     </div>
+  </div>
   </div>
   </div>
   </div>`;
@@ -1111,14 +1295,17 @@ async function getUpdateData() {
         //     newsfeed.removeChild(newsfeed.firstChild)
         // }
         const p = await fetchPostById(Object.fromEntries(data.entries()).postId);
+        const ParentDetailModal = document.getElementById('detail-modal-'+p.id)
+        const childModalBox  = document.getElementById('newsfeedPost'+p.id)
         console.log('8888888888888888888888888888888888888'+p)
             const contentSection = document.getElementById(`post-update-section-${p.id}`);
                 const postId = p.id;
                 console.log("Want to know",postId);
                 const postContent = document.querySelector(`.post-content-${postId}`);
-                if (postContent) {
+                if (postContent && childModalBox) {
                     console.log('Remove Successfully')
                     postContent.remove();
+                    childModalBox.remove()
                 }
                 // const divContent = document.createElement('div');
                 // divContent.classList.add(`post-content-${postId}`);
@@ -1409,7 +1596,66 @@ if(p.resources.length > 4 ){
 }
 post += `
       </div>`
+      let mod = ''
+    
+mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"  >
+    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
+      <div class="modal-body p-0">
+        <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">`
 
+                p.resources.forEach((r, index) => {
+                    let active = index == 0 ? 'active' : ''
+                    if (r.photo === null && r.video !== null) {
+                        mod += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
+              <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+              </div> `
+                    } else if (r.video === null && r.photo !== null) {
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+              <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+            </div>`
+                    } else {
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+            </div>`
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+            <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
+            <div class="carousel-caption d-none d-md-block"> 
+            <p>${r.description.replace(/\n/g, '<br>')}</p>
+          </div>
+          </div>
+           `
+                    }
+                })
+                mod+=`
+             
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div> 
+    </div>
+  </div>
+  </div>
+  </div>
+  `
+
+        ParentDetailModal.innerHTML = mod
         contentSection.innerHTML = post
 
     }
@@ -1452,6 +1698,7 @@ async function createPollPost() {
 
 async function getAllEventsForPost() {
     isFetchingForEvent = true;
+    let expired = ''
     let rows = '';
     let data = await fetch(`/event/getEventsForNewsfeed/${currentPageForEvent}`, {
         method: 'GET'
@@ -1466,6 +1713,18 @@ async function getAllEventsForPost() {
         displayNoPostMessage();
     } else {
         for (const r of response) {
+            
+
+            if(new Date()>new Date(r.end_date)){
+                expired=`
+                
+    <div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 135px;  z-index: 1;" role="alert">
+    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+    <div>
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    EVENT IS EXPIRED
+    </div>
+    </div>`}
             const reactCountForEvent = await fetchReactCountForEvent(r.id);
             console.log('length',reactCountForEvent.length);
             let createdTime = await timeAgo(new Date(r.created_date))
@@ -2370,6 +2629,10 @@ const fetchAndDisplayLastReply = async (id) => {
     const lastReplyIndex = fetchDataForReplies.length - 1;
     if (lastReplyIndex >= 0) {
         const reply = fetchDataForReplies[lastReplyIndex];
+        replyElement.classList.add(`reply-item-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        replyElement.setAttribute('data-toggle', 'tooltip');
+        replyElement.setAttribute('title', `${createdTimeForReply}`);
         const user = await fetchUserDataByPostedUser(loginUser);
         const userRpImage = document.createElement('img');
         const photo = reply.user.photo || '/static/assets/img/card.jpg';
@@ -2668,6 +2931,9 @@ const fetchAndDisplayReplies = async (id) => {
         userRpImage.style.marginLeft = '50px';
         userRpImage.style.backgroundColor = '#cccccc';
         replyElement.classList.add(`reply-item-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        replyElement.setAttribute('data-toggle', 'tooltip');
+        replyElement.setAttribute('title', `${createdTimeForReply}`);
         const replySender = document.createElement('span');
         if (reply.user.name === user.name) {
             replySender.innerHTML = `You : `;
@@ -2682,9 +2948,6 @@ const fetchAndDisplayReplies = async (id) => {
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
         divEl.classList.add(`reply-container-div-${reply.id}`);
-        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
-        divEl.setAttribute('data-toggle', 'tooltip');
-        divEl.setAttribute('title', `${createdTimeForReply}`);
         divEl.style.marginLeft = '110px';
         divEl.style.padding = '20px';
         divEl.style.backgroundColor = 'lightgrey';
@@ -3198,17 +3461,13 @@ const fetchNotificationPerPage = async () => {
         method: 'GET'
     });
     let root = document.getElementById('root');
-    root.innerHTML = '';
+    // root.innerHTML = '';
 
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
     let data = await response.json();
     isFetching = false;
-    // if (data.length === 0) {
-    //     hasMore = false;
-    //     return;
-    // }
     if (data.length === 0) {
         hasMore = false;
         return;
@@ -3448,7 +3707,7 @@ const attachNotificationEventListeners = () => {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchNotificationPerPage();
+    // await fetchNotificationPerPage();
     const modalContent = document.getElementById('content-notification');
     modalContent.addEventListener('scroll', async () => {
         if (isFetching || !hasMore) {
@@ -5033,8 +5292,7 @@ async function checkPostOwnerOrAdmin(id){
 
   videoObserver()
 
-  async function videoObserver(){
-      console.log('observing------->')
+  async function videoObserver(){ 
       const videos = document.querySelectorAll('#myVideo');
 
       const observer = new IntersectionObserver(entries => {
@@ -5047,8 +5305,7 @@ async function checkPostOwnerOrAdmin(id){
         });
       });
 
-      videos.forEach(video => {
-          console.log('ha ha ha ha  =====----=-=-=-=-')
+      videos.forEach(video => { 
         observer.observe(video);
       });
   }
@@ -5056,3 +5313,5 @@ async function checkPostOwnerOrAdmin(id){
   document.body.addEventListener('hidden.bs.modal', async function (event) {
       await videoObserver()
     });
+
+
