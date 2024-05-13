@@ -43,4 +43,8 @@ public class Community implements Serializable {
     @OneToMany(mappedBy = "community",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ChatRoom> chatRooms;
+
+    @OneToMany(mappedBy = "community",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Invitation> invitations;
 }

@@ -9,6 +9,7 @@ import com.communityHubSystem.communityHub.repositories.*;
 import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import com.communityHubSystem.communityHub.services.PostService;
 import com.communityHubSystem.communityHub.services.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -194,10 +195,12 @@ public class UserController {
 
     @PostMapping("/updateProfilePhoto")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> updateProfilePhoto(@ModelAttribute UserDTO userDTO) throws IOException {
+    public ResponseEntity<Map<String, String>> updateProfilePhoto(@ModelAttribute UserDTO userDTO, HttpSession session) throws IOException {
         var user = userService.updateProfilePhoto(userDTO.getFile());
         Map<String, String> response = new HashMap<>();
         response.put("photo", user.getPhoto());
+       session.removeAttribute("user");
+       session.setAttribute("user",user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

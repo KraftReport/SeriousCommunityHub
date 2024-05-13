@@ -1,6 +1,6 @@
 window.onload = async function(){
     console.log('wow wow here')
-    
+
     await startUp()
     await getPosts()
 }
@@ -17,7 +17,7 @@ const fetchPostById = async (id) => {
     const postRes = await postData.json();
     return postRes;
 }
-  
+
 
 
  
@@ -671,10 +671,10 @@ if(p.resources.length > 4 ){
 post += `
       </div>`
       let mod = ''
-    
+
 mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg"  >
-    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
+    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;">
       <div class="modal-body p-0">
         <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">`
@@ -682,29 +682,29 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
                 p.resources.forEach((r, index) => {
                     let active = index == 0 ? 'active' : ''
                     if (r.photo === null && r.video !== null) {
-                        mod += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
+                        mod += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" >
               <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
+              <div class="carousel-caption d-none d-md-block">
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
               </div> `
                     } else if (r.video === null && r.photo !== null) {
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
               <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-              <div class="carousel-caption d-none d-md-block"> 
+              <div class="carousel-caption d-none d-md-block">
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
             </div>`
                     } else {
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
               <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
+              <div class="carousel-caption d-none d-md-block">
               <p>${r.description.replace(/\n/g, '<br>')}</p>
             </div>
             </div>`
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
             <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
-            <div class="carousel-caption d-none d-md-block"> 
+            <div class="carousel-caption d-none d-md-block">
             <p>${r.description.replace(/\n/g, '<br>')}</p>
           </div>
           </div>
@@ -712,7 +712,7 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
                     }
                 })
                 mod+=`
-             
+
           <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
@@ -722,7 +722,7 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
             <span class="visually-hidden">Next</span>
           </button>
         </div>
-      </div> 
+      </div>
     </div>
   </div>
   </div>
@@ -2985,17 +2985,17 @@ async function timeAgo(createdDate) {
     
 //       <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 //         <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
-//         <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
+//         <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
 //       </ul>
 //     </div>
-//         </div> 
+//         </div>
 //         <nav>
 //         <div class="nav nav-tabs" id="nav-tab" role="tablist">
 //           <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
-//           <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
+//           <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button>
 //         </div>
 //       </nav>
-//         <div class=" post-content" data-bs-toggle="modal"  > 
+//         <div class=" post-content" data-bs-toggle="modal"  >
 
 
 //         <div class="card mb-3" style="max-width: 540px;">
@@ -3013,7 +3013,7 @@ async function timeAgo(createdDate) {
 //   <p class="card-text font-monospace">${r.description}</p>
   
 //   </div>
-//   <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+//   <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}">
 
             
 //             `
@@ -3058,7 +3058,7 @@ async function timeAgo(createdDate) {
 //         if(new Date()<new Date(r.end_date)){
 //         row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
 //         }
-//         row+=`</div> 
+//         row+=`</div>
 //     </div>
 //           </div>
 //     </div>
@@ -3091,7 +3091,7 @@ async function timeAgo(createdDate) {
 //                   <img src="/static/assets/img/angry.png" alt="Angry" />
 //               </div>
 //           </div>
-//           <button class="like_button" id=" "> 
+//           <button class="like_button" id=" ">
 //           </button>
 //       </div>
 //             </div>
@@ -3409,7 +3409,7 @@ async function getPollEventUpdateData(){
             pollContent.remove()
         }
         let row = ''
-        let hidden = await checkVoted(r.id) === false ? '' : 'hidden' 
+        let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
         let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
         let expired = ''
         if(new Date()>new Date(r.end_date)){
@@ -3425,7 +3425,7 @@ POLL IS EXPIRED
 
             `
         }
-        row +=  `  
+        row +=  `
         <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
         <div class="row g-0">
           <div class="col-md-4">
@@ -3436,14 +3436,14 @@ POLL IS EXPIRED
             <div class="card-body" style="max-height: 200px; overflow-y: auto;">
             <div class="tab-content" id="nav-tabContent">
   <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
-  
+
   <h5 class="card-title align-middle font-monospace">${r.title}</h5>
   <p class="card-text font-monospace">${r.description}</p>
-  
-  </div>
-  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
 
-            
+  </div>
+  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}">
+
+
             `
         let totalVotes = 0;
         for (let v of r.voteOptions) {
@@ -3459,7 +3459,7 @@ POLL IS EXPIRED
         <div class="font-monospace ">${v.type}</div>
                 <div class="d-flex">
                 <div class="progress" style="height: 16px; width: 170px;">
-                
+
                     <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
                 </div>`
                 if(new Date()<new Date(r.end_date)){
@@ -3486,18 +3486,18 @@ POLL IS EXPIRED
         if(new Date()<new Date(r.end_date)){
         row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
         }
-        row+=`</div> 
+        row+=`</div>
     </div>
           </div>
     </div>
   </div>
 </div>
-         
- 
-    ` 
+
+
+    `
     console.log("---------row"+row)
     mainContent.innerHTML = row
-    
+
     await removeCat()
     }
 }
@@ -3560,7 +3560,7 @@ async function videoObserver(){
         }
       });
     });
-    
+
     videos.forEach(video => {
         console.log('ha ha ha ha  =====----=-=-=-=-')
       observer.observe(video);
@@ -3575,18 +3575,18 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
   let currentPageForPost = '0';
   let  isFetchingForPost = false;
   let  hasMoreForPost = true;
-   
+
   let  currentPageForEvent = '0'
   let  isFetchingForEvent = false
   let hasMoreForEvent = true
-   
+
   let  currentPageForPoll = '0'
   let  isFetchingForPoll = false;
   let  hasMoreForPoll = true;
-   
+
   let  scrollPost = true
   let scrollEvent = false
-  let  scrollPoll = false 
+  let  scrollPoll = false
 
 
 
@@ -3629,7 +3629,7 @@ let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('cli
 let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
    scrollPost = false
    scrollEvent = true
-   scrollPoll = false 
+   scrollPoll = false
    currentPageForEvent = 0
    document.getElementById('events').innerHTML = ''
    currentPageForPost =0
@@ -3638,9 +3638,9 @@ let eventTabIndex = document.getElementById('events-tab').addEventListener('clic
 let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
    scrollPost = false
    scrollEvent = false
-   scrollPoll = true 
+   scrollPoll = true
    currentPageForPoll = 0
-   document.getElementById('polls').innerHTML = '' 
+   document.getElementById('polls').innerHTML = ''
    currentPageForPost =0
 })
 
@@ -3787,7 +3787,7 @@ async function getPosts(){
                           let four = null
                           let five = null
                           let six = null
-          
+
                           if(p.resources.length === 1){
                               p.resources.forEach((r, index) => {
                                   if(index === 0 && r.photo !== null){
@@ -3804,7 +3804,7 @@ async function getPosts(){
                                   }
                                   if (one !== null  ) {
                                       post+= `
-            <div class="d-flex" > 
+            <div class="d-flex" >
             <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
             </div>
             `
@@ -3838,7 +3838,7 @@ async function getPosts(){
                                   }
                                   if (one !== null && two !== null  ) {
                                       post+= `
-            <div class="d-flex" > 
+            <div class="d-flex" >
             <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
             <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
             </div> `
@@ -3883,11 +3883,11 @@ async function getPosts(){
                                   }
                                   if (one !== null && two !== null && three !== null  ) {
                                       post+= `
-            <div class="d-flex" > 
+            <div class="d-flex" >
             <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
             <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
             </div>
-            <div class="d-flex"> 
+            <div class="d-flex">
             <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag}
             </div>`
                                   }
@@ -3896,7 +3896,7 @@ async function getPosts(){
                           if(p.resources.length === 4){
                               p.resources.forEach((r, index) => {
                                   console.log(r)
-          
+
                                   if(index === 0 && r.photo !== null){
                                       console.log('two')
                                       one = r.photo
@@ -3942,23 +3942,23 @@ async function getPosts(){
                                       fourCloseTag = '</video>'
                                       fourControlAttr = 'controls'
                                   }
-          
-          
+
+
                                   if (one !== null && two !== null && three !== null && four !== null) {
                                       post+= `
-                <div class="d-flex" > 
+                <div class="d-flex" >
                 <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
                 <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
                 </div>
-                <div class="d-flex"> 
+                <div class="d-flex">
                 <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
                 <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
                 </div>`
                                   }
                               })
-          
+
                           }
-          
+
                           if(p.resources.length > 4 ){
                               let text = p.resources.length === 5 ? '' : p.resources.length - 5
                               console.log(text)
@@ -4019,19 +4019,19 @@ async function getPosts(){
                                       fiveCloseTag = '</video>'
                                       fiveControlAttr = 'controls'
                                   }
-          
+
                                   if(index === 5 ){
                                       six = 'hello'
                                   }
-          
+
                                   if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
-          
+
                                       post+= `
-                <div class="d-flex" > 
+                <div class="d-flex" >
                 <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
                 <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
                 </div>
-                <div class="d-flex"> 
+                <div class="d-flex">
                 <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
                 <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
                 <div style="position: relative; display: inline-block;">
@@ -4040,9 +4040,9 @@ async function getPosts(){
                 </div>
                 </div>`
                                   }
-          
+
                               })
-          
+
                           }
                           post += `
                 </div>
@@ -4083,41 +4083,41 @@ async function getPosts(){
                         <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox-${p.id}">Comment ${commentCountSize}</span>
                     </div>
                 </div>
-            </div> 
+            </div>
           <div id="detail-modal-${p.id}">
           <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg"  >
-              <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
+              <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;">
                 <div class="modal-body p-0">
                   <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner">`
-          
+
                           p.resources.forEach((r, index) => {
                               let active = index == 0 ? 'active' : ''
                               if (r.photo === null && r.video !== null) {
-                                  post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
+                                  post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" >
                         <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
-                        <div class="carousel-caption d-none d-md-block"> 
+                        <div class="carousel-caption d-none d-md-block">
                         <p>${r.description.replace(/\n/g, '<br>')}</p>
                       </div>
                         </div> `
                               } else if (r.video === null && r.photo !== null) {
-                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
                         <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-                        <div class="carousel-caption d-none d-md-block"> 
+                        <div class="carousel-caption d-none d-md-block">
                         <p>${r.description.replace(/\n/g, '<br>')}</p>
                       </div>
                       </div>`
                               } else {
-                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
                         <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
-                        <div class="carousel-caption d-none d-md-block"> 
+                        <div class="carousel-caption d-none d-md-block">
                         <p>${r.description.replace(/\n/g, '<br>')}</p>
                       </div>
                       </div>`
-                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
                       <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
-                      <div class="carousel-caption d-none d-md-block"> 
+                      <div class="carousel-caption d-none d-md-block">
                       <p>${r.description.replace(/\n/g, '<br>')}</p>
                     </div>
                     </div>
@@ -4125,7 +4125,7 @@ async function getPosts(){
                               }
                           })
                           post+=`
-                       
+
                     <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
                       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                       <span class="visually-hidden">Previous</span>
@@ -4135,13 +4135,13 @@ async function getPosts(){
                       <span class="visually-hidden">Next</span>
                     </button>
                   </div>
-                </div> 
+                </div>
               </div>
             </div>
             </div>
             </div>
             </div>`;
-          
+
                           posts += post;
                       }
             let range = document.createRange();
@@ -4352,7 +4352,7 @@ async function getEvents(){
                                 <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
                                 <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
                                 <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
-                                <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button> 
+                                <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button>
                             </div>
                             <div class="tab-content" id="v-${r.id}-tabContent">
                                 <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
@@ -4571,17 +4571,17 @@ POLL IS EXPIRED
 
   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
     <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
-    <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
+    <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
   </ul>
 </div>
-    </div> 
+    </div>
     <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">
       <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
-      <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
+      <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button>
     </div>
   </nav>
-    <div id="poll-post-update-${r.id}" class="post-content" data-bs-toggle="modal"  > 
+    <div id="poll-post-update-${r.id}" class="post-content" data-bs-toggle="modal"  >
     <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
     <div class="row g-0">
       <div class="col-md-4">
@@ -4597,9 +4597,9 @@ POLL IS EXPIRED
 <p class="card-text font-monospace">${r.description}</p>
 
 </div>
-<div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+<div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}">
 
-        
+
         `
     let totalVotes = 0;
     for (let v of r.voteOptions) {
@@ -4615,7 +4615,7 @@ POLL IS EXPIRED
     <div class="font-monospace ">${v.type}</div>
             <div class="d-flex">
             <div class="progress" style="height: 16px; width: 170px;">
-            
+
                 <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
             </div>`
             if(new Date()<new Date(r.end_date)){
@@ -4642,13 +4642,13 @@ POLL IS EXPIRED
     if(new Date()<new Date(r.end_date)){
     row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
     }
-    row+=`</div> 
+    row+=`</div>
 </div>
       </div>
 </div>
 </div>
 </div>
-     
+
 
 </div>
 
@@ -4678,7 +4678,7 @@ POLL IS EXPIRED
       <img src="/static/assets/img/angry.png" alt="Angry" />
   </div>
 </div>
-<button class="like_button" id=" "> 
+<button class="like_button" id=" ">
 </button>
 </div>
 </div>
@@ -4728,3 +4728,144 @@ async function startUp(){
     document.getElementById('communityMembers').textContent = 10
 }
 
+
+document.body.addEventListener('hidden.bs.modal', async function (event) {
+    await videoObserver()
+  });
+
+
+ const getAllUsers = async () => {
+     const url = '/api/community/users';
+     const data = await fetch(url);
+     if (data.ok) {
+         const dataResponse = await data.json();
+         console.log('all users', dataResponse);
+         return dataResponse;
+     }
+ };
+
+ const getUsersByCommunityId = async (id) => {
+     const url = `/api/community/user/${id}`;
+     const data = await fetch(url);
+     if (data.ok) {
+         const dataResponse = await data.json();
+         console.log('community users', dataResponse);
+         return dataResponse;
+     }
+ };
+ document.getElementById('userSearch').addEventListener('input', function() {
+     const searchValue = this.value.toLowerCase();
+     const usersList = document.getElementById('usersList');
+     const allUsers = document.querySelectorAll('#usersList #container');
+
+     allUsers.forEach(userContainer => {
+         const userNameElement = userContainer.querySelector('.user-list-span');
+         if (userNameElement) {
+             const userName = userNameElement.textContent.toLowerCase();
+             if (userName.includes(searchValue)) {
+                 userContainer.style.display = 'block';
+             } else {
+                 userContainer.style.display = 'none';
+             }
+         }
+     });
+ });
+
+
+ async function populateCreateGroupFormForInvitation() {
+     document.getElementById('communityId1').value = communityId;
+
+     const allUsers = await getAllUsers();
+     const communityUsers = await getUsersByCommunityId(communityId);
+     const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+     const usersList = document.getElementById('usersList');
+
+     usersList.innerHTML = '';
+
+
+     usersNotInCommunity.forEach(user => {
+
+         const userContainer = document.createElement('div');
+         userContainer.id = "container";
+         userContainer.style.padding = '20px';
+         userContainer.style.borderRadius = '10px';
+         userContainer.style.marginLeft = "280px";
+
+         const container=document.createElement('div');
+         container.id="container1";
+         container.style.marginBottom="80px";
+
+         const photoSpan = document.createElement('span');
+         if (user.photo) {
+             const userPhoto = document.createElement('img');
+             userPhoto.src = user.photo;
+             userPhoto.alt = "User's Photo";
+             photoSpan.appendChild(userPhoto);
+         } else {
+             const userPhoto = document.createElement('img');
+             userPhoto.src = '/assets/img/default-logo.png';
+             userPhoto.alt = "User's Photo";
+             photoSpan.appendChild(userPhoto);
+         }
+
+         const nameSpan = document.createElement('span');
+         nameSpan.classList.add('user-list-span')
+         nameSpan.textContent = user.name;
+
+         const checkboxInput = document.createElement('input');
+         checkboxInput.type = "checkbox";
+         checkboxInput.id = `_checkbox${user.id}`;
+         checkboxInput.name = "userIds";
+         checkboxInput.value = user.id;
+         if (communityUsers.some(communityUser => communityUser.id === user.id)) {
+             checkboxInput.checked = true;
+             checkboxInput.disabled = true;
+         }
+
+         const checkboxLabel = document.createElement('label');
+         checkboxLabel.htmlFor = `_checkbox${user.id}`;
+         checkboxLabel.className = "form-check-label";
+         checkboxLabel.style.marginLeft = "390px";
+
+         const tickMarkDiv = document.createElement('div');
+         tickMarkDiv.className = `tick_mark`;
+
+         checkboxLabel.appendChild(tickMarkDiv);
+         userContainer.appendChild(photoSpan);
+         container.appendChild(photoSpan);
+         userContainer.appendChild(nameSpan);
+         container.appendChild(nameSpan);
+         userContainer.appendChild(container);
+         userContainer.appendChild(checkboxInput);
+         userContainer.appendChild(checkboxLabel);
+         usersList.appendChild(userContainer);
+     });
+
+
+     $('#invitationFormModal').modal('show');
+ }
+ document.getElementById('inviteFriendBtn').addEventListener('click', async (e) => {
+     // e.preventDefault();
+
+     const formData = new FormData(document.getElementById('inviteForm'));
+     const inviteDto = Object.fromEntries(formData.entries());
+     const data = await fetch('/user/invitationSend',{
+         method:'PUT',
+         // headers: {
+         //     'Content-Type' : ' application/json'
+         // },
+         // body:JSON.stringify(inviteDto)
+         body:formData
+     })
+     if (data.ok) {
+         const result = await data.json();
+         document.getElementById('invitationMessage').innerHTML = result.message;
+         $('#invitationFormModal').modal('hide');
+     } else {
+         document.getElementById('invitationMessage').innerHTML = 'Error creating community';
+     }
+ });
+
+ document.getElementById('inviteModalCloseBtn').addEventListener('click', function() {
+     $('#invitationFormModal').modal('hide');
+ });
