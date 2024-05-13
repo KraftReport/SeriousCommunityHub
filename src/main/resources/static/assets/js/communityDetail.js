@@ -1,6 +1,6 @@
- window.onload = async function(){
-
- }
+ // window.onload = async function(){
+ //
+ // }
  const displayNoPostMessage = () => {
     let footerDiv = document.querySelector('.copyright');
     footerDiv.innerHTML = '';
@@ -26,6 +26,7 @@ async function startUp(){
     document.getElementById('communityName').textContent = data.name
     document.getElementById('communityMembers').textContent = 10
 }
+
 
 let currentPageForPost = '0';
 let isFetchingForPost = false;
@@ -4134,3 +4135,140 @@ async function videoObserver(){
 document.body.addEventListener('hidden.bs.modal', async function (event) {
     await videoObserver()
   });
+
+
+ const getAllUsers = async () => {
+     const url = '/api/community/users';
+     const data = await fetch(url);
+     if (data.ok) {
+         const dataResponse = await data.json();
+         console.log('all users', dataResponse);
+         return dataResponse;
+     }
+ };
+
+ const getUsersByCommunityId = async (id) => {
+     const url = `/api/community/user/${id}`;
+     const data = await fetch(url);
+     if (data.ok) {
+         const dataResponse = await data.json();
+         console.log('community users', dataResponse);
+         return dataResponse;
+     }
+ };
+ document.getElementById('userSearch').addEventListener('input', function() {
+     const searchValue = this.value.toLowerCase();
+     const usersList = document.getElementById('usersList');
+     const allUsers = document.querySelectorAll('#usersList #container');
+
+     allUsers.forEach(userContainer => {
+         const userNameElement = userContainer.querySelector('.user-list-span');
+         if (userNameElement) {
+             const userName = userNameElement.textContent.toLowerCase();
+             if (userName.includes(searchValue)) {
+                 userContainer.style.display = 'block';
+             } else {
+                 userContainer.style.display = 'none';
+             }
+         }
+     });
+ });
+
+
+ async function populateCreateGroupFormForInvitation() {
+     document.getElementById('communityId1').value = communityId;
+
+     const allUsers = await getAllUsers();
+     const communityUsers = await getUsersByCommunityId(communityId);
+     const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+     const usersList = document.getElementById('usersList');
+
+     usersList.innerHTML = '';
+
+
+     usersNotInCommunity.forEach(user => {
+
+         const userContainer = document.createElement('div');
+         userContainer.id = "container";
+         userContainer.style.padding = '20px';
+         userContainer.style.borderRadius = '10px';
+         userContainer.style.marginLeft = "280px";
+
+         const container=document.createElement('div');
+         container.id="container1";
+         container.style.marginBottom="80px";
+
+         const photoSpan = document.createElement('span');
+         if (user.photo) {
+             const userPhoto = document.createElement('img');
+             userPhoto.src = user.photo;
+             userPhoto.alt = "User's Photo";
+             photoSpan.appendChild(userPhoto);
+         } else {
+             const userPhoto = document.createElement('img');
+             userPhoto.src = '/assets/img/default-logo.png';
+             userPhoto.alt = "User's Photo";
+             photoSpan.appendChild(userPhoto);
+         }
+
+         const nameSpan = document.createElement('span');
+         nameSpan.classList.add('user-list-span')
+         nameSpan.textContent = user.name;
+
+         const checkboxInput = document.createElement('input');
+         checkboxInput.type = "checkbox";
+         checkboxInput.id = `_checkbox${user.id}`;
+         checkboxInput.name = "userIds";
+         checkboxInput.value = user.id;
+         if (communityUsers.some(communityUser => communityUser.id === user.id)) {
+             checkboxInput.checked = true;
+             checkboxInput.disabled = true;
+         }
+
+         const checkboxLabel = document.createElement('label');
+         checkboxLabel.htmlFor = `_checkbox${user.id}`;
+         checkboxLabel.className = "form-check-label";
+         checkboxLabel.style.marginLeft = "390px";
+
+         const tickMarkDiv = document.createElement('div');
+         tickMarkDiv.className = `tick_mark`;
+
+         checkboxLabel.appendChild(tickMarkDiv);
+         userContainer.appendChild(photoSpan);
+         container.appendChild(photoSpan);
+         userContainer.appendChild(nameSpan);
+         container.appendChild(nameSpan);
+         userContainer.appendChild(container);
+         userContainer.appendChild(checkboxInput);
+         userContainer.appendChild(checkboxLabel);
+         usersList.appendChild(userContainer);
+     });
+
+
+     $('#invitationFormModal').modal('show');
+ }
+ document.getElementById('inviteFriendBtn').addEventListener('click', async (e) => {
+     // e.preventDefault();
+
+     const formData = new FormData(document.getElementById('inviteForm'));
+     const inviteDto = Object.fromEntries(formData.entries());
+     const data = await fetch('/user/invitationSend',{
+         method:'PUT',
+         // headers: {
+         //     'Content-Type' : ' application/json'
+         // },
+         // body:JSON.stringify(inviteDto)
+         body:formData
+     })
+     if (data.ok) {
+         const result = await data.json();
+         document.getElementById('invitationMessage').innerHTML = result.message;
+         $('#invitationFormModal').modal('hide');
+     } else {
+         document.getElementById('invitationMessage').innerHTML = 'Error creating community';
+     }
+ });
+
+ document.getElementById('inviteModalCloseBtn').addEventListener('click', function() {
+     $('#invitationFormModal').modal('hide');
+ });

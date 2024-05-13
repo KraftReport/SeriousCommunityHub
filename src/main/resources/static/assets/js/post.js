@@ -64,6 +64,25 @@ const removeReaction = async (id) => {
 
 
 
+const showInvitation = async ()=> {
+    const showCount = document.getElementById('inviteMessageCount');
+    const size = await getInvitation();
+    console.log('adfdfdfdfdf',size)
+    if(size === 0){
+    showCount.innerText = ''
+    }else{
+        showCount.innerText = size;
+    }
+}
+
+document.addEventListener('DOMContentLoaded',showInvitation);
+
+const getInvitation = async () => {
+    const msgCount = await fetch('/user/invited-user-count');
+    const msgSize = await msgCount.json();
+    return msgSize;
+}
+
 const mentionCommunityMember= () => {
      const messageInput = document.getElementById('content');
     messageInput.addEventListener('input',  async (event) => {
@@ -102,6 +121,170 @@ const mentionCommunityMember= () => {
         }
     });
 };
+
+const showEmptyContent = async () => {
+    const invitations = await fetchInvitationMessage();
+    const root = document.getElementById('messageRoot');
+    if(invitations.length === 0){
+        root.style.fontSize = '30px';
+        root.innerHTML = 'There is no invitations yet...';
+    }
+}
+
+document.addEventListener('DOMContentLoaded',showEmptyContent);
+
+const getAllInvitations = async () => {
+    const invitation = await fetchInvitationMessage();
+    for (const i of invitation) {
+        await displayMessageForInvitation(i.id,i.community.image,i.community.name,i.community.id);
+    }
+}
+
+const displayMessageForInvitation =async (id,image,name,communityId) => {
+    const root = document.getElementById('messageRoot');
+ const divElement = document.createElement('div');
+ divElement.classList.add(`invitation-message-${id}`)
+    divElement.style.padding = '10px';
+ divElement.style.border = '1px solid black';
+ divElement.style.borderRadius = '10px';
+ divElement.style.margin = '3px';
+ divElement.style.marginLeft = '55px';
+ divElement.style.marginTop = '-35px';
+ divElement.style.borderBottomLeftRadius = '40px';
+ divElement.style.backgroundColor = 'lightgrey';
+      const spElementForImage = document.createElement('span');
+      spElementForImage.classList.add(`span-image-${id}`);
+         const imgTag = document.createElement('img');
+          const photo = `${image}`|| `/static/assets/img/card.jpg`;
+          imgTag.src = photo;
+          imgTag.style.width = '50px';
+          imgTag.style.height = '50px';
+          imgTag.style.borderRadius = '50%';
+          spElementForImage.appendChild(imgTag);
+        const spElementForContent = document.createElement('span');
+        spElementForContent.innerHTML = `You has been invited from ${name} group`;
+        const buttonsWrapper = document.createElement('div');
+        buttonsWrapper.classList.add(`button-wrapper-${id}`)
+        buttonsWrapper.style.marginLeft = '220px';
+        const acceptButton = document.createElement('button');
+        acceptButton.innerHTML = 'Accept'
+        acceptButton.classList.add('btn','btn-outline-success')
+    acceptButton.id = id;
+         acceptButton.addEventListener('click',async () => {
+          await acceptInvitation(id,communityId,name);
+         });
+    const denyButton = document.createElement('button');
+    denyButton.innerHTML = 'Reject';
+    denyButton.classList.add('btn','btn-outline-danger')
+    denyButton.addEventListener('click', async () => {
+       await rejectInvitation(id);
+    });
+    buttonsWrapper.appendChild(acceptButton);
+    buttonsWrapper.appendChild(denyButton);
+        divElement.appendChild(spElementForContent);
+        // divElement.appendChild(buttonsWrapper);
+    const allWrapDiv = document.createElement('div');
+    allWrapDiv.classList.add(`all-wrap-div-${id}`);
+    allWrapDiv.appendChild(spElementForImage)
+    allWrapDiv.appendChild(divElement);
+    allWrapDiv.appendChild(buttonsWrapper);
+    root.appendChild(allWrapDiv);
+}
+
+document.addEventListener('DOMContentLoaded',getAllInvitations);
+
+
+const acceptInvitation = async (id,communityId,name) => {
+    const data = await fetch(`/user/accept-invitation/${id}/${communityId}`);
+    const response = await data.json();
+    if(response){
+        const divEl = document.querySelector(`.all-wrap-div-${id}`);
+        if(divEl){
+            await showInvitation();
+            divEl.remove();
+        }
+        let alertMessage = response.message + ` ${name}`;
+        let alertStyle = `
+            background-color: white;
+            color: blue;
+            border: 1px solid #cc0000;
+            border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+
+
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function() {
+            styledAlert.style.display = 'none';
+        }, 5000);
+    }
+}
+
+
+const rejectInvitation = async (id) => {
+ const data = await fetch(`/user/reject-invitation/${id}`);
+const response = await data.json();
+  if(response){
+      const divEl = document.querySelector(`.all-wrap-div-${id}`);
+      if(divEl){
+         await showInvitation();
+          divEl.remove();
+
+      }
+      let alertMessage = response.message;
+      let alertStyle = `
+            background-color: #ffcccc;
+            color: #cc0000;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+      let styledAlert = document.createElement('div');
+      styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+      styledAlert.innerHTML = alertMessage;
+
+
+      document.body.appendChild(styledAlert);
+
+
+      styledAlert.style.display = 'block';
+
+      setTimeout(function() {
+          styledAlert.style.display = 'none';
+      }, 3000);
+  }
+}
+
+const fetchInvitationMessage = async () => {
+    const data = await fetch('/user/invited-user-display');
+    const response = await data.json();
+    return response;
+}
 
 const getAllMember = async () => {
     const getAllData = await fetch('/get-all-active-user');
@@ -3202,17 +3385,13 @@ const fetchNotificationPerPage = async () => {
         method: 'GET'
     });
     let root = document.getElementById('root');
-    root.innerHTML = '';
+    // root.innerHTML = '';
 
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
     }
     let data = await response.json();
     isFetching = false;
-    // if (data.length === 0) {
-    //     hasMore = false;
-    //     return;
-    // }
     if (data.length === 0) {
         hasMore = false;
         return;
@@ -3452,7 +3631,7 @@ const attachNotificationEventListeners = () => {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchNotificationPerPage();
+    // await fetchNotificationPerPage();
     const modalContent = document.getElementById('content-notification');
     modalContent.addEventListener('scroll', async () => {
         if (isFetching || !hasMore) {
@@ -5060,3 +5239,5 @@ async function checkPostOwnerOrAdmin(id){
   document.body.addEventListener('hidden.bs.modal', async function (event) {
       await videoObserver()
     });
+
+

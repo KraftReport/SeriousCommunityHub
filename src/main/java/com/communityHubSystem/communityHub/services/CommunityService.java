@@ -41,4 +41,5 @@ public interface CommunityService {
     List<Event> getEventsForCommunityDetailPage(Long aLong);
 
     List<Event> getPollsForCommunityDetailPage(Long aLong);
+
 }

@@ -144,6 +144,21 @@
             overflow-y: auto;
         }
 
+        #invitationStaticBox .modal-dialog {
+            position: absolute;
+            right: 0;
+            margin-right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: calc(100% - 20px);
+        }
+
+        @media (min-width: 576px) {
+            #invitationStaticBox .modal-dialog {
+                max-width: 450px;
+            }
+        }
+
         .mentionSuggestion {
             padding: 5px;
             cursor: pointer;
@@ -274,38 +289,10 @@
                 <li class="nav-item dropdown">
 
                     <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-                        <i class="bi bi-chat-left-text"></i>
-                        <span class="badge bg-success badge-number">3</span>
+                        <i class="bi bi-chat-left-text" data-bs-toggle="modal"
+                           data-bs-target="#invitationStaticBox" ></i>
+                        <span class="badge bg-success badge-number" id="inviteMessageCount" style="margin-top: -10px"></span>
                     </a><!-- End Messages Icon -->
-
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-                        <li class="dropdown-header">
-                            You have 3 new messages
-                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="message-item">
-                            <a href="#">
-                                <img src="/static/assets/img/messages-1.jpg" alt="" class="rounded-circle">
-                                <div>
-                                    <h4>Maria Hudson</h4>
-                                    <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
-                                    <p>4 hrs. ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="dropdown-footer">
-                            <a href="#">Show all messages</a>
-                        </li>
-
-                    </ul><!-- End Messages Dropdown Items -->
 
                 </li><!-- End Messages Nav -->
 
@@ -314,7 +301,7 @@
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                         <img id="session-user-photo" src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
                              th:unless="${session.user.photo}"/>
-                        <img id="session-user-photo-exist" th:src="${session.user.photo}" alt="Profile" class="rounded-circle"/>
+                        <img id="session-user-photo-exist" th:src="${session.user.photo}" th:if="${session.user.photo}" alt="Profile" class="rounded-circle"/>
                         <!--                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />-->
                         <span class="d-none d-md-block dropdown-toggle ps-2" th:text="${session.user.name}">Name</span>
                     </a><!-- End Profile Iamge Icon -->
@@ -1590,6 +1577,23 @@
                 <div class="modal-body" id="content-notification"
                      style="overflow-y: auto; height: 350px; width: 450px;">
                     <div id="root"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="invitationStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="invitationStaticBoxLabel">Invitations....<i class="fa-solid fa-envelope" style="margin-left: 240px;"></i></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="message-invitation-notification"
+                     style="overflow-y: auto; height: 350px; width: 450px;">
+                    <div id="messageRoot"></div>
                 </div>
             </div>
         </div>
