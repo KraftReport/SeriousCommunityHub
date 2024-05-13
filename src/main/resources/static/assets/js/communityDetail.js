@@ -1,101 +1,23 @@
- window.onload = async function(){
-
- }
- const displayNoPostMessage = () => {
-    let footerDiv = document.querySelector('.copyright');
-    footerDiv.innerHTML = '';
-    const divEl = document.createElement('div');
-        divEl.style.fontSize = '20px';
-        divEl.innerHTML = 'No posts available';
-        footerDiv.appendChild(divEl);
-
+window.onload = async function(){
+    console.log('wow wow here')
+    
+    await startUp()
+    await getPosts()
 }
+const fetchSizes = async (id) => {
+    const reactSize = await fetch(`/like-size/${id}`);
+    const reactCount = await reactSize.json();
+    return reactCount;
+};
 
- 
- 
 
 
-window.onload = startUp
-window.onload =  getPosts
-
- let communityId = null;
-async function startUp(){
-     communityId = localStorage.getItem('communityIdForDetailPage')
-    let community = await fetch(`/api/community/getCommunity/${communityId}`)
-    let data = await community.json()
-    console.log(data)
-    document.getElementById('communityImage').src = data.image
-    document.getElementById('communityName').textContent = data.name
-    document.getElementById('communityMembers').textContent = 10
+const fetchPostById = async (id) => {
+    const postData = await fetch(`/post/fetch-post/${id}`);
+    const postRes = await postData.json();
+    return postRes;
 }
-
-let currentPageForPost = '0';
-let isFetchingForPost = false;
-let hasMoreForPost = true;
-
-let currentPageForEvent = '0'
-let isFetchingForEvent = false
-let hasMoreForEvent = true
-
-let currentPageForPoll = '0'
-let isFetchingForPoll = false;
-let hasMoreForPoll = true;
-
-let scrollPost = true
-let scrollEvent = false
-let scrollPoll = false
-
-let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('click',function(){
-    scrollPost = true
-    scrollEvent = false
-    scrollPoll = false
-    document.getElementById('newsfeed').innerHTML = ''
-})
-
-let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
-    scrollPost = false
-    scrollEvent = true
-    scrollPoll = false 
-    document.getElementById('events').innerHTML = ''
-})
-
-let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
-    scrollPost = false
-    scrollEvent = false
-    scrollPoll = true 
-    document.getElementById('polls').innerHTML = '' 
-})
-
-window.addEventListener('scroll', async () => {
-    if(isFetchingForPost || !hasMoreForPost){
-        return;
-    }
-
-    if(isFetchingForEvent || !hasMoreForEvent){
-        return;
-    }
-
-    if(isFetchingForPoll || !hasMoreForPoll){
-        return;
-    }
-
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollPost === true){
-        await videoObserver()
-        console.log('here here here')
-        currentPageForPost++;
-         await getPosts();
-         await videoObserver()
-    }
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollEvent === true){
-        currentPageForEvent++;
-         await getEvents();
-    }
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollPoll === true){
-        currentPageForPoll++;
-         await getPolls();
-    }
-});
-
+  
 
 
  
@@ -122,11 +44,7 @@ const fetchCommetedUser = async (id) => {
     return commentUserData;
 }
 
-const fetchSizes = async (id) => {
-    const reactSize = await fetch(`/like-size/${id}`);
-    const reactCount = await reactSize.json();
-    return reactCount;
-};
+
 
 const fetchReactType = async (id) => {
     const reactType = await fetch(`/like-type/${id}`);
@@ -377,6 +295,12 @@ function removePreview() {
 }
 
 
+const removeCat = async () =>{
+    cat.classList.add('hidden')
+    mark.classList.remove('hidden')
+   }
+
+
 async function getUpdateData() {
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#resourceId')
@@ -388,7 +312,7 @@ async function getUpdateData() {
         const url = document.getElementById(`${v.value}-url`)
         let resourceUrl = url.src
         console.log(resourceUrl)
-        if (resourceUrl == 'http://localhost:8080/null' || resourceUrl == 'http://localhost:8080/deleted') {
+        if (resourceUrl == 'http://localhost:8080/null' || resourceUrl == 'http://localhost:8080/deleted'  || resourceUrl === 'http://localhost:8080/api/community/deleted') {
             let dto = {
                 resourceId: v.value,
                 postCaption: 'deleted',
@@ -436,11 +360,377 @@ async function getUpdateData() {
     })
     let secondResult = await secondResponse.json()
     console.log(secondResult)
+    if(secondResult){
+        await removeCat()
+    }
     if (secondResult) {
-        while (newsfeed.firstChild) {
-            newsfeed.removeChild(newsfeed.firstChild)
+        await removeCat()
+        // while (newsfeed.firstChild) {
+        //     newsfeed.removeChild(newsfeed.firstChild)
+        // }
+        const p = await fetchPostById(Object.fromEntries(data.entries()).postId);
+        const ParentDetailModal = document.getElementById('detail-modal-'+p.id)
+        const childModalBox  = document.getElementById('newsfeedPost'+p.id)
+        console.log('8888888888888888888888888888888888888'+p)
+            const contentSection = document.getElementById(`post-update-section-${p.id}`);
+                const postId = p.id;
+                console.log("Want to know",postId);
+                const postContent = document.querySelector(`.post-content-${postId}`);
+                if (postContent && childModalBox) {
+                    console.log('Remove Successfully')
+                    postContent.remove();
+                    childModalBox.remove()
+                }
+                // const divContent = document.createElement('div');
+                // divContent.classList.add(`post-content-${postId}`);
+                // divContent.setAttribute('data-bs-toggle', 'modal');
+                // divContent.setAttribute('data-bs-target', `#newsfeedPost${postId}`);
+                // console.log('post added ');
+                let post = '';
+                post+= `<div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+            ${p.description.replace(/\n/g, '<br>')}
+            `
+                let oneTag = null
+                let oneCloseTag = null
+                let twoTag = null
+                let twoCloseTag = null
+                let threeTag = null
+                let threeCloseTag = null
+                let fourTag = null
+                let fourCloseTag = null
+                let fiveTag = null
+                let fiveCloseTag = null
+                let oneControlAttr = null
+                let twoControlAttr = null
+                let threeControlAttr = null
+                let fourControlAttr = null
+                let fiveControlAttr = null
+                let one = null
+                let two = null
+                let three = null
+                let four = null
+                let five = null
+                let six = null
+
+                if(p.resources.length === 1){
+                    p.resources.forEach((r, index) => {
+                        if(index === 0 && r.photo !== null){
+                            console.log('two')
+                            one = r.photo
+                            oneTag = 'img'
+                            oneCloseTag = ''
+                            oneControlAttr = ''
+                        }else if(index === 0 && r.video !== null){
+                            one = r.video
+                            oneTag = 'video'
+                            oneCloseTag = '</video>'
+                            oneControlAttr = 'controls'
+                        }
+                        if (one !== null  ) {
+                            post+= `
+            <div class="d-flex" >
+        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+            </div>
+                `
+                        }
+                    })
+                }
+                if(p.resources.length === 2){
+                    p.resources.forEach((r, index) => {
+                        if(index === 0 && r.photo !== null){
+                            console.log('two')
+                            one = r.photo
+                            oneTag = 'img'
+                            oneCloseTag = ''
+                            oneControlAttr = ''
+                        }else if(index === 0 && r.video !== null){
+                            one = r.video
+                            oneTag = 'video'
+                            oneCloseTag = '</video>'
+                            oneControlAttr = 'controls'
+                        }
+                        if(index === 1 && r.photo !== null){
+                            two = r.photo
+                            twoTag = 'img'
+                            twoCloseTag = ''
+                            twoControlAttr = ''
+                        }else if(index === 1 && r.video !== null){
+                            two = r.video
+                            twoTag = 'video'
+                            twoCloseTag = '</video>'
+                            twoControlAttr = 'controls'
+                        }
+                        if (one !== null && two !== null  ) {
+                            post+= `
+            <div class="d-flex" >
+        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
+        <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
+            </div> `
+    }
+})
+}
+if(p.resources.length === 3){
+    p.resources.forEach((r, index) => {
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
         }
-        await welcome()
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if (one !== null && two !== null && three !== null  ) {
+            post+= `
+  <div class="d-flex" >
+  <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+  <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+  </div>
+  <div class="d-flex">
+  <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag}
+  </div>`
+        }
+    })
+}
+if(p.resources.length === 4){
+    p.resources.forEach((r, index) => {
+        console.log(r)
+
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if(index === 3 && r.photo !== null){
+            four = r.photo
+            fourTag = 'img'
+            fourCloseTag = ''
+            fourControlAttr = ''
+        }else if(index === 3 && r.video !== null){
+            four = r.video
+            fourTag = 'video'
+            fourCloseTag = '</video>'
+            fourControlAttr = 'controls'
+        }
+
+
+        if (one !== null && two !== null && three !== null && four !== null) {
+            post+= `
+      <div class="d-flex" >
+      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+      </div>
+      <div class="d-flex">
+      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+      </div>`
+        }
+    })
+
+}
+
+if(p.resources.length > 4 ){
+    let text = p.resources.length -4
+    console.log(text)
+    p.resources.forEach((r, index) => {
+        if(index === 0 && r.photo !== null){
+            console.log('two')
+            one = r.photo
+            oneTag = 'img'
+            oneCloseTag = ''
+            oneControlAttr = ''
+        }else if(index === 0 && r.video !== null){
+            one = r.video
+            oneTag = 'video'
+            oneCloseTag = '</video>'
+            oneControlAttr = 'controls'
+        }
+        if(index === 1 && r.photo !== null){
+            two = r.photo
+            twoTag = 'img'
+            twoCloseTag = ''
+            twoControlAttr = ''
+        }else if(index === 1 && r.video !== null){
+            two = r.video
+            twoTag = 'video'
+            twoCloseTag = '</video>'
+            twoControlAttr = 'controls'
+        }
+        if(index === 2 && r.photo !== null){
+            three = r.photo
+            threeTag = 'img'
+            threeCloseTag = ''
+            threeControlAttr = ''
+        }else if(index === 2 && r.video !== null){
+            three = r.video
+            threeTag = 'video'
+            threeCloseTag = '</video>'
+            threeControlAttr = 'controls'
+        }
+        if(index === 3 && r.photo !== null){
+            four = r.photo
+            fourTag = 'img'
+            fourCloseTag = ''
+            fourControlAttr = ''
+        }else if(index === 3 && r.video !== null){
+            four = r.video
+            fourTag = 'video'
+            fourCloseTag = '</video>'
+            fourControlAttr = 'controls'
+        }
+        if(index === 4 && r.photo !== null){
+            five = r.photo
+            fiveTag = 'img'
+            fiveCloseTag = ''
+            fiveControlAttr = ''
+        }else if(index === 4 && r.video !== null){
+            five = r.video
+            fiveTag = 'video'
+            fiveCloseTag = '</video>'
+            fiveControlAttr = 'controls'
+        }
+
+        if(index === 5 ){
+            six = 'hello'
+        }
+
+        if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
+
+            post+= `
+      <div class="d-flex" >
+      <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+      <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+      </div>
+      <div class="d-flex">
+      <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+      <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
+      <div style="position: relative; display: inline-block;">
+      <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
+      </div>
+      </div>`
+        }
+
+    })
+
+}
+post += `
+      </div>`
+      let mod = ''
+    
+mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg"  >
+    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
+      <div class="modal-body p-0">
+        <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">`
+
+                p.resources.forEach((r, index) => {
+                    let active = index == 0 ? 'active' : ''
+                    if (r.photo === null && r.video !== null) {
+                        mod += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
+              <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+              </div> `
+                    } else if (r.video === null && r.photo !== null) {
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+              <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+            </div>`
+                    } else {
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+              <div class="carousel-caption d-none d-md-block"> 
+              <p>${r.description.replace(/\n/g, '<br>')}</p>
+            </div>
+            </div>`
+                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+            <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
+            <div class="carousel-caption d-none d-md-block"> 
+            <p>${r.description.replace(/\n/g, '<br>')}</p>
+          </div>
+          </div>
+           `
+                    }
+                })
+                mod+=`
+             
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div> 
+    </div>
+  </div>
+  </div>
+  </div>
+  `
+
+  ParentDetailModal.innerHTML = mod
+  contentSection.innerHTML = post
         // postCount = 0
     }
 }
@@ -450,6 +740,16 @@ function deleteResource(id) {
     document.getElementById(id + '-caption').value = ''
     console.log('removed')
     console.log(document.getElementById(id + '-url').src)
+}
+
+const displayNoPostMessage = () => {
+    let footerDiv = document.querySelector('.copyright');
+    footerDiv.innerHTML = '';
+    const divEl = document.createElement('div');
+        divEl.style.fontSize = '20px';
+        divEl.innerHTML = 'No posts available';
+        footerDiv.appendChild(divEl);
+
 }
 
 window.addEventListener('load', async function () {
@@ -630,18 +930,21 @@ async function createPollPost() {
 //     }
 //
 // }
-
 async function deletePost(id) {
+    loadingModalBox.show()
     let data = await fetch('/post/deletePost/' + id, {
         method: 'GET'
     })
     let response = await data.json()
     console.log(response)
-    while (newsfeed.firstChild) {
-        newsfeed.removeChild(newsfeed.firstChild)
+    if(response){
+        await removeCat()
+        const postList = document.getElementById(`post-delete-section-${id}`);
+        if(postList){
+            postList.remove();
+        }
     }
-   await  welcome()
-    // postCount = 0
+
 }
 
 async function createEventPost() {
@@ -2353,6 +2656,7 @@ async function restorePollPhoto(id){
 }
 
 async function getEventUpdateData(){
+    loadingModalBox.show()
     let eventId = document.getElementById('updateEventId').value
     let eventTitle = document.getElementById('updateEventTitle').value
     let updateEventDescription = document.getElementById('updateEventDescription').value
@@ -2435,17 +2739,75 @@ async function getEventUpdateData(){
         method : 'POST',
         body : formData
     })
-    let res = await send.json()
-    console.log(res)
+    let r = await send.json()
+  if(r){
+    await removeCat()
+      const eventContent = document.getElementById(`event-update-section-${r.id}`);
+      const eventPostContent = document.querySelector(`.post-content-${r.id}`);
+      if(eventPostContent){
+        console.log('removed successfully')
+          eventPostContent.remove();
+      }
+      eventContent.innerHTML = `<div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
+                        <div class="card" style="width: 30rem;  margin-left:12px ;">
+                            <div class="card-body">
+                                <h5 class="card-title">${r.title}</h5>
+                                <div class="d-flex align-items-start">
+                                    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
+                                        <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
+                                        <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
+                                        <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button>
+                                    </div>
+                                    <div class="tab-content" id="v-${r.id}-tabContent">
+                                        <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
+                                            <div class="text-center lh-sm font-monospace">
+                                                ${r.description}
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-location" role="tabpanel" aria-labelledby="v-${r.id}-location-tab">
+                                            <div class="text-center fs-5 fw-bold fst-italic font-monospace ml-3">
+                                                <div class="ml-5  mt-5 text-danger">${r.location}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="v-${r.id}-date" role="tabpanel" aria-labelledby="v-${r.id}-date-tab">
+                                            <div class="text-center fs-6 fw-bold mt-3  pl-2 font-monospace">
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> START </div> <i class="fa-solid fa-play text-danger mx-1"></i></br></div><div class="fst-italic"> ${formattedStartDate}</div></br>
+                                                <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+  }
 }
 
+
+
+
 async function deleteEvent(id){
+    loadingModalBox.show()
     let data = await fetch('/event/deleteAEvent/'+id,{
         method : 'DELETE'
     })
     let result = data.json()
     console.log(result)
+    if(result){
+        await removeCat()
+        const eventDiv = document.getElementById(`delete-event-section-${id}`);
+        if(eventDiv){
+            eventDiv.remove();
+        }
+        const pollDiv = document.getElementById(`pollPostDiv-${id}`);
+        if(pollDiv){
+            pollDiv.remove();
+        }
+    }
 }
+
 
 
 async function createAVoteOption(){
@@ -2568,202 +2930,202 @@ async function timeAgo(createdDate) {
     }
   }
 
-async function getAllPollPost(){
-    isFetchingForPoll = true
-    let polls = document.getElementById('polls');
-    let pollTab = document.getElementById('polls')
+// async function getAllPollPost(){
+//     isFetchingForPoll = true
+//     let polls = document.getElementById('polls');
+//     let pollTab = document.getElementById('polls')
 
-    let data = await fetch(`/event/getPollsForNewsfeed/${currentPageForPoll}`,{
-        method : 'GET'
-    })
-    let response = await data.json()
-    isFetchingForPoll = false
-    if(response.length===0){
-        hasMoreForPoll = false
-        displayNoPostMessage()
-    }else{
-    console.log(response)
-    let rows = ''
-    for (let r of response) {
-        let expired = ''
-        if(new Date()>new Date(r.end_date)){
-            expired=`
+//     let data = await fetch(`/event/getPollsForNewsfeed/${currentPageForPoll}`,{
+//         method : 'GET'
+//     })
+//     let response = await data.json()
+//     isFetchingForPoll = false
+//     if(response.length===0){
+//         hasMoreForPoll = false
+//         displayNoPostMessage()
+//     }else{
+//     console.log(response)
+//     let rows = ''
+//     for (let r of response) {
+//         let expired = ''
+//         if(new Date()>new Date(r.end_date)){
+//             expired=`
             
-<div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 55px; left:120px;  z-index: 1;" role="alert">
-<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
-<div>
-<i class="fa-solid fa-triangle-exclamation"></i>
-POLL IS EXPIRED
-</div>
-</div>
+// <div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 55px; left:120px;  z-index: 1;" role="alert">
+// <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+// <div>
+// <i class="fa-solid fa-triangle-exclamation"></i>
+// POLL IS EXPIRED
+// </div>
+// </div>
             
-            `
-        }
-        let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
-        let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
-        let row = ''
-        let created = new Date(r.created_date)
-        let now = new Date()
-        let createdTime = await timeAgo(new Date(r.created_date))
+//             `
+//         }
+//         let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
+//         let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
+//         let row = ''
+//         let created = new Date(r.created_date)
+//         let now = new Date()
+//         let createdTime = await timeAgo(new Date(r.created_date))
         
-        row += `
-        <div class="post" id="pollPostDiv-${r.id}">
-        <div class="post-top">
-            <div class="dp">
-                <img src="${r.user.photo}" alt="">
-            </div>
-            <div class="post-info">
-                <p class="name">${r.user.name}</p>
-                <span class="time">${createdTime}</span>
-            </div>
-                        <div class="dropdown offset-8">
-      <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-h "></i>
-            </a>
+//         row += `
+//         <div class="post" id="pollPostDiv-${r.id}">
+//         <div class="post-top">
+//             <div class="dp">
+//                 <img src="${r.user.photo}" alt="">
+//             </div>
+//             <div class="post-info">
+//                 <p class="name">${r.user.name}</p>
+//                 <span class="time">${createdTime}</span>
+//             </div>
+//                         <div class="dropdown offset-8">
+//       <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+//             <i class="fas fa-ellipsis-h "></i>
+//             </a>
     
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
-        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
-      </ul>
-    </div>
-        </div> 
-        <nav>
-        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-          <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
-          <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
-        </div>
-      </nav>
-        <div class=" post-content" data-bs-toggle="modal"  > 
+//       <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+//         <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
+//         <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
+//       </ul>
+//     </div>
+//         </div> 
+//         <nav>
+//         <div class="nav nav-tabs" id="nav-tab" role="tablist">
+//           <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
+//           <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
+//         </div>
+//       </nav>
+//         <div class=" post-content" data-bs-toggle="modal"  > 
 
 
-        <div class="card mb-3" style="max-width: 540px;">
-        <div class="row g-0">
-          <div class="col-md-4">
-            ${expired}
-            <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
-            <div class="tab-content" id="nav-tabContent">
-  <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
+//         <div class="card mb-3" style="max-width: 540px;">
+//         <div class="row g-0">
+//           <div class="col-md-4">
+//             ${expired}
+//             <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
+//           </div>
+//           <div class="col-md-8">
+//             <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+//             <div class="tab-content" id="nav-tabContent">
+//   <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
   
-  <h5 class="card-title align-middle font-monospace">${r.title}</h5>
-  <p class="card-text font-monospace">${r.description}</p>
+//   <h5 class="card-title align-middle font-monospace">${r.title}</h5>
+//   <p class="card-text font-monospace">${r.description}</p>
   
-  </div>
-  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+//   </div>
+//   <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
 
             
-            `
-        let totalVotes = 0;
-        for (let v of r.voteOptions) {
-            let count = await getCount(v.id);
-            totalVotes += count;
-        }
-        for (let v of r.voteOptions) {
-            let count = await getCount(v.id);
-            let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
-            row += `
-        <div class="vote-option d-flex mt-1">
-        <div class="d-block">
-        <div class="font-monospace ">${v.type}</div>
-                <div class="d-flex">
-                <div class="progress" style="height: 16px; width: 170px;">
+//             `
+//         let totalVotes = 0;
+//         for (let v of r.voteOptions) {
+//             let count = await getCount(v.id);
+//             totalVotes += count;
+//         }
+//         for (let v of r.voteOptions) {
+//             let count = await getCount(v.id);
+//             let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
+//             row += `
+//         <div class="vote-option d-flex mt-1">
+//         <div class="d-block">
+//         <div class="font-monospace ">${v.type}</div>
+//                 <div class="d-flex">
+//                 <div class="progress" style="height: 16px; width: 170px;">
                 
-                    <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
-                </div>`
-                if(new Date()<new Date(r.end_date)){
-            row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
-                }
-            let yes = await checkVotedMark(v.id)
-            let markIcon = 'hidden'
-            if(yes === true){
-                markIcon = ''
-            }
-            console.log(yes)
+//                     <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
+//                 </div>`
+//                 if(new Date()<new Date(r.end_date)){
+//             row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
+//                 }
+//             let yes = await checkVotedMark(v.id)
+//             let markIcon = 'hidden'
+//             if(yes === true){
+//                 markIcon = ''
+//             }
+//             console.log(yes)
 
 
-            row += `<div id="mark-id-${v.id}" class="${markIcon}"><i class="fa-regular fa-circle-check"></i></div>
-                </div>
-                </div>
-                 `
+//             row += `<div id="mark-id-${v.id}" class="${markIcon}"><i class="fa-regular fa-circle-check"></i></div>
+//                 </div>
+//                 </div>
+//                  `
 
 
 
-            row+=`</div>`
+//             row+=`</div>`
 
-        }
-        if(new Date()<new Date(r.end_date)){
-        row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
-        }
-        row+=`</div> 
-    </div>
-          </div>
-    </div>
-  </div>
-</div>
+//         }
+//         if(new Date()<new Date(r.end_date)){
+//         row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
+//         }
+//         row+=`</div> 
+//     </div>
+//           </div>
+//     </div>
+//   </div>
+// </div>
          
-        <div class="post-bottom">
-            <div class="action" style="height: 50px">
-    <div class="button_wrapper">
-          <div class="all_likes_wrapper">
-              <div data-title="LIKE">
-                  <img src="/static/assets/img/like.png" alt="Like" />
-              </div>
-              <div data-title="LOVE">
-                  <img src="/static/assets/img/love.png" alt="Love" />
-              </div>
-              <div data-title="CARE">
-                  <img src="/static/assets/img/care.png" alt="Care" />
-              </div>
-              <div data-title="HAHA">
-                  <img src="/static/assets/img/haha.png" alt="Haha" />
-              </div>
-              <div data-title="WOW">
-                  <img src="/static/assets/img/wow.png" alt="Wow" />
-              </div>
-              <div data-title="SAD">
-                  <img src="/static/assets/img/sad.png" alt="Sad" />
-              </div>
-              <div data-title="ANGRY">
-                  <img src="/static/assets/img/angry.png" alt="Angry" />
-              </div>
-          </div>
-          <button class="like_button" id=" "> 
-          </button>
-      </div>
-            </div>
-            <div class="action">
-                <i class="fa-regular fa-comment"></i>
-                <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
-            </div>
-            <div class="action">
-                <i class="fa fa-share"></i>
-                <span>Share</span>
-            </div>
-        </div>
-    </div>
-    </div>
-        `
-        rows+=row
+//         <div class="post-bottom">
+//             <div class="action" style="height: 50px">
+//     <div class="button_wrapper">
+//           <div class="all_likes_wrapper">
+//               <div data-title="LIKE">
+//                   <img src="/static/assets/img/like.png" alt="Like" />
+//               </div>
+//               <div data-title="LOVE">
+//                   <img src="/static/assets/img/love.png" alt="Love" />
+//               </div>
+//               <div data-title="CARE">
+//                   <img src="/static/assets/img/care.png" alt="Care" />
+//               </div>
+//               <div data-title="HAHA">
+//                   <img src="/static/assets/img/haha.png" alt="Haha" />
+//               </div>
+//               <div data-title="WOW">
+//                   <img src="/static/assets/img/wow.png" alt="Wow" />
+//               </div>
+//               <div data-title="SAD">
+//                   <img src="/static/assets/img/sad.png" alt="Sad" />
+//               </div>
+//               <div data-title="ANGRY">
+//                   <img src="/static/assets/img/angry.png" alt="Angry" />
+//               </div>
+//           </div>
+//           <button class="like_button" id=" "> 
+//           </button>
+//       </div>
+//             </div>
+//             <div class="action">
+//                 <i class="fa-regular fa-comment"></i>
+//                 <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
+//             </div>
+//             <div class="action">
+//                 <i class="fa fa-share"></i>
+//                 <span>Share</span>
+//             </div>
+//         </div>
+//     </div>
+//     </div>
+//         `
+//         rows+=row
 
 
 
-    }
-    let range = document.createRange();
-    let fragment = range.createContextualFragment(rows);
-    while (polls.children.length > 0) {
-        polls.children[0].remove();
-    }
-    pollTab.appendChild(fragment)
-    if(fragment){
-        for(let r of response){
-            await updateVotePercentage(r.voteOptions)
-        }
-    }
-}
+//     }
+//     let range = document.createRange();
+//     let fragment = range.createContextualFragment(rows);
+//     while (polls.children.length > 0) {
+//         polls.children[0].remove();
+//     }
+//     pollTab.appendChild(fragment)
+//     if(fragment){
+//         for(let r of response){
+//             await updateVotePercentage(r.voteOptions)
+//         }
+//     }
+// }
 
-}
+// }
 
 
 async function checkVotedMark(voteOptionId){
@@ -2776,6 +3138,7 @@ async function checkVotedMark(voteOptionId){
 }
 
 async function updateVotePercentage(vo){
+    console.log('vote here here')
     let totalVotes = 0;
     for (let v of vo) {
         let count = await getCount(v.id);
@@ -2808,6 +3171,7 @@ async function voteVoteOption(voteOptionId,eventId){
             method : 'GET'
         })
         let response = await data.json()
+        console.log(response)
         response.forEach(r=>{
             updateVotePercentage(r.voteOptions)
             document.querySelectorAll('#vote-btn-'+eventId).forEach(element => {
@@ -3034,8 +3398,108 @@ async function getPollEventUpdateData(){
         method : 'POST',
         body : formData
     })
-    let res = await send.json()
-    console.log(res)
+    let r = await send.json()
+    console.log(r)
+    if(r){
+        let mainContent = document.getElementById('poll-post-update-'+r.id)
+        console.log(mainContent)
+        let pollContent = document.getElementById('poll-post-update-content-'+r.id);
+        if(pollContent){
+            console.log('poll is deleted successfully')
+            pollContent.remove()
+        }
+        let row = ''
+        let hidden = await checkVoted(r.id) === false ? '' : 'hidden' 
+        let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
+        let expired = ''
+        if(new Date()>new Date(r.end_date)){
+            expired=`
+
+<div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 55px; left:120px;  z-index: 1;" role="alert">
+<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+<div>
+<i class="fa-solid fa-triangle-exclamation"></i>
+POLL IS EXPIRED
+</div>
+</div>
+
+            `
+        }
+        row +=  `  
+        <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
+        <div class="row g-0">
+          <div class="col-md-4">
+            ${expired}
+            <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+            <div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
+  
+  <h5 class="card-title align-middle font-monospace">${r.title}</h5>
+  <p class="card-text font-monospace">${r.description}</p>
+  
+  </div>
+  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+
+            
+            `
+        let totalVotes = 0;
+        for (let v of r.voteOptions) {
+            let count = await getCount(v.id);
+            totalVotes += count;
+        }
+        for (let v of r.voteOptions) {
+            let count = await getCount(v.id);
+            let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
+            row += `
+        <div class="vote-option d-flex mt-1">
+        <div class="d-block">
+        <div class="font-monospace ">${v.type}</div>
+                <div class="d-flex">
+                <div class="progress" style="height: 16px; width: 170px;">
+                
+                    <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
+                </div>`
+                if(new Date()<new Date(r.end_date)){
+            row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
+                }
+            let yes = await checkVotedMark(v.id)
+            let markIcon = 'hidden'
+            if(yes === true){
+                markIcon = ''
+            }
+            console.log(yes)
+
+
+            row += ` <div id="mark-id-${v.id}" class="${markIcon}"> <i class="fa-regular fa-circle-check"></i> </div>
+                </div>
+                </div>
+                 `
+
+
+
+            row+=`</div>`
+
+        }
+        if(new Date()<new Date(r.end_date)){
+        row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
+        }
+        row+=`</div> 
+    </div>
+          </div>
+    </div>
+  </div>
+</div>
+         
+ 
+    ` 
+    console.log("---------row"+row)
+    mainContent.innerHTML = row
+    
+    await removeCat()
+    }
 }
 
 async function checkPostOwnerOrAdmin(id){
@@ -3046,10 +3510,179 @@ async function checkPostOwnerOrAdmin(id){
 }
 
 
+
+
+
+ const pressedLikeForEvent = async (id, type) => {
+     console.log('PostId', id);
+     const myObj = {
+         postId: id,
+         sender: loginUser,
+         content: ` reacted to your announcement!`,
+         type: type
+     };
+     stompClient.send('/app/react-event-message', {}, JSON.stringify(myObj));
+ };
+
+ const fetchReactCountForEvent =async (id) => {
+     const sizeData = await fetch(`/event-react-type/${id}`);
+     const eventReactCount = await sizeData.json();
+     return eventReactCount;
+ }
+
+ const fetchReactTypeForEvent = async (id) => {
+     const dataType = await fetch(`/event-user-react-type/${id}`);
+     const eventReactType = await dataType.json();
+     return eventReactType;
+ }
+
+ const removeReactionForEvent = async (id) => {
+     const cancelType = await fetch(`/remove-like-eventReact-type/${id}`);
+     if (!cancelType.ok) {
+         alert('something wrong');
+     }
+     console.log('hehhe')
+ };
+
+
+videoObserver()
+
+async function videoObserver(){
+    console.log('observing------->')
+    const videos = document.querySelectorAll('#myVideo');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.play();
+        } else {
+          entry.target.pause();
+        }
+      });
+    });
+    
+    videos.forEach(video => {
+        console.log('ha ha ha ha  =====----=-=-=-=-')
+      observer.observe(video);
+    });
+}
+
+document.body.addEventListener('hidden.bs.modal', async function (event) {
+    await videoObserver()
+  });
+
+
+  let currentPageForPost = '0';
+  let  isFetchingForPost = false;
+  let  hasMoreForPost = true;
+   
+  let  currentPageForEvent = '0'
+  let  isFetchingForEvent = false
+  let hasMoreForEvent = true
+   
+  let  currentPageForPoll = '0'
+  let  isFetchingForPoll = false;
+  let  hasMoreForPoll = true;
+   
+  let  scrollPost = true
+  let scrollEvent = false
+  let  scrollPoll = false 
+
+
+
+let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
+// let currentPageForPost = '0';
+// let isFetchingForPost = false;
+// let hasMoreForPost = true;
+
+// let currentPageForEvent = '0'
+// let isFetchingForEvent = false
+// let hasMoreForEvent = true
+
+// let currentPageForPoll = '0'
+// let isFetchingForPoll = false;
+// let hasMoreForPoll = true;
+
+// let scrollPost = true
+// let scrollEvent = false
+// let scrollPoll = false
+
+
+
+
+
+
+let communityId = localStorage.getItem('communityIdForDetailPage');
+
+
+
+
+let postTabIndex = document.getElementById('newsfeed-tab').addEventListener('click',function(){
+   scrollPost = true
+   scrollEvent = false
+   scrollPoll = false
+   document.getElementById('newsfeed').innerHTML = ''
+   currentPageForPost =0
+
+})
+
+let eventTabIndex = document.getElementById('events-tab').addEventListener('click',function(){
+   scrollPost = false
+   scrollEvent = true
+   scrollPoll = false 
+   currentPageForEvent = 0
+   document.getElementById('events').innerHTML = ''
+   currentPageForPost =0
+})
+
+let pollTabIndex = document.getElementById('polls-tab').addEventListener('click',function(){
+   scrollPost = false
+   scrollEvent = false
+   scrollPoll = true 
+   currentPageForPoll = 0
+   document.getElementById('polls').innerHTML = '' 
+   currentPageForPost =0
+})
+
+window.addEventListener('scroll', async () => {
+   if(isFetchingForPost || !hasMoreForPost){
+       return;
+   }
+
+   if(isFetchingForEvent || !hasMoreForEvent){
+       return;
+   }
+
+   if(isFetchingForPoll || !hasMoreForPoll){
+       return;
+   }
+
+   if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollPost === true){
+       await videoObserver()
+       console.log('here here here')
+       currentPageForPost++;
+        await getPosts();
+        await videoObserver()
+   }
+   if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollEvent === true){
+       currentPageForEvent++;
+        await getEvents();
+   }
+   if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && scrollPoll === true){
+       currentPageForPoll++;
+        await getPolls();
+   }
+});
+
+
+
+
+
+
 async function getPosts(){
     isFetchingForPost = true
     let communityId = localStorage.getItem('communityIdForDetailPage')
-    let data = await fetch(`/api/community/getPostsForCommunityDetailPage/${currentPageForPost}`)
+    let data = await fetch(`/api/community/getPostsForCommunityDetailPage/${communityId}/${currentPageForPost}`)
     let response = await data.json()
     isFetchingForPost = false
     console.log(response)
@@ -3101,7 +3734,7 @@ async function getPosts(){
                 let post = '';
                 post += `
 
-      <div class="post">
+    <div class="post" id="post-delete-section-${p.id}">
       <div class="post-top">
           <div class="dp">
               <img src="${p.user.photo}" alt="">
@@ -3128,390 +3761,389 @@ async function getPosts(){
           </div>`
           }
                      
-      post+=`</div>
-<div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
-      ${p.description.replace(/\n/g, '<br>')}
-      `
-                let oneTag = null
-                let oneCloseTag = null
-                let twoTag = null
-                let twoCloseTag = null
-                let threeTag = null
-                let threeCloseTag = null
-                let fourTag = null
-                let fourCloseTag = null
-                let fiveTag = null
-                let fiveCloseTag = null
-                let oneControlAttr = null
-                let twoControlAttr = null
-                let threeControlAttr = null
-                let fourControlAttr = null
-                let fiveControlAttr = null
-                let one = null
-                let two = null
-                let three = null
-                let four = null
-                let five = null
-                let six = null
-
-                if(p.resources.length === 1){
-                    p.resources.forEach((r, index) => {
-                        if(index === 0 && r.photo !== null){
-                            console.log('two')
-                            one = r.photo
-                            oneTag = 'img'
-                            oneCloseTag = ''
-                            oneControlAttr = ''
-                        }else if(index === 0 && r.video !== null){
-                            one = r.video
-                            oneTag = 'video'
-                            oneCloseTag = '</video>'
-                            oneControlAttr = 'controls'
-                        }
-                        if (one !== null  ) {
-                            post+= `
-  <div class="d-flex" > 
-  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
-  </div>
-  `
-                        }
-                    })
-                }
-                if(p.resources.length === 2){
-                    p.resources.forEach((r, index) => {
-                        if(index === 0 && r.photo !== null){
-                            console.log('two')
-                            one = r.photo
-                            oneTag = 'img'
-                            oneCloseTag = ''
-                            oneControlAttr = ''
-                        }else if(index === 0 && r.video !== null){
-                            one = r.video
-                            oneTag = 'video'
-                            oneCloseTag = '</video>'
-                            oneControlAttr = 'controls'
-                        }
-                        if(index === 1 && r.photo !== null){
-                            two = r.photo
-                            twoTag = 'img'
-                            twoCloseTag = ''
-                            twoControlAttr = ''
-                        }else if(index === 1 && r.video !== null){
-                            two = r.video
-                            twoTag = 'video'
-                            twoCloseTag = '</video>'
-                            twoControlAttr = 'controls'
-                        }
-                        if (one !== null && two !== null  ) {
-                            post+= `
-  <div class="d-flex" > 
-  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
-  </div> `
-                        }
-                    })
-                }
-                if(p.resources.length === 3){
-                    p.resources.forEach((r, index) => {
-                        if(index === 0 && r.photo !== null){
-                            console.log('two')
-                            one = r.photo
-                            oneTag = 'img'
-                            oneCloseTag = ''
-                            oneControlAttr = ''
-                        }else if(index === 0 && r.video !== null){
-                            one = r.video
-                            oneTag = 'video'
-                            oneCloseTag = '</video>'
-                            oneControlAttr = 'controls'
-                        }
-                        if(index === 1 && r.photo !== null){
-                            two = r.photo
-                            twoTag = 'img'
-                            twoCloseTag = ''
-                            twoControlAttr = ''
-                        }else if(index === 1 && r.video !== null){
-                            two = r.video
-                            twoTag = 'video'
-                            twoCloseTag = '</video>'
-                            twoControlAttr = 'controls'
-                        }
-                        if(index === 2 && r.photo !== null){
-                            three = r.photo
-                            threeTag = 'img'
-                            threeCloseTag = ''
-                            threeControlAttr = ''
-                        }else if(index === 2 && r.video !== null){
-                            three = r.video
-                            threeTag = 'video'
-                            threeCloseTag = '</video>'
-                            threeControlAttr = 'controls'
-                        }
-                        if (one !== null && two !== null && three !== null  ) {
-                            post+= `
-  <div class="d-flex" > 
-  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-  </div>
-  <div class="d-flex"> 
-  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
-  </div>`
-                        }
-                    })
-                }
-                if(p.resources.length === 4){
-                    p.resources.forEach((r, index) => {
-                        console.log(r)
-
-                        if(index === 0 && r.photo !== null){
-                            console.log('two')
-                            one = r.photo
-                            oneTag = 'img'
-                            oneCloseTag = ''
-                            oneControlAttr = ''
-                        }else if(index === 0 && r.video !== null){
-                            one = r.video
-                            oneTag = 'video'
-                            oneCloseTag = '</video>'
-                            oneControlAttr = 'controls'
-                        }
-                        if(index === 1 && r.photo !== null){
-                            two = r.photo
-                            twoTag = 'img'
-                            twoCloseTag = ''
-                            twoControlAttr = ''
-                        }else if(index === 1 && r.video !== null){
-                            two = r.video
-                            twoTag = 'video'
-                            twoCloseTag = '</video>'
-                            twoControlAttr = 'controls'
-                        }
-                        if(index === 2 && r.photo !== null){
-                            three = r.photo
-                            threeTag = 'img'
-                            threeCloseTag = ''
-                            threeControlAttr = ''
-                        }else if(index === 2 && r.video !== null){
-                            three = r.video
-                            threeTag = 'video'
-                            threeCloseTag = '</video>'
-                            threeControlAttr = 'controls'
-                        }
-                        if(index === 3 && r.photo !== null){
-                            four = r.photo
-                            fourTag = 'img'
-                            fourCloseTag = ''
-                            fourControlAttr = ''
-                        }else if(index === 3 && r.video !== null){
-                            four = r.video
-                            fourTag = 'video'
-                            fourCloseTag = '</video>'
-                            fourControlAttr = 'controls'
-                        }
-
-
-                        if (one !== null && two !== null && three !== null && four !== null) {
-                            post+= `
-      <div class="d-flex" > 
-      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-      </div>
-      <div class="d-flex"> 
-      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
-      </div>`
-                        }
-                    })
-
-                }
-
-                if(p.resources.length > 4 ){
-                    let text = p.resources.length -4
-                    console.log(text)
-                    p.resources.forEach((r, index) => {
-                        if(index === 0 && r.photo !== null){
-                            console.log('two')
-                            one = r.photo
-                            oneTag = 'img'
-                            oneCloseTag = ''
-                            oneControlAttr = ''
-                        }else if(index === 0 && r.video !== null){
-                            one = r.video
-                            oneTag = 'video'
-                            oneCloseTag = '</video>'
-                            oneControlAttr = 'controls'
-                        }
-                        if(index === 1 && r.photo !== null){
-                            two = r.photo
-                            twoTag = 'img'
-                            twoCloseTag = ''
-                            twoControlAttr = ''
-                        }else if(index === 1 && r.video !== null){
-                            two = r.video
-                            twoTag = 'video'
-                            twoCloseTag = '</video>'
-                            twoControlAttr = 'controls'
-                        }
-                        if(index === 2 && r.photo !== null){
-                            three = r.photo
-                            threeTag = 'img'
-                            threeCloseTag = ''
-                            threeControlAttr = ''
-                        }else if(index === 2 && r.video !== null){
-                            three = r.video
-                            threeTag = 'video'
-                            threeCloseTag = '</video>'
-                            threeControlAttr = 'controls'
-                        }
-                        if(index === 3 && r.photo !== null){
-                            four = r.photo
-                            fourTag = 'img'
-                            fourCloseTag = ''
-                            fourControlAttr = ''
-                        }else if(index === 3 && r.video !== null){
-                            four = r.video
-                            fourTag = 'video'
-                            fourCloseTag = '</video>'
-                            fourControlAttr = 'controls'
-                        }
-                        if(index === 4 && r.photo !== null){
-                            five = r.photo
-                            fiveTag = 'img'
-                            fiveCloseTag = ''
-                            fiveControlAttr = ''
-                        }else if(index === 4 && r.video !== null){
-                            five = r.video
-                            fiveTag = 'video'
-                            fiveCloseTag = '</video>'
-                            fiveControlAttr = 'controls'
-                        }
-
-                        if(index === 5 ){
-                            six = 'hello'
-                        }
-
-                        if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
-
-                            post+= `
-      <div class="d-flex" > 
-      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-      </div>
-      <div class="d-flex"> 
-      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
-      <div style="position: relative; display: inline-block;">
-      <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
-      </div>
-      </div>`
-                        }
-
-                    })
-
-                }
-                post += `
-      </div>
-      <div class="post-bottom">
-          <div class="action" style="height: 50px">
-<div class="button_wrapper">
-        <div class="all_likes_wrapper">
-            <div data-title="LIKE">
-                <img src="/static/assets/img/like.png" alt="Like" />
+         post+=` </div>
+          <div id="post-update-section-${p.id}">
+          <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+                ${p.description.replace(/\n/g, '<br>')}
+                `
+                          let oneTag = null
+                          let oneCloseTag = null
+                          let twoTag = null
+                          let twoCloseTag = null
+                          let threeTag = null
+                          let threeCloseTag = null
+                          let fourTag = null
+                          let fourCloseTag = null
+                          let fiveTag = null
+                          let fiveCloseTag = null
+                          let oneControlAttr = null
+                          let twoControlAttr = null
+                          let threeControlAttr = null
+                          let fourControlAttr = null
+                          let fiveControlAttr = null
+                          let one = null
+                          let two = null
+                          let three = null
+                          let four = null
+                          let five = null
+                          let six = null
+          
+                          if(p.resources.length === 1){
+                              p.resources.forEach((r, index) => {
+                                  if(index === 0 && r.photo !== null){
+                                      console.log('two')
+                                      one = r.photo
+                                      oneTag = 'img'
+                                      oneCloseTag = ''
+                                      oneControlAttr = ''
+                                  }else if(index === 0 && r.video !== null){
+                                      one = r.video
+                                      oneTag = 'video'
+                                      oneCloseTag = '</video>'
+                                      oneControlAttr = 'controls'
+                                  }
+                                  if (one !== null  ) {
+                                      post+= `
+            <div class="d-flex" > 
+            <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
             </div>
-            <div data-title="LOVE">
-                <img src="/static/assets/img/love.png" alt="Love" />
+            `
+                                  }
+                              })
+                          }
+                          if(p.resources.length === 2){
+                              p.resources.forEach((r, index) => {
+                                  if(index === 0 && r.photo !== null){
+                                      console.log('two')
+                                      one = r.photo
+                                      oneTag = 'img'
+                                      oneCloseTag = ''
+                                      oneControlAttr = ''
+                                  }else if(index === 0 && r.video !== null){
+                                      one = r.video
+                                      oneTag = 'video'
+                                      oneCloseTag = '</video>'
+                                      oneControlAttr = 'controls'
+                                  }
+                                  if(index === 1 && r.photo !== null){
+                                      two = r.photo
+                                      twoTag = 'img'
+                                      twoCloseTag = ''
+                                      twoControlAttr = ''
+                                  }else if(index === 1 && r.video !== null){
+                                      two = r.video
+                                      twoTag = 'video'
+                                      twoCloseTag = '</video>'
+                                      twoControlAttr = 'controls'
+                                  }
+                                  if (one !== null && two !== null  ) {
+                                      post+= `
+            <div class="d-flex" > 
+            <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
+            <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
+            </div> `
+                                  }
+                              })
+                          }
+                          if(p.resources.length === 3){
+                              p.resources.forEach((r, index) => {
+                                  if(index === 0 && r.photo !== null){
+                                      console.log('two')
+                                      one = r.photo
+                                      oneTag = 'img'
+                                      oneCloseTag = ''
+                                      oneControlAttr = ''
+                                  }else if(index === 0 && r.video !== null){
+                                      one = r.video
+                                      oneTag = 'video'
+                                      oneCloseTag = '</video>'
+                                      oneControlAttr = 'controls'
+                                  }
+                                  if(index === 1 && r.photo !== null){
+                                      two = r.photo
+                                      twoTag = 'img'
+                                      twoCloseTag = ''
+                                      twoControlAttr = ''
+                                  }else if(index === 1 && r.video !== null){
+                                      two = r.video
+                                      twoTag = 'video'
+                                      twoCloseTag = '</video>'
+                                      twoControlAttr = 'controls'
+                                  }
+                                  if(index === 2 && r.photo !== null){
+                                      three = r.photo
+                                      threeTag = 'img'
+                                      threeCloseTag = ''
+                                      threeControlAttr = ''
+                                  }else if(index === 2 && r.video !== null){
+                                      three = r.video
+                                      threeTag = 'video'
+                                      threeCloseTag = '</video>'
+                                      threeControlAttr = 'controls'
+                                  }
+                                  if (one !== null && two !== null && three !== null  ) {
+                                      post+= `
+            <div class="d-flex" > 
+            <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+            <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
             </div>
-            <div data-title="CARE">
-                <img src="/static/assets/img/care.png" alt="Care" />
-            </div>
-            <div data-title="HAHA">
-                <img src="/static/assets/img/haha.png" alt="Haha" />
-            </div>
-            <div data-title="WOW">
-                <img src="/static/assets/img/wow.png" alt="Wow" />
-            </div>
-            <div data-title="SAD">
-                <img src="/static/assets/img/sad.png" alt="Sad" />
-            </div>
-            <div data-title="ANGRY">
-                <img src="/static/assets/img/angry.png" alt="Angry" />
-            </div>
-        </div>
-        <button class="like_button" id="${p.id}">
-          ${likeButtonContent}
-        </button>
-    </div>
-          </div>
-          <div class="action">
-              <i class="fa-regular fa-comment"></i>
-              <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox-${p.id}">Comment ${commentCountSize}</span>
-          </div>
-          <div class="action">
-              <i class="fa fa-share"></i>
-              <span>Share</span>
-          </div>
-      </div>
-  </div> 
-
-<div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"  >
-    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
-      <div class="modal-body p-0">
-        <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">`
-
-                p.resources.forEach((r, index) => {
-                    let active = index == 0 ? 'active' : ''
-                    if (r.photo === null && r.video !== null) {
-                        post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
-              <video id="myVideo" controls  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
-            </div>
-              </div> `
-                    } else if (r.video === null && r.photo !== null) {
-                        post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <img src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
-            </div>
+            <div class="d-flex"> 
+            <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag}
             </div>`
-                    } else {
-                        post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                  }
+                              })
+                          }
+                          if(p.resources.length === 4){
+                              p.resources.forEach((r, index) => {
+                                  console.log(r)
+          
+                                  if(index === 0 && r.photo !== null){
+                                      console.log('two')
+                                      one = r.photo
+                                      oneTag = 'img'
+                                      oneCloseTag = ''
+                                      oneControlAttr = ''
+                                  }else if(index === 0 && r.video !== null){
+                                      one = r.video
+                                      oneTag = 'video'
+                                      oneCloseTag = '</video>'
+                                      oneControlAttr = 'controls'
+                                  }
+                                  if(index === 1 && r.photo !== null){
+                                      two = r.photo
+                                      twoTag = 'img'
+                                      twoCloseTag = ''
+                                      twoControlAttr = ''
+                                  }else if(index === 1 && r.video !== null){
+                                      two = r.video
+                                      twoTag = 'video'
+                                      twoCloseTag = '</video>'
+                                      twoControlAttr = 'controls'
+                                  }
+                                  if(index === 2 && r.photo !== null){
+                                      three = r.photo
+                                      threeTag = 'img'
+                                      threeCloseTag = ''
+                                      threeControlAttr = ''
+                                  }else if(index === 2 && r.video !== null){
+                                      three = r.video
+                                      threeTag = 'video'
+                                      threeCloseTag = '</video>'
+                                      threeControlAttr = 'controls'
+                                  }
+                                  if(index === 3 && r.photo !== null){
+                                      four = r.photo
+                                      fourTag = 'img'
+                                      fourCloseTag = ''
+                                      fourControlAttr = ''
+                                  }else if(index === 3 && r.video !== null){
+                                      four = r.video
+                                      fourTag = 'video'
+                                      fourCloseTag = '</video>'
+                                      fourControlAttr = 'controls'
+                                  }
+          
+          
+                                  if (one !== null && two !== null && three !== null && four !== null) {
+                                      post+= `
+                <div class="d-flex" > 
+                <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+                <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+                </div>
+                <div class="d-flex"> 
+                <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+                <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+                </div>`
+                                  }
+                              })
+          
+                          }
+          
+                          if(p.resources.length > 4 ){
+                              let text = p.resources.length === 5 ? '' : p.resources.length - 5
+                              console.log(text)
+                              p.resources.forEach((r, index) => {
+                                  if(index === 0 && r.photo !== null){
+                                      console.log('two')
+                                      one = r.photo
+                                      oneTag = 'img'
+                                      oneCloseTag = ''
+                                      oneControlAttr = ''
+                                  }else if(index === 0 && r.video !== null){
+                                      one = r.video
+                                      oneTag = 'video'
+                                      oneCloseTag = '</video>'
+                                      oneControlAttr = 'controls'
+                                  }
+                                  if(index === 1 && r.photo !== null){
+                                      two = r.photo
+                                      twoTag = 'img'
+                                      twoCloseTag = ''
+                                      twoControlAttr = ''
+                                  }else if(index === 1 && r.video !== null){
+                                      two = r.video
+                                      twoTag = 'video'
+                                      twoCloseTag = '</video>'
+                                      twoControlAttr = 'controls'
+                                  }
+                                  if(index === 2 && r.photo !== null){
+                                      three = r.photo
+                                      threeTag = 'img'
+                                      threeCloseTag = ''
+                                      threeControlAttr = ''
+                                  }else if(index === 2 && r.video !== null){
+                                      three = r.video
+                                      threeTag = 'video'
+                                      threeCloseTag = '</video>'
+                                      threeControlAttr = 'controls'
+                                  }
+                                  if(index === 3 && r.photo !== null){
+                                      four = r.photo
+                                      fourTag = 'img'
+                                      fourCloseTag = ''
+                                      fourControlAttr = ''
+                                  }else if(index === 3 && r.video !== null){
+                                      four = r.video
+                                      fourTag = 'video'
+                                      fourCloseTag = '</video>'
+                                      fourControlAttr = 'controls'
+                                  }
+                                  if(index === 4 && r.photo !== null){
+                                      five = r.photo
+                                      fiveTag = 'img'
+                                      fiveCloseTag = ''
+                                      fiveControlAttr = ''
+                                  }else if(index === 4 && r.video !== null){
+                                      five = r.video
+                                      fiveTag = 'video'
+                                      fiveCloseTag = '</video>'
+                                      fiveControlAttr = 'controls'
+                                  }
+          
+                                  if(index === 5 ){
+                                      six = 'hello'
+                                  }
+          
+                                  if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
+          
+                                      post+= `
+                <div class="d-flex" > 
+                <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
+                <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+                </div>
+                <div class="d-flex"> 
+                <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
+                <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
+                <div style="position: relative; display: inline-block;">
+                <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
+                </div>
+                </div>`
+                                  }
+          
+                              })
+          
+                          }
+                          post += `
+                </div>
+                </div>
+                <div class="post-bottom">
+                    <div class="action" style="height: 50px">
+          <div class="button_wrapper">
+                  <div class="all_likes_wrapper">
+                      <div data-title="LIKE">
+                          <img src="/static/assets/img/like.png" alt="Like" />
+                      </div>
+                      <div data-title="LOVE">
+                          <img src="/static/assets/img/love.png" alt="Love" />
+                      </div>
+                      <div data-title="CARE">
+                          <img src="/static/assets/img/care.png" alt="Care" />
+                      </div>
+                      <div data-title="HAHA">
+                          <img src="/static/assets/img/haha.png" alt="Haha" />
+                      </div>
+                      <div data-title="WOW">
+                          <img src="/static/assets/img/wow.png" alt="Wow" />
+                      </div>
+                      <div data-title="SAD">
+                          <img src="/static/assets/img/sad.png" alt="Sad" />
+                      </div>
+                      <div data-title="ANGRY">
+                          <img src="/static/assets/img/angry.png" alt="Angry" />
+                      </div>
+                  </div>
+                  <button class="like_button" id="${p.id}">
+                    ${likeButtonContent}
+                  </button>
+              </div>
+                    </div>
+                    <div class="action">
+                        <i class="fa-regular fa-comment"></i>
+                        <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox-${p.id}">Comment ${commentCountSize}</span>
+                    </div>
+                </div>
+            </div> 
+          <div id="detail-modal-${p.id}">
+          <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg"  >
+              <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
+                <div class="modal-body p-0">
+                  <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">`
+          
+                          p.resources.forEach((r, index) => {
+                              let active = index == 0 ? 'active' : ''
+                              if (r.photo === null && r.video !== null) {
+                                  post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
+                        <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+                        <div class="carousel-caption d-none d-md-block"> 
+                        <p>${r.description.replace(/\n/g, '<br>')}</p>
+                      </div>
+                        </div> `
+                              } else if (r.video === null && r.photo !== null) {
+                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                        <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
+                        <div class="carousel-caption d-none d-md-block"> 
+                        <p>${r.description.replace(/\n/g, '<br>')}</p>
+                      </div>
+                      </div>`
+                              } else {
+                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                        <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+                        <div class="carousel-caption d-none d-md-block"> 
+                        <p>${r.description.replace(/\n/g, '<br>')}</p>
+                      </div>
+                      </div>`
+                                  post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
+                      <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
+                      <div class="carousel-caption d-none d-md-block"> 
+                      <p>${r.description.replace(/\n/g, '<br>')}</p>
+                    </div>
+                    </div>
+                     `
+                              }
+                          })
+                          post+=`
+                       
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
+                    </button>
+                  </div>
+                </div> 
+              </div>
             </div>
-            </div>`
-                        post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-            <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
-            <div class="carousel-caption d-none d-md-block"> 
-            <p>${r.description.replace(/\n/g, '<br>')}</p>
-          </div>
-          </div>
-           `
-                    }
-                })
-                post+=`
-             
-          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
-        </div>
-      </div> 
-    </div>
-  </div>
-  </div>
-  </div>`;
-
-                posts += post;
-            }
+            </div>
+            </div>
+            </div>`;
+          
+                          posts += post;
+                      }
             let range = document.createRange();
             let fragment = range.createContextualFragment(posts);
             newsfeed.appendChild(fragment);
@@ -3605,7 +4237,9 @@ async function getPosts(){
     });
 }
 
+
 async function getEvents(){
+    let communityId = localStorage.getItem('communityIdForDetailPage')
     isFetchingForEvent = true
     let rows =''
     let data = await fetch(`/api/community/getEventsForCommunityDetailPage/${communityId}/${currentPageForEvent}`,{
@@ -3689,7 +4323,7 @@ async function getEvents(){
             let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `
             let rows =   `
         
-            <div class="post">
+            <div class="post" id="delete-event-section-${r.id}">
             <div class="post-top">
                 <div class="dp">
                     <img src="${r.user.photo}" alt="">
@@ -3698,79 +4332,77 @@ async function getEvents(){
                     <p class="name">${r.user.name}</p>
                     <span class="time">${createdTime}</span>
                 </div>
-                            <div class="dropdown offset-8">
-          <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-ellipsis-h "></i>
-                </a>
-        
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#eventEditModalBox">Edit</a></li>
-            <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
-          </ul>
+                <div class="dropdown offset-8">
+                    <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h "></i>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#eventEditModalBox">Edit</a></li>
+                        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="event-update-section-${r.id}">
+            <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
+                <div class="card" style="width: 30rem;  margin-left:12px ;">
+                    <div class="card-body">
+                        <h5 class="card-title">${r.title}</h5>
+                        <div class="d-flex align-items-start">
+                            <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
+                                <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
+                                <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
+                                <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button> 
+                            </div>
+                            <div class="tab-content" id="v-${r.id}-tabContent">
+                                <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
+                                    <div class="text-center lh-sm font-monospace">
+                                        ${r.description}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="v-${r.id}-location" role="tabpanel" aria-labelledby="v-${r.id}-location-tab">
+                                    <div class="text-center fs-5 fw-bold fst-italic font-monospace ml-3">
+                                        <div class="ml-5  mt-5 text-danger">${r.location}</div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="v-${r.id}-date" role="tabpanel" aria-labelledby="v-${r.id}-date-tab">
+                                    <div class="text-center fs-6 fw-bold mt-3  pl-2 font-monospace">
+                                        <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> START </div> <i class="fa-solid fa-play text-danger mx-1"></i></br></div><div class="fst-italic"> ${formattedStartDate}</div></br>
+                                        <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+           <div class="post-bottom" style="justify-content: center; margin-top: -40px">
+<div class="button_wrapper1">
+    <div class="all_likes_wrapper1">
+        <div data-title="LIKE">
+            <img src="/static/assets/img/like.png" alt="Like" />
         </div>
-            </div> 
-            <div class=" post-content" data-bs-toggle="modal" data-bs-target="#searchPost" > 
-            <div class="card" style="width: 30rem;  margin-left:12px ;"> 
-      <div class="card-body">
-        <h5 class="card-title">${r.title}</h5> 
-        <div class="d-flex align-items-start">
-        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-        <button class="nav-link active  " id="v-${r.id}-photo-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-photo" type="button" role="tab" aria-controls="v-${r.id}-photo" aria-selected="true"><i class="fa-solid fa-image"></i>  </button>
-          <button class="nav-link  " id="v-${r.id}-about-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-about" type="button" role="tab" aria-controls="v-${r.id}-about" aria-selected="false"><i class="fa-solid fa-circle-info"></i>  </button>
-          <button class="nav-link" id="v-${r.id}-location-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-location" type="button" role="tab" aria-controls="v-${r.id}-location" aria-selected="false"><i class="fa-solid fa-location-dot"></i> </button>
-          <button class="nav-link" id="v-${r.id}-date-tab" data-bs-toggle="pill" data-bs-target="#v-${r.id}-date" type="button" role="tab" aria-controls="v-${r.id}-date" aria-selected="false"><i class="fa-solid fa-clock"></i></button> 
+        <div data-title="LOVE">
+            <img src="/static/assets/img/love.png" alt="Love" />
         </div>
-        <div class="tab-content" id="v-${r.id}-tabContent">
-          <div class="tab-pane fade" id="v-${r.id}-about" role="tabpanel" aria-labelledby="v-${r.id}-about-tab">
-          <div class="text-center lh-sm font-monospace">
-          ${r.description}
-          </div>
-          </div>
-          <div class="tab-pane fade" id="v-${r.id}-location" role="tabpanel" aria-labelledby="v-${r.id}-location-tab">
-          <div class="text-center fs-5 fw-bold fst-italic font-monospace ml-3">
-          <div class="ml-5  mt-5 text-danger">${r.location}</div>
-          </div>
-          </div>
-          <div class="tab-pane fade" id="v-${r.id}-date" role="tabpanel" aria-labelledby="v-${r.id}-date-tab">
-          <div class="text-center fs-6 fw-bold mt-3  pl-2 font-monospace">
-          <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> START </div> <i class="fa-solid fa-play text-danger mx-1"></i></br></div><div class="fst-italic"> ${formattedStartDate}</div></br>
-          <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
-           </div>
-           </div>
-          <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"> 
-          ${expired}
-          <b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px; position:relative;">
-          </div> 
+        <div data-title="CARE">
+            <img src="/static/assets/img/care.png" alt="Care" />
         </div>
-      </div>
-      </div>
+        <div data-title="HAHA">
+            <img src="/static/assets/img/haha.png" alt="Haha" />
+        </div>
+        <div data-title="WOW">
+            <img src="/static/assets/img/wow.png" alt="Wow" />
+        </div>
+        <div data-title="SAD">
+            <img src="/static/assets/img/sad.png" alt="Sad" />
+        </div>
+        <div data-title="ANGRY">
+            <img src="/static/assets/img/angry.png" alt="Angry" />
+        </div>
     </div>
-            </div>
-             <div class="post-bottom" style="justify-content: center; margin-top: -40px">
-        <div class="button_wrapper1">
-            <div class="all_likes_wrapper1">
-                <div data-title="LIKE">
-                    <img src="/static/assets/img/like.png" alt="Like" />
-                </div>
-                <div data-title="LOVE">
-                    <img src="/static/assets/img/love.png" alt="Love" />
-                </div>
-                <div data-title="CARE">
-                    <img src="/static/assets/img/care.png" alt="Care" />
-                </div>
-                <div data-title="HAHA">
-                    <img src="/static/assets/img/haha.png" alt="Haha" />
-                </div>
-                <div data-title="WOW">
-                    <img src="/static/assets/img/wow.png" alt="Wow" />
-                </div>
-                <div data-title="SAD">
-                    <img src="/static/assets/img/sad.png" alt="Sad" />
-                </div>
-                <div data-title="ANGRY">
-                    <img src="/static/assets/img/angry.png" alt="Angry" />
-                </div>
-            </div>
             <button class="like_button1" id="${r.id}">
                 ${likeButtonContent}
             </button>
@@ -3882,38 +4514,9 @@ async function getEvents(){
 
 }
 
- const pressedLikeForEvent = async (id, type) => {
-     console.log('PostId', id);
-     const myObj = {
-         postId: id,
-         sender: loginUser,
-         content: ` reacted to your announcement!`,
-         type: type
-     };
-     stompClient.send('/app/react-event-message', {}, JSON.stringify(myObj));
- };
-
- const fetchReactCountForEvent =async (id) => {
-     const sizeData = await fetch(`/event-react-type/${id}`);
-     const eventReactCount = await sizeData.json();
-     return eventReactCount;
- }
-
- const fetchReactTypeForEvent = async (id) => {
-     const dataType = await fetch(`/event-user-react-type/${id}`);
-     const eventReactType = await dataType.json();
-     return eventReactType;
- }
-
- const removeReactionForEvent = async (id) => {
-     const cancelType = await fetch(`/remove-like-eventReact-type/${id}`);
-     if (!cancelType.ok) {
-         alert('something wrong');
-     }
-     console.log('hehhe')
- };
 
 async function getPolls(){
+    let communityId =  localStorage.getItem('communityIdForDetailPage')
     isFetchingForPoll = true
     let polls = document.getElementById('polls');
     let pollTab = document.getElementById('polls')
@@ -3930,10 +4533,10 @@ async function getPolls(){
     console.log(response)
     let rows = ''
     for (let r of response) {
-        let expired = ''
-        if(new Date()>new Date(r.end_date)){
-            expired=`
-            
+    let expired = ''
+    if(new Date()>new Date(r.end_date)){
+        expired=`
+
 <div class="alert alert-danger d-flex align-items-center" style=" width:265px; position: absolute; top: 55px; left:120px;  z-index: 1;" role="alert">
 <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
 <div>
@@ -3941,198 +4544,187 @@ async function getPolls(){
 POLL IS EXPIRED
 </div>
 </div>
-            
-            `
-        }
-        let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
-        let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
-        let row = ''
-        let created = new Date(r.created_date)
-        let now = new Date()
-        let createdTime = await timeAgo(new Date(r.created_date))
-        
-        row += `
-        <div class="post" id="pollPostDiv-${r.id}">
-        <div class="post-top">
-            <div class="dp">
-                <img src="${r.user.photo}" alt="">
-            </div>
-            <div class="post-info">
-                <p class="name">${r.user.name}</p>
-                <span class="time">${createdTime}</span>
-            </div>
-                        <div class="dropdown offset-8">
-      <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-h "></i>
-            </a>
-    
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
-        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
-      </ul>
-    </div>
-        </div> 
-        <nav>
-        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-          <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
-          <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
+
+        `
+    }
+    let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
+    let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
+    let row = ''
+    let created = new Date(r.created_date)
+    let now = new Date()
+    let createdTime = await timeAgo(new Date(r.created_date))
+
+    row += `
+    <div class="post" id="pollPostDiv-${r.id}">
+    <div class="post-top">
+        <div class="dp">
+            <img src="${r.user.photo}" alt="">
         </div>
-      </nav>
-        <div class=" post-content" data-bs-toggle="modal"  > 
+        <div class="post-info">
+            <p class="name">${r.user.name}</p>
+            <span class="time">${createdTime}</span>
+        </div>
+                    <div class="dropdown offset-8">
+  <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-ellipsis-h "></i>
+        </a>
 
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
+    <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
+  </ul>
+</div>
+    </div> 
+    <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
+      <button class="nav-link" id="nav-vote-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-vote-${r.id}" type="button" role="tab" aria-controls="nav-vote-${r.id}" aria-selected="false"> <i class="fa-solid fa-check-to-slot"></i> Vote</button> 
+    </div>
+  </nav>
+    <div id="poll-post-update-${r.id}" class="post-content" data-bs-toggle="modal"  > 
+    <div id="poll-post-update-content-${r.id}" class="card mb-3" style="max-width: 540px;">
+    <div class="row g-0">
+      <div class="col-md-4">
+        ${expired}
+        <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+        <div class="tab-content" id="nav-tabContent">
+<div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
 
-        <div class="card mb-3" style="max-width: 540px;">
-        <div class="row g-0">
-          <div class="col-md-4">
-            ${expired}
-            <img src="${r.photo}" style="max-width:170px; postion:relative;" class="img-fluid rounded-start" alt="...">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
-            <div class="tab-content" id="nav-tabContent">
-  <div class="tab-pane fade show active" id="nav-about-${r.id}" role="tabpanel" aria-labelledby="nav-about-tab-${r.id}">
-  
-  <h5 class="card-title align-middle font-monospace">${r.title}</h5>
-  <p class="card-text font-monospace">${r.description}</p>
-  
-  </div>
-  <div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+<h5 class="card-title align-middle font-monospace">${r.title}</h5>
+<p class="card-text font-monospace">${r.description}</p>
 
+</div>
+<div class="tab-pane fade" id="nav-vote-${r.id}" role="tabpanel" aria-labelledby="nav-vote-tab-${r.id}"> 
+
+        
+        `
+    let totalVotes = 0;
+    for (let v of r.voteOptions) {
+        let count = await getCount(v.id);
+        totalVotes += count;
+    }
+    for (let v of r.voteOptions) {
+        let count = await getCount(v.id);
+        let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
+        row += `
+    <div class="vote-option d-flex mt-1">
+    <div class="d-block">
+    <div class="font-monospace ">${v.type}</div>
+            <div class="d-flex">
+            <div class="progress" style="height: 16px; width: 170px;">
             
-            `
-        let totalVotes = 0;
-        for (let v of r.voteOptions) {
-            let count = await getCount(v.id);
-            totalVotes += count;
-        }
-        for (let v of r.voteOptions) {
-            let count = await getCount(v.id);
-            let percentage = totalVotes === 0 ? 0 : (count / totalVotes) * 100;
-            row += `
-        <div class="vote-option d-flex mt-1">
-        <div class="d-block">
-        <div class="font-monospace ">${v.type}</div>
-                <div class="d-flex">
-                <div class="progress" style="height: 16px; width: 170px;">
-                
-                    <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
-                </div>`
-                if(new Date()<new Date(r.end_date)){
-            row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
-                }
-            let yes = await checkVotedMark(v.id)
-            let markIcon = 'hidden'
-            if(yes === true){
-                markIcon = ''
+                <div class="progress-bar bg-primary" id="${v.id}-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">${Math.floor(percentage)}%</div>
+            </div>`
+            if(new Date()<new Date(r.end_date)){
+        row += ` <button id="vote-btn-${r.id}" class="${hidden} give-btn" onclick="voteVoteOption(${v.id},${r.id})"><i class="fa-solid fa-hand" style="width:7px; margin-right:11px;"></i></button> `;
             }
-            console.log(yes)
-
-
-            row += `<div id="mark-id-${v.id}" class="${markIcon}"><i class="fa-regular fa-circle-check"></i></div>
-                </div>
-                </div>
-                 `
-
-
-
-            row+=`</div>`
-
+        let yes = await checkVotedMark(v.id)
+        let markIcon = 'hidden'
+        if(yes === true){
+            markIcon = ''
         }
-        if(new Date()<new Date(r.end_date)){
-        row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
-        }
-        row+=`</div> 
-    </div>
-          </div>
-    </div>
+        console.log(yes)
+
+
+        row += ` <div id="mark-id-${v.id}" class="${markIcon}"> <i class="fa-regular fa-circle-check"></i> </div>
+            </div>
+            </div>
+             `
+
+
+
+        row+=`</div>`
+
+    }
+    if(new Date()<new Date(r.end_date)){
+    row += `   <button id="unvote-btn-${r.id}" class="${notHidden} erase-btn" onclick = "unVote(${r.id})"><i class="fa-solid fa-eraser"></i></button> `
+    }
+    row+=`</div> 
+</div>
+      </div>
+</div>
+</div>
+</div>
+     
+
+</div>
+
+<div class="post-bottom">
+<div class="action" style="height: 50px">
+<div class="button_wrapper">
+<div class="all_likes_wrapper">
+  <div data-title="LIKE">
+      <img src="/static/assets/img/like.png" alt="Like" />
+  </div>
+  <div data-title="LOVE">
+      <img src="/static/assets/img/love.png" alt="Love" />
+  </div>
+  <div data-title="CARE">
+      <img src="/static/assets/img/care.png" alt="Care" />
+  </div>
+  <div data-title="HAHA">
+      <img src="/static/assets/img/haha.png" alt="Haha" />
+  </div>
+  <div data-title="WOW">
+      <img src="/static/assets/img/wow.png" alt="Wow" />
+  </div>
+  <div data-title="SAD">
+      <img src="/static/assets/img/sad.png" alt="Sad" />
+  </div>
+  <div data-title="ANGRY">
+      <img src="/static/assets/img/angry.png" alt="Angry" />
   </div>
 </div>
-         
-        <div class="post-bottom">
-            <div class="action" style="height: 50px">
-    <div class="button_wrapper">
-          <div class="all_likes_wrapper">
-              <div data-title="LIKE">
-                  <img src="/static/assets/img/like.png" alt="Like" />
-              </div>
-              <div data-title="LOVE">
-                  <img src="/static/assets/img/love.png" alt="Love" />
-              </div>
-              <div data-title="CARE">
-                  <img src="/static/assets/img/care.png" alt="Care" />
-              </div>
-              <div data-title="HAHA">
-                  <img src="/static/assets/img/haha.png" alt="Haha" />
-              </div>
-              <div data-title="WOW">
-                  <img src="/static/assets/img/wow.png" alt="Wow" />
-              </div>
-              <div data-title="SAD">
-                  <img src="/static/assets/img/sad.png" alt="Sad" />
-              </div>
-              <div data-title="ANGRY">
-                  <img src="/static/assets/img/angry.png" alt="Angry" />
-              </div>
-          </div>
-          <button class="like_button" id=" "> 
-          </button>
-      </div>
-            </div>
-            <div class="action">
-                <i class="fa-regular fa-comment"></i>
-                <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
-            </div>
-            <div class="action">
-                <i class="fa fa-share"></i>
-                <span>Share</span>
-            </div>
-        </div>
-    </div>
-    </div>
-        `
-        rows+=row
+<button class="like_button" id=" "> 
+</button>
+</div>
+</div>
+<div class="action">
+    <i class="fa-regular fa-comment"></i>
+    <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
+</div>
+<div class="action">
+    <i class="fa fa-share"></i>
+    <span>Share</span>
+</div>
+</div>
+</div>
+    `
+    rows+=row
 
 
 
+}
+let range = document.createRange();
+let fragment = range.createContextualFragment(rows);
+while (polls.children.length > 0) {
+    polls.children[0].remove();
+}
+pollTab.appendChild(fragment)
+await removeCat()
+if(fragment){
+    for(let r of response){
+        await updateVotePercentage(r.voteOptions)
     }
-    let range = document.createRange();
-    let fragment = range.createContextualFragment(rows);
-    while (polls.children.length > 0) {
-        polls.children[0].remove();
-    }
-    pollTab.appendChild(fragment)
-    if(fragment){
-        for(let r of response){
-            await updateVotePercentage(r.voteOptions)
-        }
-    }
+}
 }
 
 }
 
 
-videoObserver()
 
-async function videoObserver(){
-    console.log('observing------->')
-    const videos = document.querySelectorAll('#myVideo');
 
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.play();
-        } else {
-          entry.target.pause();
-        }
-      });
-    });
-    
-    videos.forEach(video => {
-        console.log('ha ha ha ha  =====----=-=-=-=-')
-      observer.observe(video);
-    });
+
+async function startUp(){
+    let communityId = localStorage.getItem('communityIdForDetailPage')
+    let community = await fetch(`/api/community/getCommunity/${communityId}`)
+    let data = await community.json()
+    console.log(data)
+    document.getElementById('communityImage').src = data.image
+    document.getElementById('communityName').textContent = data.name
+    document.getElementById('communityMembers').textContent = 10
 }
 
-document.body.addEventListener('hidden.bs.modal', async function (event) {
-    await videoObserver()
-  });

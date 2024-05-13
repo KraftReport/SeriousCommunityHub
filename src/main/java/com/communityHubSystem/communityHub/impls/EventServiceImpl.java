@@ -266,8 +266,7 @@ public class EventServiceImpl implements EventService {
         var list = eventRepository.findAll();
         var result = new ArrayList<Event>();
         for(var l : list){
-            if (!l.isDeleted()
-                    && l.getAccess().equals(Access.PUBLIC)
+            if (!l.isDeleted() 
                     && l.getEventType().equals(Event.EventType.VOTE)){
                 result.add(l);
             }

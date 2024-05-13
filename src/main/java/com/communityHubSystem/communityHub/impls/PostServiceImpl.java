@@ -295,10 +295,17 @@ public class PostServiceImpl implements PostService {
         post.setDeleted(false);
         if ( postDTO.getGroupId()!= null && Long.parseLong(postDTO.getGroupId()) > 0) {
             post.setAccess(Access.PRIVATE);
+            if(user_groupRepository.findByUserIdAndCommunityId(loginUser.getId(),Long.valueOf(postDTO.getGroupId()))==null){
+                var user_group =new User_Group();
+                user_group.setCommunity(communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(()->new CommunityHubException("not found community")));
+                user_group.setUser(loginUser);
+                user_group.setDate(new Date());
+                post.setUserGroup(user_group);
+            }else {
             var community = communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(() -> new CommunityHubException("Group Name Not found Exception!"));
-
             var user_group = user_groupRepository.findByUserIdAndCommunityId(loginUser.getId(),community.getId());
             post.setUserGroup(user_group);
+            }
         } else {
             post.setAccess(Access.PUBLIC);
         }

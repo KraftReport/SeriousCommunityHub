@@ -240,9 +240,9 @@ public class CommunityServiceImpl implements CommunityService {
         List<User_Group> userGroupList = user_groupRepository.findByCommunityId(id);
         for (User_Group user_group : userGroupList) {
             List<Event> userGroupPosts = eventRepository.findByUserGroupId(user_group.getId());
-            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted() && eventType.equals(Event.EventType.EVENT)).toList();
+            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted() && u.getEventType().equals(eventType)).toList();
             System.err.println("WOWOOWOWOWO"+user_group.getId());
-            postList.addAll(userGroupPosts);
+            postList.addAll(filteredList);
         }
         postList.sort(Comparator.comparing(Event::getCreated_date).reversed());
 
