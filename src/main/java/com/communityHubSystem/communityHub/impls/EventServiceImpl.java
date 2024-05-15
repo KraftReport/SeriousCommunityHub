@@ -410,6 +410,8 @@ public class EventServiceImpl implements EventService {
                         Event event = new Event();
                         event.setEventType(Event.EventType.EVENT);
                         event.setTitle(user.getName() + "'s birthday party");
+                        event.setAccess(Access.PUBLIC);
+                        event.setDeleted(false);
                         event.setDescription(user.getName()+"'s "+getAge(user.getDob())+" years old birthday");
                         event.setStart_date(setToMidnight(today.getTime()));
                         event.setEnd_date(setToMidnight(today.getTime()));
