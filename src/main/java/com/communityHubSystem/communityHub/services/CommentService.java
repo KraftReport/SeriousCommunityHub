@@ -19,4 +19,5 @@ public interface CommentService {
 
     void updateComment(CommentUpdateDto commentUpdateDto);
 
+   public Long findCommentSizeByPostId(Long id);
 }

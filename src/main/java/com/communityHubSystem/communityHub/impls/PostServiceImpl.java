@@ -249,6 +249,16 @@ public class PostServiceImpl implements PostService {
         return new PageImpl<>(paginatedPosts, pageable, posts.size());
     }
 
+    @Override
+    public List<Post> findAllPostByIsDeleted(boolean value,Long id) {
+        return postRepository.findAllPostsByIsDeletedAndUserId(value,id);
+    }
+
+    @Override
+    public List<Post> findAllPostByIsDeletedAndUserGroupId(Long id) {
+        return postRepository.findAllByIsDeletedAndUserGroupIdJPQL(false,id);
+    }
+
 
     public boolean isValidPhotoExtension(String extension) {
         return photoExtensions.contains(extension);

@@ -58,7 +58,13 @@ public class ChatRoomController {
     @ResponseBody
     public ResponseEntity<?> getChatRoomSize(@PathVariable("id") Long id) {
         var user_chat_room = user_chatRoomService.findByChatRoomId(id);
-        return ResponseEntity.status(HttpStatus.OK).body(user_chat_room.size());
+        List<User_ChatRoom> userChatRooms = new ArrayList<>();
+        for(User_ChatRoom user_chatRoom:user_chat_room){
+            if(!user_chatRoom.getUser().getId().equals(999)){
+                userChatRooms.add(user_chatRoom);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userChatRooms.size());
     }
 
     @GetMapping("/member-list-chatRoom/{id}")
@@ -75,7 +81,9 @@ public class ChatRoomController {
         for (User_Group user_group : user_groups) {
             if (!userList.contains(user_group.getUser().getId())) {
                 var user = userService.findById(user_group.getUser().getId());
-                notMemberList.add(user);
+                if(!user.getId().equals(999)){
+                    notMemberList.add(user);
+                }
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(notMemberList);
@@ -88,7 +96,9 @@ public class ChatRoomController {
         List<User> userList = new ArrayList<>();
         for (User_ChatRoom user_chatRoom : user_chatRooms) {
             var user = userService.findById(user_chatRoom.getUser().getId());
-            userList.add(user);
+            if(!user.getId().equals(999)){
+                userList.add(user);
+            }
         }
         return ResponseEntity.status(HttpStatus.OK).body(userList);
     }

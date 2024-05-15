@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org/" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="~{index::head}">
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+    <body>
+        <div th:replace="~{index::header}"></div>
+        <div th:replace="~{index::navbar}"></div>
+        <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/record.css}">
+        <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/recordGroup.css}">
+        <script src="/static/assets/js/record.js"></script>
+        <main id="main" class="main">
+            <ul class="nav nav-tabs my-3" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="postList-tab" data-bs-toggle="tab" data-bs-target="#postListTab"
+                            type="button" role="tab" aria-controls="postListTab" aria-selected="true">TrendyPost
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation" sec:authorize="hasAnyAuthority('ADMIN')">
+                    <button class="nav-link" id="groups-tab" data-bs-toggle="tab" data-bs-target="#groupTab"
+                            type="button" role="tab" aria-controls="groupTab" aria-selected="false">TrendyGroup
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#totalTab"
+                            type="button" role="tab" aria-controls="totalTab" aria-selected="false">TrendyTotalsList
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent" sec:authorize="hasAnyAuthority('ADMIN')">
+                <div class="tab-pane fade show active" id="postListTab" role="tabpanel" aria-labelledby="postList-tab">
+                    <div id="trendyPost" class="">
+
+                        <div class="unique-card-container">
+                            <input type="radio" name="trendyPostSelect" id="unique-slide1" style="display: none" checked>
+                            <input type="radio" name="trendyPostSelect" id="unique-slide2" style="display: none">
+                            <input type="checkbox" id="unique-toggleImg" style="display: none">
+
+                            <div class="unique-navigation">
+                                <label for="unique-slide1" class="unique-nav-dot unique-nav-dot1"></label>
+                                <label for="unique-slide2" class="unique-nav-dot unique-nav-dot2"></label>
+                            </div>
+
+                            <div class="unique-content-wrapper">
+                                <label for="unique-toggleImg" class="unique-image-container">
+                                    <img class="unique-image1" src="https://c4.wallpaperflare.com/wallpaper/978/131/617/kiz-kulesi-turkey-istanbul-maiden-s-tower-wallpaper-preview.jpg">
+                                </label>
+                                <div class="unique-text-content unique-text-content1">
+                                    <div class="unique-heading" id="unique-trendyGroupName">Trendy Post Within A Month</div>
+                                    <div class="unique-description">
+                                        <span id="unique-oneMonthTrendyPostTime">Posted Date : 5 days ago</span>
+                                        <span id="unique-oneMonthTrendyPostReactCount">Total React Count : 23</span>
+                                        <span id="unique-oneMonthTrendyPostCommentCount">Total Comment Count : 55</span>
+                                    </div>
+                                    <button id="postForWithinOneMonth">Click to see</button>
+                                </div>
+                            </div>
+
+                            <div class="unique-content-wrapper">
+                                <label for="unique-toggleImg" class="unique-image-container">
+                                    <img class="unique-image2" src="https://c4.wallpaperflare.com/wallpaper/649/96/56/ankara-cityscape-night-night-sky-wallpaper-preview.jpg">
+                                </label>
+                                <div class="unique-text-content unique-text-content2">
+                                    <div class="unique-heading">Trendy Post Within A Year</div>
+                                    <div class="unique-description">
+                                        <span id="unique-oneYearTrendyPostTime">Posted Date : 5 days ago</span>
+                                        <span id="unique-oneYearTrendyPostReactCount">Total React Count : 23</span>
+                                        <span id="unique-oneYearTrendyPostCommentCount">Total Comment Count : 55</span>
+                                    </div>
+                                    <button id="postForWithinOneYear">Click to see</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="groupTab" role="tabpanel" aria-labelledby="events-tab">
+                    <div id="trendyGroupsList" class="">
+
+                        <div class="card">
+                            <input type="radio" name="select" id="slide_1"  checked style="display: none">
+                            <input type="radio" name="select" id="slide_2" style="display: none">
+                            <input type="radio" name="select" id="slide_3" style="display: none">
+                            <input type="checkbox" id="slideImg" style="display: none">
+
+                            <div class="slider">
+                                <label for="slide_1" class="slide slide_1"></label>
+                                <label for="slide_2" class="slide slide_2"></label>
+                                <label for="slide_3" class="slide slide_3"></label>
+                            </div>
+
+                            <div class="inner_part">
+                                <label for="slideImg" class="img">
+                                    <img class="img_1" src="https://c4.wallpaperflare.com/wallpaper/978/131/617/kiz-kulesi-turkey-istanbul-maiden-s-tower-wallpaper-preview.jpg">
+                                </label>
+                                <div class="content content_1">
+                                    <div class="title" id="trendyGroupName">İstanbul</div>
+                                    <div class="text">
+                                <span id="trendyGroupDescription"></span>
+                                  <span id="trendyGroupMembers"></span>
+                                    </div>
+                                    <button class="groupCommunityTrendy">Click to see</button>
+                                </div>
+                            </div>
+
+                            <div class="inner_part">
+                                <label for="slideImg" class="img">
+                                    <img class="img_2" src="https://c4.wallpaperflare.com/wallpaper/649/96/56/ankara-cityscape-night-night-sky-wallpaper-preview.jpg">
+                                </label>
+                                <div class="content content_2">
+                                    <div class="title">Posts List Within A Month</div>
+                                    <div class="text">
+                                    <span id="totalPostsForOneMonth"></span>
+                                    <span id="totalReactsForOneMonth"></span>
+                                    <span id="totalCommentsForOneMonth"></span>
+                                    </div>
+                                    <button class="groupCommunityTrendy">Click to see</button>
+                                </div>
+                            </div>
+
+                            <div class="inner_part">
+                                <label for="slideImg" class="img">
+                                    <img class="img_3" src="https://c4.wallpaperflare.com/wallpaper/620/34/558/turkey-izmir-mountains-wallpaper-preview.jpg" id="trendyGroupPhoto">
+                                </label>
+                                <div class="content content_3">
+                                    <div class="title">Posts List Within A Year</div>
+                                    <div class="text">
+                                        <span id="totalPostsForOneYear"></span>
+                                        <span id="totalReactsForOneYear"></span>
+                                        <span id="totalCommentsForOneYear"></span>
+                                    </div>
+                                    <button class="groupCommunityTrendy">Click to see</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="totalTab" role="tabpanel" aria-labelledby="polls-tab">
+                    <div id="trendyTotalList" class=" "></div>
+                </div>
+            </div>
+            </div>
+        </main>
+
+        <div th:replace="~{index::footer}"></div>
+        <script src="https://code.jquery.com/jquery-3.7.1.js"
+                integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    </body>
+</html>
