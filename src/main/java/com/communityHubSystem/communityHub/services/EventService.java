@@ -53,4 +53,6 @@ public interface EventService {
     public Page<Event> getPolForNewsfeed(String page);
 
     List<Event> getCalendarEventsForEachLoginUser();
+
+    List<Event> checkBirthdayOfEmployees() throws ParseException;
 }

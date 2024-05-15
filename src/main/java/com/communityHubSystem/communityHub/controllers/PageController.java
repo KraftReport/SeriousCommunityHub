@@ -176,4 +176,9 @@ public class PageController {
     public String goToSearchPage(){
         return "/layout/searchPage";
     }
+
+    @GetMapping("/trendingPostDetailPage")
+    public String trendingPostDetailPage(){
+        return "/layout/trendingPostDetailPage";
+    }
 }

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{index::head}">
+    <title>Create Community</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/assets/css/search.css">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+</head>
+<body>
+  <div th:fragment="header">
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a th:href="@{/index}" class="logo d-flex align-items-center">
+                <img src="/static/assets/img/DAT-logo.png" alt="">
+                <span class="d-none d-lg-block">System-Admin</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div><!-- End Logo -->
+        <div class="search-bar">
+            <form class="search-form d-flex align-items-center" >
+                <input id="searchInput" type="text" name="query" placeholder="Search" title="Enter search keyword">
+                <button type="button" title="Search" onclick="searchMethod()"><i class="bi bi-search"></i></button>
+            </form>
+        </div><!-- End Search Bar -->
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+
+                <li class="nav-item d-block d-lg-none">
+                    <button class="nav-link nav-icon search-bar-toggle" onclick="searchMethod()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </li><!-- End Search Icon-->
+
+                <li class="nav-item dropdown">
+                    <i class="fa-solid fa-calendar-days" data-bs-toggle="modal" onclick="seeEvents()" data-bs-target="#calendarModalBox" style="font-size: 22px; margin-right: 20px"></i>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown"
+                       sec:authorize="hasAnyAuthority('ADMIN')">
+                        <i class="bi bi-file-earmark-spreadsheet"></i>
+                    </a><!-- End Excel Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                        <li class="dropdown-header">
+                            Import Excel File
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="message-item">
+                            <a href="#">
+                                <div>
+                                    <form id="uploadForm" enctype="multipart/form-data">
+                                        <input type="file" id="fileInput" accept=".xlsx, .xls">
+                                        <br><br>
+                                        <button type="button" id="uploadButton">Upload</button>
+                                    </form>
+                                    <script src="/static/assets/js/excelUpload.js"></script>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="dropdown-footer">
+                            <a href="#">Close</a>
+                        </li>
+
+                    </ul><!-- End Messages Dropdown Items -->
+                </li>
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" id="notiCountDecrease">
+                        <i class="bi bi-bell"></i>
+                        <span class="badge bg-primary badge-number" id="notiCount"></span>
+                    </a><!-- End Notification Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+                        <li class="dropdown-header">
+                            <!--                        You have 4 new notifications-->
+                            <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2"
+                                              id="notiId">View all</span></a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="notification-item">
+                            <!--                            <i class="bi bi-exclamation-circle text-warning"></i>-->
+                            <div id="notifyMessage">
+                                <!--                            <h4>Lorem Ipsum</h4>-->
+                                <!--                            <p>Quae dolorem earum veritatis oditseno</p>-->
+                                <!--                            <p>30 min. ago</p>-->
+                            </div>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li class="dropdown-footer">
+                            <i class="bi bi-bell-fill"></i><a type="button" data-bs-toggle="modal"
+                                                              data-bs-target="#notificationStaticBox">Show all
+                            notifications</a>
+                        </li>
+
+                    </ul><!-- End Notification Dropdown Items -->
+
+                </li><!-- End Notification Nav -->
+
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-chat-left-text"></i>
+                        <span class="badge bg-success badge-number">3</span>
+                    </a><!-- End Messages Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
+                        <li class="dropdown-header">
+                            You have 3 new messages
+                            <a href="#"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="message-item">
+                            <a href="#">
+                                <img src="/static/assets/img/messages-1.jpg" alt="" class="rounded-circle">
+                                <div>
+                                    <h4>Maria Hudson</h4>
+                                    <p>Velit asperiores et ducimus soluta repudiandae labore officia est ut...</p>
+                                    <p>4 hrs. ago</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li class="dropdown-footer">
+                            <a href="#">Show all messages</a>
+                        </li>
+
+                    </ul><!-- End Messages Dropdown Items -->
+
+                </li><!-- End Messages Nav -->
+
+                <li class="nav-item dropdown pe-3">
+
+                    <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                        <img src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
+                             th:unless="${session.user.photo}"/>
+                        <img th:src="${session.user.photo}" alt="Profile" class="rounded-circle"/>
+                        <!--                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />-->
+                        <span class="d-none d-md-block dropdown-toggle ps-2" th:text="${session.user.name}">Name</span>
+                    </a><!-- End Profile Iamge Icon -->
+
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                        <li class="dropdown-header">
+                            <h6 th:text="${session.user.name}">Name</h6>
+                            <span th:text="${session.user.role}">Role</span>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" th:href="@{/user/profile}">
+                                <i class="bi bi-person"></i>
+                                <span>My Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="/user/profile">
+                                <i class="bi bi-gear"></i>
+                                <span>Change Password</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li sec:authorize="hasAnyAuthority('ADMIN')">
+                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton">
+                                <i class="bi bi-body-text"></i>
+                                <span>Add Policy</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Need Help?</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Sign Out</span>
+                            </a>
+                        </li>
+
+                    </ul><!-- End Profile Dropdown Items -->
+                </li><!-- End Profile Nav -->
+
+            </ul>
+        </nav><!-- End Icons Navigation -->
+
+    </header><!-- End Header -->
+</div>
+<div th:replace="~{index::navbar}"></div>
+<main id="main" class="main" style="margin-left: 400px;">
+
+ <div class="d-flex">
+    <div>
+        <img src="/static/assets/img/wowIt'sme.jpg" style="width: 120px; height: 100px; margin:20px; border-radius:10px;" alt="">
+    </div>
+    <div class="card" style="width:300px; border-radius:20px; margin: 20px;">
+        <div class="">
+
+            
+            <p class="font-monospace m-2"><i class="fa-solid fa-user text-primary"></i> Myo Set Paing</p>
+
+           
+            <p class="font-monospace m-2"> <i class="fa-solid fa-building text-primary"></i> Development Department</p>
+
+            
+            <p class="font-monospace m-2"><i class="fa-solid fa-envelope text-primary"></i> kraftreport04@gmail.com</p>
+
+        </div>
+      </div>
+      <div class="card" style="width:300px; border-radius:20px; margin:20px;">
+        <div class="">
+
+            
+             <p class="font-monospace m-2"><i class="fa-solid fa-lock text-danger"></i> PRIVATE</p>
+
+             
+             <p class="font-monospace m-2"><i class="fa-solid fa-users text-primary"></i> GROUP NAME</p>
+
+             
+             <p class="font-monospace m-2"><i class="fa-regular fa-clock text-primary"></i> CREATED DATE</p>
+
+        </div>
+      </div>
+
+ </div>
+
+      <div class="card" style="width:500px; margin-top:20px; margin-left:100px;">
+        <div class="card-body">
+             <p class="font-monospace" style="margin-top: 15px;">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptatibus similique, earum laborum voluptates fugiat nisi odit quisquam qui sed! Dignissimos, distinctio deserunt eum non quod qui veritatis voluptatum consectetur. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quaerat quibusdam illum rerum? Aperiam maiores sunt, doloremque dolore deleniti tempore accusamus mollitia exercitationem, veritatis voluptatum itaque fugiat voluptatem laudantium repellendus. Iure?
+             </p>
+        </div>
+      </div>
+
+
+
+      <div class="card">
+        <div class="card-body">
+          <div>
+            <div>
+                <p class="font-monospace m-2"><i class="fa-solid fa-pencil text-danger"></i> Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos blanditiis repellat quidem a sapiente eius dicta veritatis hic corrupti. Suscipit illo quas consectetur quam aliquid porro eaque hic ad minima.</p>
+            </div>
+            <div>
+                <img src="/static/assets/img/wowIt'sme.jpg" style="width:400px; margin-left:200px;"  alt="">
+            </div>
+          </div>  
+        </div>
+      </div>
+ 
+
+
+
+</main>
+<div th:replace="~{index::footer}"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- <script src="/static/assets/js/post.js"></script> -->
+<script src="/static/assets/js/search.js"></script>
+</body>
+</html>

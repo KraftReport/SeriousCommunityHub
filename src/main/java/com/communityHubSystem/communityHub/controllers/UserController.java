@@ -468,6 +468,12 @@ public class UserController {
 
         return "/user/other-user-profile";
     }
+
+    @GetMapping("/checkUserOrAdminOrGroupOwner")
+    @ResponseBody
+    public ResponseEntity<List<Object>> checkUserOrAdminOrGroupOwner(){
+        return ResponseEntity.ok(userService.checkUserOrAdminOrGroupOwner());
+    }
 }
 
 

@@ -534,6 +534,13 @@
     </aside><!-- End Sidebar-->
 </div>
 <main id="main" class="main">
+
+
+
+
+
+
+
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling</h5>
@@ -544,7 +551,34 @@
         </div>
       </div>
 
-<div style="left:400px;">
+
+
+      
+        <button   style="   left:370px; width:244px; height:80px; background-color: #62bdf1;
+        border:none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center; position: relative;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 20px;
+        margin: 4px 2px;
+        cursor: pointer;
+        position: relative;
+        border-radius: 20px; /* Adjust as needed */
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3); /* Adjust as needed */
+        outline: none;"   class="btn btn-secondary dropdown-toggle font-monospace" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+         <i class="fa-regular fa-square-plus"></i> Create 
+        </button>
+        <div id="divForCreation" >
+
+    </div>
+      
+
+
+
+<!-- 
+<div style="left:400px;" id="createBoxDropDown" class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     <div id="action-btn"  style="   left:300px; width:400px; height:100px; background-color: #62bdf1;
     border:none;
     color: white;
@@ -561,18 +595,16 @@
     outline: none;" >
         <div id="hammer-icon"><i class="fa-regular fa-square-plus"></i> Create </div> 
     <div class="d-flex my-2 ">
-        <div class="mx-5">
-            <i id="plane" class="fa-solid fa-paper-plane" data-bs-toggle="offcanvas" data-bs-target="#postMaker" aria-controls="postMaker"></i> 
-        </div>
-        <div class="mx-5">
-            <i id="eveCal" class="fa-solid fa-calendar" data-bs-toggle="offcanvas" data-bs-target="#eventMaker" aria-controls="eventMaker"></i> 
-        </div>
-        <div class="mx-5">
-            <i id="voBar" class="fa-solid fa-chart-simple" data-bs-toggle="offcanvas" data-bs-target="#pollMaker" aria-controls="pollMaker"></i> 
-        </div>
+
     </div>
 </butt>
-</div>
+</div> -->
+
+<!-- <ul class="dropdown-menu" aria-labelledby="createBoxDropDown">
+    <li></li>
+    <li></li>
+    <li></li>
+</ul> -->
   
     <button id="App" class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
         <i id="pen" class="fa-solid fa-marker"></i>
@@ -580,25 +612,293 @@
 
 
 
-      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="eventMaker" aria-labelledby="eventMaker">
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="eventMaker">Backdroped with scrolling</h5>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    <!-- <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm">
+                        <label for="title">Enter Event Title</label>
+                        <input type="text" class="form-control" name="title" id="title">
+                        <label for="description">Enter Event Description</label>
+                        <textarea class="form-control quill-editor-default" style="height: 100px" name="description" id="description" ></textarea>
+                        <label for="start_date">Enter start date</label>
+                        <input type="date" class="form-control" name="start_date" id="start_date">
+                        <label for="end_date">Enter end date</label>
+                        <input type="date" class="form-control" name="end_date" id="end_date">
+                        <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
+                        <label for="event_location" >Enter event location</label>
+                        <input type="text" class="form-control" name="location" id="location" >
+                        <label for="multipartFile">Enter Event Photo</label>
+                        <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
+
+                        <div class="row mb-3">
+                            <label class="col-sm-2 col-form-label">Select</label>
+                            <div class="col-sm-10" >
+                                <select class="form-select" id="groupSelect2" name="groupId" aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="modal" data-bs-toggle="modal"    >POST</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="offcanvas-body">
-          <p>create a event</p>
+    </div> -->
+
+
+ 
+
+
+    <!-- post create offcanvas start  -->
+
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
+        
+        
+        <div id="mentionSuggestions" class="font-monospace"></div>
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title font-monospace" id="postMaker">Create Status</h5>
+          <button type="button"   onclick="removePreview()" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body font-monospace">    
+                    <form id="postForm">
+                        
+                 
+                       
+                        <!-- Quill Editor Default -->
+                        <div class="row mb-3">
+                            <label for="status" class="font-monospace ">Your Status <i class="fa-solid fa-font"></i></label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control  font-monospace" style="height: 200px; border-radius: 20px; border: none;" name="content"
+                                          id="content"></textarea>
+                               
+                            </div>
+                        </div>
+                  
+
+                        <div class="row mb-3">
+                            <label id="video-icon"  for="formFile" class="font-monospace">Video/Image <i class="fa-solid fa-photo-film"> <input class="form-control font-monospace" type="file" id="file" name="file" multiple style="display: none;"></i></label>
+                            <div class="col-sm-10">
+                            </div>
+                        </div> 
+                        <div class="row mb-3">
+                            <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
+                            <div class="col-sm-10">
+                                <select class="form-select font-monospace" id="groupSelect1" name="groupId"
+                                        aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>
+
+                      
+
+                    </form><!-- End General Form Elements -->
+                    <!-- End Quill Editor Default -->
+                    <div class="container">
+                        <div id="preview" class="row" ></div>
+                    </div>
+                 
+                    
+                    <button style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createPost()" data-bs-dismiss="offcanvas"  aria-label="Close">POST
+                    </button> 
         </div>
       </div>
 
-      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="pollMaker" aria-labelledby="pollMaker">
+
+      <!-- post create offcanvas end  -->
+
+      <!-- post edit offcanvas start  -->
+
+
+
+      <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="pollMaker">Backdroped with scrolling</h5>
+          <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-          <p>create a poll</p>
+           
+                   <div class="modal-body" id="editModal">
+                       ...
+                   </div>  
+                       <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+                       data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                       </button>
+ 
+                
+           </div>
+       </div>
+   
+   
+   
+    
+
+   
         </div>
       </div>
+
+
+
+      <!-- post edit offcanvas end  -->
+
+
+      <!-- event create offcanvas start  -->
+
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="eventMaker" aria-labelledby="eventMaker">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="eventMaker">Create Announcement</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+ 
+                            <form id="eventForm" class="font-monospace">
+                                <label for="title" class="font-monospace m-2">Title <i class="fa-solid fa-sign-hanging"></i></label>
+                                <input type="text" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control m-2 font-monospace" name="title" id="eventtitle">
+
+                                <label for="description" class="font-monospace m-2">Description <i class="fa-solid fa-info"></i></label>
+                                <textarea style="border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); height: 200px;" class="form-control font-monospace  m-2"  name="description" id="eventdescription" ></textarea>
+
+                                <label id="labelForEventStartDate" for="start_date" class="font-monospace m-2">Start <i class="fa-regular fa-clock"></i></label>
+                                <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); " class="form-control m-2 font-monospace" name="start_date" id="start_date">
+
+                                <label id="labelForEventEndDate" for="end_date" class="font-monospace m-2">End <i class="fa-solid fa-clock"></i></label>
+                                <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "   class="form-control m-2 font-monospace" name="end_date" id="end_date">
+
+                                <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
+
+                                <label for="event_location" class="font-monospace m-2" >Location <i class="fa-regular fa-compass"></i></label>
+                                <input style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" type="text" value="" class="form-control m-2 font-monospace" name="location" id="location" >
+
+                                <label id="labelForEventPhoto" for="multipartFile" class="font-monospace m-2">Photo <i class="fa-solid fa-camera"></i></label>
+                                <input type="file" style="display: none;" name="multipartFile" class="form-control" id="eventPhotoFile" >
+        
+                                <div class="row mb-3">
+                                    <label class=" font-monospace">Commuinty <i class="fa-solid fa-users"></i></label>
+                                    <div class="col-sm-10" >
+                                        <select class="form-select font-monospace" id="groupSelect2" name="groupId" aria-label="Default select example">
+        
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                    <button id="eventCreateBtn" style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="offcanvas"  aria-label="Close" >POST</button>
+                                
+                            </form>
+                  
+        </div>
+      </div>
+
+
+      <!-- event create offcanvas end  -->
+
+
+
+      <!-- event edit offcanvas start  -->
+
+
+
+      <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="eventEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit announcement</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            
+                        <div class="modal-body" id="eventEditModal">
+        
+                        </div>
+        
+                    
+               
+          
+        </div>
+      </div>
+
+
+      <!-- event edit offcanvas end  -->
+
+
+      <!-- poll create offcanvas start  -->
+
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="pollMaker" aria-labelledby="pollMaker">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="pollMaker">Create Poll</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body"> 
+                    <form id="pollForm">
+                        <label for="title" class="font-monospace m-2">Title <i class="fa-solid fa-sign-hanging"></i></label>
+                        <input type="text" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control m-2 font-monospace" name="title" id="pollTitle">
+
+                        <label for="description" class="font-monospace m-2">Description <i class="fa-solid fa-info"></i></label>
+                        <textarea style="border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); height: 200px;" class="form-control font-monospace  m-2"  name="description" id="polldescription" ></textarea>
+
+                        <label id="labelForPollStartDate" for="start_date" class="font-monospace m-2">Start <i class="fa-regular fa-clock"></i></label>
+                        <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); " class="form-control m-2 font-monospace" name="start_date" id="poll_start_date">
+
+                        <label id="labelForPollEndDate" for="end_date" class="font-monospace m-2">End <i class="fa-solid fa-clock"></i></label>
+                        <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "   class="form-control m-2 font-monospace" name="end_date" id="poll_end_date">
+
+                        <input type="text" name="eventType" id="eventType" value="VOTE" hidden>
+
+                        <label id="labelForPollPhoto" for="multipartFile" class="font-monospace m-2">Photo <i class="fa-solid fa-camera"></i></label>
+                        <input type="file" style="display: none;" name="multipartFile" class="form-control" id="pollMultipartFile" >
+
+                        <label for="options" class="font-monospace m-2">Add vote options </label>
+                        <div class="d-flex"><input type="text" name="voteOptionInput" id="voteOptionInput" class="form-control font-monospace m-2"><button type="button" class="btn btn-primary " onclick="createAVoteOption()"><i class="fa-solid fa-plus text-white"></i></button></div>
+                        <div>
+                            <ul id="ulTag">
+
+                            </ul>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="font-monospace m-2">Commuinty <i class="fa-solid fa-users"></i></label>
+                            <div class="col-sm-10" >
+                                <select class="form-select font-monospace m-2" id="groupSelect3" name="groupId" aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>  
+                            <button type="button" style="margin-left: 200px; border-radius: 10px;" class="btn btn-primary" id="pollCreateBtn"  onclick="createAPollPost()"  data-bs-dismiss="offcanvas"  aria-label="Close"  >POST</button>
+                    </form> 
+        </div>
+      </div>
+
+
+      <!-- poll create offcanvas end  -->
+
+
+      <!-- poll edit offcanvas start  -->
+
+
+
+      <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="pollEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Edit Poll</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body"> 
+                        <div class="modal-body" id="pollEventEditModal">
+        
+                        </div>
+        
+                   
+                
+            
+        </div>
+      </div>
+
+
+      <!-- poll edit offcanvas end  -->
 
 
     <!-- <button id="App" class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
@@ -722,12 +1022,12 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body ">
-                    <button type="button" class="btn btn-primary d-block m-1" onclick="getAllUserGroup('1')"
+                    <button type="button" class="btn btn-primary d-block m-1" 
                             data-bs-toggle="modal" data-bs-target="#modalDialogScrollable">
                         <i class="fa-solid fa-keyboard"></i> Create a post !
                     </button>
                     <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
-                            onclick="getAllUserGroup('2')" data-bs-target="#eventCreateModal">
+                             data-bs-target="#eventCreateModal">
                         <i class="fa-solid fa-calendar"></i> Create a event !
                     </button>
                     <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
@@ -893,7 +1193,7 @@
 
 
     <!-- edit modal box  -->
-    <div class="modal fade" id="editModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    <!-- <div class="modal fade" id="editModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
          aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -912,9 +1212,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
-
+<!-- 
     <div class="modal fade" id="pollEventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -928,12 +1228,12 @@
 
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- end edit modal box  -->
 
     <!-- event edit moddal box start  -->
-
+<!-- 
     <div class="modal fade" id="eventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -947,7 +1247,7 @@
 
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- event edit modal box end  -->
 
@@ -963,7 +1263,7 @@
     <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
          aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content border rounded-1">
+            <div class="modal-content border rounded-1" style="width:300px; margin-left:100px;">
 
                 <div id="markBox" class="hidden">
                     <div class="check_mark">
@@ -975,13 +1275,17 @@
                         </div>
                     </div>
                     <div>
-                        <button id="restart" class="btn btn-success offset-10" data-bs-dismiss="modal"
-                                onclick="setToNormal()">OK
+                        <button id="restart" style="background-color: #3192e0; border-radius: 10px; color:white; margin-left: 109px; margin-bottom: 20px;; " class="btn   " data-bs-dismiss="modal"
+                                onclick="setToNormal()">Continue
                         </button>
                     </div>
                 </div>
 
-                <div id="catBox" class="">
+                 
+                    <div class="loader"></div> 
+                 
+
+                <!-- <div id="catBox" class="">
                     <div class="box">
                         <div class="cat">
                             <div class="cat__body"></div>
@@ -990,7 +1294,7 @@
                             <div class="cat__head"></div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
 
             </div>
@@ -1005,61 +1309,8 @@
 
 
     
-    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
-        
-        
-        <div id="mentionSuggestions" class="font-monospace"></div>
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title font-monospace" id="postMaker">Create Status</h5>
-          <button type="button"   onclick="removePreview()" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body font-monospace">    
-                    <form id="postForm">
-                        
-                 
-                       
-                        <!-- Quill Editor Default -->
-                        <div class="row mb-3">
-                            <label for="status" class="font-monospace ">Your Status <i class="fa-solid fa-text-slash"></i></label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control  font-monospace" style="height: 200px; border-radius: 20px; border: none;" name="content"
-                                          id="content"></textarea>
-                               
-                            </div>
-                        </div>
-                  
-
-                        <div class="row mb-3">
-                            <label for="formFile" class="font-monospace">Video/Image <i id="video-icon" class="fa-solid fa-photo-film"> <input class="form-control font-monospace" type="file" id="file" name="file" multiple style="display: none;"></i></label>
-                            <div class="col-sm-10">
-                            </div>
-                        </div> 
-                        <div class="row mb-3">
-                            <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
-                            <div class="col-sm-10">
-                                <select class="form-select font-monospace" id="groupSelect1" name="groupId"
-                                        aria-label="Default select example">
-
-                                </select>
-                            </div>
-                        </div>
-
-                      
-
-                    </form><!-- End General Form Elements -->
-                    <!-- End Quill Editor Default -->
-                    <div class="container">
-                        <div id="preview" class="row" ></div>
-                    </div>
-                 
-                    
-                    <button type="button" class="btn btn-primary" onclick="createPost()" data-bs-dismiss="offcanvas"  aria-label="Close"
-                              >POST
-                    </button> 
-        </div>
-      </div>
-
-    <div class="modal fade" id="modalDialogScrollable" tabindex="-1" data-bs-backdrop="false">
+  
+    <!-- <div class="modal fade" id="modalDialogScrollable" tabindex="-1" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1069,7 +1320,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="postForm">
-                        <!-- Quill Editor Default -->
+                        Quill Editor Default  
                         <div class="row mb-3">
                             <label for="inputPassword" class="col-sm-2 col-form-label ">Title</label>
                             <div class="col-sm-10">
@@ -1100,8 +1351,8 @@
                         </div>
                         <div id="preview"></div>
 
-                    </form><!-- End General Form Elements -->
-                    <!-- End Quill Editor Default -->
+                    </form>  End General Form Elements 
+                      End Quill Editor Default  
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="removePreview()">
@@ -1113,7 +1364,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- end post create modal box -->
 
@@ -1146,53 +1397,14 @@
 
     <!-- event create modal box start  -->
 
-    <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="eventForm">
-                        <label for="title">Enter Event Title</label>
-                        <input type="text" class="form-control" name="title" id="title">
-                        <label for="description">Enter Event Description</label>
-                        <textarea class="form-control quill-editor-default" style="height: 100px" name="description" id="description" ></textarea>
-                        <label for="start_date">Enter start date</label>
-                        <input type="date" class="form-control" name="start_date" id="start_date">
-                        <label for="end_date">Enter end date</label>
-                        <input type="date" class="form-control" name="end_date" id="end_date">
-                        <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
-                        <label for="event_location" >Enter event location</label>
-                        <input type="text" class="form-control" name="location" id="location" >
-                        <label for="multipartFile">Enter Event Photo</label>
-                        <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
-
-                        <div class="row mb-3">
-                            <label class="col-sm-2 col-form-label">Select</label>
-                            <div class="col-sm-10" >
-                                <select class="form-select" id="groupSelect2" name="groupId" aria-label="Default select example">
-
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="modal" data-bs-toggle="modal"    >POST</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+   
 
 
     <!-- event create modal box end  -->
 
 
     <!-- poll create modal box start -->
-
+<!-- 
     <div class="modal fade" id="pollCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1238,7 +1450,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- poll create modal box end  -->
 
     <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -1865,37 +2077,84 @@
 
         let calendar = null;
 
+        // async function seeEvents() {
+        //     let data = await fetch('/event/getCalendarEventsForEachLoginUser', {
+        //         method: 'GET'
+        //     });
+        //     let birthdays = await fetch('/event/checkBirthdayOfEmployees')
+        //     if (data.ok && birthdays.ok) {
+        //         let response = await data.json();
+        //         let party = await birthdays.json()
+        //         console.log(response);
+        //         console.log(party)
+
+        //         let events = response
+        //             .filter(function (event) {
+        //                 return new Date(event.end_date) >= new Date();
+        //             })
+        //             .map(function (event) {
+        //                 return {
+        //                     id: event.id,
+        //                     title: event.description,
+        //                     start: new Date(event.start_date),
+        //                     end: new Date(event.end_date)
+        //                 };
+        //             });
+        //         console.log(events);
+
+        //         $('#calendarModalBox').modal('show');
+
+        //         $('#calendarModalBox').on('shown.bs.modal', () => {
+        //             renderCalendar(events);
+        //         });
+        //     }
+        // }
+
         async function seeEvents() {
-            let data = await fetch('/event/getCalendarEventsForEachLoginUser', {
-                method: 'GET'
-            });
-            if (data.ok) {
-                let response = await data.json();
-                console.log(response);
+    let [calendarEventsResponse, birthdaysResponse] = await Promise.all([
+        fetch('/event/getCalendarEventsForEachLoginUser', { method: 'GET' }),
+        fetch('/event/checkBirthdayOfEmployees',{method:'GET'})
+    ]);
 
-                let events = response
-                    .filter(function (event) {
-                        return new Date(event.end_date) >= new Date();
-                    })
-                    .map(function (event) {
-                        return {
-                            id: event.id,
-                            title: event.description,
-                            start: new Date(event.start_date),
-                            end: new Date(event.end_date)
-                        };
-                    });
-                console.log(events);
+    // .filter(event => new Date(event.end_date) >= new Date())
+    if (calendarEventsResponse.ok && birthdaysResponse.ok) {
+        let calendarEvents = await calendarEventsResponse.json();
+        let filteredCalendarEvents = calendarEvents.filter(event => new Date(event.end_date) >= new Date());
+        let birthdays = await birthdaysResponse.json();
+        console.log(calendarEvents +'111111111111111')
+        console.log(birthdays+'000000000000000000')
 
-                $('#calendarModalBox').modal('show');
+        // Combine both responses into one array
+        let allEvents = [...filteredCalendarEvents, ...birthdays.map(birthday => {
+            // Mark birthday events
+            birthday.isBirthday = true;
+            return birthday;
+        })];
 
-                $('#calendarModalBox').on('shown.bs.modal', () => {
-                    renderCalendar(events);
-                });
-            }
-        }
+        console.log(allEvents)
 
-        function renderCalendar(events) {
+        let events = allEvents
+            
+            .map(event => ({
+                id: event.id,
+                title: event.description,
+                start: new Date(event.start_date),
+                end: new Date(event.end_date),
+                color: event.isBirthday ? 'red' : 'blue' // Set color based on whether it's a birthday event
+            }));
+
+        console.log(events);
+
+        $('#calendarModalBox').modal('show');
+
+        $('#calendarModalBox').on('shown.bs.modal', () => {
+            renderCalendar(events);
+        });
+    }
+}
+
+
+function renderCalendar(events) {
             let calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 height: 'auto',
@@ -1976,8 +2235,6 @@
         //     const modal = document.getElementById('addPolicyModal');
         //     modal.style.display = 'block';
         // });
-
- 
     </script>
  
 

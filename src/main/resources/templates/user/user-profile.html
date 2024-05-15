@@ -529,6 +529,54 @@
     </div>
 </div>
 
+    <!-- Modal -->
+
+
+    <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border rounded-1" style="width:300px; margin-left:100px;">
+
+                <div id="markBox" class="hidden">
+                    <div class="check_mark">
+                        <div class="sa-icon sa-success animate">
+                            <span class="sa-line sa-tip animateSuccessTip"></span>
+                            <span class="sa-line sa-long animateSuccessLong"></span>
+                            <div class="sa-placeholder"></div>
+                            <div class="sa-fix"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="restart" style="background-color: #3192e0; border-radius: 10px; color:white; margin-left: 109px; margin-bottom: 20px;; " class="btn   " data-bs-dismiss="modal"
+                                onclick="setToNormal()">Continue
+                        </button>
+                    </div>
+                </div>
+
+                 
+                    <div class="loader"></div> 
+                 
+
+                <!-- <div id="catBox" class="">
+                    <div class="box">
+                        <div class="cat">
+                            <div class="cat__body"></div>
+                            <div class="cat__body"></div>
+                            <div class="cat__tail"></div>
+                            <div class="cat__head"></div>
+                        </div>
+                    </div>
+                </div> -->
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- loading modal box end  -->
+
+
 <div th:replace="~{index::footer}"></div>
 
 <script>
@@ -764,7 +812,19 @@ document.addEventListener('DOMContentLoaded',() => {
 
 });
 
+
+async function setToNormal() {
+    document.querySelector('.loader').classList.remove('hidden')
+    document.getElementById('markBox').classList.add('hidden')
+}
+
+
+
     async function changeProfilePhoto(){
+        let lodader = document.querySelector('.loader')
+        let mark = document.getElementById('markBox')
+        let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
+        loadingModalBox.show()
         let data = new FormData(document.getElementById('photoForm'))
         let response = await fetch('/user/updateProfilePhoto',{
             method : 'POST',
@@ -772,6 +832,8 @@ document.addEventListener('DOMContentLoaded',() => {
         });
         console.log(response)
         if(response.ok){
+            lodader.classList.add('hidden')
+            mark.classList.remove('hidden')
             const res =await response.json();
             const photo = res.photo;
             console.log("Shit lr",photo);

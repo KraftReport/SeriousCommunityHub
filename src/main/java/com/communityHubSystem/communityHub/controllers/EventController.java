@@ -217,4 +217,10 @@ public class EventController {
         return ResponseEntity.ok(eventService.getCalendarEventsForEachLoginUser());
     }
 
+    @GetMapping("checkBirthdayOfEmployees")
+    @ResponseBody
+    public ResponseEntity<List<Event>> checkBirthdayOfEmployees() throws ParseException {
+        return ResponseEntity.ok(eventService.checkBirthdayOfEmployees());
+    }
+
 }

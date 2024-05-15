@@ -29,6 +29,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -383,6 +384,74 @@ public class EventServiceImpl implements EventService {
                 .getAccess().equals(Access.PUBLIC)).toList());
         filteredEvents.addAll(getEventsOfGroupForLoginUser(Event.EventType.EVENT));
         return filteredEvents;
+    }
+    @Override
+    public List<Event> checkBirthdayOfEmployees() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar today = Calendar.getInstance();
+        today.setTime(setToMidnight(today.getTime()));
+        List<Event> list = new ArrayList<>();
+        List<User> allUsers = userRepository.findAll();
+
+        allUsers.stream()
+                .filter(user -> {
+                    try {
+                        return todayIsBirthday(user, today);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                })
+                .forEach(user -> {
+                    var eventTitle =  user.getName()+"'s birthday party";
+                    var eventExists = eventRepository.findByEventTitleAndStartDate(eventTitle, today.getTime()).isPresent();
+                    var found = eventRepository.findByEventTitleAndStartDate(eventTitle, today.getTime()).orElseThrow(()->new CommunityHubException("event not found"));
+                    if(!eventExists){
+                        Event event = new Event();
+                        event.setEventType(Event.EventType.EVENT);
+                        event.setTitle(user.getName() + "'s birthday party");
+                        event.setDescription(user.getName()+"'s "+getAge(user.getDob())+" years old birthday");
+                        event.setStart_date(setToMidnight(today.getTime()));
+                        event.setEnd_date(setToMidnight(today.getTime()));
+                        eventRepository.save(event);
+                        list.add(event);
+                    }
+                    list.add(found);
+                });
+        System.err.println(list);
+
+        return list;
+    }
+
+    private String escapeSql(String str) {
+        return str.replace("'", "''");
+    }
+
+    private int getAge(String dob) {
+        LocalDate birthDate = LocalDate.parse(dob);
+        LocalDate currentDate = LocalDate.now();
+        return Period.between(birthDate, currentDate).getYears();
+    }
+
+    private boolean todayIsBirthday(User user, Calendar today) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        System.err.println(user.getDob()+"=====================");
+        Calendar birthday = Calendar.getInstance();
+        if(user.getDob()!=null){
+            birthday.setTime(formatter.parse(user.getDob()));
+            return today.get(Calendar.MONTH) == birthday.get(Calendar.MONTH) && today.get(Calendar.DAY_OF_MONTH) == birthday.get(Calendar.DAY_OF_MONTH);
+        }
+        return false;
+    }
+
+    private Date setToMidnight(Date date){
+        var cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY,0);
+        cal.set(Calendar.MINUTE,0);
+        cal.set(Calendar.SECOND,0);
+        cal.set(Calendar.MILLISECOND,0);
+        return cal.getTime();
     }
 
     private Page<Event> getPaginationOfEvents(List<Event> filteredEvents,String page){
