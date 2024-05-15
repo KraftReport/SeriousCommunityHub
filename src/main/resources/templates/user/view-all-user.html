@@ -106,7 +106,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade" id="rejectedRoleModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
          aria-labelledby="updateRoleModalLabel" aria-hidden="true">
         <link href="/static/assets/css/userToAdminModal.css" rel="stylesheet">
@@ -128,7 +127,6 @@
                 </div>
             </div>
         </div>
-
     </div>
     <div class="modal fade" id="removeUserModal" data-bs-backdrop="static" tabindex="-1"
          aria-labelledby="removeUserModalLabel" aria-hidden="true">
@@ -255,6 +253,8 @@
                                                 <p class="font-italic mb-1">
                                                     <strong>Role:</strong> <span th:text="${user.role}?: 'Not provided'"></span>
                                                 </p>
+                                                    <strong>Hobbies:</strong>
+                                                <div th:id="'hobbiesContainer-' + ${user.id}"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -415,6 +415,73 @@
                     console.error('Error updating user status:', error);
                 });
         }
+        const hobbyIcons = {
+            "Reading": "<i class='fas fa-book' style='color: #4a86e8;'></i>",
+            "Hiking": "<i class='fas fa-hiking' style='color: #f6b26b;'></i>",
+            "Cooking": "<i class='fas fa-utensils' style='color: #e55039;'></i>",
+            "Gardening": "<i class='fas fa-seedling' style='color: #8bc34a;'></i>",
+            "Writing": "<i class='fas fa-pen' style='color: #673ab7;'></i>",
+            "Photography": "<i class='fas fa-camera' style='color: #9e9e9e;'></i>",
+            "Coding": "<i class='fas fa-laptop-code' style='color: #607d8b;'></i>",
+            "Drawing": "<i class='fas fa-draw-polygon' style='color: #ff9800;'></i>",
+            "Swimming": "<i class='fas fa-swimmer' style='color: #00bcd4;'></i>",
+            "Gaming": "<i class='fas fa-gamepad' style='color: #4caf50;'></i>",
+            "Painting": "<i class='fas fa-paint-brush' style='color: #9c27b0;'></i>",
+            "Traveling": "<i class='fas fa-globe-americas' style='color: #795548;'></i>",
+            "Cycling": "<i class='fas fa-bicycle' style='color: #607d8b;'></i>",
+            "Camping": "<i class='fas fa-campground' style='color: #ff9800;'></i>",
+            "Fishing": "<i class='fas fa-fish' style='color: #00bcd4;'></i>",
+            "Birdwatching": "<i class='fas fa-binoculars' style='color: #4caf50;'></i>",
+            "Meditation": "<i class='fas fa-meditate' style='color: #9c27b0;'></i>",
+            "Music": "<i class='fas fa-music' style='color: #795548;'></i>",
+            "Jogging": "<i class='fas fa-running' style='color: #4a86e8;'></i>",
+            "Sports": "<i class='fas fa-futbol' style='color: #f6b26b;'></i>",
+            "Crafts": "<i class='fas fa-craft' style='color: #e55039;'></i>",
+            "Sewing": "<i class='fas fa-scissors' style='color: #8bc34a;'></i>",
+            "Crochet": "<i class='fas fa-crop' style='color: #673ab7;'></i>",
+            "Acting": "<i class='fas fa-theater-masks' style='color: #9e9e9e;'></i>"
+        };
+
+        function displayHobbiesWithIcons(hobbiesString) {
+            const hobbies = hobbiesString.split(',');
+            console.log(hobbies+"reach here.")
+            let html = "";
+            hobbies.forEach(hobby => {
+                const icon = hobbyIcons[hobby];
+                if (icon) {
+                    html += `<div>${icon} ${hobby}</div>`;
+                }
+            });
+            return html;
+        }
+
+        function fetchAndDisplayUserHobbies(userId) {
+            fetch(`/user/getUserHobbies/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch user hobbies');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const hobbies = data.hobbies;
+                    const hobbiesContainer = document.getElementById(`hobbiesContainer-${userId}`);
+                    if (hobbiesContainer) {
+                        hobbiesContainer.innerHTML = displayHobbiesWithIcons(hobbies);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user hobbies:', error);
+                });
+        }
+
+        // Add event listeners to "View Detail" buttons
+        document.querySelectorAll('button[data-bs-target^="#userDetailModal-"]').forEach(button => {
+            button.addEventListener('click', event => {
+                const userId = event.currentTarget.getAttribute('data-bs-target').split('-').pop();
+                fetchAndDisplayUserHobbies(userId);
+            });
+        });
     });
     $(document).ready(function () {
         $('.single_advisor_profile').on('click', function() {
@@ -526,6 +593,8 @@
             return 'UNKNOWN';
         }
     }
+
+
 </script>
 
 </body>

@@ -468,6 +468,35 @@ public class UserController {
 
         return "/user/other-user-profile";
     }
+
+    @GetMapping("/getHobbies")
+    public ResponseEntity<?> getUserHobbies() {
+        String staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isPresent()) {
+            String userHobbies = optionalUser.get().getHobby();
+            System.out.println(userHobbies);
+            Map<String, Object> response = new HashMap<>();
+            response.put("hobbies", userHobbies);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @GetMapping("/getUserHobbies/{userId}")
+    public ResponseEntity<?> getUserHobbies(@PathVariable Long userId) {
+        User user = userService.findById(userId);
+        System.out.println(userId);
+        if (user != null) {
+            String userHobbies = user.getHobby();
+            System.out.println(userHobbies);
+            Map<String, Object> response = new HashMap<>();
+            response.put("hobbies", userHobbies);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
 
 
