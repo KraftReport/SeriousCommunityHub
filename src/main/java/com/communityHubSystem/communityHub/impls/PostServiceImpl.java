@@ -249,6 +249,16 @@ public class PostServiceImpl implements PostService {
         return new PageImpl<>(paginatedPosts, pageable, posts.size());
     }
 
+    @Override
+    public List<Post> findAllPostByIsDeleted(boolean value,Long id) {
+        return postRepository.findAllPostsByIsDeletedAndUserId(value,id);
+    }
+
+    @Override
+    public List<Post> findAllPostByIsDeletedAndUserGroupId(Long id) {
+        return postRepository.findAllByIsDeletedAndUserGroupIdJPQL(false,id);
+    }
+
 
     public boolean isValidPhotoExtension(String extension) {
         return photoExtensions.contains(extension);
@@ -300,6 +310,7 @@ public class PostServiceImpl implements PostService {
                 user_group.setCommunity(communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(()->new CommunityHubException("not found community")));
                 user_group.setUser(loginUser);
                 user_group.setDate(new Date());
+                user_groupRepository.save(user_group);
                 post.setUserGroup(user_group);
             }else {
             var community = communityRepository.findById(Long.valueOf(postDTO.getGroupId())).orElseThrow(() -> new CommunityHubException("Group Name Not found Exception!"));

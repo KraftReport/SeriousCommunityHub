@@ -16,4 +16,6 @@ public interface ReplyService {
     public void deleteReply(Long id);
 
     public void updatedReply(CommentUpdateDto commentUpdateDto);
+
+   public   Long findReplySizeByCommentId(Long id);
 }

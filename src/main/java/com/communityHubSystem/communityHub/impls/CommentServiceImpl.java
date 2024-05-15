@@ -56,4 +56,9 @@ public class CommentServiceImpl implements CommentService {
        commentRepository.findById(commentUpdateDto.getId()).ifPresent(c -> c.setContent(commentUpdateDto.getContent()));
     }
 
+    @Override
+    public Long findCommentSizeByPostId(Long id) {
+        return commentRepository.countCommentsByPostId(id);
+    }
+
 }

@@ -28,4 +28,5 @@ public interface UserService {
     public  void acceptReject(Long userId);
     public List<User> userSearchMethod(String input) throws UnsupportedEncodingException;
 
+    List<Object> checkUserOrAdminOrGroupOwner();
 }

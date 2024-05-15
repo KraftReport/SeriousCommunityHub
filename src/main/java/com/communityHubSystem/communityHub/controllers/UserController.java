@@ -497,6 +497,12 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/checkUserOrAdminOrGroupOwner")
+    @ResponseBody
+    public ResponseEntity<List<Object>> checkUserOrAdminOrGroupOwner(){
+        return ResponseEntity.ok(userService.checkUserOrAdminOrGroupOwner());
+    }
 }
 
 

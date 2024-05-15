@@ -32,7 +32,12 @@ public interface PostRepository extends JpaRepository<Post,Long>, JpaSpecificati
 
     @Query(value = "select * from post where user_group_id = :id order by created_date desc",nativeQuery = true)
     List<Post> findAllByUserGroupId(Long id);
-   // Page<Post> findAllByUserIdAndUserGroupId(Long userId, Long userGroupId, Pageable pageable);
+
+    List<Post> findAllPostsByIsDeletedAndUserId(boolean value,Long id);
+
+    @Query("SELECT p FROM Post p WHERE p.isDeleted = :isDeleted AND p.userGroup.id = :userGroupId")
+    List<Post> findAllByIsDeletedAndUserGroupIdJPQL(@Param("isDeleted") boolean isDeleted, @Param("userGroupId") Long userGroupId);
+    // Page<Post> findAllByUserIdAndUserGroupId(Long userId, Long userGroupId, Pageable pageable);
 
 //    @Query("SELECT p FROM Post p JOIN FETCH p.resources WHERE p.access = :access ORDER BY p.createdDate DESC")
 //    List<Post> findPostsByAccessWithPagination(@Param("access") Access access, Pageable pageable);

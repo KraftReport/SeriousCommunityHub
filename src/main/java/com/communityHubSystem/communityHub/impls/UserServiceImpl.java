@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
+import com.communityHubSystem.communityHub.repositories.CommunityRepository;
 import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import com.communityHubSystem.communityHub.services.UserService;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
 
 
     private final UserRepository userRepository;
+    private final CommunityRepository communityRepository;
     private final ExcelUploadService excelUploadService;
     private final List<String> photoExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", "bmp","tiff","tif","psv","svg","webp","ico","heic");
     private final Cloudinary cloudinary;
@@ -282,6 +284,27 @@ public class UserServiceImpl implements UserService {
             userSpec = userSpec.or(s);
         }
         return userRepository.findAll(userSpec);
+    }
+
+    @Override
+    public List<Object> checkUserOrAdminOrGroupOwner() {
+        var loginUser = getCurrentLoginUser();
+        var objList = new ArrayList<Object>();
+        if(loginUser.getRole().equals(User.Role.ADMIN)){
+            objList.add("ADMIN");
+            return objList;
+        } else if (loginUser.getRole().equals(User.Role.USER) && checkGroupOwnerOrNot()){
+            objList.add("OWNER");
+            return objList;
+        }else {
+            objList.add("MEMBER");
+            return objList;
+        }
+    }
+
+    private boolean checkGroupOwnerOrNot(){
+        var loginUser = getCurrentLoginUser();
+        return communityRepository.findCommunityByOwnerName(loginUser.getName()) != null;
     }
 
     @Override

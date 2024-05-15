@@ -530,33 +530,33 @@ const fetchUserByLogInId = async (id) => {
     return userData;
 };
 
-const getCurrentTime = () => {
-    const currentTime = new Date();
-    const formattedTime = currentTime.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-    });
-    return formattedTime;
-};
+// const getCurrentTime = () => {
+//     const currentTime = new Date();
+//     const formattedTime = currentTime.toLocaleTimeString([], {
+//         hour: '2-digit',
+//         minute: '2-digit',
+//         second: '2-digit',
+//         hour12: true
+//     });
+//     return formattedTime;
+// };
 
-async function timeAgo(createdDate) {
-    console.log("ddd",createdDate)
-    const now = new Date();
-    const diff = now - createdDate;
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (seconds < 60) {
-        return `just now`;
-    } else if (minutes < 60) {
-        return `${minutes} minutes${minutes > 1? '' : ''} ago`;
-    } else if (hours < 24) {
-        return `${hours} hours${hours > 1? '' : ''} ago`;
-    } else {
-        return `${days} days${days > 1? '' : ''} ago`;
-    }
-}
+// async function timeAgo(createdDate) {
+//     console.log("ddd",createdDate)
+//     const now = new Date();
+//     const diff = now - createdDate;
+//     const seconds = Math.floor(diff / 1000);
+//     const minutes = Math.floor(seconds / 60);
+//     const hours = Math.floor(minutes / 60);
+//     const days = Math.floor(hours / 24);
+//
+//     if (seconds < 60) {
+//         return `just now`;
+//     } else if (minutes < 60) {
+//         return `${minutes} minutes${minutes > 1? '' : ''} ago`;
+//     } else if (hours < 24) {
+//         return `${hours} hours${hours > 1? '' : ''} ago`;
+//     } else {
+//         return `${days} days${days > 1? '' : ''} ago`;
+//     }
+// }

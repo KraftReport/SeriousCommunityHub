@@ -41,4 +41,7 @@ public interface ReactService {
 
   public    List<React> findByUserId(Long id);
 
+    List<React> findReactByCommentIdAndPostId(Long id);
+
+   public Long finReactByCommentIdIsNullAndPostIdAndReplyIdIsNull(Long id);
 }
