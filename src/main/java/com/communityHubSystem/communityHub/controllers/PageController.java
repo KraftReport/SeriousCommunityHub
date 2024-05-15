@@ -176,4 +176,10 @@ public class PageController {
     public String goToSearchPage(){
         return "/layout/searchPage";
     }
+
+
+    @GetMapping("/record-list")
+    public String goToRecordListPage(){
+        return "/layout/user-record";
+    }
 }

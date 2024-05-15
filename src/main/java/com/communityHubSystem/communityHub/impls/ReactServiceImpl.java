@@ -110,4 +110,14 @@ public class ReactServiceImpl implements ReactService {
     public List<React> findByUserId(Long id) {
         return reactRepository.findByUserId(id);
     }
+
+    @Override
+    public List<React> findReactByCommentIdAndPostId(Long id) {
+        return reactRepository.findReactByCommentIdAndPostIdAndReplyId(null,id,null);
+    }
+
+    @Override
+    public Long finReactByCommentIdIsNullAndPostIdAndReplyIdIsNull(Long id) {
+        return reactRepository.countReactsByPostIdWhereCommentIdIsNullAndReplyIdIsNull(id);
+    }
 }

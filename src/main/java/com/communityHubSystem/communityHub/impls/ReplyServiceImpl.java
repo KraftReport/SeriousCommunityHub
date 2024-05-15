@@ -44,4 +44,9 @@ public class ReplyServiceImpl implements ReplyService {
     public void updatedReply(CommentUpdateDto commentUpdateDto) {
         replyRepository.findById(commentUpdateDto.getId()).ifPresent(r -> r.setContent(commentUpdateDto.getContent()));
     }
+
+    @Override
+    public Long findReplySizeByCommentId(Long id) {
+        return replyRepository.countRepliesByPostId(id);
+    }
 }
