@@ -61,24 +61,44 @@ const showOneTrendyPostWithinOneMonth =async () => {
     const reactCount = document.getElementById('unique-oneMonthTrendyPostReactCount');
     const commentCount = document.getElementById('unique-oneMonthTrendyPostCommentCount');
     const photo = document.querySelector('.unique-image1');
-  const post = await fetchMostTrendyPostWithinOneMonth();
-    const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
-    photo.src = `${image}`;
-  const reactSize = await fetchMostTrendyPostReactCountWithinOneMonth();
-  const commentSize = await fetchMostTrendyPostCommentCountWithinOneMonth();
-   // let date = await timeAgo(new Date(post.createdDate))
-    const createdDate = new Date(post.createdDate);
-    const formattedDate = createdDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    postedDate.innerHTML = `Posted Date: ${formattedDate}`;
-   reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
-   commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
-
+    const checkUser = await getUserToCheckAdminOrNot();
+    if(checkUser.role === 'ADMIN'){
+        const post = await getOnlyPostForAdminWithinOneMonth();
+        const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
+        photo.src = `${image}`;
+        const reactSize = await getOnlyPostReactsCountForAdmin(post.id);
+        const commentSize = await getOnlyPostCommentsCountForAdmin(post.id);
+        const createdDate = new Date(post.createdDate);
+        const formattedDate = createdDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        postedDate.innerHTML = `Posted Date: ${formattedDate}`;
+        reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+        commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+        console.log("that is admin")
+    }else{
+        const post = await fetchMostTrendyPostWithinOneMonth();
+        const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
+        photo.src = `${image}`;
+        const reactSize = await fetchMostTrendyPostReactCountWithinOneMonth();
+        const commentSize = await fetchMostTrendyPostCommentCountWithinOneMonth();
+        const createdDate = new Date(post.createdDate);
+        const formattedDate = createdDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        postedDate.innerHTML = `Posted Date: ${formattedDate}`;
+        reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+        commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+        console.log("that is User")
+    }
 }
 
 const showOneTrendyPostWithinOneYear =async () => {
@@ -86,22 +106,44 @@ const showOneTrendyPostWithinOneYear =async () => {
     const reactCount = document.getElementById('unique-oneYearTrendyPostReactCount');
     const commentCount = document.getElementById('unique-oneYearTrendyPostCommentCount');
     const photo = document.querySelector('.unique-image2');
-    const p = await fetchMostTrendyPostWithinOneYear();
-    const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
-    photo.src = `${image}`;
-    const reactSize = await fetchMostTrendyPostReactCountWithinOneYear();
-    const commentSize = await fetchMostTrendyPostCommentCountWithinOneYear();
-    const createdDate = new Date(p.createdDate);
-    const formattedDate = createdDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    postedDate.innerHTML = ` Posted Date : ${formattedDate}`;
-    reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
-    commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+const checkUser = await getUserToCheckAdminOrNot();
+ if(checkUser.role === 'ADMIN'){
+     const p = await getOnlyPostForAdminWithinOneYear();
+     const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
+     photo.src = `${image}`;
+     const reactSize = await getOnlyPostReactsCountForAdmin(p.id);
+     const commentSize = await getOnlyPostCommentsCountForAdmin(p.id);
+     const createdDate = new Date(p.createdDate);
+     const formattedDate = createdDate.toLocaleDateString('en-US', {
+         year: 'numeric',
+         month: 'long',
+         day: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit'
+     });
+     postedDate.innerHTML = ` Posted Date : ${formattedDate}`;
+     reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+     commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+     console.log("that is admin")
+ }else{
+     const p = await fetchMostTrendyPostWithinOneYear();
+     const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
+     photo.src = `${image}`;
+     const reactSize = await fetchMostTrendyPostReactCountWithinOneYear();
+     const commentSize = await fetchMostTrendyPostCommentCountWithinOneYear();
+     const createdDate = new Date(p.createdDate);
+     const formattedDate = createdDate.toLocaleDateString('en-US', {
+         year: 'numeric',
+         month: 'long',
+         day: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit'
+     });
+     postedDate.innerHTML = ` Posted Date : ${formattedDate}`;
+     reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+     commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+     console.log("that is user")
+ }
 
 }
 
@@ -287,5 +329,34 @@ const getTotalCommentsForCommunityWithinOneMonth = async () => {
 const getTotalCommentsForCommunityWithinOneYear = async () => {
     const data = await fetch(`/user/record-groupPostComments-listForOneYear`);
     const res = await data.json();
+    return res;
+}
+
+const getUserToCheckAdminOrNot =async () => {
+    const data = await fetch(`/user/check-role`);
+    const res = await data.json();
+    return res;
+}
+
+const getOnlyPostForAdminWithinOneMonth = async () => {
+    const uniquePost = await fetch(`/user/onlyOne-trendyPost-withinOneMonth`)
+   const res = await uniquePost.json();
+    return res;
+}
+const getOnlyPostForAdminWithinOneYear = async () => {
+    const uniquePost = await fetch(`/user/onlyOne-trendyPost-withinOneYear`)
+    const res = await uniquePost.json();
+    return res;
+}
+
+const getOnlyPostReactsCountForAdmin = async (id) => {
+    const reactCount = await fetch(`/user/onlyOne-trendyPostReacts-withinOneMonth/${id}`);
+    const res = await reactCount.json();
+    return res;
+}
+
+const getOnlyPostCommentsCountForAdmin = async (id) => {
+    const reactCount = await fetch(`/user/onlyOne-trendyPostComments-withinOneMonth/${id}`);
+    const res = await reactCount.json();
     return res;
 }

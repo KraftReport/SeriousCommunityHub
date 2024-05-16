@@ -24,12 +24,12 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#totalTab"
+                    <button class="nav-link" id="total-tab" sec:authorize="hasAnyAuthority('ADMIN')" data-bs-toggle="tab" data-bs-target="#totalTab"
                             type="button" role="tab" aria-controls="totalTab" aria-selected="false">TrendyTotalsList
                     </button>
                 </li>
             </ul>
-            <div class="tab-content" id="myTabContent" sec:authorize="hasAnyAuthority('ADMIN')">
+            <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="postListTab" role="tabpanel" aria-labelledby="postList-tab">
                     <div id="trendyPost" class="">
 

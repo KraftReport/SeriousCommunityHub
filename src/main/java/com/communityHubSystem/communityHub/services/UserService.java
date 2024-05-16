@@ -29,4 +29,6 @@ public interface UserService {
     public List<User> userSearchMethod(String input) throws UnsupportedEncodingException;
 
     List<Object> checkUserOrAdminOrGroupOwner();
+
+   public List<User> getAllActiveUser();
 }
