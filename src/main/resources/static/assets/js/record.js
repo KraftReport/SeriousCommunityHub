@@ -360,3 +360,38 @@ const getOnlyPostCommentsCountForAdmin = async (id) => {
     const res = await reactCount.json();
     return res;
 }
+//for admin to show each activity
+
+const getUsersWithoutAdmin =async () => {
+    const users = await fetch(`/user/activeUsers-forAdmin`);
+    const res = await users.json();
+    return res;
+}
+
+const getAllUsersReactsForAdmin =async (id) => {
+    const reacts = await fetch(`/user/activeUser-ReactsCount/${id}`);
+    const res = await reacts.json();
+ return  res;
+}
+const getAllUsersCommentsForAdmin = async (id) => {
+    const comments = await fetch(`/user/activeUser-CommentsCount/${id}`);
+    const res = await comments.json();
+    return  res;
+}
+const getPostListForEachUserWithinOneMonth = async (id) => {
+    const posts = await fetch(`/user/getPosts-eachUser/month/${id}`);
+    const res = await posts.json();
+    return res;
+}
+
+const getPostListForEachYearWithinOneYear = async (id) => {
+    const posts = await fetch(`/user/getPosts-eachUser/year/${id}`);
+    const res = await posts.json();
+    return res;
+}
+
+const getPostListForEachYear = async (id) => {
+    const postList = await fetch(`/user/getPosts-eachUser/all/${id}`);
+    const res = postList.json();
+    return res;
+}

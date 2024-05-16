@@ -104,10 +104,10 @@ public class RecordController {
 
     // for admin view start
 
-    //call active all users
+    //call active all users without admin
     @GetMapping("/activeUsers-forAdmin")
     public ResponseEntity<List<User>> getActiveUsersForAdmin(){
-        return ResponseEntity.status(HttpStatus.OK).body(getAllActiveUser());
+        return ResponseEntity.status(HttpStatus.OK).body(getAllActiveUserWithoutAdmin());
     }
 
     //get one post for admin in a month
@@ -136,12 +136,15 @@ public class RecordController {
     }
 
     // get one user all posts reacts
+
+    // dr do call yin react a kone ya
     @GetMapping("/activeUser-ReactsCount/{id}")
     public ResponseEntity<Long> getReactsForActiveUser(@PathVariable("id")Long id){
         return ResponseEntity.status(HttpStatus.OK).body(getAllReactsForActiveUser(id));
     }
 
     //get one user all posts comments
+    // dr ko call yin comments a kone ya
     @GetMapping("/activeUser-CommentsCount/{id}")
     public ResponseEntity<Long> getCommentsForActiveUser(@PathVariable("id")Long id){
         return ResponseEntity.status(HttpStatus.OK).body(getAllCommentsForActiveUser(id));
@@ -158,7 +161,23 @@ public class RecordController {
         return ResponseEntity.status(HttpStatus.OK).body(loginUser());
     }
 
+    //dr do call yin month post ya
+    @GetMapping("/getPosts-eachUser/month/{id}")
+    public ResponseEntity<List<Post>> getPostsForEachUserInAMonth(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(getPostsForEachUserWithinOneMonth(id));
+    }
 
+    // dr do call yin year post ya
+    @GetMapping("/getPosts-eachUser/year/{id}")
+    public ResponseEntity<List<Post>> getPostsForEachUserInAYear(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(getPostsForEachUserWithinOneYear(id));
+    }
+
+    // dr ko call yin a kone ya
+    @GetMapping("/getPosts-eachUser/all/{id}")
+    public ResponseEntity<List<Post>> getPostsForEachUser(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(getAllPostsForEachUser(id));
+    }
     //for admin view end
 
     // for login user trendy post start
@@ -734,6 +753,16 @@ public class RecordController {
         return userService.getAllActiveUser();
     }
 
+    public List<User> getAllActiveUserWithoutAdmin() {
+        List<User> users = userService.getAllActiveUser();
+        List<User> userList = new ArrayList<>();
+        for(User user:users){
+            if(!user.getRole().equals(User.Role.ADMIN)){
+                userList.add(user);
+            }
+        }
+        return userList;
+    }
     //for all user posts end
 
     //for admin start
@@ -774,6 +803,34 @@ public class RecordController {
                     return !postDate.isBefore(startDateOfYear);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public List<Post> getPostsForEachUserWithinOneMonth(Long userId){
+        var posts = postService.findAllPostByIsDeleted(false,userId);
+        LocalDate currentDate = LocalDate.now();
+        LocalDate startDateOfMonth = LocalDate.of(currentDate.getYear(), currentDate.getMonth(), 1);
+        return posts.stream()
+                .filter(post -> {
+                    LocalDate postDate = post.getCreatedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    return !postDate.isBefore(startDateOfMonth);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Post> getPostsForEachUserWithinOneYear(Long userId){
+        var posts = postService.findAllPostByIsDeleted(false,userId);
+        LocalDate currentDate = LocalDate.now();
+        LocalDate startDateOfYear = LocalDate.of(currentDate.getYear(), 1, 1);
+        return posts.stream()
+                .filter(post -> {
+                    LocalDate postDate = post.getCreatedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    return !postDate.isBefore(startDateOfYear);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Post> getAllPostsForEachUser(Long userId){
+        return postService.findAllPostByIsDeleted(false,userId);
     }
 
     private long calculatePostEngagement(Post post) {
