@@ -481,6 +481,12 @@ public class UserController {
     public ResponseEntity<User> getCurrentLoginUser(){
         return ResponseEntity.ok(userService.getLogin());
     }
+
+    @GetMapping("/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/{id}")
+    @ResponseBody
+    public ResponseEntity<List<Object>> checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(@PathVariable("id")String id){
+        return ResponseEntity.ok(userService.checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(Long.valueOf(id)));
+    }
 }
 
 

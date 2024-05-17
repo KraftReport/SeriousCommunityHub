@@ -115,7 +115,13 @@
             <p id="communityMembers" ><i class="fa-solid fa-earth-americas"></i>Public group 10members</p>
             <div class="button-group">
                 <button type="button" class="btn btn-secondary btn-lg" value="Joined"><i class="fa-solid fa-users-gear"></i>Joined</button>
-                <button type="button" class="btn btn-primary btn-lg" value="Invite" id="inviteBtn" onclick="populateCreateGroupFormForInvitation()"><i class="fa-solid fa-user-plus"></i>Invite</button>            </div>
+                <button type="button" class="btn btn-primary btn-lg" value="Invite" id="inviteBtn" onclick="populateCreateGroupFormForInvitation()"><i class="fa-solid fa-user-plus"></i>Invite</button>
+
+            </div>
+
+            <div id="createBtns">
+
+            </div>
 
             <div class="container">
                 <div class="modal fade" id="invitationFormModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
@@ -197,6 +203,170 @@
         </div>
     </div>
     </div>
+
+
+    
+    <!-- post create offcanvas start  -->
+
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
+
+
+        <div id="mentionSuggestions" class="font-monospace"></div>
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title font-monospace" id="postMaker">Create Status</h5>
+            <button type="button"   onclick="removePreview()" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body font-monospace">
+            <form id="postForm">
+
+
+
+                <!-- Quill Editor Default -->
+                <div class="row mb-3">
+                    <label for="status" class="font-monospace ">Your Status <i class="fa-solid fa-font"></i></label>
+                    <div class="col-sm-10">
+
+                                <textarea class="form-control  font-monospace" style="height: 200px; border-radius: 20px; border: none;" name="content"
+                                          id="content"></textarea>
+
+                    </div>
+                </div>
+
+
+                <div class="row mb-3">
+                    <label id="video-icon"  for="formFile" class="font-monospace">Video/Image <i class="fa-solid fa-photo-film"> <input class="form-control font-monospace" type="file" id="file" name="file" multiple style="display: none;"></i></label>
+                    <div class="col-sm-10">
+                    </div>
+                </div>
+                <div class="row mb-3" hidden>
+                    <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
+                    <div class="col-sm-10">
+                        <select class="form-select font-monospace" id="groupSelect1" name="groupId"
+                                aria-label="Default select example">
+
+                        </select>
+                    </div>
+                </div>
+
+
+
+            </form><!-- End General Form Elements -->
+            <!-- End Quill Editor Default -->
+            <div class="container">
+                <div id="preview" class="row" ></div>
+            </div>
+
+
+            <button style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createPost()" data-bs-dismiss="offcanvas"  aria-label="Close">POST
+            </button>
+        </div>
+    </div>
+
+
+      <!-- post create offcanvas end  -->
+
+
+
+            <!-- event create offcanvas start  -->
+
+            <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="eventMaker" aria-labelledby="eventMaker">
+                <div class="offcanvas-header">
+                  <h5 class="offcanvas-title" id="eventMaker">Create Announcement</h5>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+         
+                                    <form id="eventForm" class="font-monospace">
+                                        <label for="title" class="font-monospace m-2">Title <i class="fa-solid fa-sign-hanging"></i></label>
+                                        <input type="text" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control m-2 font-monospace" name="title" id="eventtitle">
+        
+                                        <label for="description" class="font-monospace m-2">Description <i class="fa-solid fa-info"></i></label>
+                                        <textarea style="border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); height: 200px;" class="form-control font-monospace  m-2"  name="description" id="eventdescription" ></textarea>
+        
+                                        <label id="labelForEventStartDate" for="start_date" class="font-monospace m-2">Start <i class="fa-regular fa-clock"></i></label>
+                                        <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); " class="form-control m-2 font-monospace" name="start_date" id="start_date">
+        
+                                        <label id="labelForEventEndDate" for="end_date" class="font-monospace m-2">End <i class="fa-solid fa-clock"></i></label>
+                                        <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "   class="form-control m-2 font-monospace" name="end_date" id="end_date">
+        
+                                        <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
+        
+                                        <label for="event_location" class="font-monospace m-2" >Location <i class="fa-regular fa-compass"></i></label>
+                                        <input style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" type="text" value="" class="form-control m-2 font-monospace" name="location" id="location" >
+        
+                                        <label id="labelForEventPhoto" for="multipartFile" class="font-monospace m-2">Photo <i class="fa-solid fa-camera"></i></label>
+                                        <input type="file" style="display: none;" name="multipartFile" class="form-control" id="eventPhotoFile" >
+                
+                                        <div class="row mb-3" hidden>
+                                            <label class=" font-monospace">Commuinty <i class="fa-solid fa-users"></i></label>
+                                            <div class="col-sm-10" >
+                                                <select class="form-select font-monospace" id="groupSelect2" name="groupId" aria-label="Default select example">
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                            <button id="eventCreateBtn" style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="offcanvas"  aria-label="Close" >POST</button>
+                                        
+                                    </form>
+                          
+                </div>
+              </div>
+        
+        
+              <!-- event create offcanvas end  -->
+
+
+                    <!-- poll create offcanvas start  -->
+
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="pollMaker" aria-labelledby="pollMaker">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="pollMaker">Create Poll</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body"> 
+                    <form id="pollForm">
+                        <label for="title" class="font-monospace m-2">Title <i class="fa-solid fa-sign-hanging"></i></label>
+                        <input type="text" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control m-2 font-monospace" name="title" id="pollTitle">
+
+                        <label for="description" class="font-monospace m-2">Description <i class="fa-solid fa-info"></i></label>
+                        <textarea style="border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); height: 200px;" class="form-control font-monospace  m-2"  name="description" id="polldescription" ></textarea>
+
+                        <label id="labelForPollStartDate" for="start_date" class="font-monospace m-2">Start <i class="fa-regular fa-clock"></i></label>
+                        <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); " class="form-control m-2 font-monospace" name="start_date" id="poll_start_date">
+
+                        <label id="labelForPollEndDate" for="end_date" class="font-monospace m-2">End <i class="fa-solid fa-clock"></i></label>
+                        <input type="date" style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "   class="form-control m-2 font-monospace" name="end_date" id="poll_end_date">
+
+                        <input type="text" name="eventType" id="eventType" value="VOTE" hidden>
+
+                        <label id="labelForPollPhoto" for="multipartFile" class="font-monospace m-2">Photo <i class="fa-solid fa-camera"></i></label>
+                        <input type="file" style="display: none;" name="multipartFile" class="form-control" id="pollMultipartFile" >
+
+                        <label for="options" class="font-monospace m-2">Add vote options </label>
+                        <div class="d-flex"><input type="text" name="voteOptionInput" id="voteOptionInput" class="form-control font-monospace m-2"><button type="button" class="btn btn-primary " onclick="createAVoteOption()"><i class="fa-solid fa-plus text-white"></i></button></div>
+                        <div>
+                            <ul id="ulTag">
+
+                            </ul>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="font-monospace m-2">Commuinty <i class="fa-solid fa-users"></i></label>
+                            <div class="col-sm-10" >
+                                <select class="form-select font-monospace m-2" id="groupSelect3" name="groupId" aria-label="Default select example">
+
+                                </select>
+                            </div>
+                        </div>  
+                            <button type="button" style="margin-left: 200px; border-radius: 10px;" class="btn btn-primary" id="pollCreateBtn"  onclick="createAPollPost()"  data-bs-dismiss="offcanvas"  aria-label="Close"  >POST</button>
+                    </form> 
+        </div>
+      </div>
+
+
+      <!-- poll create offcanvas end  -->
+
 
     <!-- loading modal box start  -->
     <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"

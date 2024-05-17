@@ -38,4 +38,5 @@ public interface UserService {
    public List<User> getAllActiveUser();
 
    public User mentionedUser(String name);
+   public List<Object> checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(Long id);
 }

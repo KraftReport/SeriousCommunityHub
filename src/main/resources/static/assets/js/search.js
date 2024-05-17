@@ -70,8 +70,14 @@ async function goToCommunityTab(){
 }
 
 async function goToCommunityDetail(id){
-    localStorage.setItem('communityIdForDetailPage',id)
-    window.location.href = 'api/community/goToCommunityDetail'
+    let data = await fetch(`/user/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/${id}`)
+    let response = await data.json()
+    if(response[0] === 'VISITOR'){
+        alert('you have not access to view this group')
+    }else{
+        localStorage.setItem('communityIdForDetailPage',id)
+        window.location.href = 'api/community/goToCommunityDetail'
+    }
 }
 
 async function getNumberOfMembers(id){

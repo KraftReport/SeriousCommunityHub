@@ -4,10 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
-import com.communityHubSystem.communityHub.repositories.CommunityRepository;
-import com.communityHubSystem.communityHub.repositories.PostRepository;
-import com.communityHubSystem.communityHub.repositories.ResourceRepository;
-import com.communityHubSystem.communityHub.repositories.UserRepository;
+import com.communityHubSystem.communityHub.repositories.*;
 import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import com.communityHubSystem.communityHub.services.UserService;
 import jakarta.persistence.criteria.Join;
@@ -35,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final ExcelUploadService excelUploadService;
     private final PostRepository postRepository;
     private final ResourceRepository resourceRepository;
+    private final User_GroupRepository user_groupRepository;
     private final List<String> photoExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", "bmp","tiff","tif","psv","svg","webp","ico","heic");
     private final Cloudinary cloudinary;
 
@@ -349,6 +347,33 @@ public class UserServiceImpl implements UserService {
     public User mentionedUser(String name) {
         return userRepository.findByName(name.trim());
     }
+
+    @Override
+    public List<Object> checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(Long id) {
+        var list = new ArrayList<Object>();
+
+        var community = communityRepository.findById(id)
+                .orElseThrow(() -> new CommunityHubException("Community not found"));
+        var user = getCurrentLoginUser();
+
+        if (user.getRole() == User.Role.ADMIN) {
+            list.add("ADMIN");
+            return list;
+        }
+
+        var found = user_groupRepository.findByUserIdAndCommunityId(user.getId(), community.getId());
+
+        if (found == null) {
+            list.add("VISITOR");
+        } else if (community.getOwnerName().equals(user.getName())) {
+            list.add("OWNER");
+        } else {
+            list.add("MEMBER");
+        }
+
+        return list;
+    }
+
 
     private boolean checkGroupOwnerOrNot(){
         var loginUser = getCurrentLoginUser();

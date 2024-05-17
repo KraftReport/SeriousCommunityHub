@@ -2,6 +2,7 @@ window.onload = async function(){
     console.log('wow wow here')
 
     await startUp()
+    await createBtns()
     await getPosts()
 }
 const fetchSizes = async (id) => {
@@ -68,7 +69,7 @@ const removeReaction = async (id) => {
 
 const fileInput = document.getElementById('file');
 const type = document.getElementById('')
-let newsfeed = document.getElementById('newsfeed')
+let newsfeed = document.getElementById('newsfeedTab')
 let cal = document.getElementById('cal')
 let pol = document.getElementById('pol')
 let cat = document.getElementById('catBox')
@@ -126,6 +127,7 @@ const getAllMember = async () => {
  
 
 async function createPost() {
+    loadingModalBox.show()
     let postText = document.getElementById('content').value
     let postFile = document.getElementById('file').files[0]
 
@@ -157,18 +159,39 @@ async function createPost() {
         document.getElementById('postForm').reset()
         console.log(response)
         if (response) {
-            cat.classList.add('hidden')
-            mark.classList.remove('hidden')
+            removeCat()
             removePreview()
         }
-        while (newsfeed.firstChild) {
-            newsfeed.removeChild(newsfeed.firstChild)
+     console.log("Post text", postText)
+        const res = await response.json();
+        if(res) {
+            console.log("ID",res.id)
+            let mentionedUsers = extractMentionedUsers(postText);
+
+            await sendMentionNotification(mentionedUsers,res.id);
         }
-        welcome()
+        newsfeed.innerHTML = ''
+        await getPosts()
         // postCount = 0
     }
 
+    
 }
+
+const extractMentionedUsers = (postText) => {
+    const mentionRegex = /\[\[([^\]]+)\]\]/g;
+    let mentionedUsers = [];
+    let match;
+
+    while ((match = mentionRegex.exec(postText)) !== null) {
+        mentionedUsers.push(match[1].trim());
+    }
+
+    console.log("Mentioned Users: ", mentionedUsers);
+
+    return mentionedUsers;
+};
+
 
  
  
@@ -950,17 +973,80 @@ async function deletePost(id) {
 
 }
 
-async function createEventPost() {
-    let data = new FormData(document.getElementById('eventForm'));
-    console.log(Object.fromEntries(data.entries()));
-    let response = await fetch('/event/createEvent', {
-        method: 'POST',
-        body: data
-    });
-    let result = await response.json()
-    console.log(result)
+const createEventPost = async () => {
+    const title = document.getElementById('eventtitle').value;
+    const description = document.getElementById('eventdescription').value;
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
 
-}
+    if (!title || !description || !startDate || !endDate) {
+        document.getElementById('eventForm').reset()
+        alert('Title, description, start date, and end date are required.');
+        return;
+    }
+
+    if (startDate > endDate) {
+        document.getElementById('eventForm').reset()
+        alert('Start date must be earlier than end date');
+        return;
+    }
+
+    loadingModalBox.show();
+    const data = new FormData(document.getElementById('eventForm'));
+    console.log(Object.fromEntries(data.entries()));
+
+    try {
+        const response = await fetch('/event/createEvent', {
+            method: 'POST',
+            body: data
+        });
+        const result = await response.json();
+        console.log(result);
+
+        if (result) {
+            document.getElementById('eventForm').reset();
+            await removeCat();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('There was an error creating the event. Please try again.');
+    } finally {
+        loadingModalBox.hide();
+    }
+};
+
+
+const validateDates = () => {
+    console.log('validate');
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    
+    if (startDate && endDate && startDate > endDate) {
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = ''; 
+        alert('Start date must be earlier than end date');
+    }
+};
+
+
+const pollValidateDates = () => {
+    console.log('validate');
+    const startDate = document.getElementById('poll_start_date').value;
+    const endDate = document.getElementById('poll_end_date').value;
+    
+    if (startDate && endDate && startDate > endDate) {
+        document.getElementById('poll_start_date').value = '';
+        document.getElementById('poll_end_date').value = ''; 
+        alert('Start date must be earlier than end date');
+    }
+};
+
+document.getElementById('start_date').addEventListener('change', validateDates);
+document.getElementById('end_date').addEventListener('change', validateDates);
+
+
+document.getElementById('poll_start_date').addEventListener('change', pollValidateDates);
+document.getElementById('poll_end_date').addEventListener('change', pollValidateDates);
 
 let startDate = document.getElementById('start_date')
 let endDate = document.getElementById('end_date')
@@ -2877,6 +2963,7 @@ async function createAVoteOptionForUpdate(){
 }
 
 async function createAPollPost(){
+    loadingModalBox.show()
     if(validationFails()){
         alert('start date , end date , vote option of two and title is at least require')
     }else{
@@ -2897,7 +2984,14 @@ async function createAPollPost(){
             body : data
         })
         let response = await datas.json()
+        console.log(document.getElementById('pollForm'))
         console.log(response)
+        if(response){
+            console.log('here')
+            document.getElementById('pollForm').reset() 
+            document.getElementById('ulTag').innerHTML = ''
+            await removeCat()
+        }
     }
 }
 
@@ -4740,7 +4834,6 @@ if(fragment){
 
 
 
-
 async function startUp(){
     let communityId = localStorage.getItem('communityIdForDetailPage')
     let community = await fetch(`/api/community/getCommunity/${communityId}`)
@@ -4892,3 +4985,145 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
  document.getElementById('inviteModalCloseBtn').addEventListener('click', function() {
      $('#invitationFormModal').modal('hide');
  });
+
+
+ const distinguishMembers = async (id) => {
+    let data = await fetch(`/user/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/${id}`)
+    let response = await data.json()
+    if(response[0] === 'ADMIN'){
+        return 'ADMIN'
+    }
+    if(response[0] === 'OWNER'){
+        return 'OWNER'
+    }
+    return 'MEMBER'
+}
+
+
+const createBtns = async () => {
+    let data = await distinguishMembers(localStorage.getItem('communityIdForDetailPage'))
+    let mainDiv = document.getElementById('createBtns')
+    let postCreateBtn = document.createElement('button')
+    let eventCreateBtn = document.createElement('button')
+    let pollCreateBtn = document.createElement('button')
+    let optionForPost = document.createElement('option')
+    let postGroupSelect = document.getElementById('groupSelect1')
+    let optionForEvent = document.createElement('option')
+    let eventGroupSelect = document.getElementById('groupSelect2')
+    let optionForPoll = document.createElement('option')
+    let pollGroupSelect = document.getElementById('groupSelect3')
+
+    optionForPost.value = localStorage.getItem('communityIdForDetailPage')
+    optionForPost.textContent = 'groupId'
+    optionForPost.selected = true
+    postGroupSelect.appendChild(optionForPost)
+    postCreateBtn.setAttribute('data-bs-toggle','offcanvas')
+    postCreateBtn.setAttribute('data-bs-target','#postMaker')
+    postCreateBtn.setAttribute('aria-controls','postMaker')
+    postCreateBtn.textContent = 'Post'
+
+    optionForEvent.value = localStorage.getItem('communityIdForDetailPage')
+    optionForEvent.textContent = 'groupId'
+    optionForEvent.selected = true
+    eventGroupSelect.appendChild(optionForEvent)
+    eventCreateBtn.setAttribute('data-bs-toggle','offcanvas')
+    eventCreateBtn.setAttribute('data-bs-target','#eventMaker')
+    eventCreateBtn.setAttribute('aria-controls','eventMaker')
+    eventCreateBtn.textContent = 'Event'
+
+    optionForPoll.value = localStorage.getItem('communityIdForDetailPage')
+    optionForPoll.textContent = 'groupId'
+    optionForPoll.selected = true
+    pollGroupSelect.appendChild(optionForPoll)
+    pollCreateBtn.setAttribute('data-bs-toggle','offcanvas')
+    pollCreateBtn.setAttribute('data-bs-target','#pollMaker')
+    pollCreateBtn.setAttribute('aria-controls','pollMaker')
+    pollCreateBtn.textContent = 'Poll' 
+    
+    if(data === 'ADMIN' || data === 'OWNER'){
+        mainDiv.appendChild(postCreateBtn)
+        mainDiv.appendChild(eventCreateBtn)
+        mainDiv.appendChild(pollCreateBtn)
+    }else{
+        mainDiv.appendChild(postCreateBtn)
+    }
+}
+
+const sendMentionNotification = async (mentionedUsers,id) => {
+    if (mentionedUsers.length > 0) {
+        console.log("get", mentionedUsers);
+        const myObj = {
+            postId:id,
+            userId:loginUser,
+            users:mentionedUsers
+        }
+        stompClient.send('/app/mention-notification', {}, JSON.stringify(myObj));
+    }
+};
+
+
+document.getElementById('labelForEventStartDate').addEventListener('click',()=>{
+    console.log('here we clicked')
+    console.log(document.getElementById('start_date'))
+    const startDateInput = document.getElementById('start_date');
+    startDateInput.style.display = 'block';
+    if (startDateInput.offsetWidth === 0 || startDateInput.offsetHeight === 0) {
+      startDateInput.focus();
+      const event = new KeyboardEvent('keydown', { key: 'Enter' });
+      startDateInput.dispatchEvent(event);
+    } 
+})
+
+document.getElementById('labelForEventEndDate').addEventListener('click',()=>{
+    const startDateInput = document.getElementById('end_date');
+    startDateInput.style.display = 'block';
+    if (startDateInput.offsetWidth === 0 || startDateInput.offsetHeight === 0) {
+      startDateInput.focus();
+      const event = new KeyboardEvent('keydown', { key: 'Enter' });
+      startDateInput.dispatchEvent(event);
+    }
+})
+
+document.getElementById('labelForPollStartDate').addEventListener('click',()=>{
+    console.log('here we clicked')
+    console.log(document.getElementById('poll_start_date'))
+    const startDateInput = document.getElementById('poll_start_date');
+    startDateInput.style.display = 'block';
+    if (startDateInput.offsetWidth === 0 || startDateInput.offsetHeight === 0) {
+      startDateInput.focus();
+      const event = new KeyboardEvent('keydown', { key: 'Enter' });
+      startDateInput.dispatchEvent(event);
+    } 
+})
+
+document.getElementById('labelForPollEndDate').addEventListener('click',()=>{
+    console.log('here we clicked')
+    console.log(document.getElementById('poll_end_date'))
+    const startDateInput = document.getElementById('poll_end_date');
+    startDateInput.style.display = 'block';
+    if (startDateInput.offsetWidth === 0 || startDateInput.offsetHeight === 0) {
+      startDateInput.focus();
+      const event = new KeyboardEvent('keydown', { key: 'Enter' });
+      startDateInput.dispatchEvent(event);
+    } 
+})
+
+document.getElementById('labelForEventPhoto').addEventListener('click',()=>{
+    document.getElementById('eventPhotoFile').click()
+})
+
+document.getElementById('labelForEventUpdatePhoto').addEventListener('click',()=>{
+    document.getElementById('updateEventPhoto').click()
+})
+
+async function openFileBox(){
+    console.log('here here')
+    document.getElementById('updatePollEventPhoto').click()
+}
+
+document.getElementById('labelForPoll').addEventListener('click',()=>{
+    console.log(document.getElementById('labelForPoll'))
+    console.log(document.getElementById('updatePollEventPhoto'))
+    document.getElementById('updatePollEventPhoto').click()
+})
+
