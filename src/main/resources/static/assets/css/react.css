@@ -32,7 +32,7 @@
 }
 
 .like_button:hover {
-    background-color: #353538;
+    background-color: transparent;
 }
 
 .like_button:active {
@@ -134,7 +134,7 @@
 }
 
 .like_button1:hover {
-    background-color: #353538;
+    background-color: transparent;
 }
 
 .like_button1:active {

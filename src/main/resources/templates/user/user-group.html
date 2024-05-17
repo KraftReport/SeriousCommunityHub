@@ -160,28 +160,28 @@ async function goToCommunityDetail(id){
         let isValid = true;
 
         if (name.trim() === '') {
-            document.getElementById('nameError').innerHTML = 'Name is required';
+            document.getElementById('nameError').innerHTML = 'Name cannot be empty!';
             isValid = false;
         } else {
             document.getElementById('nameError').innerHTML = '';
         }
 
         if (ownerId.trim() === '') {
-            document.getElementById('ownerIdError').innerHTML = 'Owner is required';
+            document.getElementById('ownerIdError').innerHTML = 'Please select a owner!';
             isValid = false;
         } else {
             document.getElementById('ownerIdError').innerHTML = '';
         }
 
         if (description.trim() === '') {
-            document.getElementById('descriptionError').innerHTML = 'Description is required';
+            document.getElementById('descriptionError').innerHTML = 'Please fill the description out!';
             isValid = false;
         } else {
             document.getElementById('descriptionError').innerHTML = '';
         }
 
         if (file.trim() === '') {
-            document.getElementById('fileError').innerHTML = 'Image is required';
+            document.getElementById('fileError').innerHTML = 'Please select a group photo';
             isValid = false;
         } else {
             document.getElementById('fileError').innerHTML = '';
@@ -197,10 +197,72 @@ async function goToCommunityDetail(id){
             if (data.ok) {
                 const result = await data.json();
                 await fetchCommunities();
-                document.getElementById('message').innerHTML = result.message;
+                const messageElement = document.getElementById('message');
                 $('#createCommunityModal').modal('hide');
+                document.getElementById('createCommunityForm').reset();
+                let alertMessage =  result.message;
+                let alertStyle = `
+            background-color: blue;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+                let styledAlert = document.createElement('div');
+                styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+                styledAlert.innerHTML = alertMessage;
+
+
+                document.body.appendChild(styledAlert);
+
+
+                styledAlert.style.display = 'block';
+
+                setTimeout(function() {
+                    styledAlert.style.display = 'none';
+                }, 3000);
             } else {
-                document.getElementById('message').innerHTML = 'Error creating community';
+               const content = 'Error creating community';
+
+                let alertMessage =  content;
+                let alertStyle = `
+            background-color: red;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+                let styledAlert = document.createElement('div');
+                styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+                styledAlert.innerHTML = alertMessage;
+
+
+                document.body.appendChild(styledAlert);
+
+
+                styledAlert.style.display = 'block';
+
+                setTimeout(function() {
+                    styledAlert.style.display = 'none';
+                }, 3000);
             }
         }
     });
@@ -431,10 +493,70 @@ async function goToCommunityDetail(id){
         if (data.ok) {
             const result = await data.json();
             await fetchCommunities();
-            document.getElementById('message').innerHTML = result.message;
             $('#createGroupModal').modal('hide');
+            let alertMessage =   result.message;
+            let alertStyle = `
+            background-color: blue;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function() {
+                styledAlert.style.display = 'none';
+            }, 3000);
         } else {
-            document.getElementById('message').innerHTML = 'Error creating community';
+
+       const content =  "Error Adding Users";
+            let alertMessage =   content;
+            let alertStyle = `
+            background-color: red;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function() {
+                styledAlert.style.display = 'none';
+            }, 3000);
         }
 
     });
@@ -612,10 +734,70 @@ async function goToCommunityDetail(id){
         if (data.ok) {
             const result = await data.json();
             await fetchCommunities();
-            document.getElementById('message').innerHTML = result.message;
+           const content ="Kicked Successfully";
             $('#kickModal').modal('hide');
+            let alertMessage =  content;
+            let alertStyle = `
+            background-color: blue;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function() {
+                styledAlert.style.display = 'none';
+            }, 3000);
         } else {
-            document.getElementById('message').innerHTML = 'Error kicking users from community';
+           const content =  'Error kicking users from community';
+            let alertMessage =  content;
+            let alertStyle = `
+            background-color: red;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function() {
+                styledAlert.style.display = 'none';
+            }, 3000);
         }
     });
 

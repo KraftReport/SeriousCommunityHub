@@ -399,3 +399,98 @@ const getPostListForEachYear = async (id) => {
     const res = postList.json();
     return res;
 }
+
+//for pie chart
+
+document.addEventListener("DOMContentLoaded", function() {
+    const pieChartContainer = document.getElementById('pieChartContainer');
+
+    fetch('/user/data')
+        .then(response => response.json())
+        .then(data => {
+            for (const [userId, userDetail] of Object.entries(data)) {
+                Promise.all([
+                    fetch(`/user/getPosts-eachUser/month/${userId}`),
+                    fetch(`/user/getPosts-eachUser/year/${userId}`),
+                    fetch(`/user/getPosts-eachUser/all/${userId}`),
+                    fetch(`/user/activeUser-ReactsCount/${userId}`),
+                    fetch(`/user/activeUser-CommentsCount/${userId}`)
+                ])
+                    .then(responses => Promise.all(responses.map(response => response.json())))
+                    .then(([postsWithinMonth, postsWithinYear, totalPosts, totalReacts, totalComments]) => {
+                        const chartContainer = document.createElement('div');
+                        chartContainer.className = 'piechart-container';
+                        chartContainer.dataset.username = userDetail.name.toLowerCase();
+
+                        const pieCanvas = document.createElement('canvas');
+                        pieCanvas.id = `pieChart-${userId}`;
+
+                        const pieChartDiv = document.createElement('div');
+                        pieChartDiv.className = 'piechart';
+                        pieChartDiv.appendChild(pieCanvas);
+
+                        chartContainer.appendChild(pieChartDiv);
+                        pieChartContainer.appendChild(chartContainer);
+
+                        const ctx = pieCanvas.getContext('2d');
+
+                        const labels = ['Posts within one month', 'Posts within one year', 'Total Posts', 'Total Reacts', 'Total Comments'];
+                        const counts = [
+                            postsWithinMonth.length,
+                            postsWithinYear.length,
+                            totalPosts.length,
+                            totalReacts,
+                            totalComments
+                        ];
+                        const colors = ['red', 'green', 'blue', 'orange', 'purple'];
+
+                        new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                datasets: [{
+                                    data: counts,
+                                    backgroundColor: colors,
+                                }],
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: `Data Distribution for User ${userDetail.staffId} (${userDetail.name})`
+                                    },
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const label = labels[context.dataIndex] || '';
+                                                const value = context.raw;
+                                                return `${label}: ${value}`;
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        });
+                    })
+                    .catch(error => console.error('Error fetching user data:', error));
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+    document.getElementById('userSearch').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const allUsers = document.querySelectorAll('.piechart-container');
+
+        allUsers.forEach(userContainer => {
+            const userName = userContainer.dataset.username;
+            if (userName.includes(searchValue)) {
+                userContainer.style.display = 'block';
+            } else {
+                userContainer.style.display = 'none';
+            }
+        });
+    });
+});
