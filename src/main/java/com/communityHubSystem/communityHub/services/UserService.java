@@ -34,4 +34,8 @@ public interface UserService {
 
     Long getCountOfUserUploadPhoto(Long id);
     Long getCountOfUserUploadVideo(Long id);
+
+   public List<User> getAllActiveUser();
+
+   public User mentionedUser(String name);
 }

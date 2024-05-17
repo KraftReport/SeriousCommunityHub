@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageInput = document.querySelector('#message');
     const connectingElement = document.querySelector('.connecting');
     const chatAreaForChatRoom = document.querySelector('#chat-messages');
-    chatAreaForChatRoom.innerHTML =`<div id="defaultMessage-for-chatRoom">
+    chatAreaForChatRoom.innerHTML =`<div id="defaultMessage-for-chatRoom" style="margin-top: 50px">
                            <i class="fa-solid fa-message" style="font-size: 100px; margin-left: 180px;"></i><br>
                                       <span style="font-size: 50px;">Please select a room you want to chat!</span>
                      </div>`;
@@ -148,15 +148,22 @@ document.addEventListener('DOMContentLoaded', () => {
         groupPhotoId.innerHTML = '';
         const isSelected = document.getElementById('IsSelected');
         const vdShow = document.getElementById('vd-icon');
+        const barAboveMessages = document.getElementById('bar-above-messages'); // Use getElementById
         if (!selectedRoomId) {
+            barAboveMessages.classList.add('hidden');
             isSelected.style.display = 'none';
             vdShow.style.display = 'none';
             messageForm.classList.add('hidden');
         } else {
             console.log('mention user status active')
             await mentionUser(selectedRoomId);
+            barAboveMessages.classList.remove('hidden');
+            barAboveMessages.style.padding = '20px';
             vdShow.style.display = 'block';
             isSelected.style.display = 'block';
+            const inputLine = document.querySelector('.emojionearea.emojionearea-inline ');
+            inputLine.style.height = '40px';
+            inputLine.style.borderRadius = '10px';
             const roomPhoto = await fetchRoomPhoto(selectedRoomId);
             const getSize = await fetchRoomSize(selectedRoomId);
             const photo = roomPhoto.photo || '/static/assets/img/card.jpg';
@@ -188,13 +195,16 @@ document.addEventListener('DOMContentLoaded', () => {
         clickedUser.removeEventListener('click', userItemClick);
     }
 
-    async function displayMessageForChatRoom(senderId, content, photo) {
+    async function displayMessageForChatRoom(senderId, content, photo,date) {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
         const userImage = document.createElement('img');
         userImage.src = `${photo}`;
         userImage.alt = 'User Photo';
         userImage.classList.add('user-photo');
+        let createdTime = await formattedDate(new Date(date));
+        messageContainer.setAttribute('data-toggle', 'tooltip');
+        messageContainer.setAttribute('title', `${createdTime}`);
         if (senderId === loginUserForChatRoom) {
             messageContainer.classList.add('sender');
         } else {
@@ -233,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             console.log('Data', formattedTime);
             const chatUser = await fetchUserByLogInId(chat.sender);
-            await displayMessageForChatRoom(chat.sender, chat.content, chatUser.photo);
+            await displayMessageForChatRoom(chat.sender, chat.content, chatUser.photo,chat.date);
         }
         chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
     }
@@ -255,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), showedUserPhoto.photo);
+            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), showedUserPhoto.photo,new Date());
             messageInput.value = '';
             document.querySelector('.emojionearea-editor').innerHTML = '';
         }
@@ -277,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Message is for selected room and not sent by current user.');
             const receivedUser = await fetchUserByLogInId(message.sender);
             console.log('Received user:', receivedUser);
-            await displayMessageForChatRoom(message.sender, message.content, receivedUser.photo);
+            await displayMessageForChatRoom(message.sender, message.content, receivedUser.photo,new Date());
             chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
         }
 
@@ -303,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const videoCallLink = window.location.protocol + '//' + window.location.host + '/static/videoCall.html?roomID=' + roomId;
 
         window.open(videoCallLink, "_blank");
-        const vd_content = `Video call invitation: Join here: ${videoCallLink}`;
+        const vd_content = `Join here: ${videoCallLink}`;
         if (stompClientForChatRoom && selectedRoomId) {
             const chatMessage = {
                 id: selectedRoomId,
@@ -313,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo);
+            await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo,new Date());
         }
     };
 
@@ -343,6 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         memberList.forEach(user => {
+            if (user.staffId === loginUserForChatRoom) {
+                return;
+            }
             const getData = document.createElement('div');
             getData.classList.add('group');
             // getData.style.border = '1px solid';
@@ -431,6 +444,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         userList.forEach(user => {
+            if (user.staffId === loginUserForChatRoom) {
+                return;
+            }
             const getData = document.createElement('div');
             getData.classList.add('group');
             // getData.style.border = '1px solid';
@@ -530,33 +546,21 @@ const fetchUserByLogInId = async (id) => {
     return userData;
 };
 
-// const getCurrentTime = () => {
-//     const currentTime = new Date();
-//     const formattedTime = currentTime.toLocaleTimeString([], {
-//         hour: '2-digit',
-//         minute: '2-digit',
-//         second: '2-digit',
-//         hour12: true
-//     });
-//     return formattedTime;
-// };
+ const formattedDate = (date) => {
+    const now = new Date();
+    const diff = now - date;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
 
-// async function timeAgo(createdDate) {
-//     console.log("ddd",createdDate)
-//     const now = new Date();
-//     const diff = now - createdDate;
-//     const seconds = Math.floor(diff / 1000);
-//     const minutes = Math.floor(seconds / 60);
-//     const hours = Math.floor(minutes / 60);
-//     const days = Math.floor(hours / 24);
-//
-//     if (seconds < 60) {
-//         return `just now`;
-//     } else if (minutes < 60) {
-//         return `${minutes} minutes${minutes > 1? '' : ''} ago`;
-//     } else if (hours < 24) {
-//         return `${hours} hours${hours > 1? '' : ''} ago`;
-//     } else {
-//         return `${days} days${days > 1? '' : ''} ago`;
-//     }
-// }
+    if (seconds < 60) {
+        return `just now`;
+    } else if (minutes < 60) {
+        return `${minutes} minutes${minutes > 1? '' : ''} ago`;
+    } else if (hours < 24) {
+        return `${hours} hours${hours > 1? '' : ''} ago`;
+    } else {
+        return `${days} days${days > 1? '' : ''} ago`;
+    }
+}

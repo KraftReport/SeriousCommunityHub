@@ -37,6 +37,7 @@ public class ReactController {
     private final ReplyService replyService;
     private final NotificationService notificationService;
     private final EventService eventService;
+    private final MentionService mentionService;
 
     @MessageMapping("/react-message")
     public void processedReactMessage(@Payload MessageDto messageDto) {
@@ -467,6 +468,17 @@ public class ReactController {
         }
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @GetMapping("/get-mentionUser/{id}")
+    public ResponseEntity<Mention> getMentionWithId(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(mentionService.getMention(id));
+    }
+
+    @GetMapping("/getData-mention/{id}")
+    public ResponseEntity<User> getMentionUser(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
+    }
+
 }
 
 

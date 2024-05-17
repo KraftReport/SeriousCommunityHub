@@ -81,7 +81,7 @@ public class ChatRoomController {
         for (User_Group user_group : user_groups) {
             if (!userList.contains(user_group.getUser().getId())) {
                 var user = userService.findById(user_group.getUser().getId());
-                if(!user.getId().equals(999)){
+                if(!user.getRole().equals(User.Role.ADMIN)){
                     notMemberList.add(user);
                 }
             }
@@ -96,7 +96,7 @@ public class ChatRoomController {
         List<User> userList = new ArrayList<>();
         for (User_ChatRoom user_chatRoom : user_chatRooms) {
             var user = userService.findById(user_chatRoom.getUser().getId());
-            if(!user.getId().equals(999)){
+            if(!user.getRole().equals(User.Role.ADMIN)){
                 userList.add(user);
             }
         }

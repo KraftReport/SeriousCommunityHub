@@ -333,6 +333,23 @@ public class UserServiceImpl implements UserService {
         return (long) resources.size();
     }
 
+    @Override
+    public List<User> getAllActiveUser() {
+        List<User> users = new ArrayList<>();
+        List<User> userList = userRepository.findAll();
+        for(User user:userList) {
+          if(user.isActive()){
+              users.add(user);
+          }
+        }
+        return users;
+    }
+
+    @Override
+    public User mentionedUser(String name) {
+        return userRepository.findByName(name.trim());
+    }
+
     private boolean checkGroupOwnerOrNot(){
         var loginUser = getCurrentLoginUser();
         return communityRepository.findCommunityByOwnerName(loginUser.getName()) != null;

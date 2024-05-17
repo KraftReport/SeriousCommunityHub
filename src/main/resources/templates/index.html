@@ -171,6 +171,11 @@
         .readonly {
             color: blue;
         }
+
+        .mention {
+            color: #1a73e8;
+            font-weight: bold;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
@@ -660,57 +665,58 @@
     <!-- post create offcanvas start  -->
 
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
-        
-        
+
+
         <div id="mentionSuggestions" class="font-monospace"></div>
         <div class="offcanvas-header">
-          <h5 class="offcanvas-title font-monospace" id="postMaker">Create Status</h5>
-          <button type="button"   onclick="removePreview()" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <h5 class="offcanvas-title font-monospace" id="postMaker">Create Status</h5>
+            <button type="button"   onclick="removePreview()" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body font-monospace">    
-                    <form id="postForm">
-                        
-                 
-                       
-                        <!-- Quill Editor Default -->
-                        <div class="row mb-3">
-                            <label for="status" class="font-monospace ">Your Status <i class="fa-solid fa-font"></i></label>
-                            <div class="col-sm-10">
+        <div class="offcanvas-body font-monospace">
+            <form id="postForm">
+
+
+
+                <!-- Quill Editor Default -->
+                <div class="row mb-3">
+                    <label for="status" class="font-monospace ">Your Status <i class="fa-solid fa-font"></i></label>
+                    <div class="col-sm-10">
+
                                 <textarea class="form-control  font-monospace" style="height: 200px; border-radius: 20px; border: none;" name="content"
                                           id="content"></textarea>
-                               
-                            </div>
-                        </div>
-                  
 
-                        <div class="row mb-3">
-                            <label id="video-icon"  for="formFile" class="font-monospace">Video/Image <i class="fa-solid fa-photo-film"> <input class="form-control font-monospace" type="file" id="file" name="file" multiple style="display: none;"></i></label>
-                            <div class="col-sm-10">
-                            </div>
-                        </div> 
-                        <div class="row mb-3">
-                            <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
-                            <div class="col-sm-10">
-                                <select class="form-select font-monospace" id="groupSelect1" name="groupId"
-                                        aria-label="Default select example">
-
-                                </select>
-                            </div>
-                        </div>
-
-                      
-
-                    </form><!-- End General Form Elements -->
-                    <!-- End Quill Editor Default -->
-                    <div class="container">
-                        <div id="preview" class="row" ></div>
                     </div>
-                 
-                    
-                    <button style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createPost()" data-bs-dismiss="offcanvas"  aria-label="Close">POST
-                    </button> 
+                </div>
+
+
+                <div class="row mb-3">
+                    <label id="video-icon"  for="formFile" class="font-monospace">Video/Image <i class="fa-solid fa-photo-film"> <input class="form-control font-monospace" type="file" id="file" name="file" multiple style="display: none;"></i></label>
+                    <div class="col-sm-10">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
+                    <div class="col-sm-10">
+                        <select class="form-select font-monospace" id="groupSelect1" name="groupId"
+                                aria-label="Default select example">
+
+                        </select>
+                    </div>
+                </div>
+
+
+
+            </form><!-- End General Form Elements -->
+            <!-- End Quill Editor Default -->
+            <div class="container">
+                <div id="preview" class="row" ></div>
+            </div>
+
+
+            <button style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createPost()" data-bs-dismiss="offcanvas"  aria-label="Close">POST
+            </button>
         </div>
-      </div>
+    </div>
 
 
       <!-- post create offcanvas end  -->

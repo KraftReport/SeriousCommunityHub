@@ -83,6 +83,7 @@ public class PostServiceImpl implements PostService {
         postRepository.save(found);
     }
 
+
     @Override
     public List<Post> searchMethod(String in) {
         var input = URLDecoder.decode(in, StandardCharsets.UTF_8);
