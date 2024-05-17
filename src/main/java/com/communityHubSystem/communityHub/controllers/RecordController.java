@@ -631,9 +631,10 @@ public class RecordController {
         List<User_Group> user_groups = user_groupService.findByCommunityId(community.getId());
         if (!user_groups.isEmpty()) {
             for (User_Group user_group : user_groups) {
-                if (!user_group.getUser().getId().equals(999)) {
-                    user_groupList.add(user_group);
-                }
+               var user = userService.findById(user_group.getUser().getId());
+               if(!user.getRole().equals(User.Role.ADMIN)){
+                   user_groupList.add(user_group);
+               }
             }
             return user_groupList;
         } else {

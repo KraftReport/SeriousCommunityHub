@@ -314,6 +314,11 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
+    @Override
+    public User mentionedUser(String name) {
+        return userRepository.findByName(name.trim());
+    }
+
     private boolean checkGroupOwnerOrNot(){
         var loginUser = getCurrentLoginUser();
         return communityRepository.findCommunityByOwnerName(loginUser.getName()) != null;

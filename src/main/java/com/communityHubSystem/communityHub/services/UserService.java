@@ -31,4 +31,6 @@ public interface UserService {
     List<Object> checkUserOrAdminOrGroupOwner();
 
    public List<User> getAllActiveUser();
+
+   public User mentionedUser(String name);
 }

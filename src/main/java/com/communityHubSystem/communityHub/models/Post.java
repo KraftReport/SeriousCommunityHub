@@ -67,4 +67,8 @@ public class Post implements Serializable {
     @OneToMany(mappedBy = "post",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Notification> notifications ;
+
+    @OneToMany(mappedBy = "post",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Mention> mentions;
 }
