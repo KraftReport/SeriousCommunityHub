@@ -275,7 +275,7 @@
    <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
    aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
-      <div class="modal-content border rounded-1">
+      <div class="modal-content border rounded-1" style="width:300px; margin-left:100px;">
 
           <div id="markBox" class="hidden">
               <div class="check_mark">
@@ -287,92 +287,99 @@
                   </div>
               </div>
               <div>
-                  <button id="restart" class="btn btn-success offset-10" data-bs-dismiss="modal"
-                          onclick="setToNormal()">OK
+                  <button id="restart" style="background-color: #3192e0; border-radius: 10px; color:white; margin-left: 109px; margin-bottom: 20px; " class="btn" data-bs-dismiss="modal"
+                          onclick="setToNormal()">Continue
                   </button>
               </div>
           </div>
 
-          <div id="catBox" class="">
-              <div class="box">
-                  <div class="cat">
-                      <div class="cat__body"></div>
-                      <div class="cat__body"></div>
-                      <div class="cat__tail"></div>
-                      <div class="cat__head"></div>
-                  </div>
-              </div>
-          </div>
+           
+              <div class="loader"></div> 
+           
+
+        
 
 
       </div>
   </div>
 </div>
-
 
 
 <!-- loading modal box end  -->
 
-  <!-- edit modal box  -->
-  <div class="modal fade" id="editModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-  aria-labelledby="staticBackdropLabel" aria-hidden="true">
- <div class="modal-dialog">
-     <div class="modal-content">
-         <div class="modal-header">
-             <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
-             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-         </div>
-         <div class="modal-body" id="editModal">
-             ...
-         </div>
-         <div class="modal-footer">
-             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-             <button type="button" onclick="getUpdateData()" data-bs-dismiss="modal" class="btn btn-primary"
-                     data-bs-toggle="modal"  >Update
-             </button>
-         </div>
-     </div>
- </div>
-</div>
+ 
 
+ <!-- event edit offcanvas start  -->
 
-
-<div class="modal fade" id="pollEventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-  <div class="modal-dialog">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="staticBackdropLabel">Edit Event</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="pollEventEditModal">
-
-          </div>
-
-      </div>
-  </div>
-</div>
-
-<!-- end edit modal box  -->
-
-
-  <!-- event edit moddal box start  -->
-
-  <div class="modal fade" id="eventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  <h5 class="modal-title" id="staticBackdropLabel-for-event-edit">Edit Event</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body" id="eventEditModal">
-
-              </div>
-
-          </div>
-      </div>
+ <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="eventEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit announcement</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        
+                    <div class="modal-body" id="eventEditModal">
+    
+                    </div>
+    
+                
+           
+      
+    </div>
   </div>
 
-  <!-- event edit modal box end  -->
+
+ <!-- event edit offcanvas end  -->
+
+
+       <!-- poll edit offcanvas start  -->
+
+
+
+       <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="pollEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Edit Poll</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body"> 
+                        <div class="modal-body" id="pollEventEditModal">
+        
+                        </div>
+        
+                   
+                
+            
+        </div>
+      </div>
+
+
+      <!-- poll edit offcanvas end  -->
+
+
+  <!-- post edit offcanvas start -->
+
+  <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+       
+               <div class="modal-body" id="editModal">
+                   ...
+               </div>  
+                   <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
+
+            
+       </div>
+   </div>
+
+
+  <!-- post edit offcanvas end  -->
+
+
 
 </main>
 <div th:replace="~{index::footer}"></div>

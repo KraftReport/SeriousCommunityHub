@@ -23,6 +23,7 @@ public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 6000)
     private String description;
     @Column(nullable = false)
     private Date createdDate;
@@ -67,4 +68,8 @@ public class Post implements Serializable {
     @OneToMany(mappedBy = "post",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Notification> notifications ;
+
+    @OneToMany(mappedBy = "post",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Mention> mentions;
 }

@@ -15,8 +15,7 @@ window.onload = welcome;
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    localStorage.removeItem('searchInput');
-    loadingModalBox.show()
+    localStorage.removeItem('searchInput'); 
 })
 function goToCreatePost() {
     window.location.href = '/user/goToCreatePost'
@@ -84,44 +83,81 @@ const getInvitation = async () => {
     return msgSize;
 }
 
-const mentionCommunityMember= () => {
-     const messageInput = document.getElementById('content');
-    messageInput.addEventListener('input',  async (event) => {
+// const mentionCommunityMember= () => {
+//      const messageInput = document.getElementById('content');
+//     messageInput.addEventListener('input',  async (event) => {
+//         const inputValue = event.target.value;
+//         const mentionIndex = inputValue.lastIndexOf('@');
+//         const users = await getAllMember();
+//         if (mentionIndex !== -1) {
+//             const mentionQuery = inputValue.substring(mentionIndex + 1);
+//             const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery.toLowerCase()));
+//
+//             if (matchedUsers.length > 0) {
+//                 mentionSuggestions.innerHTML = '';
+//
+//                 matchedUsers.forEach(user => {
+//                     const suggestionElement = document.createElement('div');
+//                     suggestionElement.textContent = user.name;
+//                     suggestionElement.classList.add('mentionSuggestion');
+//                     suggestionElement.addEventListener('click', function() {
+//                         const mentionStart = mentionIndex;
+//                         const mentionEnd = mentionIndex + mentionQuery.length;
+//                         const mentionText = `@${user.name} `;
+//                         let newText = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
+//                         if (mentionEnd === inputValue.length - 1) {
+//                             newText = inputValue.substring(0, inputValue.length - 1) + mentionText;
+//                         }
+//                         messageInput.value = newText;
+//                         mentionSuggestions.innerHTML = '';
+//                     });
+//                     mentionSuggestions.appendChild(suggestionElement);
+//                 });
+//             } else {
+//                 mentionSuggestions.innerHTML = '';
+//             }
+//         } else {
+//             mentionSuggestions.innerHTML = '';
+//         }
+//     });
+// };
+
+const mentionCommunityMember = () => {
+    const messageInput = document.getElementById('content');
+    messageInput.addEventListener('input', async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');
         const users = await getAllMember();
+        const mentionSuggestions = document.getElementById('mentionSuggestions');
+
         if (mentionIndex !== -1) {
-            const mentionQuery = inputValue.substring(mentionIndex + 1);
-            const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery.toLowerCase()));
+            const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
+            const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery));
+
+            mentionSuggestions.innerHTML = '';
 
             if (matchedUsers.length > 0) {
-                mentionSuggestions.innerHTML = '';
-
                 matchedUsers.forEach(user => {
                     const suggestionElement = document.createElement('div');
                     suggestionElement.textContent = user.name;
                     suggestionElement.classList.add('mentionSuggestion');
                     suggestionElement.addEventListener('click', function() {
                         const mentionStart = mentionIndex;
-                        const mentionEnd = mentionIndex + mentionQuery.length;
-                        const mentionText = `@${user.name} `;
+                        const mentionEnd = mentionIndex + mentionQuery.length + 1; // +1 to include the @ symbol
+                        const mentionText = `[[${user.name}]] `;
                         let newText = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
-                        if (mentionEnd === inputValue.length - 1) {
-                            newText = inputValue.substring(0, inputValue.length - 1) + mentionText;
-                        }
                         messageInput.value = newText;
                         mentionSuggestions.innerHTML = '';
                     });
                     mentionSuggestions.appendChild(suggestionElement);
                 });
-            } else {
-                mentionSuggestions.innerHTML = '';
             }
         } else {
             mentionSuggestions.innerHTML = '';
         }
     });
 };
+
 
 const showEmptyContent = async () => {
     const invitations = await fetchInvitationMessage();
@@ -419,6 +455,14 @@ async function createPost() {
             removeCat()
             removePreview()
         }
+     console.log("Post text", postText)
+        const res = await response.json();
+        if(res) {
+            console.log("ID",res.id)
+            let mentionedUsers = extractMentionedUsers(postText);
+
+            await sendMentionNotification(mentionedUsers,res.id);
+        }
         while (newsfeed.firstChild) {
             newsfeed.removeChild(newsfeed.firstChild)
         }
@@ -427,6 +471,26 @@ async function createPost() {
     }
 
 }
+
+const extractMentionedUsers = (postText) => {
+    const mentionRegex = /\[\[([^\]]+)\]\]/g;
+    let mentionedUsers = [];
+    let match;
+
+    while ((match = mentionRegex.exec(postText)) !== null) {
+        mentionedUsers.push(match[1].trim());
+    }
+
+    console.log("Mentioned Users: ", mentionedUsers);
+
+    return mentionedUsers;
+};
+
+
+
+
+
+
 
 // let currentPageForPost = '0';
 // let isFetchingForPost = false;
@@ -439,6 +503,13 @@ async function createPost() {
 // let currentPageForPoll = '0'
 // let isFetchingForPoll = false;
 // let hasMoreForPoll = true;
+
+const renderPostDescription = (description) => {
+    return description
+        .replace(/\[\[([^\]]+)\]\]/g, '<span class="mention">@$1</span>')
+        .replace(/\n/g, '<br>');
+};
+
 
 async function welcome() {
     await checkUserOrAdminOrGroupOwner()
@@ -495,6 +566,7 @@ async function welcome() {
                 }
 
                 const commentCountSize = await fetchCommentSizes(p.id);
+                let formattedDescription = renderPostDescription(p.description);
                 let post = '';
                 post += `
 
@@ -528,7 +600,7 @@ async function welcome() {
       post+=`</div>
 <div id="post-update-section-${p.id}">
 <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
-      ${p.description.replace(/\n/g, '<br>')}
+      ${formattedDescription}
       `
                 let oneTag = null
                 let oneCloseTag = null
@@ -913,7 +985,7 @@ async function welcome() {
             let range = document.createRange();
             let fragment = range.createContextualFragment(posts);
             newsfeed.appendChild(fragment);
-             await removeCat()
+            document.getElementById('restart').click()
 
    // }
 
@@ -2236,6 +2308,7 @@ const connect = () => {
         stompClient.subscribe(`/user/all/comment-private-message`, receivedMessageForComment);
         stompClient.subscribe(`/user/${loginUser}/comment-private-message`, receivedMessageForComment);
         stompClient.subscribe(`/user/all/comment-reply-private-message`, receivedMessageForCommentReply);
+        stompClient.subscribe(`/user/mention/queue/messages`, receivedMessageForMention);
     });
 };
 
@@ -2244,6 +2317,18 @@ document.getElementById('notiCountDecrease').addEventListener('click', () => {
     notificationCount = 0;
     showNotiCount().then();
 });
+
+const sendMentionNotification = async (mentionedUsers,id) => {
+    if (mentionedUsers.length > 0) {
+        console.log("get", mentionedUsers);
+        const myObj = {
+            postId:id,
+            userId:loginUser,
+            users:mentionedUsers
+        }
+        stompClient.send('/app/mention-notification', {}, JSON.stringify(myObj));
+    }
+};
 
 const showNotiCount = async () => {
     const notiShow = document.getElementById('notiCount');
@@ -3421,6 +3506,25 @@ const receivedMessageForComment = async (payload) => {
     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
 };
 
+const receivedMessageForMention = async (payload) => {
+    try {
+        console.log('Message Received');
+        const message = JSON.parse(payload.body);
+        const user = await fetchUserDataByPostedUser(message.userId);
+        const userIdList = message.users;
+        if (userIdList.includes(loginUser)) {
+            notificationCount += 1;
+            await showNotiCount();
+            const msg = 'mentioned you in a post';
+            message.photo = user.photo || '/static/assets/img/card.jpg';
+            await notifyMessageForReact(msg, user.name, user.photo, null);
+        }
+    } catch (error) {
+        console.error('Error processing mention message:', error);
+    }
+};
+
+
 
 const receivedMessageForCommentReply = async (payload) => {
     console.log('Message Received');
@@ -3554,6 +3658,7 @@ const fetchNotificationPerPage = async () => {
         divElement.style.borderRadius = '10px';
         divElement.style.width = '380px';
         attachNotificationEventListeners();
+        console.log("GetIDFORMEnto",noti.mentionId)
         const trashIcon = document.createElement('i');
         trashIcon.id = `trashIcon-deleted-${noti.id}`
         trashIcon.classList.add('fa-solid','fa-trash-can');
@@ -3725,6 +3830,26 @@ const fetchNotificationPerPage = async () => {
             divElement.appendChild(imgReactElement);
             divElement.appendChild(pElement);
         }
+
+        if (noti.mentionId) {
+            const mentionedUser = await getMentionById(noti.mentionId);
+            const getUser = await getMentionUser(mentionedUser.postedUserId);
+            const photo = getUser.photo || '/static/assets/img/card.jpg';
+            console.log("MenitonUSer",getUser.name)
+            let imgElement = document.createElement('img');
+            imgElement.src = `${photo}`;
+            imgElement.width = 40;
+            imgElement.height = 40;
+            imgElement.style.borderRadius = '50%';
+
+            const pElement = document.createElement('p');
+            pElement.style.display = 'inline-block';
+            pElement.style.marginLeft = '10px'; // Adjust margin as needed
+            pElement.innerHTML = `${getUser.name} mentioned your in a post`;
+
+            divElement.appendChild(imgElement);
+            divElement.appendChild(pElement);
+        }
        const container =  document.createElement('div');
         container.classList.add('container-trash-div')
         container.style.display = 'inline-grid';
@@ -3733,6 +3858,18 @@ const fetchNotificationPerPage = async () => {
         root.appendChild(container);
     }
 };
+
+const getMentionUser = async (id) => {
+    const data = await fetch(`/getData-mention/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+const getMentionById = async (id) => {
+    const data = await fetch(`/get-mentionUser/${id}`);
+    const res = data.json();
+    return res;
+}
 
 const deleteAllNotifications =async  () => {
     const deleteAllNoti = await fetch(`/delete-all-noti`,{
@@ -5542,3 +5679,5 @@ document.getElementById('labelForPoll').addEventListener('click',()=>{
     console.log(document.getElementById('updatePollEventPhoto'))
     document.getElementById('updatePollEventPhoto').click()
 })
+
+

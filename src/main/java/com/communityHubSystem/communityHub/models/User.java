@@ -96,6 +96,10 @@ public class User implements Serializable {
     @JsonIgnore
     private Set<Notification> notifications;
 
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Mention> mentions;
+
 
     public Set<Post> getPosts() {
         if (posts == null) {

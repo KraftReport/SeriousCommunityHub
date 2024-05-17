@@ -29,4 +29,13 @@ public interface UserService {
     public List<User> userSearchMethod(String input) throws UnsupportedEncodingException;
 
     List<Object> checkUserOrAdminOrGroupOwner();
+
+    User getLogin();
+
+    Long getCountOfUserUploadPhoto(Long id);
+    Long getCountOfUserUploadVideo(Long id);
+
+   public List<User> getAllActiveUser();
+
+   public User mentionedUser(String name);
 }

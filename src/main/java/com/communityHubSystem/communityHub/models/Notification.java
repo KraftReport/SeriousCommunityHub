@@ -54,4 +54,9 @@ public class Notification implements Serializable {
     @JoinColumn(name = "event_id")
     private Event event;
 
+
+    @ManyToOne
+    @JoinColumn(name = "mention_id")
+    private Mention mention;
+
 }

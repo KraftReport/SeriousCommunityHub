@@ -61,24 +61,44 @@ const showOneTrendyPostWithinOneMonth =async () => {
     const reactCount = document.getElementById('unique-oneMonthTrendyPostReactCount');
     const commentCount = document.getElementById('unique-oneMonthTrendyPostCommentCount');
     const photo = document.querySelector('.unique-image1');
-  const post = await fetchMostTrendyPostWithinOneMonth();
-    const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
-    photo.src = `${image}`;
-  const reactSize = await fetchMostTrendyPostReactCountWithinOneMonth();
-  const commentSize = await fetchMostTrendyPostCommentCountWithinOneMonth();
-   // let date = await timeAgo(new Date(post.createdDate))
-    const createdDate = new Date(post.createdDate);
-    const formattedDate = createdDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    postedDate.innerHTML = `Posted Date: ${formattedDate}`;
-   reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
-   commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
-
+    const checkUser = await getUserToCheckAdminOrNot();
+    if(checkUser.role === 'ADMIN'){
+        const post = await getOnlyPostForAdminWithinOneMonth();
+        const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
+        photo.src = `${image}`;
+        const reactSize = await getOnlyPostReactsCountForAdmin(post.id);
+        const commentSize = await getOnlyPostCommentsCountForAdmin(post.id);
+        const createdDate = new Date(post.createdDate);
+        const formattedDate = createdDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        postedDate.innerHTML = `Posted Date: ${formattedDate}`;
+        reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+        commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+        console.log("that is admin")
+    }else{
+        const post = await fetchMostTrendyPostWithinOneMonth();
+        const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
+        photo.src = `${image}`;
+        const reactSize = await fetchMostTrendyPostReactCountWithinOneMonth();
+        const commentSize = await fetchMostTrendyPostCommentCountWithinOneMonth();
+        const createdDate = new Date(post.createdDate);
+        const formattedDate = createdDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        postedDate.innerHTML = `Posted Date: ${formattedDate}`;
+        reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+        commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+        console.log("that is User")
+    }
 }
 
 const showOneTrendyPostWithinOneYear =async () => {
@@ -86,22 +106,44 @@ const showOneTrendyPostWithinOneYear =async () => {
     const reactCount = document.getElementById('unique-oneYearTrendyPostReactCount');
     const commentCount = document.getElementById('unique-oneYearTrendyPostCommentCount');
     const photo = document.querySelector('.unique-image2');
-    const p = await fetchMostTrendyPostWithinOneYear();
-    const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
-    photo.src = `${image}`;
-    const reactSize = await fetchMostTrendyPostReactCountWithinOneYear();
-    const commentSize = await fetchMostTrendyPostCommentCountWithinOneYear();
-    const createdDate = new Date(p.createdDate);
-    const formattedDate = createdDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    postedDate.innerHTML = ` Posted Date : ${formattedDate}`;
-    reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
-    commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+const checkUser = await getUserToCheckAdminOrNot();
+ if(checkUser.role === 'ADMIN'){
+     const p = await getOnlyPostForAdminWithinOneYear();
+     const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
+     photo.src = `${image}`;
+     const reactSize = await getOnlyPostReactsCountForAdmin(p.id);
+     const commentSize = await getOnlyPostCommentsCountForAdmin(p.id);
+     const createdDate = new Date(p.createdDate);
+     const formattedDate = createdDate.toLocaleDateString('en-US', {
+         year: 'numeric',
+         month: 'long',
+         day: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit'
+     });
+     postedDate.innerHTML = ` Posted Date : ${formattedDate}`;
+     reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+     commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+     console.log("that is admin")
+ }else{
+     const p = await fetchMostTrendyPostWithinOneYear();
+     const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
+     photo.src = `${image}`;
+     const reactSize = await fetchMostTrendyPostReactCountWithinOneYear();
+     const commentSize = await fetchMostTrendyPostCommentCountWithinOneYear();
+     const createdDate = new Date(p.createdDate);
+     const formattedDate = createdDate.toLocaleDateString('en-US', {
+         year: 'numeric',
+         month: 'long',
+         day: 'numeric',
+         hour: '2-digit',
+         minute: '2-digit'
+     });
+     postedDate.innerHTML = ` Posted Date : ${formattedDate}`;
+     reactCount.innerHTML = ` Total React Count : ${ reactSize}`;
+     commentCount.innerHTML = ` Total Comment Count : ${ commentSize}`;
+     console.log("that is user")
+ }
 
 }
 
@@ -113,6 +155,10 @@ document.addEventListener('DOMContentLoaded',async () =>{
     document.getElementById('postForWithinOneMonth').addEventListener('click', async () => {
         const post = await fetchMostTrendyPostWithinOneMonth();
         console.log('POser',post.id);
+        if(post){ 
+            localStorage.setItem('trendPostId',post.id)
+            window.location.href = `/trendingPostDetailPage`
+        }
     })
 
     document.getElementById('postForWithinOneYear').addEventListener('click', async () => {
@@ -289,3 +335,162 @@ const getTotalCommentsForCommunityWithinOneYear = async () => {
     const res = await data.json();
     return res;
 }
+
+const getUserToCheckAdminOrNot =async () => {
+    const data = await fetch(`/user/check-role`);
+    const res = await data.json();
+    return res;
+}
+
+const getOnlyPostForAdminWithinOneMonth = async () => {
+    const uniquePost = await fetch(`/user/onlyOne-trendyPost-withinOneMonth`)
+   const res = await uniquePost.json();
+    return res;
+}
+const getOnlyPostForAdminWithinOneYear = async () => {
+    const uniquePost = await fetch(`/user/onlyOne-trendyPost-withinOneYear`)
+    const res = await uniquePost.json();
+    return res;
+}
+
+const getOnlyPostReactsCountForAdmin = async (id) => {
+    const reactCount = await fetch(`/user/onlyOne-trendyPostReacts-withinOneMonth/${id}`);
+    const res = await reactCount.json();
+    return res;
+}
+
+const getOnlyPostCommentsCountForAdmin = async (id) => {
+    const reactCount = await fetch(`/user/onlyOne-trendyPostComments-withinOneMonth/${id}`);
+    const res = await reactCount.json();
+    return res;
+}
+//for admin to show each activity
+
+const getUsersWithoutAdmin =async () => {
+    const users = await fetch(`/user/activeUsers-forAdmin`);
+    const res = await users.json();
+    return res;
+}
+
+const getAllUsersReactsForAdmin =async (id) => {
+    const reacts = await fetch(`/user/activeUser-ReactsCount/${id}`);
+    const res = await reacts.json();
+ return  res;
+}
+const getAllUsersCommentsForAdmin = async (id) => {
+    const comments = await fetch(`/user/activeUser-CommentsCount/${id}`);
+    const res = await comments.json();
+    return  res;
+}
+const getPostListForEachUserWithinOneMonth = async (id) => {
+    const posts = await fetch(`/user/getPosts-eachUser/month/${id}`);
+    const res = await posts.json();
+    return res;
+}
+
+const getPostListForEachYearWithinOneYear = async (id) => {
+    const posts = await fetch(`/user/getPosts-eachUser/year/${id}`);
+    const res = await posts.json();
+    return res;
+}
+
+const getPostListForEachYear = async (id) => {
+    const postList = await fetch(`/user/getPosts-eachUser/all/${id}`);
+    const res = postList.json();
+    return res;
+}
+
+//for pie chart
+
+document.addEventListener("DOMContentLoaded", function() {
+    const pieChartContainer = document.getElementById('pieChartContainer');
+
+    fetch('/user/data')
+        .then(response => response.json())
+        .then(data => {
+            for (const [userId, userDetail] of Object.entries(data)) {
+                Promise.all([
+                    fetch(`/user/getPosts-eachUser/month/${userId}`),
+                    fetch(`/user/getPosts-eachUser/year/${userId}`),
+                    fetch(`/user/getPosts-eachUser/all/${userId}`),
+                    fetch(`/user/activeUser-ReactsCount/${userId}`),
+                    fetch(`/user/activeUser-CommentsCount/${userId}`)
+                ])
+                    .then(responses => Promise.all(responses.map(response => response.json())))
+                    .then(([postsWithinMonth, postsWithinYear, totalPosts, totalReacts, totalComments]) => {
+                        const chartContainer = document.createElement('div');
+                        chartContainer.className = 'piechart-container';
+                        chartContainer.dataset.username = userDetail.name.toLowerCase();
+
+                        const pieCanvas = document.createElement('canvas');
+                        pieCanvas.id = `pieChart-${userId}`;
+
+                        const pieChartDiv = document.createElement('div');
+                        pieChartDiv.className = 'piechart';
+                        pieChartDiv.appendChild(pieCanvas);
+
+                        chartContainer.appendChild(pieChartDiv);
+                        pieChartContainer.appendChild(chartContainer);
+
+                        const ctx = pieCanvas.getContext('2d');
+
+                        const labels = ['Posts within one month', 'Posts within one year', 'Total Posts', 'Total Reacts', 'Total Comments'];
+                        const counts = [
+                            postsWithinMonth.length,
+                            postsWithinYear.length,
+                            totalPosts.length,
+                            totalReacts,
+                            totalComments
+                        ];
+                        const colors = ['red', 'green', 'blue', 'orange', 'purple'];
+
+                        new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                datasets: [{
+                                    data: counts,
+                                    backgroundColor: colors,
+                                }],
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: `Data Distribution for User ${userDetail.staffId} (${userDetail.name})`
+                                    },
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const label = labels[context.dataIndex] || '';
+                                                const value = context.raw;
+                                                return `${label}: ${value}`;
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        });
+                    })
+                    .catch(error => console.error('Error fetching user data:', error));
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+
+    document.getElementById('userSearch').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const allUsers = document.querySelectorAll('.piechart-container');
+
+        allUsers.forEach(userContainer => {
+            const userName = userContainer.dataset.username;
+            if (userName.includes(searchValue)) {
+                userContainer.style.display = 'block';
+            } else {
+                userContainer.style.display = 'none';
+            }
+        });
+    });
+});

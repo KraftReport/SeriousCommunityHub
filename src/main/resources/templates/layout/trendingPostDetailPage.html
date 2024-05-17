@@ -229,19 +229,23 @@
 
  <div class="d-flex">
     <div>
-        <img src="/static/assets/img/wowIt'sme.jpg" style="width: 120px; height: 100px; margin:20px; border-radius:10px;" alt="">
+        <img id="userPhotoDiv" src="/static/assets/img/wowIt'sme.jpg" style="width: 120px; height: 100px; margin:20px; border-radius:10px;" alt="">
     </div>
     <div class="card" style="width:300px; border-radius:20px; margin: 20px;">
         <div class="">
 
             
-            <p class="font-monospace m-2"><i class="fa-solid fa-user text-primary"></i> Myo Set Paing</p>
+            <div class="d-flex m-2" style="justify-content: center;">
+            <p class="font-monospace mx-2 ">  <div id="userNameDiv" class="font-monospace">Myo Set Paing</div></p>
+            </div>
 
-           
-            <p class="font-monospace m-2"> <i class="fa-solid fa-building text-primary"></i> Development Department</p>
+            <div class="d-flex m-2" style="justify-content: center;">      
+            <p class="font-monospace mx-2 d-flex">   <div id="userDepartmentDiv" class="font-monospace">Development Department</div></p>
+            </div>
 
-            
-            <p class="font-monospace m-2"><i class="fa-solid fa-envelope text-primary"></i> kraftreport04@gmail.com</p>
+            <div class="d-flex m-2" style="justify-content: center;">            
+            <p class="font-monospace mx-2 d-flex">  <div id="userEmailDiv" class="font-monospace">kraftreport04@gmail.com</div></p>
+            </div>
 
         </div>
       </div>
@@ -249,13 +253,13 @@
         <div class="">
 
             
-             <p class="font-monospace m-2"><i class="fa-solid fa-lock text-danger"></i> PRIVATE</p>
+             <p class="font-monospace m-2"><i class="fa-solid fa-lock text-danger"></i> <div id="accessDiv">PRIVATE</div></p>
 
              
-             <p class="font-monospace m-2"><i class="fa-solid fa-users text-primary"></i> GROUP NAME</p>
+             <p class="font-monospace m-2"><i class="fa-solid fa-users text-primary"></i> <div id="groupDiv">GROUP NAME</div></p>
 
              
-             <p class="font-monospace m-2"><i class="fa-regular fa-clock text-primary"></i> CREATED DATE</p>
+             <p class="font-monospace m-2"><i class="fa-regular fa-clock text-primary"></i> <div id="timeDiv">CREATED DATE</div></p>
 
         </div>
       </div>
@@ -264,7 +268,7 @@
 
       <div class="card" style="width:500px; margin-top:20px; margin-left:100px;">
         <div class="card-body">
-             <p class="font-monospace" style="margin-top: 15px;">
+             <p class="font-monospace" style="margin-top: 15px;" id="descDiv">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptatibus similique, earum laborum voluptates fugiat nisi odit quisquam qui sed! Dignissimos, distinctio deserunt eum non quod qui veritatis voluptatum consectetur. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quaerat quibusdam illum rerum? Aperiam maiores sunt, doloremque dolore deleniti tempore accusamus mollitia exercitationem, veritatis voluptatum itaque fugiat voluptatem laudantium repellendus. Iure?
              </p>
         </div>
@@ -273,15 +277,15 @@
 
 
       <div class="card">
-        <div class="card-body">
-          <div>
+        <div class="card-body" id="parentDiv">
+          <!-- <div>
             <div>
                 <p class="font-monospace m-2"><i class="fa-solid fa-pencil text-danger"></i> Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos blanditiis repellat quidem a sapiente eius dicta veritatis hic corrupti. Suscipit illo quas consectetur quam aliquid porro eaque hic ad minima.</p>
             </div>
             <div>
                 <img src="/static/assets/img/wowIt'sme.jpg" style="width:400px; margin-left:200px;"  alt="">
             </div>
-          </div>  
+          </div>   -->
         </div>
       </div>
  
@@ -299,5 +303,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <!-- <script src="/static/assets/js/post.js"></script> -->
 <script src="/static/assets/js/search.js"></script>
+<script src="/static/assets/js/trendDetail.js"></script>
 </body>
 </html>

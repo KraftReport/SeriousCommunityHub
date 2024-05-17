@@ -468,6 +468,7 @@ public class UserController {
         return "/user/other-user-profile";
     }
 
+
     @GetMapping("/getHobbies")
     public ResponseEntity<?> getUserHobbies() {
         String staffId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -501,6 +502,12 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<List<Object>> checkUserOrAdminOrGroupOwner(){
         return ResponseEntity.ok(userService.checkUserOrAdminOrGroupOwner());
+    }
+
+    @GetMapping("/getCurrentLoginUser")
+    @ResponseBody
+    public ResponseEntity<User> getCurrentLoginUser(){
+        return ResponseEntity.ok(userService.getLogin());
     }
 }
 

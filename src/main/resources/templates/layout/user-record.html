@@ -24,12 +24,12 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#totalTab"
+                    <button class="nav-link" id="total-tab" sec:authorize="hasAnyAuthority('ADMIN')" data-bs-toggle="tab" data-bs-target="#totalTab"
                             type="button" role="tab" aria-controls="totalTab" aria-selected="false">TrendyTotalsList
                     </button>
                 </li>
             </ul>
-            <div class="tab-content" id="myTabContent" sec:authorize="hasAnyAuthority('ADMIN')">
+            <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="postListTab" role="tabpanel" aria-labelledby="postList-tab">
                     <div id="trendyPost" class="">
 
@@ -54,7 +54,7 @@
                                         <span id="unique-oneMonthTrendyPostReactCount">Total React Count : 23</span>
                                         <span id="unique-oneMonthTrendyPostCommentCount">Total Comment Count : 55</span>
                                     </div>
-                                    <button id="postForWithinOneMonth">Click to see</button>
+                                    <button id="postForWithinOneMonth" >Click to see</button>
                                 </div>
                             </div>
 
@@ -139,7 +139,12 @@
                     </div>
                 </div>
                 <div class="tab-pane fade" id="totalTab" role="tabpanel" aria-labelledby="polls-tab">
-                    <div id="trendyTotalList" class=" "></div>
+                    <div id="trendyTotalList" class=" ">
+                        <div>
+                            <input type="text" class="form-control" id="userSearch" placeholder="Search users" style="margin-right: 329px; width: 150px; height: 40px;"><br><br>
+                            <div id="pieChartContainer" style="display: flex; flex-wrap: wrap;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             </div>
@@ -148,5 +153,21 @@
         <div th:replace="~{index::footer}"></div>
         <script src="https://code.jquery.com/jquery-3.7.1.js"
                 integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <style>
+            .piechart-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: calc(100% / 3);
+                height: calc(100vh / 3);
+                margin-bottom: 80px;
+            }
+
+            .piechart {
+                width: 300px;
+                height: 300px;
+                border-radius: 50%;
+            }
+        </style>
     </body>
 </html>
