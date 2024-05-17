@@ -1,3 +1,52 @@
+const createBtns = async () => {
+    let data = await distinguishMembers(localStorage.getItem('communityIdForDetailPage'))
+    let mainDiv = document.getElementById('createBtns')
+    let postCreateBtn = document.createElement('button')
+    let eventCreateBtn = document.createElement('button')
+    let pollCreateBtn = document.createElement('button')
+    let optionForPost = document.createElement('option')
+    let postGroupSelect = document.getElementById('groupSelect1')
+    let optionForEvent = document.createElement('option')
+    let eventGroupSelect = document.getElementById('groupSelect2')
+    let optionForPoll = document.createElement('option')
+    let pollGroupSelect = document.getElementById('groupSelect3')
+
+    optionForPost.value = localStorage.getItem('communityIdForDetailPage')
+    optionForPost.textContent = 'groupId'
+    optionForPost.selected = true
+    postGroupSelect.appendChild(optionForPost)
+    postCreateBtn.setAttribute('data-bs-toggle','offcanvas')
+    postCreateBtn.setAttribute('data-bs-target','#postMaker')
+    postCreateBtn.setAttribute('aria-controls','postMaker')
+    postCreateBtn.textContent = 'Post'
+
+    optionForEvent.value = localStorage.getItem('communityIdForDetailPage')
+    optionForEvent.textContent = 'groupId'
+    optionForEvent.selected = true
+    eventGroupSelect.appendChild(optionForEvent)
+    eventCreateBtn.setAttribute('data-bs-toggle','offcanvas')
+    eventCreateBtn.setAttribute('data-bs-target','#eventMaker')
+    eventCreateBtn.setAttribute('aria-controls','eventMaker')
+    eventCreateBtn.textContent = 'Event'
+
+    optionForPoll.value = localStorage.getItem('communityIdForDetailPage')
+    optionForPoll.textContent = 'groupId'
+    optionForPoll.selected = true
+    pollGroupSelect.appendChild(optionForPoll)
+    pollCreateBtn.setAttribute('data-bs-toggle','offcanvas')
+    pollCreateBtn.setAttribute('data-bs-target','#pollMaker')
+    pollCreateBtn.setAttribute('aria-controls','pollMaker')
+    pollCreateBtn.textContent = 'Poll' 
+    
+    if(data === 'ADMIN' || data === 'OWNER'){
+        mainDiv.appendChild(postCreateBtn)
+        mainDiv.appendChild(eventCreateBtn)
+        mainDiv.appendChild(pollCreateBtn)
+    }else{
+        mainDiv.appendChild(postCreateBtn)
+    }
+}
+
 window.onload = async function(){
     console.log('wow wow here')
 
@@ -5,6 +54,8 @@ window.onload = async function(){
     await createBtns()
     await getPosts()
 }
+
+
 const fetchSizes = async (id) => {
     const reactSize = await fetch(`/like-size/${id}`);
     const reactCount = await reactSize.json();
@@ -1016,46 +1067,7 @@ const createEventPost = async () => {
 };
 
 
-const validateDates = () => {
-    console.log('validate');
-    const startDate = document.getElementById('start_date').value;
-    const endDate = document.getElementById('end_date').value;
-    
-    if (startDate && endDate && startDate > endDate) {
-        document.getElementById('start_date').value = '';
-        document.getElementById('end_date').value = ''; 
-        alert('Start date must be earlier than end date');
-    }
-};
 
-
-const pollValidateDates = () => {
-    console.log('validate');
-    const startDate = document.getElementById('poll_start_date').value;
-    const endDate = document.getElementById('poll_end_date').value;
-    
-    if (startDate && endDate && startDate > endDate) {
-        document.getElementById('poll_start_date').value = '';
-        document.getElementById('poll_end_date').value = ''; 
-        alert('Start date must be earlier than end date');
-    }
-};
-
-document.getElementById('start_date').addEventListener('change', validateDates);
-document.getElementById('end_date').addEventListener('change', validateDates);
-
-
-document.getElementById('poll_start_date').addEventListener('change', pollValidateDates);
-document.getElementById('poll_end_date').addEventListener('change', pollValidateDates);
-
-let startDate = document.getElementById('start_date')
-let endDate = document.getElementById('end_date')
-
- 
-async function setToNormal() {
-    cat.classList.remove('hidden')
-    mark.classList.add('hidden')
-}
 
 let isLoadingPosts = false;
 
@@ -5000,54 +5012,6 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
 }
 
 
-const createBtns = async () => {
-    let data = await distinguishMembers(localStorage.getItem('communityIdForDetailPage'))
-    let mainDiv = document.getElementById('createBtns')
-    let postCreateBtn = document.createElement('button')
-    let eventCreateBtn = document.createElement('button')
-    let pollCreateBtn = document.createElement('button')
-    let optionForPost = document.createElement('option')
-    let postGroupSelect = document.getElementById('groupSelect1')
-    let optionForEvent = document.createElement('option')
-    let eventGroupSelect = document.getElementById('groupSelect2')
-    let optionForPoll = document.createElement('option')
-    let pollGroupSelect = document.getElementById('groupSelect3')
-
-    optionForPost.value = localStorage.getItem('communityIdForDetailPage')
-    optionForPost.textContent = 'groupId'
-    optionForPost.selected = true
-    postGroupSelect.appendChild(optionForPost)
-    postCreateBtn.setAttribute('data-bs-toggle','offcanvas')
-    postCreateBtn.setAttribute('data-bs-target','#postMaker')
-    postCreateBtn.setAttribute('aria-controls','postMaker')
-    postCreateBtn.textContent = 'Post'
-
-    optionForEvent.value = localStorage.getItem('communityIdForDetailPage')
-    optionForEvent.textContent = 'groupId'
-    optionForEvent.selected = true
-    eventGroupSelect.appendChild(optionForEvent)
-    eventCreateBtn.setAttribute('data-bs-toggle','offcanvas')
-    eventCreateBtn.setAttribute('data-bs-target','#eventMaker')
-    eventCreateBtn.setAttribute('aria-controls','eventMaker')
-    eventCreateBtn.textContent = 'Event'
-
-    optionForPoll.value = localStorage.getItem('communityIdForDetailPage')
-    optionForPoll.textContent = 'groupId'
-    optionForPoll.selected = true
-    pollGroupSelect.appendChild(optionForPoll)
-    pollCreateBtn.setAttribute('data-bs-toggle','offcanvas')
-    pollCreateBtn.setAttribute('data-bs-target','#pollMaker')
-    pollCreateBtn.setAttribute('aria-controls','pollMaker')
-    pollCreateBtn.textContent = 'Poll' 
-    
-    if(data === 'ADMIN' || data === 'OWNER'){
-        mainDiv.appendChild(postCreateBtn)
-        mainDiv.appendChild(eventCreateBtn)
-        mainDiv.appendChild(pollCreateBtn)
-    }else{
-        mainDiv.appendChild(postCreateBtn)
-    }
-}
 
 const sendMentionNotification = async (mentionedUsers,id) => {
     if (mentionedUsers.length > 0) {
@@ -5127,3 +5091,46 @@ document.getElementById('labelForPoll').addEventListener('click',()=>{
     document.getElementById('updatePollEventPhoto').click()
 })
 
+async function setToNormal() {
+    cat.classList.remove('hidden')
+    mark.classList.add('hidden')
+}
+
+
+
+const validateDates = () => {
+    console.log('validate');
+    const startDate = document.getElementById('start_date').value;
+    const endDate = document.getElementById('end_date').value;
+    
+    if (startDate && endDate && startDate > endDate) {
+        document.getElementById('start_date').value = '';
+        document.getElementById('end_date').value = ''; 
+        alert('Start date must be earlier than end date');
+    }
+};
+
+
+const pollValidateDates = () => {
+    console.log('validate');
+    const startDate = document.getElementById('poll_start_date').value;
+    const endDate = document.getElementById('poll_end_date').value;
+    
+    if (startDate && endDate && startDate > endDate) {
+        document.getElementById('poll_start_date').value = '';
+        document.getElementById('poll_end_date').value = ''; 
+        alert('Start date must be earlier than end date');
+    }
+};
+
+document.getElementById('start_date').addEventListener('change', validateDates);
+document.getElementById('end_date').addEventListener('change', validateDates);
+
+
+document.getElementById('poll_start_date').addEventListener('change', pollValidateDates);
+document.getElementById('poll_end_date').addEventListener('change', pollValidateDates);
+
+let startDate = document.getElementById('start_date')
+let endDate = document.getElementById('end_date')
+
+ 
