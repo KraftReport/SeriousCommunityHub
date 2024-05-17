@@ -107,7 +107,6 @@ public class UserController {
             }
             return skills;
         }
-        // If user not found or no skills associated, return all skills
         return Collections.EMPTY_LIST;
     }
 

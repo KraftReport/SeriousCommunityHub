@@ -90,8 +90,8 @@
                     <div class="single_advisor_profile wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;" th:data-userid="${user.id}">
                         <!-- Team Thumb-->
                         <div class="advisor_thumb">
-                            <img th:if="${user.photo != null}" th:src="@{${user.photo}}" alt="User Photo" class="img-fluid rounded-circle">
-                            <img th:unless="${user.photo != null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo" class="img-fluid rounded-circle">
+                            <img th:if="${user.photo != null}" th:src="@{${user.photo}}" alt="User Photo" class="img-fluid rounded-circle" style="min-height: 160px;">
+                            <img th:unless="${user.photo != null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo" class="img-fluid rounded-circle" style="min-height: 160px;">
                             <!-- Social Info-->
                             <div class="social-info"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-linkedin"></i></a></div>
                         </div>
@@ -198,11 +198,6 @@
                                             <img th:unless="${user.photo == null}" th:src="${user.photo}" alt="Profile"
                                                  class="img-fluid img-thumbnail mt-4 mb-2"
                                                  style="width: 150px; z-index: 1"/>
-                                            <button id="edit-photo-btn" type="button"
-                                                    class="btn btn-outline-dark edit-button"
-                                                    data-mdb-ripple-color="dark" style="z-index: 1;">Edit Profile
-                                            </button>
-                                            Edit profile
                                         </div>
                                         <div class="ms-3" style="margin-top: 130px;">
                                             <h5 th:text="${user.name}">Name</h5>
@@ -211,18 +206,6 @@
                                     </div>
                                     <div class="p-4 text-black" style="background-color: #f8f9fa;">
                                         <div class="d-flex justify-content-end text-center py-1">
-                                            <div>
-                                                <p class="mb-1 h5" th:text="${user.posts.size()}">253</p>
-                                                <p class="small text-muted mb-0">Posts</p>
-                                            </div>
-                                            <div class="px-3">
-                                                <p class="mb-1 h5">1026</p>
-                                                <p class="small text-muted mb-0">Images</p>
-                                            </div>
-                                            <div>
-                                                <p class="mb-1 h5">478</p>
-                                                <p class="small text-muted mb-0">Videos</p>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="card-body p-4 text-black">

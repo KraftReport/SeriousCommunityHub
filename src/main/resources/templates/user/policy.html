@@ -76,7 +76,9 @@
             })
             .then(data => {
                 const policyContainer = document.querySelector('.policy-container');
+                console.log("reach policy")
                 data.forEach(policy => {
+                    console.log("policy reach1")
                     const policyElement = document.createElement('div');
                     policyElement.classList.add('policy');
 

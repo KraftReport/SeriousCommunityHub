@@ -38,35 +38,26 @@
                         <div class="rounded-top text-white d-flex flex-row" style="height:200px;" onclick="showbgModal()" id="profile-background" >
                             <img id="profile-background-img" src="/assets/img/pf-bg1.gif" style="position: absolute; top: 0; left: 0; width: 100%; height: 200px; object-fit: cover; " alt="pf-bg">                        <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
                             <img id="profile-photo" src="/assets/img/default-logo.png" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2"
-                                 style="width: 150px; z-index: 1" th:if="${user.photo == null}">
+                                 style="width: 150px; z-index: 1; border-radius: 20px; min-height: 160px;" th:if="${user.photo == null}">
                             <img  th:unless="${user.photo == null}" th:src="${user.photo}" alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2"
-                                  style="width: 150px; z-index: 1" />
+                                  style="width: 150px; z-index: 1; border-radius: 20px; min-height: 160px;" />
                         </div>
-                            <div class="ms-3" style="margin-top: 130px;">
+                            <div class="ms-3" style="">
                                 <h5 th:text="${user.name}" >Name</h5>
                                 <p th:text="${user.role}">Role</p>
                             </div>
                         </div>
                         <div class="p-4 text-black" style="background-color: #f8f9fa;">
                             <div class="d-flex justify-content-end text-center py-1">
-                                <div>
-                                    <p class="mb-1 h5" th:text="${user.posts.size()}">253</p>
-                                    <p class="small text-muted mb-0">Posts</p>
-                                </div>
-                                <div class="px-3">
-                                    <p class="mb-1 h5">1026</p>
-                                    <p class="small text-muted mb-0">Images</p>
-                                </div>
-                                <div>
-                                    <p class="mb-1 h5">478</p>
-                                    <p class="small text-muted mb-0">Videos</p>
-                                </div>
                             </div>
                         </div>
                         <div class="card-body p-4 text-black">
                             <div class="mb-5">
                                 <p class="lead fw-normal mb-1">About</p>
                                 <div class="p-4" style="background-color: #f8f9fa;">
+                                    <p class="font-italic mb-1">
+                                        <strong>Name:</strong> <span th:text="${user.name}?: 'Not provided'"></span>
+                                    </p>
                                     <p class="font-italic mb-1">
                                         <strong>Date of Birth:</strong> <span th:text="${user.dob}?: 'Not provided'"></span>
                                     </p>
@@ -79,7 +70,7 @@
                                     <p class="font-italic mb-1">
                                         <strong>Gender:</strong> <span th:text="${user.gender}?: 'Not provided'"></span>
                                     </p>
-                                    <button id="seeMoreBtn" class="btn btn-link">See more...</button>
+                                    <button id="seeMoreBtn" class="btn btn-link" style="margin-left: -18px; text-decoration: none; color: black;">See more...</button>
                                     <div id="moreUserInfo" style="display: none;">
                                         <p class="font-italic mb-1">
                                             <strong>Department:</strong> <span th:text="${user.dept}?: 'Not provided'"></span>
@@ -101,11 +92,7 @@
                 </div>
             </div>
         </div>
-
-       
-      
         </div>
-     
     </section>
 
     <div id="user-post-div">
