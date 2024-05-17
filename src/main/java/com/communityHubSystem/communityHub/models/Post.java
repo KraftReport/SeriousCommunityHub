@@ -23,6 +23,7 @@ public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 6000)
     private String description;
     @Column(nullable = false)
     private Date createdDate;

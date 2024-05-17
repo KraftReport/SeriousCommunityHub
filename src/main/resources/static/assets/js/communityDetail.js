@@ -186,6 +186,7 @@ async function getPostDetail(id) {
     let response = await data.json()
     console.log(response)
     let div = document.getElementById('editModal')
+    console.log(div)
     let row = ''
     row += `
   
@@ -194,32 +195,33 @@ async function getPostDetail(id) {
 
     <div>
     <form id="updatePostForm">
-    <b>ADD new DATA</b>
-    <input type="file" id="updateAddedFiles" class="form-control" multiple>
+    <b class="font-monospace m-2" >ADD new DATA <i class="fa-solid fa-plus"></i></b>
+    <input type="file" id="updateAddedFiles" class="form-control font-monospace m-2" multiple>
     <div id="updatePreview"></div>
-    <input type="hidden" id="UpdatePostId" value="${response.id}" name="postId">
+    <input type="hidden" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" id="UpdatePostId"  value="${response.id}" name="postId">
      
-    <b>OLD DATA</b></br>
-    <textarea name="updatePostText" class="form-control">${response.description}</textarea> 
+    <b class="font-monospace m-2">OLD DATA <i class="fa-solid fa-pen"></i></b></br>
+    <textarea name="updatePostText" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);"  class="form-control font-monospace m-2">${response.description}</textarea> 
     </form>
     </div>
   
    `
     response.resources.forEach((r, index) => {
         row += `
-    <div>
+    <div class="d-flex">
     <input type="hidden" id="resourceId" value="${r.id}">
-    <textarea id="${r.id}-caption" class="form-control" name="captionOfResource">${r.description}</textarea>`
+    <textarea style="border: none; height:50px; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" id="${r.id}-caption" class="form-control font-monospace m-2" name="captionOfResource">${r.description}</textarea>`
         if (r.video === null) {
             row += `
-        <button class="btn btn-danger"  onclick="deleteResource(${r.id})">Delete</button>
-        <img  style="width:100px; height:100px;" alt="deleted"  id="${r.id}-url" value="${r.photo}" src ="${r.photo}">
+        <img  style="width:100px; border-radius:20px; height:100px;" alt="deleted"  id="${r.id}-url" value="${r.photo}" src ="${r.photo}">
+        <button class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button>
+        <button class="btn btn-success font-monospace m-2 hidden" onclick = "restoreResource(${r.id})">Restore</button>
         `
         }
         if (r.photo === null) {
             row += `
-        <button class="btn btn-danger"  onclick="deleteResource(${r.id})">Delete</button>
-        <video style="width:100px; height:100px;" alt="deleted" id="${r.id}-url" value="${r.video}" controls src="${r.video}"></video>
+        <video style="width:100px; border-radius:20px;  height:100px;" alt="deleted" id="${r.id}-url" value="${r.video}" controls src="${r.video}"></video>
+        <button class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button>
         `
         }
 
@@ -288,6 +290,7 @@ async function getPostDetail(id) {
         }
     })
 }
+
 
 function removePreview() {
     document.getElementById('preview').innerHTML = ''
@@ -2589,27 +2592,35 @@ async function getEventDetail(id){
     <div> 
     <label for="updateEventId"></label>
     <input type="hidden" value="${response.id}" name="updateEventId" id="updateEventId">
-    <label for="updateEventTitle"  >Title</label>
-    <input type="text"  class="form-control" value="${response.title}" id="updateEventTitle" name="updateEventTitle">
-    <label for="updateEventDescription"  >Description</label>
-    <textarea type="text" class="form-control" id="updateEventDescription" name="updateEventDescription">${response.description}</textarea>
-    <b class="form-control">${formattedStartDate}</b>
-    <label for="updateEventStartDate"  >Start Date</label>
-    <input class="form-control" type="date" id="updateEventStartDate" name="updateEventStartDate" value=''>
-    <b class="form-control">${formattedEndDate}</b>
-    <label for="updateEventEndDate"  >End Date</label>
-    <input class="form-control" type="date" id="updateEventEndDate" name="updateEventEndDate" value=''>
-    <label for="updateEventLocation"  >Location</label>
-    <input class="form-control" type="text" id="updateEventLocation" value="${response.location}">
-    <label for="updateEventPhoto"  >Edit Photo</label>
-    <input class="form-control" type="file" id="updateEventPhoto" name="updateEventPhoto">
-    <img class="from-control" src="${response.photo}" style="width:100px; height;100px;" id="${response.id}-event-edit-url">
-    <button  id="restoreBtn" class="btn btn-success hidden" onclick="restoreEventPhoto(${response.id})">Restore</button>
-    <button class="btn btn-danger" id="photoRemoveBtn" onclick="deleteEditEventPhoto(${response.id})">Delete</button> 
+
+    <label for="updateEventTitle" class="font-monospace m-2" >Title <i class="fa-solid fa-sign-hanging"></i></label>
+    <input type="text"  style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control font-monospace m-2" value="${response.title}" id="updateEventTitle" name="updateEventTitle">
+
+    <label for="updateEventDescription" class="font-monospace m-2"  >Description</label>
+    <textarea type="text" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control font-monospace m-2" id="updateEventDescription" name="updateEventDescription">${response.description}</textarea>
+
+    <b class="form-control font-monospace m-2" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);">${formattedStartDate}</b>
+    <label for="updateEventStartDate" class="font-monospace m-2" >Start <i class="fa-regular fa-clock"></i></label>
+    <input style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control font-monospace m-2" type="date" id="updateEventStartDate" name="updateEventStartDate" value=''>
+    
+    <b class="form-control font-monospace m-2" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);">${formattedEndDate}</b>
+    <label for="updateEventEndDate" class="font-monospace m-2"  >End <i class="fa-solid fa-clock"></i></label>
+    <input style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control font-monospace m-2" type="date" id="updateEventEndDate" name="updateEventEndDate" value=''>
+
+    <label for="updateEventLocation" class="font-monospace m-2"  >Location <i class="fa-regular fa-compass"></i></label>
+    <input style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control font-monospace m-2" type="text" id="updateEventLocation" value="${response.location}">
+
+    <label for="updateEventPhoto" id="labelForEventUpdatePhoto"  class="font-monospace m-2" >Photo <i class="fa-solid fa-camera"></i></label>
+    <input class="form-control" style="display:none;" type="file" id="updateEventPhoto" name="updateEventPhoto">
+    <div class="d-flex"> 
+    <img  class="from-control" src="${response.photo}" style="width:100px; height;100px; border-radius:20px;" id="${response.id}-event-edit-url">
+
+    <button  style="border-radius:10px;" id="restoreBtn" class="btn btn-success hidden font-monospace m-2" onclick="restoreEventPhoto(${response.id})">Restore</button>
+
+    <button style="border-radius:10px;" class="btn btn-danger font-monospace m-2" id="photoRemoveBtn" onclick="deleteEditEventPhoto(${response.id})">Delete</button> 
     </div>
-    <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-    <button type="button" onclick="getEventUpdateData()" data-bs-dismiss="modal" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loadingModalBox" >Update</button>
+    </div> 
+    <button type="button" style="margin-left: 200px; border-radius: 10px;" onclick="getEventUpdateData()" data-bs-dismiss="offcanvas" class="btn btn-primary font-monospace m-2" data-bs-target="#loadingModalBox" >Update</button>
 </div>
     `
     eventEditModal.innerHTML = row
@@ -3255,20 +3266,30 @@ async function getPollEventDetail(id){
     <div> 
     <label for="updateEventId"></label>
     <input type="hidden" value="${response.id}" name="updateEventId" id="updatePollEventId">
-    <label for="updateEventTitle"  >Title</label>
-    <input type="text"  class="form-control" value="${response.title}" id="updatePollEventTitle" name="updateEventTitle">
-    <label for="updateEventDescription"  >Description</label>
-    <textarea type="text" class="form-control" id="updatePollEventDescription" name="updateEventDescription">${response.description}</textarea>
-    <b class="form-control">${formattedStartDate}</b>
-    <label for="updateEventStartDate"  >Start Date</label>
-    <input class="form-control" type="date" id="updatePollEventStartDate" name="updateEventStartDate" value=''>
-    <b class="form-control">${formattedEndDate}</b>
-    <label for="updateEventEndDate"  >End Date</label>
-    <input class="form-control" type="date" id="updatePollEventEndDate" name="updateEventEndDate" value=''>
-    <label for="options">Add vote options </label>
-    <div class="d-flex"><input type="text" name="voteOptionInputForUpdate" id="voteOptionInputForUpdate" class="form-control"><button type="button" class="btn btn-parimary " onclick="createAVoteOptionForUpdate()"><i class="fa-solid fa-plus text-white"></i></button></div>
+
+    <label  for="updateEventTitle" class="font-monospace m-2" >Title <i class="fa-solid fa-sign-hanging"></i></label>
+    <input style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" type="text"  class="form-control font-monospace m-2" value="${response.title}" id="updatePollEventTitle" name="updateEventTitle">
+
+    <label for="updateEventDescription" class="font-monospace m-2" >Description <i class="fa-solid fa-info"></i></label>
+    <textarea style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" type="text" class="form-control font-monospace m-2" id="updatePollEventDescription" name="updateEventDescription">${response.description}</textarea>
+
+    <b class="form-control font-monospace m-2" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);">${formattedStartDate}</b>
+    <label for="updateEventStartDate"  class="font-monospace m-2"  >Start <i class="fa-regular fa-clock"></i></label>
+    <input style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control font-monospace m-2" type="date" id="updatePollEventStartDate" name="updateEventStartDate" value=''>
+
+    <b class="form-control" class="font-monospace m-2" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);">${formattedEndDate}</b>
+    <label for="updateEventEndDate" class="font-monospace m-2" >End <i class="fa-solid fa-clock"></i></label>
+    <input  style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control font-monospace m-2" type="date" id="updatePollEventEndDate" name="updateEventEndDate" value=''>
+
+    <label for="options" class="font-monospace m-2">Add vote options </label>
+    <div class="d-flex font-monospace m-2">
+    <input type="text" name="voteOptionInputForUpdate" id="voteOptionInputForUpdate" class="form-control font-monospace m-2">
+    <button type="button" class="btn btn-primary font-monospace m-2 " onclick="createAVoteOptionForUpdate()">
+    <i class="fa-solid fa-plus text-white"></i>
+    </button>
+    </div>
     <div>
-        <ul id="ulTagForUpdate">
+        <ul id="ulTagForUpdate" class="font-monospace m-2">
             
         </ul>
     </div>
@@ -3279,23 +3300,25 @@ async function getPollEventDetail(id){
     response.voteOptions.forEach(r=>{
         row += `
         <label class="form-check-label">
-          <input type="checkbox" class="form-check-input" id="votodelete"   value="${r.id}" checked>
+          <input type="checkbox" class="form-check-input font-monospace m-2" id="votodelete"   value="${r.id}" >
           ${r.type}
         </label> `
     })
     row +=
         `      </div>
     </div>
-    <label for="updateEventPhoto"  >Edit Photo</label>
-    <input class="form-control" type="file" id="updatePollEventPhoto" name="updateEventPhoto">
-    <img class="from-control" src="${response.photo}" style="width:100px; height;100px;" id="${response.id}-poll-event-edit-url">
-    <button  id="restoreBtn" class="btn btn-success hidden" onclick="restorePollPhoto(${response.id})">Restore</button>
-    <button class="btn btn-danger" id="photoRemoveBtn" onclick="deleteEditPollEventPhoto(${response.id})">Delete</button> 
+    <div id="labelForPoll" onclick="openFileBox()" type="button" style="border:none; background-color:white;">
+    <label for="updateEventPhoto"  class="font-monospace m-2">Photo <i class="fa-solid fa-camera"></i></label>
+    <input class="form-control" style="display:none;" type="file" id="updatePollEventPhoto" name="updateEventPhoto">
     </div>
-    <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-    <button type="button" onclick="getPollEventUpdateData()" data-bs-dismiss="modal" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loadingModalBox" >Update</button>
-</div>
+
+    <img class="from-control" src="${response.photo}" style="width:100px; height;100px; border-radius:20px;" id="${response.id}-poll-event-edit-url">
+    <button  id="restoreBtn" class="btn btn-success hidden font-monospace m-2" onclick="restorePollPhoto(${response.id})">Restore</button>
+    <button class="btn btn-danger font-monospace m-2" id="photoRemoveBtn" onclick="deleteEditPollEventPhoto(${response.id})">Delete</button> 
+    </div>
+    
+    <button type="button" onclick="getPollEventUpdateData()"  data-bs-dismiss="offcanvas"  aria-label="Close"  class="btn btn-primary font-monospace m-2"   >Update</button>
+ 
     `
     eventEditModal.innerHTML = row
 }
@@ -3753,7 +3776,7 @@ async function getPosts(){
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
 
             if(user=== 'OWNER'){
-                post+= `<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModalBox">Edit</a></li>`
+                post+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
             }
               
                post +=`<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
@@ -4333,14 +4356,14 @@ async function getEvents(){
                     <span class="time">${createdTime}</span>
                 </div>
                 <div class="dropdown offset-8">
-                    <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-ellipsis-h "></i>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#eventEditModalBox">Edit</a></li>
-                        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
-                    </ul>
-                </div>
+                <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-h "></i>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#eventEditOffcanvas">Edit</a></li>
+                    <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
+                </ul>
+            </div>
             </div>
             <div id="event-update-section-${r.id}">
             <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
@@ -4564,16 +4587,16 @@ POLL IS EXPIRED
             <p class="name">${r.user.name}</p>
             <span class="time">${createdTime}</span>
         </div>
-                    <div class="dropdown offset-8">
-  <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="fas fa-ellipsis-h "></i>
-        </a>
-
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#pollEventEditModalBox">Edit</a></li>
-    <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
-  </ul>
-</div>
+        <div class="dropdown offset-8">
+        <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-ellipsis-h "></i>
+              </a>
+      
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#pollEditOffcanvas">Edit</a></li>
+          <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
+        </ul>
+      </div>
     </div>
     <nav>
     <div class="nav nav-tabs" id="nav-tab" role="tablist">

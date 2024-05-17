@@ -15,8 +15,7 @@ window.onload = welcome;
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    localStorage.removeItem('searchInput');
-    loadingModalBox.show()
+    localStorage.removeItem('searchInput'); 
 })
 function goToCreatePost() {
     window.location.href = '/user/goToCreatePost'
@@ -913,7 +912,7 @@ async function welcome() {
             let range = document.createRange();
             let fragment = range.createContextualFragment(posts);
             newsfeed.appendChild(fragment);
-             await removeCat()
+            document.getElementById('restart').click()
 
    // }
 
@@ -5542,3 +5541,5 @@ document.getElementById('labelForPoll').addEventListener('click',()=>{
     console.log(document.getElementById('updatePollEventPhoto'))
     document.getElementById('updatePollEventPhoto').click()
 })
+
+

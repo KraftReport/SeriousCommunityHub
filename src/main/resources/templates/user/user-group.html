@@ -144,6 +144,11 @@
 
 <script>
 
+async function goToCommunityDetail(id){
+    localStorage.setItem('communityIdForDetailPage',id)
+    window.location.href = '/api/community/goToCommunityDetail'
+}
+
     document.getElementById('createCommunityBtn').addEventListener('click', async (e) => {
         e.preventDefault();
 
@@ -255,7 +260,7 @@
                         ...
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#">View Detail</a>
+                        <a class="dropdown-item" onclick="goToCommunityDetail(${community.id})">View Detail</a>
                         <a class="dropdown-item" href="#" ${isNotCurrentUserOwner ? 'hidden' : ''} onclick="populateKickGroupForm(${community.id})">Kick a Member</a>
                         <a class="dropdown-item" href="#" ${isNotAdmin ? 'hidden' : ''} onclick="deleteCommunity(${community.id})">Delete the Group</a>
                     </div>
@@ -279,6 +284,8 @@
             return dataResponse;
         }
     };
+
+
 
     const getUsersByCommunityId = async (id) => {
         const url = `/api/community/user/${id}`;

@@ -5,6 +5,8 @@ import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.CommunityRepository;
+import com.communityHubSystem.communityHub.repositories.PostRepository;
+import com.communityHubSystem.communityHub.repositories.ResourceRepository;
 import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.services.ExcelUploadService;
 import com.communityHubSystem.communityHub.services.UserService;
@@ -31,6 +33,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CommunityRepository communityRepository;
     private final ExcelUploadService excelUploadService;
+    private final PostRepository postRepository;
+    private final ResourceRepository resourceRepository;
     private final List<String> photoExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", "bmp","tiff","tif","psv","svg","webp","ico","heic");
     private final Cloudinary cloudinary;
 
@@ -300,6 +304,33 @@ public class UserServiceImpl implements UserService {
             objList.add("MEMBER");
             return objList;
         }
+    }
+
+    @Override
+    public User getLogin() {
+        return getCurrentLoginUser();
+    }
+
+    @Override
+    public Long getCountOfUserUploadPhoto(Long id) {
+        var user = userRepository.findById(id).orElseThrow(()->new CommunityHubException("user not found"));
+        var posts = postRepository.findPostsByUserId(id);
+        var resources = new ArrayList<Resource>();
+        posts.forEach(p->{
+            resources.addAll(resourceRepository.getResourcesByPostId(p.getId()).stream().filter(r->r.getVideo()==null).toList());
+        });
+        return (long) resources.size();
+    }
+
+    @Override
+    public Long getCountOfUserUploadVideo(Long id) {
+        var user = userRepository.findById(id).orElseThrow(()->new CommunityHubException("user not found"));
+        var posts = postRepository.findPostsByUserId(id);
+        var resources = new ArrayList<Resource>();
+        posts.forEach(p->{
+            resources.addAll(resourceRepository.getResourcesByPostId(p.getId()).stream().filter(r->r.getPhoto()==null).toList());
+        });
+        return (long) resources.size();
     }
 
     private boolean checkGroupOwnerOrNot(){

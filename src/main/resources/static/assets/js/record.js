@@ -113,6 +113,10 @@ document.addEventListener('DOMContentLoaded',async () =>{
     document.getElementById('postForWithinOneMonth').addEventListener('click', async () => {
         const post = await fetchMostTrendyPostWithinOneMonth();
         console.log('POser',post.id);
+        if(post){ 
+            localStorage.setItem('trendPostId',post.id)
+            window.location.href = `/trendingPostDetailPage`
+        }
     })
 
     document.getElementById('postForWithinOneYear').addEventListener('click', async () => {

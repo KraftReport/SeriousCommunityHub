@@ -19,6 +19,7 @@ public class Resource implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 6000)
     private String description;
     private String photo;
     private String video;

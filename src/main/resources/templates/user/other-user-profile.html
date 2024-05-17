@@ -108,34 +108,31 @@
      
     </section>
 
-    <div id="user-post-div">
+    <div id="user-post-div" style="margin-left: 200px;">
     </div>
 
-    <!-- edit modal box start  -->
+  <!-- post edit offcanvas start -->
 
+  <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+       
+               <div class="modal-body" id="editModal">
+                   ...
+               </div>  
+                   <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
 
-    <div class="modal fade" id="editModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-   <div class="modal-dialog">
-       <div class="modal-content">
-           <div class="modal-header">
-               <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
-               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-           </div>
-           <div class="modal-body" id="editModal">
-               ...
-           </div>
-           <div class="modal-footer">
-               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-               <button type="button" onclick="getUpdateData()" data-bs-dismiss="modal" class="btn btn-primary"
-                       data-bs-toggle="modal"  >Update
-               </button>
-           </div>
+            
        </div>
    </div>
-</div>
 
-    <!-- edit modal box end -->
+
+  <!-- post edit offcanvas end  -->
 
     <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">

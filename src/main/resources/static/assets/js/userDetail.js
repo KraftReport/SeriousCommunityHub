@@ -181,6 +181,7 @@ async function getPostDetail(id) {
     let response = await data.json()
     console.log(response)
     let div = document.getElementById('editModal')
+    console.log(div)
     let row = ''
     row += `
   
@@ -189,32 +190,33 @@ async function getPostDetail(id) {
 
     <div>
     <form id="updatePostForm">
-    <b>ADD new DATA</b>
-    <input type="file" id="updateAddedFiles" class="form-control" multiple>
+    <b class="font-monospace m-2" >ADD new DATA <i class="fa-solid fa-plus"></i></b>
+    <input type="file" id="updateAddedFiles" class="form-control font-monospace m-2" multiple>
     <div id="updatePreview"></div>
-    <input type="hidden" id="UpdatePostId" value="${response.id}" name="postId">
+    <input type="hidden" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" id="UpdatePostId"  value="${response.id}" name="postId">
      
-    <b>OLD DATA</b></br>
-    <textarea name="updatePostText" class="form-control">${response.description}</textarea> 
+    <b class="font-monospace m-2">OLD DATA <i class="fa-solid fa-pen"></i></b></br>
+    <textarea name="updatePostText" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);"  class="form-control font-monospace m-2">${response.description}</textarea> 
     </form>
     </div>
   
    `
     response.resources.forEach((r, index) => {
         row += `
-    <div>
+    <div class="d-flex">
     <input type="hidden" id="resourceId" value="${r.id}">
-    <textarea id="${r.id}-caption" class="form-control" name="captionOfResource">${r.description}</textarea>`
+    <textarea style="border: none; height:50px; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" id="${r.id}-caption" class="form-control font-monospace m-2" name="captionOfResource">${r.description}</textarea>`
         if (r.video === null) {
             row += `
-        <button class="btn btn-danger"  onclick="deleteResource(${r.id})">Delete</button>
-        <img  style="width:100px; height:100px;" alt="deleted"  id="${r.id}-url" value="${r.photo}" src ="${r.photo}">
+        <img  style="width:100px; border-radius:20px; height:100px;" alt="deleted"  id="${r.id}-url" value="${r.photo}" src ="${r.photo}">
+        <button class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button>
+        <button class="btn btn-success font-monospace m-2 hidden" onclick = "restoreResource(${r.id})">Restore</button>
         `
         }
         if (r.photo === null) {
             row += `
-        <button class="btn btn-danger"  onclick="deleteResource(${r.id})">Delete</button>
-        <video style="width:100px; height:100px;" alt="deleted" id="${r.id}-url" value="${r.video}" controls src="${r.video}"></video>
+        <video style="width:100px; border-radius:20px;  height:100px;" alt="deleted" id="${r.id}-url" value="${r.video}" controls src="${r.video}"></video>
+        <button class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button>
         `
         }
 
@@ -283,7 +285,6 @@ async function getPostDetail(id) {
         }
     })
 }
-
 function removePreview() {
     document.getElementById('preview').innerHTML = ''
     document.getElementById('postForm').reset()
@@ -3392,8 +3393,8 @@ const getPosts = async () => {
               <p class="name">${p.user.name}</p>
               <span class="time">${createdTime}</span>
           </div>`
-        let user = await checkPostOwnerOrAdmin(p.id)
-        if (user === 'ADMIN' || user === 'OWNER') {
+          let user = await checkPostOwnerOrAdmin(p.id)
+          if(user === 'ADMIN' || user === 'OWNER'){
             post += `<div class="dropdown offset-8">
             <a class=" dropdown-toggle" onclick="getPostDetail(${p.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-ellipsis-h "></i>
@@ -3401,15 +3402,14 @@ const getPosts = async () => {
           
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
 
-            if (user === 'OWNER') {
-                post += `<li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editModalBox">Edit</a></li>`
+            if(user=== 'OWNER'){
+                post+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
             }
-
-            post += `<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
+              
+               post +=`<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
             </ul>
           </div>`
-        }
-
+          }
         post+=`</div>
         <div id="post-update-section-${p.id}">
         <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
