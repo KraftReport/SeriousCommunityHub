@@ -178,8 +178,43 @@ public class RecordController {
     public ResponseEntity<List<Post>> getPostsForEachUser(@PathVariable("id")Long id){
         return ResponseEntity.status(HttpStatus.OK).body(getAllPostsForEachUser(id));
     }
-    //for admin view end
 
+    @GetMapping("/data")
+    public ResponseEntity<Map<String, Object>> getPostData() {
+        List<User> users = getAllActiveUserWithoutAdmin();
+
+        Map<String, Object> postData = new HashMap<>();
+        for (User user : users) {
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("name", user.getName());
+            userData.put("staffId", user.getStaffId());
+            userData.put("data", getUserData(user.getId()));
+
+            postData.put(String.valueOf(user.getId()), userData);
+        }
+
+        return new ResponseEntity<>(postData, HttpStatus.OK);
+    }
+
+    //for admin view end
+    private Map<String, Object> getUserData(Long userId) {
+        Map<String, Object> userData = new HashMap<>();
+        Long postsWithinMonth = (long) getPostsForEachUserWithinOneMonth(userId).size();
+
+        Long postsWithinYear = (long) getPostsForEachUserWithinOneYear(userId).size();
+        Long totalPosts = (long) getAllPostsForEachUser(userId).size();
+        Long totalReacts = getAllReactsForActiveUser(userId);
+
+        Long totalComments = getAllCommentsForActiveUser(userId);
+
+        userData.put("within_one_month", postsWithinMonth);
+        userData.put("within_one_year", postsWithinYear);
+        userData.put("total_posts", totalPosts);
+        userData.put("total_reacts", totalReacts);
+        userData.put("total_comments", totalComments);
+
+        return userData;
+    }
     // for login user trendy post start
     public User loginUser() {
         var user = userService.findByStaffId(SecurityContextHolder

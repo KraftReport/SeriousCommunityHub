@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.controllers;
 
 import com.communityHubSystem.communityHub.dto.UserDTO;
+import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Policy;
 import com.communityHubSystem.communityHub.models.Skill;
 import com.communityHubSystem.communityHub.models.User;
@@ -11,6 +12,7 @@ import com.communityHubSystem.communityHub.services.PostService;
 import com.communityHubSystem.communityHub.services.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -29,7 +31,7 @@ import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("user")
 public class UserController {
 
     private final UserService userService;
@@ -93,7 +95,7 @@ public class UserController {
 
     @GetMapping("/getSkills")
     @ResponseBody
-    public List<Skill> getSkills() {
+    public ResponseEntity<List<Skill>> getSkills() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
@@ -103,12 +105,15 @@ public class UserController {
 
             for (User_Skill user_skill : user_skills) {
                 System.out.println(user_skill.getSkill().getName());
-                skills.add(user_skill.getSkill());
+                var skill = skillRepository.findById(user_skill.getId()).orElseThrow(() -> new CommunityHubException("Skill not found exception!"));
+                if(skill != null){
+                    skills.add(skill);
+                }
             }
-            return skills;
+            return ResponseEntity.status(HttpStatus.OK).body(skills);
         }
         // If user not found or no skills associated, return all skills
-        return Collections.EMPTY_LIST;
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
     }
 
     @PostMapping("/savePassword")
