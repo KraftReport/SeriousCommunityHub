@@ -528,6 +528,12 @@ async function welcome() {
         }
             // localStorage.setItem('currentPage', response);
             for (const p of response) {
+                let ug = p.userGroup !== null ? p.userGroup : null
+                let gp = ug !== null ? ug.community : null 
+                let gpName = gp !== null ? gp.name : null
+                let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
+                <p class="font-monospace  text-white d-flex" style="padding:5px; background-color:#3192e0; border-radius:10px;">${gpName} <i class="fa-solid fa-users text-warning" style="font-size:10px; margin-left:2px;"></i></p> 
+                </div>`
                 let createdTime = await timeAgo(new Date(p.createdDate))
                 const reactCount = await fetchSizes(p.id);
                 const reactType = await fetchReactType(p.id);
@@ -576,7 +582,10 @@ async function welcome() {
               <img src="${p.user.photo}" alt="">
           </div>
           <div class="post-info">
+              <div class="d-flex">
               <p class="name">${p.user.name}</p>
+              ${CommunityName}
+              </div>
               <span class="time">${createdTime}</span>
           </div>`
           let user = await checkPostOwnerOrAdmin(p.id)
@@ -1794,6 +1803,12 @@ async function getAllEventsForPost() {
         displayNoPostMessage();
     } else {
         for (const r of response) {
+            let ug = r.user_group !== null ? r.user_group : null
+            let gp = ug !== null ? ug.community : null 
+            let gpName = gp !== null ? gp.name : null
+            let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
+            <p class="font-monospace  text-white d-flex" style="padding:5px; background-color:#3192e0; border-radius:10px;">${gpName} <i class="fa-solid fa-users text-warning" style="font-size:10px; margin-left:2px;"></i></p> 
+            </div>`
             
 
             if(new Date()>new Date(r.end_date)){
@@ -1866,7 +1881,10 @@ async function getAllEventsForPost() {
                             <img src="${r.user.photo}" alt="">
                         </div>
                         <div class="post-info">
-                            <p class="name">${r.user.name}</p>
+                        <div class="d-flex">
+                        <p class="name">${r.user.name}</p>
+                        ${CommunityName}
+                        </div>
                             <span class="time">${createdTime}</span>
                         </div>
                         <div class="dropdown offset-8">
@@ -4947,6 +4965,12 @@ async function getAllPollPost(){
     console.log(response)
     let rows = ''
     for (let r of response) {
+        let ug = r.user_group !== null ? r.user_group : null
+        let gp = ug !== null ? ug.community : null 
+        let gpName = gp !== null ? gp.name : null
+        let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
+        <p class="font-monospace  text-white d-flex" style="padding:5px; background-color:#3192e0; border-radius:10px;">${gpName} <i class="fa-solid fa-users text-warning" style="font-size:10px; margin-left:2px;"></i></p> 
+        </div>`
         let expired = ''
         if(new Date()>new Date(r.end_date)){
             expired=`
@@ -4975,7 +4999,10 @@ POLL IS EXPIRED
                 <img src="${r.user.photo}" alt="">
             </div>
             <div class="post-info">
-                <p class="name">${r.user.name}</p>
+            <div class="d-flex">
+            <p class="name">${r.user.name}</p>
+            ${CommunityName}
+            </div>
                 <span class="time">${createdTime}</span>
             </div>
                         <div class="dropdown offset-8">
@@ -5681,3 +5708,10 @@ document.getElementById('labelForPoll').addEventListener('click',()=>{
 })
 
 
+const getCommunityFromUserGroup = async (userGroupId,userId) => {
+    let data = await fetch(`api/community/getCommunityFromUserGroupIdAndUserId/${userGroupId}/${userId}`)
+    let response = await data.json()
+    console.log(response +'-0-0-0-0-0-0')
+    console.log(response.name)
+    return console.log(response.name)
+}

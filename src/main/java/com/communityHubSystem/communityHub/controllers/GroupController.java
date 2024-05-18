@@ -274,4 +274,11 @@ public class GroupController {
         return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
     }
 
+    @GetMapping("/getCommunityFromUserGroupIdAndUserId/{userGroupId}/{userId}")
+    @ResponseBody
+    public ResponseEntity<Community> getCommunityFromUserGroupIdAndUserId(@PathVariable("userGroupId")String userGroupId,
+                                                                          @PathVariable("userId")String userId){
+        return ResponseEntity.ok(user_groupService.getCommunityByUserGroupIdAndUserId((Long.valueOf(userGroupId)),Long.valueOf(userId)));
+    }
+
 }

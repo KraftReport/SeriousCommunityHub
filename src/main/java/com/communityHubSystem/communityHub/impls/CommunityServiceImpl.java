@@ -235,6 +235,8 @@ public class CommunityServiceImpl implements CommunityService {
         return fetchEventsForCommunity(aLong,page, Event.EventType.VOTE);
     }
 
+
+
     public Page<Event> fetchEventsForCommunity(Long id, String page, Event.EventType eventType) {
         List<Event> postList = new ArrayList<>();
         List<User_Group> userGroupList = user_groupRepository.findByCommunityId(id);

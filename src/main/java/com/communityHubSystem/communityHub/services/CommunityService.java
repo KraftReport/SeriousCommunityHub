@@ -42,4 +42,6 @@ public interface CommunityService {
     Page<Event> getEventsForCommunityDetailPage(Long aLong,String page);
 
     Page<Event> getPollsForCommunityDetailPage(Long aLong,String page);
+
+
 }
