@@ -331,7 +331,7 @@ const insertGroup = async () => {
                         <a class="dropdown-item" href="#" ${isNotAdmin ? 'hidden' : ''} onclick="deleteCommunity(${community.id})">Delete the Group</a>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary chat-button"><i class="fa fa-comments"></i></button>
+                <button type="button" class="btn btn-primary chat-button" onclick="goToChatRoom(${community.id})"><i class="fa fa-comments"></i></button>
                <button type="button" class="btn btn-success add-button" ${isNotCurrentUserOwner ? 'hidden' : ''} onclick="populateCreateGroupForm(${community.id}, \'${community.name}\', \'${community.ownerName}\', \'${community.description}\', \'${community.image}\')"><i class="fa fa-factory"></i></button>
             </div>
         </div>
@@ -811,6 +811,11 @@ const insertGroup = async () => {
     document.getElementById('kickModalCloseBtn').addEventListener('click', function() {
         $('#kickModal').modal('hide');
     });
+
+    const goToChatRoom = (id) => {
+        localStorage.setItem('chatRoomIdForGroup', id);
+        window.location.href = `/api/community/goMal-chatRoom`;
+    }
 </script>
 </body>
 </html>

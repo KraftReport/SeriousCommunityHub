@@ -43,10 +43,20 @@ const fetchSizes = async (id) => {
 };
 
 const fetchReactType = async (id) => {
-    const reactType = await fetch(`/like-type/${id}`);
-    const reactTypeData = await reactType.json();
-    return reactTypeData;
+    try {
+        const response = await fetch(`/like-type/${id}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        const reactTypeData = await response.json();
+        console.log('Fetched reactTypeData:', reactTypeData);
+        return reactTypeData;
+    } catch (error) {
+        console.error('Failed to fetch react type:', error);
+        return null;
+    }
 };
+
 
 const fetchReactTypeForNotification = async (id) => {
     const reactType = await fetch(`/user/like-noti-type/${id}`);
@@ -83,44 +93,55 @@ const getInvitation = async () => {
     return msgSize;
 }
 
-// const mentionCommunityMember= () => {
-//      const messageInput = document.getElementById('content');
-//     messageInput.addEventListener('input',  async (event) => {
-//         const inputValue = event.target.value;
-//         const mentionIndex = inputValue.lastIndexOf('@');
-//         const users = await getAllMember();
-//         if (mentionIndex !== -1) {
-//             const mentionQuery = inputValue.substring(mentionIndex + 1);
-//             const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery.toLowerCase()));
-//
-//             if (matchedUsers.length > 0) {
-//                 mentionSuggestions.innerHTML = '';
-//
-//                 matchedUsers.forEach(user => {
-//                     const suggestionElement = document.createElement('div');
-//                     suggestionElement.textContent = user.name;
-//                     suggestionElement.classList.add('mentionSuggestion');
-//                     suggestionElement.addEventListener('click', function() {
-//                         const mentionStart = mentionIndex;
-//                         const mentionEnd = mentionIndex + mentionQuery.length;
-//                         const mentionText = `@${user.name} `;
-//                         let newText = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
-//                         if (mentionEnd === inputValue.length - 1) {
-//                             newText = inputValue.substring(0, inputValue.length - 1) + mentionText;
-//                         }
-//                         messageInput.value = newText;
-//                         mentionSuggestions.innerHTML = '';
-//                     });
-//                     mentionSuggestions.appendChild(suggestionElement);
-//                 });
-//             } else {
-//                 mentionSuggestions.innerHTML = '';
-//             }
-//         } else {
-//             mentionSuggestions.innerHTML = '';
-//         }
-//     });
-// };
+const getGroupOrPublicMentionUsers =async (id) => {
+    const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
+    const data = await getUsers.json();
+    return data;
+}
+
+
+const mentionPostForComment = (id) => {
+    const messageInput = document.getElementById('commentText');
+    const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
+    mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
+
+    messageInput.addEventListener('input', async (event) => {
+        const inputValue = event.target.value;
+        const mentionIndex = inputValue.lastIndexOf('@');
+        const users = await getGroupOrPublicMentionUsers(id);
+
+        if (mentionIndex !== -1) {
+            const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
+            const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery));
+
+            mentionSuggestions.innerHTML = '';
+
+            if (matchedUsers.length > 0) {
+                matchedUsers.forEach(user => {
+                    const suggestionElement = document.createElement('div');
+                    suggestionElement.textContent = user.name;
+                    suggestionElement.classList.add('mentionSuggestion');
+                    suggestionElement.addEventListener('click', function() {
+                        const mentionStart = mentionIndex;
+                        const mentionEnd = mentionIndex + mentionQuery.length + 1;
+                        const mentionText = `@${user.name} `;
+                        const mentionData = {
+                            text: mentionText,
+                            id: user.staffId
+                        };
+                        messageInput.value = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
+                        messageInput.dataset.mentions = JSON.stringify([...JSON.parse(messageInput.dataset.mentions || '[]'), mentionData]);
+                        mentionSuggestions.innerHTML = '';
+                    });
+                    mentionSuggestions.appendChild(suggestionElement);
+                });
+            }
+        } else {
+            mentionSuggestions.innerHTML = '';
+        }
+    });
+};
+
 
 const mentionCommunityMember = () => {
     const messageInput = document.getElementById('content');
@@ -143,10 +164,14 @@ const mentionCommunityMember = () => {
                     suggestionElement.classList.add('mentionSuggestion');
                     suggestionElement.addEventListener('click', function() {
                         const mentionStart = mentionIndex;
-                        const mentionEnd = mentionIndex + mentionQuery.length + 1; // +1 to include the @ symbol
-                        const mentionText = `[[${user.name}]] `;
-                        let newText = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
-                        messageInput.value = newText;
+                        const mentionEnd = mentionIndex + mentionQuery.length + 1;
+                        const mentionText = `@${user.name} `;
+                        const mentionData = {
+                            text: mentionText,
+                            id: user.staffId
+                        };
+                        messageInput.value = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
+                        messageInput.dataset.mentions = JSON.stringify([...JSON.parse(messageInput.dataset.mentions || '[]'), mentionData]);
                         mentionSuggestions.innerHTML = '';
                     });
                     mentionSuggestions.appendChild(suggestionElement);
@@ -157,6 +182,7 @@ const mentionCommunityMember = () => {
         }
     });
 };
+
 
 
 const showEmptyContent = async () => {
@@ -471,20 +497,30 @@ async function createPost() {
     }
 
 }
-
 const extractMentionedUsers = (postText) => {
-    const mentionRegex = /\[\[([^\]]+)\]\]/g;
-    let mentionedUsers = [];
-    let match;
-
-    while ((match = mentionRegex.exec(postText)) !== null) {
-        mentionedUsers.push(match[1].trim());
-    }
-
-    console.log("Mentioned Users: ", mentionedUsers);
-
-    return mentionedUsers;
+    const mentions = JSON.parse(document.getElementById('content').dataset.mentions || '[]');
+    return mentions.map(mention => mention.id);
 };
+
+const extractMentionedUsersForComment = (postText) => {
+    const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
+    return mentions.map(mention => mention.id);
+}
+
+
+// const extractMentionedUsers = (postText) => {
+//     const mentionRegex = /\[\[([^\]]+)\]\]/g;
+//     let mentionedUsers = [];
+//     let match;
+//
+//     while ((match = mentionRegex.exec(postText)) !== null) {
+//         mentionedUsers.push(match[1].trim());
+//     }
+//
+//     console.log("Mentioned Users: ", mentionedUsers);
+//
+//     return mentionedUsers;
+// };
 
 
 
@@ -510,6 +546,33 @@ const renderPostDescription = (description) => {
         .replace(/\n/g, '<br>');
 };
 
+const highlightMentions = async (description) => {
+    const mentionRegex = /@([a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*)/g;
+
+    try {
+        const users = await getAllMember();
+
+        if (!Array.isArray(users)) {
+            console.error('Error: getAllMember() did not return an array');
+            return description;
+        }
+
+        const userSet = new Set(users.map(user => user.name.toLowerCase()));
+        return description.replace(mentionRegex, (match, username) => {
+            const normalizedUsername = username.trim().toLowerCase();
+            console.log("NormalizedUsername:", normalizedUsername);
+            if (userSet.has(normalizedUsername)) {
+                return `<span class="mention">@${username}</span>`;
+            } else {
+                return `@${username}`;
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in highlightMentions:', error);
+        return description;
+    }
+}
 
 async function welcome() {
     await checkUserOrAdminOrGroupOwner()
@@ -566,7 +629,7 @@ async function welcome() {
                 }
 
                 const commentCountSize = await fetchCommentSizes(p.id);
-                let formattedDescription = renderPostDescription(p.description);
+                let formattedDescription = await highlightMentions(p.description.replace(/\n/g, '<br>'));
                 let post = '';
                 post += `
 
@@ -995,11 +1058,12 @@ async function welcome() {
     likeButtons.forEach(likeButton => {
         likeButton.addEventListener('click', async (event) => {
             const postId = likeButton.id;
-            const currentReactType = await fetchReactType(postId);
+            let currentReactType = await fetchReactType(postId);
             console.log('sdd', currentReactType);
-            if ((currentReactType !== "OTHER") || (currentReactType === null)) {
+            if (currentReactType !== null  && currentReactType !== "OTHER") {
                 await removeReaction(postId);
                 const reactCount = await fetchSizes(postId);
+                console.log("This is remove reaction!")
                 likeButton.innerHTML = `<div class="button_icon">
            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16H286.5c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8H384c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/></svg>
@@ -1008,6 +1072,7 @@ async function welcome() {
             } else {
                 await pressedLike(postId, "LIKE");
                 await new Promise(resolve => setTimeout(resolve, 200));
+                console.log("hello this is like reaction");
                 const reactCount = await fetchSizes(postId);
                 likeButton.innerHTML = `<div class="button_icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -1959,9 +2024,10 @@ async function getAllEventsForPost() {
         likeButtons.forEach(likeButton => {
             likeButton.addEventListener('click', async (event) => {
                 const eventId = likeButton.id;
-                const currentReactType = await fetchReactTypeForEvent(eventId);
-                console.log('sdd', currentReactType);
-                if ((currentReactType !== "OTHER") || (currentReactType === null)) {
+                const currentReactTypeForEvent = await fetchReactTypeForEvent(eventId);
+                console.log('sdd', currentReactTypeForEvent);
+                if ((currentReactTypeForEvent !== null) && (currentReactTypeForEvent !=="OTHER")) {
+                    console.log('tHIS IS LIKE REMOVE REACTION');
                     await removeReactionForEvent(eventId);
                     const reactCountForButtonEvent = await fetchReactCountForEvent(eventId);
                     console.log('FOr other',reactCountForButtonEvent.length)
@@ -1972,6 +2038,7 @@ async function getAllEventsForPost() {
                 </div>
                 <span>Like ${reactCountForButtonEvent.length}</span>`;
                 } else {
+                    console.log('this is give like reaction')
                     await pressedLikeForEvent(eventId, "LIKE");
                     await new Promise(resolve => setTimeout(resolve, 200));
                     const reactCountForButtonEvent = await fetchReactCountForEvent(eventId);
@@ -2063,10 +2130,21 @@ const fetchReactCountForEvent =async (id) => {
 }
 
 const fetchReactTypeForEvent = async (id) => {
-    const dataType = await fetch(`/event-user-react-type/${id}`);
-    const eventReactType = await dataType.json();
-    return eventReactType;
+    try {
+        const dataType = await fetch(`/event-user-react-type/${id}`);
+        if (!dataType.ok) {
+            throw new Error(`Network response was not ok: ${dataType.statusText}`);
+        }
+        const eventReactType = await dataType.json();
+        console.log('Fetched reactTypeData:', eventReactType);
+        return eventReactType;
+    } catch (error) {
+        console.error('Failed to fetch react type:', error);
+        return null;
+    }
 }
+
+
 
 async function deletePost(id) {
     loadingModalBox.show()
@@ -2318,17 +2396,30 @@ document.getElementById('notiCountDecrease').addEventListener('click', () => {
     showNotiCount().then();
 });
 
-const sendMentionNotification = async (mentionedUsers,id) => {
+const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
     if (mentionedUsers.length > 0) {
         console.log("get", mentionedUsers);
         const myObj = {
-            postId:id,
-            userId:loginUser,
-            users:mentionedUsers
+            postId: id,
+            userId: loginUser,
+            users: mentionedUsers,
+        }
+        stompClient.send('/app/mention-notification-forComment', {}, JSON.stringify(myObj));
+    }
+}
+
+const sendMentionNotification = async (mentionedUsers, id) => {
+    if (mentionedUsers.length > 0) {
+        console.log("get", mentionedUsers);
+        const myObj = {
+            postId: id,
+            userId: loginUser,
+            users: mentionedUsers,
         }
         stompClient.send('/app/mention-notification', {}, JSON.stringify(myObj));
     }
 };
+
 
 const showNotiCount = async () => {
     const notiShow = document.getElementById('notiCount');
@@ -3500,6 +3591,8 @@ const receivedMessageForComment = async (payload) => {
     document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
     document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = `comment ${commentCountSize}`;
     // await welcome();
+    let mentionedUsers = extractMentionedUsersForComment(message.content);
+    await sendMentionNotificationForComment(mentionedUsers,message.commentId);
     message.photo = message.photo || '/static/assets/img/card.jpg';
     const chatArea = document.querySelector('#commentMessageText');
     const localDateTime = new Date().toLocaleString();
@@ -3515,7 +3608,7 @@ const receivedMessageForMention = async (payload) => {
         if (userIdList.includes(loginUser)) {
             notificationCount += 1;
             await showNotiCount();
-            const msg = 'mentioned you in a post';
+            const msg = message.content;
             message.photo = user.photo || '/static/assets/img/card.jpg';
             await notifyMessageForReact(msg, user.name, user.photo, null);
         }
@@ -3555,6 +3648,7 @@ const receivedMessageForCommentReply = async (payload) => {
 const pressedComment = async (id) => {
     console.log('comment', id);
     await getAllComments(id);
+    await mentionPostForComment(id)
     document.getElementById('sendCommentButton').addEventListener('click', async () => {
         const cmtValue = document.getElementById('commentText').value;
         const myObj = {
@@ -3563,15 +3657,6 @@ const pressedComment = async (id) => {
             content: cmtValue,
         };
         document.getElementById('commentForm').reset();
-      //   const user = await fetchUserDataByPostedUser(loginUser);
-      //   // console.log("ss",user.name);
-      //   const commentCountSize = await fetchCommentSizes(id);
-      // let  commentId = commentCountSize.length + 1;
-      //    const postedUser = await fetchPostedUser(id);
-      //    if(user.staffId === postedUser.staffId) {
-      //        const chatArea = document.querySelector('#commentMessageText');
-      //        await displayMessage(user.name, cmtValue, user.photo, commentId, id, chatArea);
-      //    }
         stompClient.send('/app/comment-message', {}, JSON.stringify(myObj));
     });
 };
@@ -3639,7 +3724,7 @@ const fetchNotificationPerPage = async () => {
         method: 'GET'
     });
     let root = document.getElementById('root');
-    // root.innerHTML = '';
+    root.innerHTML = '';
 
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -3832,23 +3917,44 @@ const fetchNotificationPerPage = async () => {
         }
 
         if (noti.mentionId) {
-            const mentionedUser = await getMentionById(noti.mentionId);
-            const getUser = await getMentionUser(mentionedUser.postedUserId);
-            const photo = getUser.photo || '/static/assets/img/card.jpg';
-            console.log("MenitonUSer",getUser.name)
-            let imgElement = document.createElement('img');
-            imgElement.src = `${photo}`;
-            imgElement.width = 40;
-            imgElement.height = 40;
-            imgElement.style.borderRadius = '50%';
+            const mention = await getMentionById(noti.mentionId);
+            console.log("SDFDSF555"+mention.postedUserId)
+            console.log("SDFDSF555"+mention.post.id)
+            if(!mention.comment) {
+                const getUser = await getMentionUser(mention.postedUserId);
+                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                console.log("MenitonUSer", getUser.name)
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
 
-            const pElement = document.createElement('p');
-            pElement.style.display = 'inline-block';
-            pElement.style.marginLeft = '10px'; // Adjust margin as needed
-            pElement.innerHTML = `${getUser.name} mentioned your in a post`;
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${getUser.name} mentioned you in a post`;
 
-            divElement.appendChild(imgElement);
-            divElement.appendChild(pElement);
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }else{
+                const getUser = await getMentionUser(mention.postedUserId);
+                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                console.log("MenitonUSer", getUser.name)
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${getUser.name} mentioned you in a comment`;
+
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }
         }
        const container =  document.createElement('div');
         container.classList.add('container-trash-div')
@@ -3867,7 +3973,7 @@ const getMentionUser = async (id) => {
 
 const getMentionById = async (id) => {
     const data = await fetch(`/get-mentionUser/${id}`);
-    const res = data.json();
+    const res = await data.json();
     return res;
 }
 

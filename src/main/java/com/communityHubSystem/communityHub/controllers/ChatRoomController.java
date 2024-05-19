@@ -60,7 +60,8 @@ public class ChatRoomController {
         var user_chat_room = user_chatRoomService.findByChatRoomId(id);
         List<User_ChatRoom> userChatRooms = new ArrayList<>();
         for(User_ChatRoom user_chatRoom:user_chat_room){
-            if(!user_chatRoom.getUser().getId().equals(999)){
+            var user = userService.findById(user_chatRoom.getUser().getId());
+            if(!user.getRole().equals(User.Role.ADMIN)){
                 userChatRooms.add(user_chatRoom);
             }
         }

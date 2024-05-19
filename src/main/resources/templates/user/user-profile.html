@@ -81,6 +81,9 @@
                                     <p class="mb-1 h5">478</p>
                                     <p class="small text-muted mb-0">Videos</p>
                                 </div>
+                                <div>
+                                    <p class="mb-1 h5"><i class="fa-solid fa-circle-info" data-bs-toggle="modal" data-bs-target="#userAccessLogStaticBox" onclick="getAccessLogData()"></i></p>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body p-4 text-black">
@@ -672,6 +675,39 @@
 
 
 <!-- loading modal box end  -->
+
+<!--  accessLogModal box start-->
+<!-- Button trigger modal -->
+
+<!-- Modal -->
+<div class="modal fade" id="userAccessLogStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userAccessLogStaticBoxLabel">Access Log<i class="fa-solid fa-lock-open" style="margin-left: 300px"></i></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="accessLog-content" style="overflow-y: auto; height: 350px;">
+                <table class="table" id="userAccessLogTable">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Access Time</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--  accessLogModal box end-->
 
 
 <div th:replace="~{index::footer}"></div>

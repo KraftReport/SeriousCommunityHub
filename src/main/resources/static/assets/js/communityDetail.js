@@ -99,10 +99,20 @@ const fetchCommetedUser = async (id) => {
 
 
 const fetchReactType = async (id) => {
-    const reactType = await fetch(`/like-type/${id}`);
-    const reactTypeData = await reactType.json();
-    return reactTypeData;
+    try {
+        const response = await fetch(`/like-type/${id}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        const reactTypeData = await response.json();
+        console.log('Fetched reactTypeData:', reactTypeData);
+        return reactTypeData;
+    } catch (error) {
+        console.error('Failed to fetch react type:', error);
+        return null;
+    }
 };
+
 
 const fetchReactTypeForNotification = async (id) => {
     const reactType = await fetch(`/user/like-noti-type/${id}`);
@@ -127,6 +137,59 @@ let cat = document.getElementById('catBox')
 let mark = document.getElementById('markBox')
 let eventDiv = document.getElementById('events')
 const mentionSuggestions = document.getElementById('mentionSuggestions');
+
+const getGroupOrPublicMentionUsers =async (id) => {
+    const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
+    const data = await getUsers.json();
+    return data;
+}
+
+const mentionPostForComment = (id) => {
+    const messageInput = document.getElementById('commentText');
+    const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
+    mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
+
+    messageInput.addEventListener('input', async (event) => {
+        const inputValue = event.target.value;
+        const mentionIndex = inputValue.lastIndexOf('@');
+        const users = await getGroupOrPublicMentionUsers(id);
+
+        if (mentionIndex !== -1) {
+            const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
+            const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery));
+
+            mentionSuggestions.innerHTML = '';
+
+            if (matchedUsers.length > 0) {
+                matchedUsers.forEach(user => {
+                    const suggestionElement = document.createElement('div');
+                    suggestionElement.textContent = user.name;
+                    suggestionElement.classList.add('mentionSuggestion');
+                    suggestionElement.addEventListener('click', function() {
+                        const mentionStart = mentionIndex;
+                        const mentionEnd = mentionIndex + mentionQuery.length + 1;
+                        const mentionText = `@${user.name} `;
+                        const mentionData = {
+                            text: mentionText,
+                            id: user.staffId
+                        };
+                        messageInput.value = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
+                        messageInput.dataset.mentions = JSON.stringify([...JSON.parse(messageInput.dataset.mentions || '[]'), mentionData]);
+                        mentionSuggestions.innerHTML = '';
+                    });
+                    mentionSuggestions.appendChild(suggestionElement);
+                });
+            }
+        } else {
+            mentionSuggestions.innerHTML = '';
+        }
+    });
+};
+
+const extractMentionedUsersForComment = (postText) => {
+    const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
+    return mentions.map(mention => mention.id);
+}
 
 const mentionCommunityMember= () => {
      const messageInput = document.getElementById('content');
@@ -174,7 +237,33 @@ const getAllMember = async () => {
 };
 
 
- 
+const highlightMentions = async (description) => {
+    const mentionRegex = /@([a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*)/g;
+
+    try {
+        const users = await getAllMember();
+
+        if (!Array.isArray(users)) {
+            console.error('Error: getAllMember() did not return an array');
+            return description;
+        }
+
+        const userSet = new Set(users.map(user => user.name.toLowerCase()));
+        return description.replace(mentionRegex, (match, username) => {
+            const normalizedUsername = username.trim().toLowerCase();
+            console.log("NormalizedUsername:", normalizedUsername);
+            if (userSet.has(normalizedUsername)) {
+                return `<span class="mention">@${username}</span>`;
+            } else {
+                return `@${username}`;
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in highlightMentions:', error);
+        return description;
+    }
+}
  
 
 async function createPost() {
@@ -1130,6 +1219,7 @@ const connect = () => {
         stompClient.subscribe(`/user/all/comment-private-message`, receivedMessageForComment);
         stompClient.subscribe(`/user/${loginUser}/comment-private-message`, receivedMessageForComment);
         stompClient.subscribe(`/user/all/comment-reply-private-message`, receivedMessageForCommentReply);
+        stompClient.subscribe(`/user/mention/queue/messages`, receivedMessageForMention);
     });
 };
 
@@ -2295,12 +2385,43 @@ const pressedLike = async (id, type) => {
      document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
      document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = `comment ${commentCountSize}`;
      // await welcome();
+     let mentionedUsers = extractMentionedUsersForComment(message.content);
+     await sendMentionNotificationForComment(mentionedUsers,message.commentId);
      message.photo = message.photo || '/static/assets/img/card.jpg';
      const chatArea = document.querySelector('#commentMessageText');
      const localDateTime = new Date().toLocaleString();
      await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
  };
 
+const receivedMessageForMention = async (payload) => {
+    try {
+        console.log('Message Received');
+        const message = JSON.parse(payload.body);
+        const user = await fetchUserDataByPostedUser(message.userId);
+        const userIdList = message.users;
+        if (userIdList.includes(loginUser)) {
+            notificationCount += 1;
+            await showNotiCount();
+            const msg = 'mentioned you in a post';
+            message.photo = user.photo || '/static/assets/img/card.jpg';
+            await notifyMessageForReact(msg, user.name, user.photo, null);
+        }
+    } catch (error) {
+        console.error('Error processing mention message:', error);
+    }
+};
+
+const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
+    if (mentionedUsers.length > 0) {
+        console.log("get", mentionedUsers);
+        const myObj = {
+            postId: id,
+            userId: loginUser,
+            users: mentionedUsers,
+        }
+        stompClient.send('/app/mention-notification-forComment', {}, JSON.stringify(myObj));
+    }
+}
 
  const receivedMessageForCommentReply = async (payload) => {
      console.log('Message Received');
@@ -2331,6 +2452,7 @@ const pressedLike = async (id, type) => {
  const pressedComment = async (id) => {
      console.log('comment', id);
      await getAllComments(id);
+     await mentionPostForComment(id)
      document.getElementById('sendCommentButton').addEventListener('click', async () => {
          const cmtValue = document.getElementById('commentText').value;
          const myObj = {
@@ -2409,6 +2531,7 @@ const fetchNotificationPerPage = async () => {
         method: 'GET'
     });
     let root = document.getElementById('root');
+    root.innerHTML = '';
 
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -2422,8 +2545,23 @@ const fetchNotificationPerPage = async () => {
     for (let noti of data) {
         let divElement = document.createElement('div');
         divElement.classList.add('notificationForNoti', `postId-${noti.postId}`);
+        divElement.id = `noti-deleted-${noti.id}`;
         divElement.dataset.postId = noti.postId;
         divElement.style.borderRadius = '10px';
+        divElement.style.width = '380px';
+        attachNotificationEventListeners();
+        console.log("GetIDFORMEnto",noti.mentionId)
+        const trashIcon = document.createElement('i');
+        trashIcon.id = `trashIcon-deleted-${noti.id}`
+        trashIcon.classList.add('fa-solid','fa-trash-can');
+        trashIcon.style.marginLeft = '400px';
+        trashIcon.addEventListener('click',async () => {
+            const notiID = noti.id;
+            await deletedNotification(notiID);
+        });
+        const spEle = document.createElement('span');
+        spEle.style.marginTop = '-40px';
+        spEle.appendChild(trashIcon);
         if (noti.reactId && !noti.commentId && !noti.replyId) {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
@@ -2585,13 +2723,115 @@ const fetchNotificationPerPage = async () => {
             divElement.appendChild(pElement);
         }
 
+        if (noti.mentionId) {
+            const mention = await getMentionById(noti.mentionId);
+            console.log("SDFDSF555"+mention.postedUserId)
+            console.log("SDFDSF555"+mention.post.id)
+            if(!mention.comment) {
+                const getUser = await getMentionUser(mention.postedUserId);
+                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                console.log("MenitonUSer", getUser.name)
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
 
-        root.appendChild(divElement);
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${getUser.name} mentioned you in a post`;
+
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }else{
+                const getUser = await getMentionUser(mention.postedUserId);
+                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                console.log("MenitonUSer", getUser.name)
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${getUser.name} mentioned you in a comment`;
+
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }
+        }
+        const container =  document.createElement('div');
+        container.classList.add('container-trash-div')
+        container.style.display = 'inline-grid';
+        container.appendChild(divElement);
+        container.appendChild(spEle);
+        root.appendChild(container);
     }
 };
 
+const getMentionUser = async (id) => {
+    const data = await fetch(`/getData-mention/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+const getMentionById = async (id) => {
+    const data = await fetch(`/get-mentionUser/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+const deleteAllNotifications =async  () => {
+    const deleteAllNoti = await fetch(`/delete-all-noti`,{
+        method:'DELETE'
+    });
+    if(!deleteAllNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`root`);
+        if (divElement) {
+            divElement.remove();
+        }
+    }
+}
+
+const deletedNotification = async (id) =>{
+    const deleteNoti = await fetch(`/delete-noti/${id}`,{
+        method:'DELETE'
+    });
+    if(!deleteNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`noti-deleted-${id}`);
+        const trashIconEl = document.getElementById(`trashIcon-deleted-${id}`);
+        if (divElement && trashIconEl ) {
+            console.log("it's fine",id)
+            divElement.remove();
+            trashIconEl.remove();
+        }
+    }
+}
+
+const attachNotificationEventListeners = () => {
+    const notificationElements = document.querySelectorAll('.notificationForNoti');
+    notificationElements.forEach(notificationElement => {
+        notificationElement.addEventListener('click', async function() {
+            console.log("Clicked on notification element");
+            const postId = this.dataset.postId; // 'this' refers to the current notification element
+            console.log('PostId', postId);
+            const postElement = document.getElementById(postId);
+            if (postElement) {
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
-    await fetchNotificationPerPage();
+    // await fetchNotificationPerPage();
     const modalContent = document.getElementById('content-notification');
     modalContent.addEventListener('scroll', async () => {
         if (isFetching || !hasMore) {
@@ -2604,18 +2844,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('currentPage', currentPage);
             await fetchNotificationPerPage();
         }
-    });
-
-    const notificationElements = document.querySelectorAll('.notificationForNoti');
-    notificationElements.forEach(notification => {
-        notification.addEventListener('click', async () => {
-            const postId = notification.dataset.postId;
-            console.log('PostId', postId);
-            const postElement = document.getElementById(postId);
-            if (postElement) {
-                postElement.scrollIntoView({behavior: 'smooth', block: 'center'});
-            }
-        });
     });
 });
 
@@ -3659,11 +3887,20 @@ async function checkPostOwnerOrAdmin(id){
      return eventReactCount;
  }
 
- const fetchReactTypeForEvent = async (id) => {
-     const dataType = await fetch(`/event-user-react-type/${id}`);
-     const eventReactType = await dataType.json();
-     return eventReactType;
- }
+const fetchReactTypeForEvent = async (id) => {
+    try {
+        const dataType = await fetch(`/event-user-react-type/${id}`);
+        if (!dataType.ok) {
+            throw new Error(`Network response was not ok: ${dataType.statusText}`);
+        }
+        const eventReactType = await dataType.json();
+        console.log('Fetched reactTypeData:', eventReactType);
+        return eventReactType;
+    } catch (error) {
+        console.error('Failed to fetch react type:', error);
+        return null;
+    }
+}
 
  const removeReactionForEvent = async (id) => {
      const cancelType = await fetch(`/remove-like-eventReact-type/${id}`);
@@ -3860,6 +4097,7 @@ async function getPosts(){
             <span>Like ${reactCount.length}</span>`
                 }
                 const commentCountSize = await fetchCommentSizes(p.id);
+                const formattedDescription = await highlightMentions(p.description.replace(/\n/g, '<br>'));
                 let post = '';
                 post += `
 
@@ -3893,7 +4131,7 @@ async function getPosts(){
          post+=` </div>
           <div id="post-update-section-${p.id}">
           <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
-                ${p.description.replace(/\n/g, '<br>')}
+                ${formattedDescription}
                 `
                           let oneTag = null
                           let oneCloseTag = null
@@ -4284,7 +4522,7 @@ async function getPosts(){
             const postId = likeButton.id;
             const currentReactType = await fetchReactType(postId);
             console.log('sdd', currentReactType);
-            if ((currentReactType !== "OTHER") || (currentReactType === null)) {
+            if ((currentReactType !== null) && (currentReactType !=="OTHER")) {
                 await removeReaction(postId);
                 const reactCount = await fetchSizes(postId);
                 likeButton.innerHTML = `<div class="button_icon">
@@ -4554,7 +4792,7 @@ async function getEvents(){
                 const eventId = likeButton.id;
                 const currentReactType = await fetchReactTypeForEvent(eventId);
                 console.log('sdd', currentReactType);
-                if ((currentReactType !== "OTHER") || (currentReactType === null)) {
+                if ((currentReactType !== null) && (currentReactType !=="OTHER")) {
                     await removeReactionForEvent(eventId);
                     const reactCountForButtonEvent = await fetchReactCountForEvent(eventId);
                     console.log('FOr other',reactCountForButtonEvent.length)

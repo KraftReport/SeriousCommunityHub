@@ -24,6 +24,62 @@ window.onload = async () => {
     await getPosts()
 }
 
+let currentPageForAccessLog = '0';
+let isFetchingForAccessLog = false;
+let hasMoreForAccessLog = true;
+
+const getAccessLogData =async () => {
+    isFetchingForAccessLog = true;
+    const data = await fetch(`/user/get-accessLogForLoginUser/${currentPageForAccessLog}`,{
+        method:'GET'
+    });
+    let userTableForAccessLog = document.querySelector('#userAccessLogTable tbody');
+    console.log("Ta kal hla tal")
+    // userTableForAccessLog.innerHTML = '';
+
+    if (!data.ok) {
+        throw new Error(`HTTP error! Status: ${data.status}`);
+    }
+    const res = await data.json();
+    isFetchingForAccessLog = false;
+    if (res.length === 0) {
+        hasMoreForAccessLog = false;
+        return;
+    }
+    const rightIcon = document.createElement('i');
+    rightIcon.classList.add('fa-solid','fa-check')
+    res.forEach(access => {
+        const row = userTableForAccessLog.insertRow();
+        row.insertCell().textContent = access.accessTime;
+        row.insertCell().textContent = access.type;
+        const errorMessageCell = row.insertCell();
+        if (access.errorMessage === null) {
+            const rightIcon = document.createElement('i');
+            rightIcon.classList.add('fa-solid', 'fa-check');
+            rightIcon.style.color = 'green';
+            errorMessageCell.appendChild(rightIcon);
+        } else {
+            errorMessageCell.textContent = access.errorMessage;
+        }
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const modalContent = document.getElementById('accessLog-content');
+    modalContent.addEventListener('scroll', async () => {
+        if (isFetchingForAccessLog || !hasMoreForAccessLog) {
+            console.log('currentPage', currentPageForAccessLog);
+            return;
+        }
+
+        if (modalContent.scrollTop + modalContent.clientHeight >= modalContent.scrollHeight) {
+            currentPageForAccessLog++;
+            console.log('currentPage', currentPageForAccessLog);
+            await getAccessLogData();
+        }
+    });
+});
 
 async function videoObserver() {
     const videos = document.querySelectorAll('#myVideo');
@@ -47,6 +103,101 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
     await videoObserver()
 });
 
+const getGroupOrPublicMentionUsers =async (id) => {
+    const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
+    const data = await getUsers.json();
+    return data;
+}
+
+const fetchUserDataByPostedUser = async (id) => {
+    const fetchUserData = await fetch(`/get-userData/${id}`);
+    if (!fetchUserData.ok) {
+        alert('Invalid user');
+    }
+    const userDataForAll = await fetchUserData.json();
+    return userDataForAll;
+};
+
+const mentionPostForComment = (id) => {
+    const messageInput = document.getElementById('commentText');
+    const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
+    mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
+
+    messageInput.addEventListener('input', async (event) => {
+        const inputValue = event.target.value;
+        const mentionIndex = inputValue.lastIndexOf('@');
+        const users = await getGroupOrPublicMentionUsers(id);
+
+        if (mentionIndex !== -1) {
+            const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
+            const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery));
+
+            mentionSuggestions.innerHTML = '';
+
+            if (matchedUsers.length > 0) {
+                matchedUsers.forEach(user => {
+                    const suggestionElement = document.createElement('div');
+                    suggestionElement.textContent = user.name;
+                    suggestionElement.classList.add('mentionSuggestion');
+                    suggestionElement.addEventListener('click', function() {
+                        const mentionStart = mentionIndex;
+                        const mentionEnd = mentionIndex + mentionQuery.length + 1;
+                        const mentionText = `@${user.name} `;
+                        const mentionData = {
+                            text: mentionText,
+                            id: user.staffId
+                        };
+                        messageInput.value = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
+                        messageInput.dataset.mentions = JSON.stringify([...JSON.parse(messageInput.dataset.mentions || '[]'), mentionData]);
+                        mentionSuggestions.innerHTML = '';
+                    });
+                    mentionSuggestions.appendChild(suggestionElement);
+                });
+            }
+        } else {
+            mentionSuggestions.innerHTML = '';
+        }
+    });
+};
+
+const extractMentionedUsersForComment = (postText) => {
+    const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
+    return mentions.map(mention => mention.id);
+}
+
+const getAllMember = async () => {
+    const getAllData = await fetch('/get-all-active-user');
+    const response = await getAllData.json();
+    return response;
+};
+
+const highlightMentions = async (description) => {
+    const mentionRegex = /@([a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*)/g;
+
+    try {
+        const users = await getAllMember();
+
+        if (!Array.isArray(users)) {
+            console.error('Error: getAllMember() did not return an array');
+            return description;
+        }
+
+        const userSet = new Set(users.map(user => user.name.toLowerCase()));
+        return description.replace(mentionRegex, (match, username) => {
+            const normalizedUsername = username.trim().toLowerCase();
+            console.log("NormalizedUsername:", normalizedUsername);
+            if (userSet.has(normalizedUsername)) {
+                return `<span class="mention">@${username}</span>`;
+            } else {
+                return `@${username}`;
+            }
+        });
+
+    } catch (error) {
+        console.error('Error in highlightMentions:', error);
+        return description;
+    }
+}
 
 const displayNoPostMessage = () => {
     let footerDiv = document.querySelector('.copyright');
@@ -94,10 +245,20 @@ const fetchSizes = async (id) => {
 };
 
 const fetchReactType = async (id) => {
-    const reactType = await fetch(`/like-type/${id}`);
-    const reactTypeData = await reactType.json();
-    return reactTypeData;
+    try {
+        const response = await fetch(`/like-type/${id}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        const reactTypeData = await response.json();
+        console.log('Fetched reactTypeData:', reactTypeData);
+        return reactTypeData;
+    } catch (error) {
+        console.error('Failed to fetch react type:', error);
+        return null;
+    }
 };
+
 const fetchCommentSizes = async (id) => {
     const commentSize = await fetch(`/comment-size/${id}`);
     const commentCount = await commentSize.json();
@@ -159,6 +320,7 @@ const getPosts = async () => {
         }
 
         const commentCountSize = await fetchCommentSizes(p.id);
+        const formattedDescription = await highlightMentions(p.description.replace(/\n/g, '<br>'));
         let post = '';
         post += `
 
@@ -192,7 +354,7 @@ const getPosts = async () => {
         post += `</div>
         <div id="post-update-section-${p.id}">
         <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
-              ${p.description.replace(/\n/g, '<br>')}
+              ${formattedDescription}
               `
         let oneTag = null
         let oneCloseTag = null
@@ -583,7 +745,7 @@ const getPosts = async () => {
             const postId = likeButton.id;
             const currentReactType = await fetchReactType(postId);
             console.log('sdd', currentReactType);
-            if ((currentReactType !== "OTHER") || (currentReactType === null)) {
+            if ((currentReactType !== null) && (currentReactType !=="OTHER")) {
                 await removeReaction(postId);
                 const reactCount = await fetchSizes(postId);
                 likeButton.innerHTML = `<div class="button_icon">
@@ -2448,6 +2610,8 @@ const receivedMessageForComment = async (payload) => {
     document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
     document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = `comment ${commentCountSize}`;
     // await welcome();
+    let mentionedUsers = extractMentionedUsersForComment(message.content);
+    await sendMentionNotificationForComment(mentionedUsers,message.commentId);
     message.photo = message.photo || '/static/assets/img/card.jpg';
     const chatArea = document.querySelector('#commentMessageText');
     const localDateTime = new Date().toLocaleString();
@@ -2472,6 +2636,17 @@ const receivedMessageForMention = async (payload) => {
     }
 };
 
+const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
+    if (mentionedUsers.length > 0) {
+        console.log("get", mentionedUsers);
+        const myObj = {
+            postId: id,
+            userId: loginUser,
+            users: mentionedUsers,
+        }
+        stompClient.send('/app/mention-notification-forComment', {}, JSON.stringify(myObj));
+    }
+}
 
 const receivedMessageForCommentReply = async (payload) => {
     console.log('Message Received');
@@ -2502,6 +2677,7 @@ const receivedMessageForCommentReply = async (payload) => {
 const pressedComment = async (id) => {
     console.log('comment', id);
     await getAllComments(id);
+    await mentionPostForComment(id)
     document.getElementById('sendCommentButton').addEventListener('click', async () => {
         const cmtValue = document.getElementById('commentText').value;
         const myObj = {
@@ -2578,14 +2754,6 @@ const fetchPostedUser = async (id) => {
     return userData;
 };
 
-const fetchUserDataByPostedUser = async (id) => {
-    const fetchUserData = await fetch(`/get-userData/${id}`);
-    if (!fetchUserData.ok) {
-        alert('Invalid user');
-    }
-    const userDataForAll = await fetchUserData.json();
-    return userDataForAll;
-};
 
 const fetchUserPostById = async (id) => {
     const fetchUserDataForPost = await fetch(`/get-userPostsData/${id}`);
@@ -2595,6 +2763,12 @@ const fetchUserPostById = async (id) => {
     const userDataPost = await fetchUserDataForPost.json();
     return userDataPost;
 };
+
+const fetchReactTypeForNotification = async (id) => {
+    const reactType = await fetch(`/user/like-noti-type/${id}`);
+    const reactDataType = await reactType.json();
+    return reactDataType;
+}
 
 const fetchRepliedUserForData = async (id) => {
     const fetchDataForUser = await fetch(`/user/reply-user-data/${id}`);
@@ -2607,3 +2781,329 @@ const fetchPostById = async (id) => {
     const postRes = await postData.json();
     return postRes;
 }
+let currentPage = '0';
+let isFetching = false;
+let hasMore = true;
+
+const fetchNotificationPerPage = async () => {
+    isFetching = true;
+    let response = await fetch(`/user/get-all-noti/${currentPage}`, {
+        method: 'GET'
+    });
+    let root = document.getElementById('root');
+    root.innerHTML = '';
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    let data = await response.json();
+    isFetching = false;
+    if (data.length === 0) {
+        hasMore = false;
+        return;
+    }
+    for (let noti of data) {
+        let divElement = document.createElement('div');
+        divElement.classList.add('notificationForNoti', `postId-${noti.postId}`);
+        divElement.id = `noti-deleted-${noti.id}`;
+        divElement.dataset.postId = noti.postId;
+        divElement.style.borderRadius = '10px';
+        divElement.style.width = '380px';
+        attachNotificationEventListeners();
+        console.log("GetIDFORMEnto",noti.mentionId)
+        const trashIcon = document.createElement('i');
+        trashIcon.id = `trashIcon-deleted-${noti.id}`
+        trashIcon.classList.add('fa-solid','fa-trash-can');
+        trashIcon.style.marginLeft = '400px';
+        trashIcon.addEventListener('click',async () => {
+            const notiID = noti.id;
+            await deletedNotification(notiID);
+        });
+        const spEle = document.createElement('span');
+        spEle.style.marginTop = '-40px';
+        spEle.appendChild(trashIcon);
+        if (noti.reactId && !noti.commentId && !noti.replyId) {
+            const reactType = await fetchReactTypeForNotification(noti.reactId);
+            console.log('React Type user', reactType.user.staffId)
+            const user = await fetchUserDataByPostedUser(reactType.user.staffId);
+            const photo = user.photo || '/static/assets/img/card.jpg';
+            let imgElement = document.createElement('img');
+            imgElement.src = `${photo}`;
+            imgElement.width = 40;
+            imgElement.height = 40;
+            imgElement.style.borderRadius = '50%';
+            const pElement = document.createElement('p');
+            let imgReactElement = document.createElement('img');
+            if (reactType.type) {
+                imgReactElement.src = `/static/assets/img/${reactType.type.toLowerCase()}.png`;
+                imgReactElement.width = 20;
+                imgReactElement.height = 20;
+
+                imgElement.style.display = 'inline-block';
+                imgReactElement.style.display = 'inline-block';
+                imgReactElement.style.marginBottom = '-20px';
+                imgReactElement.style.marginLeft = '-10px';
+                pElement.style.display = 'inline-block';
+                pElement.innerHTML = `${user.name}` + `${noti.content}`;
+            } else {
+                imgReactElement.src = `/static/assets/img/cancel.png`;
+                imgReactElement.width = 20;
+                imgReactElement.height = 20;
+
+                imgElement.style.display = 'inline-block';
+                imgReactElement.style.display = 'inline-block';
+                imgReactElement.style.marginBottom = '-20px';
+                imgReactElement.style.marginLeft = '-10px';
+                pElement.style.display = 'inline-block';
+                pElement.innerHTML = `${user.name}` + ` canceled reaction in your post`;
+            }
+            divElement.appendChild(imgElement);
+            divElement.appendChild(imgReactElement);
+            divElement.appendChild(pElement);
+        }
+
+        if (noti.commentId && !noti.replyId && !noti.reactId) {
+            const commentUser = await fetchCommetedUser(noti.commentId);
+            console.log('Comment user', commentUser.user.name)
+            const photo = commentUser.user.photo || '/static/assets/img/card.jpg';
+            let imgElement = document.createElement('img');
+            imgElement.src = `${photo}`;
+            imgElement.width = 40;
+            imgElement.height = 40;
+            imgElement.style.borderRadius = '50%';
+
+            const pElement = document.createElement('p');
+            pElement.style.display = 'inline-block';
+            pElement.style.marginLeft = '10px'; // Adjust margin as needed
+            pElement.innerHTML = `${commentUser.user.name} commented to your post`;
+
+            divElement.appendChild(imgElement);
+            divElement.appendChild(pElement);
+        }
+
+        if (noti.commentId && noti.replyId && !noti.reactId) {
+            const replyUser = await fetchRepliedUserForData(noti.replyId);
+            console.log('photo', replyUser.user.photo);
+            console.log('photo', replyUser.user.staffId);
+            const photo = replyUser.user.photo || '/static/assets/img/card.jpg';
+            console.log('Reply user', replyUser.user.name);
+            let imgElement = document.createElement('img');
+            imgElement.src = `${photo}`;
+            imgElement.width = 40;
+            imgElement.height = 40;
+            imgElement.style.borderRadius = '50%';
+
+            const pElement = document.createElement('p');
+            pElement.style.display = 'inline-block';
+            pElement.style.marginLeft = '10px'; // Adjust margin as needed
+            pElement.innerHTML = `${replyUser.user.name} replied to your comment`;
+
+            divElement.appendChild(imgElement);
+            divElement.appendChild(pElement);
+        }
+
+
+        if (noti.reactId && noti.commentId && !noti.replyId) {
+            const reactType = await fetchReactTypeForNotification(noti.reactId);
+            console.log('React Type user', reactType.user.staffId)
+            const user = await fetchUserDataByPostedUser(reactType.user.staffId);
+            const photo = user.photo || '/static/assets/img/card.jpg';
+            let imgElement = document.createElement('img');
+            imgElement.src = `${photo}`;
+            imgElement.width = 40;
+            imgElement.height = 40;
+            imgElement.style.borderRadius = '50%';
+            const pElement = document.createElement('p');
+            let imgReactElement = document.createElement('img');
+            if (reactType.type) {
+                imgReactElement.src = `/static/assets/img/${reactType.type.toLowerCase()}.png`;
+                imgReactElement.width = 20;
+                imgReactElement.height = 20;
+
+                imgElement.style.display = 'inline-block';
+                imgReactElement.style.display = 'inline-block';
+                imgReactElement.style.marginBottom = '-20px';
+                imgReactElement.style.marginLeft = '-10px';
+                pElement.style.display = 'inline-block';
+                pElement.innerHTML = `${user.name}` + `${reactType.type}` + ' your comment';
+            } else {
+                imgReactElement.src = `/static/assets/img/cancel.png`;
+                imgReactElement.width = 20;
+                imgReactElement.height = 20;
+
+                imgElement.style.display = 'inline-block';
+                imgReactElement.style.display = 'inline-block';
+                imgReactElement.style.marginBottom = '-20px';
+                imgReactElement.style.marginLeft = '-10px';
+                pElement.style.display = 'inline-block';
+                pElement.innerHTML = `${user.name}` + ` canceled reaction in` + ' your comment';
+            }
+            divElement.appendChild(imgElement);
+            divElement.appendChild(imgReactElement);
+            divElement.appendChild(pElement);
+        }
+
+        if (noti.reactId && !noti.commentId && noti.replyId) {
+            const reactType = await fetchReactTypeForNotification(noti.reactId);
+            console.log('React Type user', reactType.user.staffId)
+            const user = await fetchUserDataByPostedUser(reactType.user.staffId);
+            const photo = user.photo || '/static/assets/img/card.jpg';
+            let imgElement = document.createElement('img');
+            imgElement.src = `${photo}`;
+            imgElement.width = 40;
+            imgElement.height = 40;
+            imgElement.style.borderRadius = '50%';
+            const pElement = document.createElement('p');
+            let imgReactElement = document.createElement('img');
+            if (reactType.type) {
+                imgReactElement.src = `/static/assets/img/${reactType.type.toLowerCase()}.png`;
+                imgReactElement.width = 20;
+                imgReactElement.height = 20;
+
+                imgElement.style.display = 'inline-block';
+                imgReactElement.style.display = 'inline-block';
+                imgReactElement.style.marginBottom = '-20px';
+                imgReactElement.style.marginLeft = '-10px';
+                pElement.style.display = 'inline-block';
+                pElement.innerHTML = `${user.name}` + `${reactType.type}` + ' your reply';
+            } else {
+                imgReactElement.src = `/static/assets/img/cancel.png`;
+                imgReactElement.width = 20;
+                imgReactElement.height = 20;
+
+                imgElement.style.display = 'inline-block';
+                imgReactElement.style.display = 'inline-block';
+                imgReactElement.style.marginBottom = '-20px';
+                imgReactElement.style.marginLeft = '-10px';
+                pElement.style.display = 'inline-block';
+                pElement.innerHTML = `${user.name}` + ` canceled reaction in ` + ' your reply';
+            }
+            divElement.appendChild(imgElement);
+            divElement.appendChild(imgReactElement);
+            divElement.appendChild(pElement);
+        }
+
+        if (noti.mentionId) {
+            const mention = await getMentionById(noti.mentionId);
+            console.log("SDFDSF555"+mention.postedUserId)
+            console.log("SDFDSF555"+mention.post.id)
+            if(!mention.comment) {
+                const getUser = await getMentionUser(mention.postedUserId);
+                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                console.log("MenitonUSer", getUser.name)
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${getUser.name} mentioned you in a post`;
+
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }else{
+                const getUser = await getMentionUser(mention.postedUserId);
+                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                console.log("MenitonUSer", getUser.name)
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${getUser.name} mentioned you in a comment`;
+
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }
+        }
+        const container =  document.createElement('div');
+        container.classList.add('container-trash-div')
+        container.style.display = 'inline-grid';
+        container.appendChild(divElement);
+        container.appendChild(spEle);
+        root.appendChild(container);
+    }
+};
+
+const getMentionUser = async (id) => {
+    const data = await fetch(`/getData-mention/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+const getMentionById = async (id) => {
+    const data = await fetch(`/get-mentionUser/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+const deleteAllNotifications =async  () => {
+    const deleteAllNoti = await fetch(`/delete-all-noti`,{
+        method:'DELETE'
+    });
+    if(!deleteAllNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`root`);
+        if (divElement) {
+            divElement.remove();
+        }
+    }
+}
+
+const deletedNotification = async (id) =>{
+    const deleteNoti = await fetch(`/delete-noti/${id}`,{
+        method:'DELETE'
+    });
+    if(!deleteNoti.ok){
+        alert('something wrong please try again later');
+    }else {
+        const divElement = document.getElementById(`noti-deleted-${id}`);
+        const trashIconEl = document.getElementById(`trashIcon-deleted-${id}`);
+        if (divElement && trashIconEl ) {
+            console.log("it's fine",id)
+            divElement.remove();
+            trashIconEl.remove();
+        }
+    }
+}
+
+const attachNotificationEventListeners = () => {
+    const notificationElements = document.querySelectorAll('.notificationForNoti');
+    notificationElements.forEach(notificationElement => {
+        notificationElement.addEventListener('click', async function() {
+            console.log("Clicked on notification element");
+            const postId = this.dataset.postId; // 'this' refers to the current notification element
+            console.log('PostId', postId);
+            const postElement = document.getElementById(postId);
+            if (postElement) {
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // await fetchNotificationPerPage();
+    const modalContent = document.getElementById('content-notification');
+    modalContent.addEventListener('scroll', async () => {
+        if (isFetching || !hasMore) {
+            console.log('currentPage', currentPage);
+            return;
+        }
+
+        if (modalContent.scrollTop + modalContent.clientHeight >= modalContent.scrollHeight) {
+            currentPage++;
+            console.log('currentPage', currentPage);
+            await fetchNotificationPerPage();
+        }
+    });
+});
+

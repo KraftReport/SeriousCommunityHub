@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stompClientForChatRoom = Stomp.over(socket);
         stompClientForChatRoom.connect({}, onConnected, onError);
     };
+
     const mentionUser = async (id) => {
         console.log('mentionUser called');
         const messageInput = document.querySelector('#message');
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleInput = async (inputValue) => {
             const mentionIndex = inputValue.lastIndexOf('@');
             console.log('input event triggered');
-            const memberList = await getAllCommunityMember(id);
+            const memberList = await getAllChatRoomMember(id);
             console.log('User List', memberList);
 
             if (mentionIndex !== -1) {
@@ -84,6 +85,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const onConnected = () => {
         stompClientForChatRoom.subscribe(`/user/chatRoom/queue/messages`, onMessageReceived);
     };
+
+    const roomId = localStorage.getItem('chatRoomIdForGroup');
+    if(roomId){
+        findAndDisplayConnectedUsers().then(() => {
+            const roomElement = document.getElementById(roomId);
+            if (roomElement) {
+                roomElement.click();
+                localStorage.removeItem('chatRoomIdForGroup');
+            }
+        });
+    } else {
+        findAndDisplayConnectedUsers().then();
+    }
 
     async function findAndDisplayConnectedUsers() {
         const response = await fetch('/user/room-list');
@@ -199,7 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
         const userImage = document.createElement('img');
-        userImage.src = `${photo}`;
+        const image = photo || '/static/assets/img/card.jpg';
+        userImage.src = `${image}`;
         userImage.alt = 'User Photo';
         userImage.classList.add('user-photo');
         let createdTime = await formattedDate(new Date(date));
