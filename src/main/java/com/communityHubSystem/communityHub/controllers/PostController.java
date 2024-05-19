@@ -1,5 +1,7 @@
 package com.communityHubSystem.communityHub.controllers;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.communityHubSystem.communityHub.dto.FirstUpdateDto;
 import com.communityHubSystem.communityHub.dto.PostDto;
 import com.communityHubSystem.communityHub.dto.SecondUpdateDto;
@@ -18,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/post")
@@ -27,6 +31,7 @@ public class PostController {
     private final PostService postService;
     private final PostRepository postRepository;
     private final ResourceRepository resourceRepository;
+    private final Cloudinary cloudinary;
 
     @PostMapping("/createPublicPost")
     public ResponseEntity<?> createPublicPost(@ModelAttribute PostDto publicPostDto,
@@ -35,6 +40,24 @@ public class PostController {
         System.out.println("publei "+publicPostDto);
         var post = postService.createPost(publicPostDto, files, captions);
         return ResponseEntity.status(HttpStatus.OK).body(post);
+    }
+
+    @PostMapping("/createARawFilePost")
+    public ResponseEntity<?> createARawFilePost(@RequestParam("rawFiles")MultipartFile[] rawFiles) throws IOException {
+        System.err.println(rawFiles[0]);
+        for (var r : rawFiles){
+            Map uploadResult = cloudinary.uploader()
+                    .upload(r.getBytes(), ObjectUtils.asMap(
+                            "resource_type", "raw",
+                            "public_id", UUID.randomUUID().toString()
+                    ));
+
+            System.err.println(uploadResult.get("url").toString());
+        }
+
+
+        return ResponseEntity.ok(null);
+
     }
 
     @GetMapping("/getAll")

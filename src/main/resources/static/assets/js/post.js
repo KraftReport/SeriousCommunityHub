@@ -13,6 +13,22 @@ let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalB
 window.onload = welcome;
  
 
+const createARawFilePost = async () => {
+    let file = document.getElementById('raw').files
+    let form = new FormData(document.getElementById('rawForm'))
+
+    for(let i = 0 ; i <file.length ; i++){
+        form.append('rawFiles',file[i])
+    }
+    console.log('wowowoow')
+
+    let data = await fetch('/post/createARawFilePost',{
+        body:form,
+        method: 'POST' 
+    })
+
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
     localStorage.removeItem('searchInput'); 
@@ -354,7 +370,7 @@ fileInput.addEventListener('change', function () {
         const validImageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'psv', 'svg', 'webp', 'ico', 'heic'];
         const validVideoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'mpeg', 'mpg', 'webm', '3gp', 'ts'];
         if (validImageExtensions.includes(fileName.split('.').pop()) || validVideoExtensions.includes(fileName.split('.').pop())) {
-            const previewItem = document.createElement('div');
+            const previewItem = document.createElement('div'); 
             previewItem.className = 'preview-item';
             if (validImageExtensions.includes(fileName.split('.').pop())) {
                 const reader = new FileReader();
@@ -378,35 +394,28 @@ fileInput.addEventListener('change', function () {
             }
 
             const pDiv = document.createElement('div')
+            pDiv.style.width = '100px'
+            pDiv.style.height = '100px'
             pDiv.classList.add('col-3')
 
             // Create caption input
-            const captionInput = document.createElement('input');
+            const captionInput = document.createElement('textarea');
             captionInput.type = 'text';
             captionInput.placeholder = 'Enter caption';
             captionInput.name = `caption-${i}`;
             captionInput.style.maxWidth = '100px'
-            captionInput.style.maxHeight = '100px'
-            captionInput.style.borderRadius = '20px'
+            captionInput.style.maxHeight = '300px'
+            captionInput.style.borderRadius = '10px'
+            captionInput.style.border = 'none'
 
-            const deleteBtn = document.createElement('button')
-            deleteBtn.textContent = 'X'
-            deleteBtn.style.backgroundColor = 'red'
-            deleteBtn.style.text = 'white'
-            deleteBtn.style.width = '30px'
-            deleteBtn.style.height = '30px'
-            deleteBtn.style.borderRadius = '8px'
-            deleteBtn.style.left = '100px'
-            deleteBtn.style.zIndex = '1'
-
-            pDiv.appendChild(deleteBtn)
+  
             pDiv.appendChild(previewItem)
             pDiv.appendChild(captionInput)
 
 
 
-            preview.appendChild(previewItem);
-            preview.appendChild(captionInput);
+            // preview.appendChild(previewItem);
+            preview.appendChild(pDiv);
         } else {
             alert('Invalid file type. Please select a JPG, JPEG or PNG file.');
             document.querySelector('input[value="RESOURCE"]').value = "CONTENT";
@@ -417,6 +426,8 @@ fileInput.addEventListener('change', function () {
 
     }
 })
+
+
 
 
 async function createPost() {
@@ -578,8 +589,8 @@ async function welcome() {
 
       <div class="post" id="post-delete-section-${p.id}">
       <div class="post-top">
-          <div class="dp">
-              <img src="${p.user.photo}" alt="">
+          <div class="">
+              <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
           </div>
           <div class="post-info">
               <div class="d-flex">
@@ -5715,3 +5726,7 @@ const getCommunityFromUserGroup = async (userGroupId,userId) => {
     console.log(response.name)
     return console.log(response.name)
 }
+
+
+
+document.getElementById('rawSend').addEventListener('click',createRawFilePost())
