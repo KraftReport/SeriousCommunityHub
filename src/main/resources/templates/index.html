@@ -137,6 +137,14 @@
             overflow-y: auto;
         }
 
+        .mentionSuggestionsContainer {
+            max-height: 80px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            max-width: 300px;
+            margin-left: 400px;
+        }
+
         #mentionSuggestions {
             border: 1px solid #ccc;
             border-top: none;
@@ -176,6 +184,23 @@
             color: #1a73e8;
             font-weight: bold;
         }
+
+
+        #userAccessLogStaticBox .modal-dialog {
+            position: absolute;
+            right: 0;
+            margin-right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: calc(100% - 20px);
+        }
+
+        @media (min-width: 576px) {
+            #userAccessLogStaticBox .modal-dialog {
+                max-width: 450px;
+            }
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
@@ -1786,7 +1811,7 @@
                         <!-- Add more content here if needed -->
                     </div>
                 </div>
-                <form id="commentForm" class="modal-footer">
+                <div id="mentionSuggestionsForComment" class="mentionSuggestionsContainer font-monospace"></div>                <form id="commentForm" class="modal-footer">
                     <div class="mb-3">
                         <label for="commentText" class="form-label">Comment:</label>
                         <input type="text" class="form-control" id="commentText"

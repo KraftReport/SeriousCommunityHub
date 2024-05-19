@@ -38,6 +38,7 @@ public class ReactController {
     private final NotificationService notificationService;
     private final EventService eventService;
     private final MentionService mentionService;
+    private final User_GroupService user_groupService;
 
     @MessageMapping("/react-message")
     public void processedReactMessage(@Payload MessageDto messageDto) {
@@ -90,8 +91,8 @@ public class ReactController {
         var user = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("user name not found exception"));
         var post = postService.findById(id);
         var react = reactService.findReactByPostIdAndUserId(post.getId(), user.getId());
-        if (react == null || react.getType() == null) {
-            return ResponseEntity.ok(HttpEntity.EMPTY);
+        if (react == null) {
+            return ResponseEntity.ok(null);
         } else {
             return ResponseEntity.ok(react.getType());
         }
@@ -477,6 +478,28 @@ public class ReactController {
     @GetMapping("/getData-mention/{id}")
     public ResponseEntity<User> getMentionUser(@PathVariable("id")Long id){
         return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
+    }
+
+    @GetMapping("/get-mentionUsers-group/{id}")
+    public ResponseEntity<List<User>> getMentionUsersForPost(@PathVariable("id")Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(getMentionsUsersByPostId(id));
+    }
+
+    public List<User> getMentionsUsersByPostId(Long id){
+        var post = postService.findById(id);
+        if(post.getAccess().equals(Access.PUBLIC)){
+           return userService.getAllActiveUser();
+        }else{
+            var userGroups = user_groupService.findByCommunityId(post.getUserGroup().getCommunity().getId());
+         List<User> userList = new ArrayList<>();
+            for(User_Group user_group:userGroups){
+             var user = userService.findById(user_group.getUser().getId());
+             if(!user.getRole().equals(User.Role.ADMIN)){
+                 userList.add(user);
+             }
+         }
+            return userList;
+        }
     }
 
 }

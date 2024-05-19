@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,7 @@ public class UserAccessLog {
     private Long id;
     private String email;
     private String errorMessage;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime accessTime;
     @Enumerated(EnumType.STRING)
     private LoginType type;

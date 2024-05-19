@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,12 +31,13 @@ public class ChatMessageController {
     private final PostService postService;
     private final MentionService mentionService;
     private final NotificationService notificationService;
+    private final CommentService commentService;
 
     @MessageMapping("/chat")
     public void processMessage(@Payload Map<String, Object> payload) {
         Long roomId = Long.parseLong(payload.get("id").toString());
         String staffId = payload.get("sender").toString();
-        System.out.println("SOMETHING"+roomId);
+        System.out.println("SOMETHING" + roomId);
         var user = userService.findByStaffId(staffId.trim()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
         String content = payload.get("content").toString();
         ChatMessage chatMessage = ChatMessage.builder()
@@ -44,7 +47,7 @@ public class ChatMessageController {
                 .content(content)
                 .build();
         chatMessageService.save(chatMessage);
-        messagingTemplate.convertAndSend( "/user/chatRoom/queue/messages", new NotificationDtoForChatRoom(
+        messagingTemplate.convertAndSend("/user/chatRoom/queue/messages", new NotificationDtoForChatRoom(
                 roomId,
                 user.getStaffId(),
                 content
@@ -57,35 +60,72 @@ public class ChatMessageController {
     }
 
     @MessageMapping("/mention-notification")
-    public void processMentionUser(@Payload MentionDto mentionDto){
-      var loginUser = userService.findByStaffId(mentionDto.getUserId()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
-      var post = postService.findById(mentionDto.getPostId());
-      List<String> stringList = new ArrayList<>();
-      for(String name:mentionDto.getUsers()){
-        User mentionedUser = userService.mentionedUser(name);
-        stringList.add(mentionedUser.getStaffId());
-        var mention = Mention.builder()
-                .postedUserId(loginUser.getId())
-                .date(new Date())
-                .user(mentionedUser)
-                .post(post)
-                .build();
-        mentionService.save(mention);
+    public void processMentionUser(@Payload MentionDto mentionDto) {
+        var loginUser = userService.findByStaffId(mentionDto.getUserId()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
+        var post = postService.findById(mentionDto.getPostId());
+        List<String> stringList = new ArrayList<>();
         String content = "mentioned you in a post";
-        var noti = Notification.builder()
-                .content(content)
-                .date(new Date())
-                .user(mentionedUser)
-                .mention(mention)
-                .post(post)
-                .build();
-        notificationService.save(noti);
-      }
-      messagingTemplate.convertAndSend("/user/mention/queue/messages", new MentionDto(
-              mentionDto.getPostId(),
-              mentionDto.getUserId(),
-              stringList
-      ));
+        for (String staffId : mentionDto.getUsers()) {
+            User mentionedUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
+            stringList.add(mentionedUser.getStaffId());
+            var mention = Mention.builder()
+                    .postedUserId(loginUser.getId())
+                    .date(new Date())
+                    .user(mentionedUser)
+                    .post(post)
+                    .build();
+            mentionService.save(mention);
+            var noti = Notification.builder()
+                    .content(content)
+                    .date(new Date())
+                    .user(mentionedUser)
+                    .mention(mention)
+                    .post(post)
+                    .build();
+            notificationService.save(noti);
+        }
+        messagingTemplate.convertAndSend("/user/mention/queue/messages", new MentionDto(
+                mentionDto.getPostId(),
+                mentionDto.getUserId(),
+                stringList,
+                content
+        ));
+    }
+
+    @MessageMapping("/mention-notification-forComment")
+    public void mentionForComment(@Payload MentionDto mentionDto) {
+        var loginUser = userService.findByStaffId(mentionDto.getUserId()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
+        var comment = commentService.findById(mentionDto.getPostId());
+        var post = postService.findById(comment.getPost().getId());
+        List<String> listString = new ArrayList<>();
+        String content = "mentioned you in a comment";
+        for (String staffId : mentionDto.getUsers()) {
+            var mentionedUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
+            listString.add(mentionedUser.getStaffId());
+            var mention = Mention.builder()
+                    .postedUserId(loginUser.getId())
+                    .date(new Date())
+                    .user(mentionedUser)
+                    .post(post)
+                    .comment(comment)
+                    .build();
+
+            mentionService.save(mention);
+            var noti = Notification.builder()
+                    .content(content)
+                    .date(new Date())
+                    .user(mentionedUser)
+                    .mention(mention)
+                    .post(post)
+                    .build();
+            notificationService.save(noti);
+        }
+        messagingTemplate.convertAndSend("/user/mention/queue/messages", new MentionDto(
+                mentionDto.getPostId(),
+                mentionDto.getUserId(),
+                listString,
+                content
+        ));
     }
 
 //    @PostMapping("/group-add")

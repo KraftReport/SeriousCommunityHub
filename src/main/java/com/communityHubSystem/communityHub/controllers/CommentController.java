@@ -140,7 +140,7 @@ public class CommentController {
         List<React> reactList = reactService.findByEventId(id);
         List<React> reacts = new ArrayList<>();
         for (React react : reactList) {
-            if (react.getType() != Type.OTHER) {
+            if (!react.getType().equals(Type.OTHER)) {
                 reacts.add(react);
             }
         }
@@ -152,8 +152,8 @@ public class CommentController {
         var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
         var loginUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User name not found Exception"));
         var react = reactService.findByUserIdAndEventId(loginUser.getId(), id);
-        if (react == null || react.getType() == null) {
-            return ResponseEntity.ok(HttpEntity.EMPTY);
+        if (react == null) {
+            return ResponseEntity.ok(null);
         } else {
             return ResponseEntity.ok(react.getType());
         }
