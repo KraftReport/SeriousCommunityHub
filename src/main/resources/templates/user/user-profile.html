@@ -55,11 +55,10 @@
                                 </form>
                                 <img id="profile-photo-exist" th:unless="${user.photo == null}" th:src="${user.photo}"
                                      alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2 profile-photo"
-                                     style="width: 150px; z-index: 1; border-radius: 20px;" onclick="chooseFile()"/>
+                                     style="width: 150px; z-index: 1; border-radius: 20px; min-height: 160px;" onclick="chooseFile()"/>
                                 <button id="edit-photo-btn" type="button" class="btn btn-outline-dark edit-button"
-                                        data-mdb-ripple-color="dark" style="z-index: 1;min-height: 160px;">Edit Profile
+                                        data-mdb-ripple-color="dark" style="z-index: 1">Edit Profile
                                 </button>
-                                Edit profile
                             </div>
                             <div class="ms-3" style="margin-top: 130px;">
                                 <h5 th:text="${user.name}">Name</h5>
@@ -104,20 +103,17 @@
                                         <div id="hobbiesContainer"></div>
                                     </div>
                                 </div>
+                                <div id="parentLoginUserProfileDiv" ></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </section>
 
-    <div>
-        <div id="parentLoginUserProfileDiv" style="margin-left: 200px;">
 
-
-        </div>
-    </div>
 </main>
 
 
@@ -145,7 +141,7 @@
 <!-- edit offcanvas end  -->
 
 
-<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -160,7 +156,6 @@
                         <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone"
                                th:value="${user.phone}">
                     </div>
-
                     <div th:if="${user.hobby}">
                         <div id="hobbyChangeForm">
                             <div class="mb-3">
@@ -547,6 +542,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Skills</label>
+
                         <div id="skillsDropdown">
 
                         </div>
@@ -557,10 +553,9 @@
                             <input type="text" class="form-control mt-2" placeholder="Experience"
                                    id="newSkillExperienceInput">
                         </div>
-                        <script src="/assets/js/skill.js" defer></script>
+                        <script src="/assets/js/skill.js"></script>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="updateBtn">Update</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="updateBtn">Update</button>
                 </form>
             </div>
         </div>
@@ -680,7 +675,7 @@
     });
     // Add a click event listener to the edit photo button to show the modal
     const editPhotoBtn = document.getElementById('edit-photo-btn');
-    const profileForm = document.getElementById('editModal');
+    const profileForm = document.getElementById('editProfileModal');
     if (editPhotoBtn && profileForm) {
         editPhotoBtn.addEventListener('click', function (event) {
             event.stopPropagation(); // Prevent click event from propagating to parent elements

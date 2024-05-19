@@ -103,10 +103,12 @@ public class UserController {
 
             for (User_Skill user_skill : user_skills) {
                 System.out.println(user_skill.getSkill().getName());
+                System.out.println("Skill found out!!!!");
                 skills.add(user_skill.getSkill());
             }
             return skills;
         }
+        System.out.println("cannot found out.");
         return Collections.EMPTY_LIST;
     }
 
@@ -503,7 +505,45 @@ public class UserController {
     public ResponseEntity<List<Object>> checkUserOrAdminOrGroupOwner(){
         return ResponseEntity.ok(userService.checkUserOrAdminOrGroupOwner());
     }
-
+    @PostMapping("/checkPassword")
+    @ResponseBody
+    public ResponseEntity<String> verifyPassword(@RequestBody String currentPassword) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> user=userService.findByStaffId(staffId);
+        if(user.isPresent()) {
+            String storedPassword = user.get().getPassword();
+            System.out.println(storedPassword);
+            System.out.println(currentPassword);
+            if (passwordEncoder.matches(currentPassword, storedPassword)) {
+                System.out.println("matched");
+                return ResponseEntity.ok().build();
+            } else {
+                System.out.println("failed");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password");
+            }
+        }
+        else {
+            System.out.println("no user");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect User");
+        }
+    }
+    @PostMapping("/saveNewPassword")
+    public ResponseEntity<String> saveNewPassword(@RequestBody Map<String, String> requestBody) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        String password = requestBody.get("password");
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            String encodedPassword = passwordEncoder.encode(password);
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+            return ResponseEntity.ok("Password saved successfully");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @GetMapping("/getCurrentLoginUser")
     @ResponseBody
     public ResponseEntity<User> getCurrentLoginUser(){

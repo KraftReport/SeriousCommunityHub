@@ -225,35 +225,7 @@
                         <i class="bi bi-file-earmark-spreadsheet"></i>
                     </a><!-- End Excel Icon -->
 
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-                        <li class="dropdown-header">
-                            Import Excel File
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
 
-                        <li class="message-item">
-                            <a href="#">
-                                <div>
-                                    <form id="uploadForm" enctype="multipart/form-data">
-                                        <input type="file" id="fileInput" accept=".xlsx, .xls">
-                                        <br><br>
-                                        <button type="button" id="uploadButton">Upload</button>
-                                    </form>
-                                    <script src="/static/assets/js/excelUpload.js"></script>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="dropdown-footer">
-                            <a href="#">Close</a>
-                        </li>
-
-                    </ul><!-- End Messages Dropdown Items -->
                 </li>
                 <li class="nav-item dropdown">
 
@@ -303,9 +275,9 @@
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img id="session-user-photo" src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
+                        <img id="session-user-photo" src="/static/assets/img/default-logo.png" alt="Profile"
                              th:unless="${session.user.photo}"/>
-                        <img id="session-user-photo-exist" th:src="${session.user.photo}" th:if="${session.user.photo}" alt="Profile" class="rounded-circle"/>
+                        <img id="session-user-photo-exist" th:src="${session.user.photo}" th:if="${session.user.photo}" alt="Profile"/>
                         <!--                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />-->
                         <span class="d-none d-md-block dropdown-toggle ps-2" th:text="${session.user.name}">Name</span>
                     </a><!-- End Profile Iamge Icon -->
@@ -329,7 +301,7 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item d-flex align-items-center">
+                            <a class="dropdown-item d-flex align-items-center" id="changePasswordBtn">
                                 <i class="bi bi-gear"></i>
                                 <span>Change Password</span>
                             </a>
@@ -339,7 +311,7 @@
                         </li>
 
                         <li sec:authorize="hasAnyAuthority('ADMIN')">
-                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton">
+                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton" data-bs-toggle="modal" data-bs-target="#addPolicyModal">
                                 <i class="bi bi-body-text"></i>
                                 <span>Add Policy</span>
                             </a>
@@ -962,9 +934,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="successModalLabel">Congratulations!</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="text-center">
@@ -1009,32 +978,31 @@
     <div id="changePasswordModal" class="modal">
         <link href="/static/assets/css/changePassword.css" rel="stylesheet">
         <div class="modal-content">
-            <span class="close">&times;</span>
             <h2>Change Password</h2>
             <div class="form-group">
                 <label for="currentPassword">Current Password:</label>
                 <div class="input-group">
-                    <input type="password" id="currentPassword" name="currentPassword" required>
-                    <button id="checkPasswordBtn" class="check-btn">Check</button>
+                    <input type="password" id="currentPassword" name="currentPassword" required class="form-control">
+                    <button id="checkPasswordBtn" class="btn-primary">Check</button>
                 </div>
             </div>
             <div id="changePasswordFields">
                 <div class="form-group">
                     <label for="changePassword">New Password:</label>
-                    <input type="password" id="changePassword" name="changePassword" required>
+                    <input type="password" id="changePassword" name="changePassword" required class="form-control">
                     <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="confirmChangePassword">Confirm Password:</label>
-                    <input type="password" id="confirmChangePassword" name="confirmChangePassword" required>
+                    <input type="password" id="confirmChangePassword" name="confirmChangePassword" required class="form-control">
                     <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not
                         match.
                     </div>
                 </div>
                 <div class="button-group">
-                    <button id="restartBtn">Restart</button>
-                    <button id="saveBtn">Save</button>
+                    <button id="restartBtn" class="btn-restart">Restart</button>
+                    <button id="saveBtn" class="btn-primary">Save</button>
                 </div>
             </div>
         </div>
@@ -1334,17 +1302,6 @@
                             <script src="/static/assets/js/password.js"></script>
                         </form>
                     </div>
-                    <div id="photoChangeForm" style="display: none">
-                        <h2>Change Photo</h2>
-                        <form>
-                            <input type="file" id="inputImage" accept="image/*">
-                            <div id="croppedImagePreview" style="display: none;">
-                                <img id="defaultImage" src="/assets/img/default-logo.png" alt="Default image">
-                            </div>
-                            <button type="button" class="btn btn-primary next">Skip</button>
-                        </form>
-                        <script src="/static/assets/js/photoEdit.js"></script>
-                    </div>
                     <div id="phoneChangeForm" style="display: none">
                         <h2>Enter your information</h2>
                         <form>
@@ -1552,11 +1509,12 @@
                     </div>
                     <div id="skillChangeForm">
                         <h2>Enter your skills</h2>
+                        <script src="/assets/js/skill.js" defer></script>
                         <form id="skillForm">
                             <div id="skillsDropdown">
-                                <!-- Skills checkboxes will be rendered here -->
+
                             </div>
-                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill
+                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add Skill
                             </button>
                             <div id="newSkillInput" style="display: none;">
                                 <input type="text" class="form-control mt-2" placeholder="Enter new skill"
@@ -1566,7 +1524,6 @@
                             </div>
                             <button type="button" class="btn btn-primary next">Next</button>
                         </form>
-                        <script src="/assets/js/skill.js"></script>
                     </div>
 
                     <div id="term&condition" style="display: none">
@@ -1800,7 +1757,6 @@
                             });
                             const welcomeContent = document.getElementById('welcome-content');
                             const passwordForm = document.getElementById('passwordChangeForm');
-                            const photoForm = document.getElementById('photoChangeForm');
                             const phoneForm = document.getElementById('phoneChangeForm');
                             const hobbyForm = document.getElementById('hobbyChangeForm');
                             const skillForm = document.getElementById('skillChangeForm');
@@ -1811,7 +1767,6 @@
                             // Function to hide all forms
                             function hideForms() {
                                 passwordForm.style.display = 'none';
-                                photoForm.style.display = 'none';
                                 phoneForm.style.display = 'none';
                                 hobbyForm.style.display = 'none';
                                 skillForm.style.display = 'none';
@@ -1831,17 +1786,14 @@
                                     currentIndex++; // Move to the next form
                                     if (currentIndex === 1) {
                                         hideForms(passwordForm);
-                                        showForm(photoForm);
-                                    } else if (currentIndex === 2) {
-                                        hideForms(photoForm);
                                         showForm(phoneForm);
-                                    } else if (currentIndex === 3) {
+                                    } else if (currentIndex === 2) {
                                         hideForms(phoneForm);
                                         showForm(hobbyForm);
-                                    } else if (currentIndex === 4) {
+                                    } else if (currentIndex === 3) {
                                         hideForms(hobbyForm);
                                         showForm(skillForm);
-                                    } else if (currentIndex === 5) {
+                                    } else if (currentIndex === 4) {
                                         hideForms(skillForm);
                                         showForm(conditionForm);
                                     } else {

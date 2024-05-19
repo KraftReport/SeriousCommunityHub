@@ -147,7 +147,7 @@ checkPasswordBtn.onclick = function() {
         const confirmPassword = confirmPasswordInput.value;
 
         if (staffId && newPassword && confirmPassword && newPassword === confirmPassword) {
-            fetch('/saveNewPassword', {
+            fetch('/user/saveNewPassword', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

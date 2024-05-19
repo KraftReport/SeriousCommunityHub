@@ -1,6 +1,12 @@
-document.addEventListener('DOMContentLoaded', function() {
+
     fetch("/user/getSkills")
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                console.log("error in mapping!")
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             const skillsDropdown = document.getElementById('skillsDropdown');
             data.forEach(skill => {
@@ -71,5 +77,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         localStorage.setItem('selectedSkills', selectedSkills.join(','));
     }
-
-});
