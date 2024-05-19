@@ -16,4 +16,5 @@ public class MentionDto {
     private Long postId;
     private String userId;
     private List<String> users;
+    private String content;
 }

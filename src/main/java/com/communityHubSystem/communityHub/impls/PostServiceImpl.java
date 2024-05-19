@@ -192,9 +192,23 @@ public class PostServiceImpl implements PostService {
 //    }
     @Override
     public Page<Post> findPostRelatedToUser(String page) {
+
         var loginStaffId = SecurityContextHolder.getContext().getAuthentication().getName();
         var loginUser = userService.findByStaffId(loginStaffId)
                 .orElseThrow(() -> new CommunityHubException("User not found!"));
+
+        if(loginUser.getRole().equals(User.Role.ADMIN)){
+            var adminList = postRepository.findAll().stream().filter(a -> !a.isDeleted()).sorted(Comparator.comparing(Post::getCreatedDate).reversed()).toList();
+            Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+            int start = Math.toIntExact(pageable.getOffset());
+            if (start >= adminList.size()) {
+                return Page.empty(pageable);
+            }
+            int end = Math.min(start + pageable.getPageSize(), adminList.size());
+            List<Post> paginatedPosts = adminList.subList(start, end);
+            return new PageImpl<>(paginatedPosts, pageable, adminList.size());
+
+        }
 
         List<Post> publicPosts = postRepository.findPostsByAccessOrderByCreatedDateDesc(Access.PUBLIC);
         var notDeletedPosts = publicPosts.stream().filter(p -> !p.isDeleted()).toList();

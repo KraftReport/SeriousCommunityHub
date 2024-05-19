@@ -349,6 +349,11 @@ public class EventServiceImpl implements EventService {
     @Override
     public Page<Event> getEventsForNewsfeed(String page) {
         var all = eventRepository.findAll();
+        var loginUser = getCurrentLoginUser();
+        if(loginUser.getRole().equals(User.Role.ADMIN)){
+            var allList = all.stream().filter(s->!s.isDeleted() && s.getEventType().equals(Event.EventType.EVENT)).sorted(Comparator.comparing(Event::getCreated_date).reversed()).toList();
+            return getPaginationOfEvents(allList,page);
+        }
         var filteredEvents = new ArrayList<>(all.stream().filter(e -> e.getEventType().equals(Event.EventType.EVENT) && !e
                 .isDeleted() && e
                 .getAccess().equals(Access.PUBLIC)).toList());
@@ -365,6 +370,11 @@ public class EventServiceImpl implements EventService {
     @Override
     public Page<Event> getPolForNewsfeed(String page) {
         var all = eventRepository.findAll();
+        var loginUser = getCurrentLoginUser();
+        if(loginUser.getRole().equals(User.Role.ADMIN)){
+            var allList = all.stream().filter(s->!s.isDeleted() && s.getEventType().equals(Event.EventType.VOTE)).sorted(Comparator.comparing(Event::getCreated_date).reversed()).toList();
+            return getPaginationOfEvents(allList,page);
+        }
         var filteredPolls = new ArrayList<>(all.stream().filter(e->e.getEventType().equals(Event.EventType.VOTE) && !e
                 .isDeleted() && e
                 .getAccess().equals(Access.PUBLIC)).toList());

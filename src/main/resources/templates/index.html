@@ -138,6 +138,14 @@
             overflow-y: auto;
         }
 
+        .mentionSuggestionsContainer {
+            max-height: 80px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            max-width: 300px;
+            margin-left: 400px;
+        }
+
         #mentionSuggestions {
             border: 1px solid #ccc;
             border-top: none;
@@ -177,6 +185,23 @@
             color: #1a73e8;
             font-weight: bold;
         }
+
+
+        #userAccessLogStaticBox .modal-dialog {
+            position: absolute;
+            right: 0;
+            margin-right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: calc(100% - 20px);
+        }
+
+        @media (min-width: 576px) {
+            #userAccessLogStaticBox .modal-dialog {
+                max-width: 450px;
+            }
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
@@ -405,6 +430,29 @@
     </aside>
 </div>
 <main id="main" class="main">
+<a href="http://res.cloudinary.com/dws6icl91/raw/upload/v1716056071/153edde3-dceb-42c1-b2f7-b51b8af1d7ee" download>download</a>
+<a href="http://res.cloudinary.com/dws6icl91/image/upload/v1715837014/873a41fe-0e9d-4c32-9df9-f91d9c51be09" download>download</a>
+
+    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Test Raw</button>
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+         <form id="rawForm">
+            <input type="file" name="raw" id="raw" multiple>
+         </form>
+         <button id="rawSend" onclick="createARawFilePost()">raw send</button>
+        </div>
+      </div>
+
+
+
+
+
+
+
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling</h5>
@@ -568,7 +616,9 @@
             </form><!-- End General Form Elements -->
             <!-- End Quill Editor Default -->
             <div class="container">
-                <div id="preview" class="row" ></div>
+                <div id="preview" class="row" >
+
+                </div>
             </div>
 
 
@@ -1571,7 +1621,7 @@
                         <!-- Add more content here if needed -->
                     </div>
                 </div>
-                <form id="commentForm" class="modal-footer">
+                <div id="mentionSuggestionsForComment" class="mentionSuggestionsContainer font-monospace"></div>                <form id="commentForm" class="modal-footer">
                     <div class="mb-3">
                         <label for="commentText" class="form-label">Comment:</label>
                         <input type="text" class="form-control" id="commentText"

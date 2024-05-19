@@ -75,12 +75,14 @@ public class GroupController {
             response.put("message", "Group name already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-
+        //define unique default system admin to get access user_chat_room accept
+        Long adminId = 999L;
+        var defaultAdmin = userService.findById(adminId);
         var svgCommunity = communityService.createCommunity(file,community, ownerID);
         String photo = imageUploadService.uploadImage(file);
         var chatRoom = ChatRoom.builder()
                 .date(new Date())
-                .name(svgCommunity.getDescription())
+                .name(svgCommunity.getName())
                 .photo(photo)
                 .isDeleted(true)
                 .community(svgCommunity)
@@ -93,6 +95,12 @@ public class GroupController {
                 .chatRoom(chatRoom)
                 .build();
         user_chatRoomService.save(user_chatRoom);
+        var user_chatRoomAdmin = User_ChatRoom.builder()
+                .date(new Date())
+                .user(defaultAdmin)
+                .chatRoom(chatRoom)
+                .build();
+        user_chatRoomService.save(user_chatRoomAdmin);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -272,6 +280,18 @@ public class GroupController {
     public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId,
                                                 @PathVariable("page")String page){
         return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
+    }
+
+    @GetMapping("/goMal-chatRoom")
+    public String goToChatRoom(){
+        System.out.println("Yout shi");
+        return "/user/user-chat";
+    }
+    @GetMapping("/getCommunityFromUserGroupIdAndUserId/{userGroupId}/{userId}")
+    @ResponseBody
+    public ResponseEntity<Community> getCommunityFromUserGroupIdAndUserId(@PathVariable("userGroupId")String userGroupId,
+                                                                          @PathVariable("userId")String userId){
+        return ResponseEntity.ok(user_groupService.getCommunityByUserGroupIdAndUserId((Long.valueOf(userGroupId)),Long.valueOf(userId)));
     }
 
 }

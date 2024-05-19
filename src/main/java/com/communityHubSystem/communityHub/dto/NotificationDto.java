@@ -20,4 +20,5 @@ public class NotificationDto {
     private Long shareId;
     private Long replyId;
     private Long postId;
+    private Long mentionId;
 }
