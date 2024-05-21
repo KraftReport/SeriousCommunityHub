@@ -28,10 +28,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("user")
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -44,7 +45,12 @@ public class UserController {
     private final PolicyRepository policyRepository;
     private final ExcelUploadService excelUploadService;
 
-
+    @GetMapping("/getAllSkills")
+    public ResponseEntity<List<String>> getAllSkills() {
+        List<Skill> skills = skillRepository.findAll();
+        List<String> skillNames = skills.stream().map(Skill::getName).collect(Collectors.toList());
+        return ResponseEntity.ok(skillNames);
+    }
     @GetMapping("/allUser")
     @ResponseBody
     public ResponseEntity<List<User>> giveAllUsers() {
@@ -71,9 +77,11 @@ public class UserController {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         var user = userService.findByStaffId(staffId).orElseThrow();
+        Set<User_Skill> user_skills=user.getUser_skills();
         System.out.println(user);
         System.out.println(user.getPosts().size());
         model.addAttribute("user", user);
+        model.addAttribute("userSkills", user_skills);
         return "/user/user-profile";
     }
 
@@ -88,8 +96,19 @@ public class UserController {
 
     @GetMapping("/View-all-users")
     public String viewUser(Model model) {
-        List<User> users = userRepository.findAll();
-        model.addAttribute("users", users);
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isPresent()) {
+            User loggedInUser = optionalUser.get();
+            List<User> users = userRepository.findAll();
+            List<User> filteredUsers = users.stream()
+                    .filter(user -> !user.getStaffId().equals(loggedInUser.getStaffId()))
+                    .collect(Collectors.toList());
+            model.addAttribute("users", filteredUsers);
+        } else {
+            model.addAttribute("users", Collections.emptyList());
+        }
         return "/user/view-all-user";
     }
 
@@ -146,7 +165,7 @@ public class UserController {
 
 
     @PostMapping("/saveSkill")
-    public ResponseEntity<String> saveSkill(@ModelAttribute Skill skill, @RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<String> saveSkill(@RequestBody Map<String, String> requestBody) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
@@ -156,16 +175,23 @@ public class UserController {
 
             // Get selected skills string and experience from the request body
             String selectedSkillsString = requestBody.get("selectedSkills");
-            String experience = requestBody.get("experience");
+            String experiencesString = requestBody.get("experience");
+            System.out.println(selectedSkillsString);
+            System.out.println(experiencesString);
 
             // Split the selected skills string into an array of skill names
             String[] selectedSkillsArray = (selectedSkillsString != null) ? selectedSkillsString.split(",") : new String[0];
+            String[] experiencesArray = (experiencesString != null) ? experiencesString.split(",") : new String[0];
 
             // Iterate through the skill names
-            for (String skillName : selectedSkillsArray) {
+            for (int i = 0; i < selectedSkillsArray.length; i++) {
+                String skillName = selectedSkillsArray[i];
+                String experience = experiencesArray.length > i ? experiencesArray[i] : "0";
+
                 // Check if the skill name already exists in the database
                 Optional<Skill> existingSkill = skillRepository.findByName(skillName);
 
+                Skill skill;
                 if (existingSkill.isPresent()) {
                     // Skill exists, use the existing skill
                     skill = existingSkill.get();
@@ -181,17 +207,18 @@ public class UserController {
                 User_Skill userSkill;
                 if (existingUserSkill.isPresent()) {
                     userSkill = existingUserSkill.get();
+                    userSkill.setExperience(experience); // Update experience
                 } else {
                     userSkill = new User_Skill();
                     userSkill.setUser(user);
                     userSkill.setSkill(skill);
                     userSkill.setExperience(experience);
-                    userSkillRepository.save(userSkill);
                 }
+
+                userSkillRepository.save(userSkill);
             }
 
             // Save the updated user entity
-
             return ResponseEntity.ok("Skills saved");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
@@ -469,8 +496,9 @@ public class UserController {
     @GetMapping("/other-user-profile")
     public String getUserProfile(@RequestParam("id") Long userId, Model model) {
         User user = userService.findById(userId);
+        Set<User_Skill>user_skills=user.getUser_skills();
         model.addAttribute("user", user);
-
+        model.addAttribute("userSkills",user_skills);
         return "/user/other-user-profile";
     }
 
@@ -511,23 +539,23 @@ public class UserController {
     }
     @PostMapping("/checkPassword")
     @ResponseBody
-    public ResponseEntity<String> verifyPassword(@RequestBody String currentPassword) {
+    public ResponseEntity<String> verifyPassword(@RequestBody Map<String, String> requestBody) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
-        Optional<User> user=userService.findByStaffId(staffId);
-        if(user.isPresent()) {
+        Optional<User> user = userService.findByStaffId(staffId);
+        if (user.isPresent()) {
             String storedPassword = user.get().getPassword();
-            System.out.println(storedPassword);
+            String currentPassword = requestBody.get("password");
+            System.out.println(storedPassword + " is here");
             System.out.println(currentPassword);
             if (passwordEncoder.matches(currentPassword, storedPassword)) {
                 System.out.println("matched");
                 return ResponseEntity.ok().build();
             } else {
-                System.out.println("failed");
+                System.out.println("doesn't match");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password");
             }
-        }
-        else {
+        } else {
             System.out.println("no user");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect User");
         }
@@ -536,11 +564,11 @@ public class UserController {
     public ResponseEntity<String> saveNewPassword(@RequestBody Map<String, String> requestBody) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
-        String password = requestBody.get("password");
+        String newpassword = requestBody.get("password");
         Optional<User> optionalUser = userService.findByStaffId(staffId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            String encodedPassword = passwordEncoder.encode(password);
+            String encodedPassword = passwordEncoder.encode(newpassword);
             user.setPassword(encodedPassword);
             userRepository.save(user);
             return ResponseEntity.ok("Password saved successfully");

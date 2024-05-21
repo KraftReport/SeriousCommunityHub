@@ -42,7 +42,7 @@ finishedButton.addEventListener('click', function () {
     const phoneNumber = localStorage.getItem('phoneNumber');
     const dob = localStorage.getItem('dob');
     const gender = localStorage.getItem('gender');
-    const skills = localStorage.getItem('selectedSkills');
+    const skills = localStorage.getItem('Skills');
     const experience = localStorage.getItem('Experience');
 
 
@@ -105,7 +105,7 @@ finishedButton.addEventListener('click', function () {
         localStorage.removeItem('Hobbies');
         localStorage.removeItem('dob');
         localStorage.removeItem('gender');
-        localStorage.removeItem('selectedSkills');
+        localStorage.removeItem('Skills');
         localStorage.removeItem('Experience');
     }
 });

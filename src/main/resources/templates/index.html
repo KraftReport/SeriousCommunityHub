@@ -20,7 +20,6 @@
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
           rel="stylesheet">
-
     <!-- Vendor CSS Files -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet">
@@ -195,7 +194,26 @@
             transform: translateY(-50%);
             max-width: calc(100% - 20px);
         }
+        .skill-box-container {
+            display: flex;
+            flex-wrap: wrap;
+            max-height: 200px; /* Adjust height as needed */
+            overflow-y: auto;
+        }
 
+        .skill-box {
+            flex: 0 0 calc(33.33% - 8px); /* Three skills in a row with some spacing */
+            padding: 8px;
+            margin: 4px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            box-sizing: border-box; /* Ensure padding and border are included in the width */
+        }
+
+        .skill-box:hover {
+            background-color: #f0f0f0;
+        }
         @media (min-width: 576px) {
             #userAccessLogStaticBox .modal-dialog {
                 max-width: 450px;
@@ -466,7 +484,7 @@
 
 
 
-        <button   style="   left:370px; width:244px; height:80px; background-color: #62bdf1;
+        <!--<button   style="   left:370px; width:244px; height:80px; background-color: #62bdf1;
         border:none;
         color: white;
         padding: 15px 32px;
@@ -481,96 +499,12 @@
         box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3); /* Adjust as needed */
         outline: none;"   class="btn btn-secondary dropdown-toggle font-monospace" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
          <i class="fa-regular fa-square-plus"></i> Create
-        </button>
+        </button>-->
         <div id="divForCreation" >
-
     </div>
-
-
-
-
-<!--
-<div style="left:400px;" id="createBoxDropDown" class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <div id="action-btn"  style="   left:300px; width:400px; height:100px; background-color: #62bdf1;
-    border:none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center; position: relative;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 20px;
-    margin: 4px 2px;
-    cursor: pointer;
-    position: relative;
-    border-radius: 20px; /* Adjust as needed */
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3); /* Adjust as needed */
-    outline: none;" >
-        <div id="hammer-icon"><i class="fa-regular fa-square-plus"></i> Create </div> 
-    <div class="d-flex my-2 ">
-
-    </div>
-</butt>
-</div> -->
-
-<!-- <ul class="dropdown-menu" aria-labelledby="createBoxDropDown">
-    <li></li>
-    <li></li>
-    <li></li>
-</ul> -->
-
-    <button id="App" class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
+    <button type="button" class="createIcon offset-10 m-1" id="dropdownMenuButton1" data-bs-toggle="dropdown">
         <i id="pen" class="fa-solid fa-marker"></i>
     </button>
-
-
-
-    <!-- <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="eventForm">
-                        <label for="title">Enter Event Title</label>
-                        <input type="text" class="form-control" name="title" id="title">
-                        <label for="description">Enter Event Description</label>
-                        <textarea class="form-control quill-editor-default" style="height: 100px" name="description" id="description" ></textarea>
-                        <label for="start_date">Enter start date</label>
-                        <input type="date" class="form-control" name="start_date" id="start_date">
-                        <label for="end_date">Enter end date</label>
-                        <input type="date" class="form-control" name="end_date" id="end_date">
-                        <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
-                        <label for="event_location" >Enter event location</label>
-                        <input type="text" class="form-control" name="location" id="location" >
-                        <label for="multipartFile">Enter Event Photo</label>
-                        <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
-
-                        <div class="row mb-3">
-                            <label class="col-sm-2 col-form-label">Select</label>
-                            <div class="col-sm-10" >
-                                <select class="form-select" id="groupSelect2" name="groupId" aria-label="Default select example">
-
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="modal" data-bs-toggle="modal"    >POST</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
-
-
-
-
-    <!-- post create offcanvas start  -->
-
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
 
 
@@ -844,9 +778,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="uploadModalLabel">Success</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>
                     <div class="modal-body">
                         <p>Data upload into the database successfully.</p>
@@ -881,15 +812,6 @@
             </div>
         </div>
     </div>
-    <!--
-        <nav style="--bs-breadcrumb-divider: '>';">
-
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#calendarModalBox" onclick="seeEvents()">See Events</button>
-            <button type="button" class="btn btn-outline-primary" onclick="seePolls()">See Polls</button>
-        </nav> -->
-
-
-    <!-- icon modal box start  -->
 
     <div class="modal fade" id="penIcon" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -897,15 +819,15 @@
                 <div class="modal-body ">
                     <button type="button" class="btn btn-primary d-block m-1"
                             data-bs-toggle="modal" data-bs-target="#modalDialogScrollable">
-                        <i class="fa-solid fa-keyboard"></i> Create a post !
+                        <i class="fa-solid fa-keyboard"> Create a post !</i>
                     </button>
                     <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
                              data-bs-target="#eventCreateModal">
-                        <i class="fa-solid fa-calendar"></i> Create a event !
+                        <i class="fa-solid fa-calendar">Create a event !</i>
                     </button>
                     <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
                             onclick="getAllUserGroup('3')" data-bs-target="#pollCreateModal">
-                        <i class="fa-solid fa-square-poll-vertical"></i> Create a poll !
+                        <i class="fa-solid fa-square-poll-vertical">Create a poll !</i>
                     </button>
                 </div>
             </div>
@@ -942,9 +864,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="removeRoleModalLabel">Removed Admin Role</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
 
@@ -1023,36 +942,37 @@
             </div>
         </div>
     </div>
-
-
-    <div id="changePasswordModal" class="modal">
-        <link href="/static/assets/css/changePassword.css" rel="stylesheet">
-        <div class="modal-content">
-            <h2>Change Password</h2>
-            <div class="form-group">
-                <label for="currentPassword">Current Password:</label>
-                <div class="input-group">
-                    <input type="password" id="currentPassword" name="currentPassword" required class="form-control">
-                    <button id="checkPasswordBtn" class="btn-primary">Check</button>
+    <div id="changePasswordModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-            <div id="changePasswordFields">
-                <div class="form-group">
-                    <label for="changePassword">New Password:</label>
-                    <input type="password" id="changePassword" name="changePassword" required class="form-control">
-                    <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password:</label>
+                        <div class="input-group">
+                            <input type="password" id="currentPassword" name="currentPassword" required class="form-control">
+                            <button id="checkPasswordBtn" class="btn btn-primary">Check</button>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="confirmChangePassword">Confirm Password:</label>
-                    <input type="password" id="confirmChangePassword" name="confirmChangePassword" required class="form-control">
-                    <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not
-                        match.
+                    <div id="changePasswordFields">
+                        <div class="form-group">
+                            <label for="changePassword">New Password:</label>
+                            <input type="password" id="changePassword" name="changePassword" required class="form-control">
+                            <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmChangePassword">Confirm Password:</label>
+                            <input type="password" id="confirmChangePassword" name="confirmChangePassword" required class="form-control">
+                            <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not match.</div>
+                        </div>
+                        <div class="button-group">
+                            <button id="restartBtn" class="btn btn-secondary">Restart</button>
+                            <button id="saveBtn" class="btn btn-primary">Save</button>
+                        </div>
                     </div>
-                </div>
-                <div class="button-group">
-                    <button id="restartBtn" class="btn-restart">Restart</button>
-                    <button id="saveBtn" class="btn-primary">Save</button>
                 </div>
             </div>
         </div>
@@ -1559,20 +1479,17 @@
                     </div>
                     <div id="skillChangeForm">
                         <h2>Enter your skills</h2>
-                        <script src="/assets/js/skill.js" defer></script>
+                        <script src="/static/assets/js/accountSetUpSkill.js" defer></script>
                         <form id="skillForm">
-                            <div id="skillsDropdown">
-
-                            </div>
-                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add Skill
-                            </button>
+                            <div id="skills" class="mb-3"></div>
+                            <div id="suggestionsSkills" class="suggestion-box"></div>
                             <div id="newSkillInput" style="display: none;">
-                                <input type="text" class="form-control mt-2" placeholder="Enter new skill"
-                                       id="newSkillNameInput">
-                                <input type="text" class="form-control mt-2" placeholder="Experience"
-                                       id="newSkillExperienceInput">
+                                <input type="text" class="form-control mt-2" placeholder="Enter new skill" id="newSkillNameInput">
+                                <input type="text" class="form-control mt-2" placeholder="Experience" id="newSkillExperienceInput">
+                                <button type="button" class="btn btn-primary mt-2" id="addbtn">ADD</button>
                             </div>
-                            <button type="button" class="btn btn-primary next">Next</button>
+                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add Skill</button>
+                            <button type="button" class="btn btn-primary mt-2 next" id="nextBtn">Next</button>
                         </form>
                     </div>
 
@@ -1652,8 +1569,6 @@
             </div>
         </div>
     </div>
-
-
     <div class="modal fade" id="invitationStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
          aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -1692,30 +1607,19 @@
         <script src="/assets/js/congratulation.js"></script>
     </div>
 
-    <div class="custom-modal" id="addPolicyModal">
-        <div class="custom-modal-dialog">
-            <div class="custom-modal-content">
-                <div class="custom-modal-header">
-                    <h5 class="custom-modal-title">Add Policy</h5>
-                    <button type="button" class="custom-modal-close" aria-label="Close">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.7071 1.70711L11.2929 0.292893L7 5.58579L2.70711 0.292893L1.29289 1.70711L5.58579 7L1.29289 12.2929L2.70711 13.7071L7 8.41421L11.2929 13.7071L12.7071 12.2929L8.41421 7L12.7071 1.70711Z"
-                                  fill="#337AB7"></path>
-                        </svg>
-                    </button>
+    <div class="modal fade" id="addPolicyModal" tabindex="-1" aria-labelledby="addPolicyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPolicyModalLabel">Add Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="custom-modal-body">
-                    <!-- Text editor -->
+                <div class="modal-body">
                     <div id="editor"></div>
-                    <!-- Other form elements go here -->
                 </div>
-                <div class="custom-modal-footer">
-                    <button type="button" id="closePolicyBtn" data-dismiss="modal"
-                            class="custom-modal-btn custom-modal-btn-secondary">Close
-                    </button>
-                    <button type="button" id="savePolicyBtn" data-dismiss="modal"
-                            class="custom-modal-btn custom-modal-btn-primary">Add Policy
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="savePolicyBtn" class="btn btn-primary" data-bs-dismiss="modal">Add Policy</button>
                 </div>
             </div>
         </div>
@@ -1873,17 +1777,13 @@
                 theme: 'snow'
             });
 
-            const closeBtn = document.getElementById('closePolicyBtn');
             const saveBtn = document.getElementById('savePolicyBtn');
-
-            // Event listener for closing the modal
-            closeBtn.addEventListener('click', function () {
-                hideModal();
-            });
 
             // Event listener for saving policy
             saveBtn.addEventListener('click', function () {
                 const policyContent = quill.root.innerHTML;
+
+                console.log('Saving policy content:', policyContent); // Debug log
 
                 fetch('/user/save-policy', {
                     method: 'POST',
@@ -1894,32 +1794,28 @@
                         policyContent: policyContent
                     })
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Response:', response); // Debug log
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
+                            console.log('Policy saved successfully'); // Debug log
                             hideModal();
                         } else {
-                            console.error('Failed to save policy');
+                            console.error('Failed to save policy', data); // Debug log
                         }
                     })
                     .catch(error => console.error('Error:', error));
             });
 
-            // Function to hide the modal
+            // Function to hide the modal using Bootstrap's modal method
             function hideModal() {
-                const modal = document.getElementById('addPolicyModal');
-                modal.style.display = 'none';
-
-                // Remove any existing modal backdrop
-                const modalBackdrop = document.querySelector('.custom-modal-backdrop');
-                if (modalBackdrop) {
-                    modalBackdrop.parentNode.removeChild(modalBackdrop);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addPolicyModal'));
+                if (modal) {
+                    modal.hide();
                 }
             }
-
-
-            // const modal = document.getElementById('addPolicyModal');
-            // modal.style.display = 'block';
 
         });
 
@@ -2107,7 +2003,6 @@ function renderCalendar(events) {
     <script src="/static/assets/vendor/simple-datatables/simple-datatables.js"></script>
     <script src="/static/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="/static/assets/vendor/php-email-form/validate.js"></script>
-
 
     <!-- Template Main JS File -->
     <script src="/static/assets/js/main.js"></script>

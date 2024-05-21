@@ -41,36 +41,34 @@
             margin: 20px 0;
         }
 
-        .edit-button,
-        .delete-button {
-            display: inline-block;
-            padding: 8px 12px;
-            margin-right: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: #ffffff;
-            background-color: #007bff;
+        /* CSS for the edit button */
+        .edit-button {
+            background-color: #007bff; /* Button color */
+            color: #fff; /* Text color */
             border: none;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .edit-button {
-            background-color: #28a745;
-        }
-
-        .delete-button {
-            background-color: #dc3545;
+            transition: background-color 0.3s;
         }
 
         .edit-button:hover {
-            background-color: #218838;
+            background-color: #0056b3; /* Darker shade on hover */
+        }
+
+        /* CSS for the delete button */
+        .delete-button {
+            background-color: #dc3545; /* Red button color */
+            color: #fff; /* Text color */
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
         .delete-button:hover {
-            background-color: #c82333;
+            background-color: #c82333; /* Darker shade on hover */
         }
     </style>
 </head>
@@ -95,12 +93,12 @@
                     </button>
                 </div>
                 <div class="custom-modal-body">
-                    <!-- Text editor -->
-                    <div id="editor"></div>
-                    <!-- Other form elements go here -->
+
+                    <div id="editor2"></div>
+
                 </div>
                 <div class="custom-modal-footer">
-                    <button type="button" id="closePolicyBtn" data-dismiss="modal" class="custom-modal-btn custom-modal-btn-secondary">Close</button>
+                    <button type="button" id="closePolicyBtn" data-bs-dismiss="modal" class="custom-modal-btn custom-modal-btn-secondary">Close</button>
                     <button type="button" id="updatePolicyBtn" data-dismiss="modal" class="custom-modal-btn custom-modal-btn-primary">Update</button>
                 </div>
             </div>
@@ -113,30 +111,46 @@
 </script>
 <script >
     document.addEventListener("DOMContentLoaded", function() {
-        // Function to create an edit button
+        let quill;
+
         function createEditButton(policyId) {
             const editButton = document.createElement('button');
             editButton.classList.add('edit-button');
             editButton.setAttribute('data-policy-id', policyId);
             editButton.innerText = 'Edit';
+            // Apply button style
+            editButton.style.backgroundColor = '#007bff'; // Button color
+            editButton.style.color = '#fff'; // Text color
+            editButton.style.border = 'none';
+            editButton.style.padding = '8px 16px';
+            editButton.style.borderRadius = '4px';
+            editButton.style.cursor = 'pointer';
+            editButton.style.transition = 'background-color 0.3s';
             editButton.addEventListener('click', function() {
                 console.log('Edit button clicked for policy ID: ' + policyId);
             });
             return editButton;
         }
 
-        // Function to create a delete button
+
         function createDeleteButton(policyId) {
             const deleteButton = document.createElement('button');
             deleteButton.classList.add('delete-button');
             deleteButton.setAttribute('data-policy-id', policyId);
             deleteButton.innerText = 'Delete';
+            // Apply button style
+            deleteButton.style.backgroundColor = '#dc3545'; // Red button color
+            deleteButton.style.color = '#fff'; // Text color
+            deleteButton.style.border = 'none';
+            deleteButton.style.padding = '8px 16px';
+            deleteButton.style.borderRadius = '4px';
+            deleteButton.style.cursor = 'pointer';
+            deleteButton.style.transition = 'background-color 0.3s';
             deleteButton.addEventListener('click', function() {
                 console.log('Delete button clicked for policy ID: ' + policyId);
             });
             return deleteButton;
         }
-
         fetch('/user/getAllPolicies')
             .then(response => {
                 if (!response.ok) {
@@ -194,6 +208,7 @@
 
                     policyContainer.appendChild(policyElement);
                 });
+
                 document.querySelectorAll('.edit-button').forEach(button => {
                     button.addEventListener('click', function() {
                         const policyId = this.getAttribute('data-policy-id');
@@ -205,12 +220,14 @@
                                 return response.json();
                             })
                             .then(data => {
-                                const editor = document.getElementById('editor');
+                                const editor = document.getElementById('editor2');
                                 if (editor) {
-                                    editor.innerHTML = data.rule;
-                                    const quill = new Quill('#editor', {
-                                        theme: 'snow'
-                                    });
+                                    if (!quill) {
+                                        quill = new Quill('#editor2', {
+                                            theme: 'snow'
+                                        });
+                                    }
+                                    quill.root.innerHTML = data.rule;
                                     document.getElementById('addPolicyModal').style.display = 'block';
                                     // Update Policy
                                     document.getElementById('updatePolicyBtn').addEventListener('click', function() {
@@ -226,13 +243,12 @@
                                                 if (!response.ok) {
                                                     throw new Error('Network response was not ok');
                                                 }
-                                                // Close the modal after successful update
                                                 document.getElementById('addPolicyModal').style.display = 'none';
+                                                location.reload();
                                             })
                                             .catch(error => {
                                                 console.error('There was a problem with the update operation:', error);
                                             });
-                                        location.reload();
                                     });
 
                                 } else {
@@ -244,6 +260,7 @@
                             });
                     });
                 });
+
                 // Delete Policy
                 document.querySelectorAll('.delete-button').forEach(button => {
                     button.addEventListener('click', function() {
@@ -286,7 +303,6 @@
                 console.error('There was a problem with the fetch operation:', error);
             });
     });
-
 </script>
 </body>
 </html>

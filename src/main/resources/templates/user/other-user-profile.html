@@ -84,8 +84,19 @@
                                         <p class="font-italic mb-1">
                                             <strong>Role:</strong> <span th:text="${user.role}?: 'Not provided'"></span>
                                         </p>
+                                        <p class="font-italic mb-1" >
+                                            <strong>Skills:</strong>
+                                        <div th:each="userSkill : ${userSkills}">
+                                            <span th:text="${userSkill.skill.name}">Skill Name</span>
+                                            <span th:text="${userSkill.experience}" style="margin-left: 100px" >Experience</span><span> years</span>
+                                        </div>
+                                        </p>
+                                        <strong>Hobbies:</strong>
+                                        <span th:text="${user.hobby}" id="hobbies" hidden="hidden"></span>
+                                        <div id="hobbiesContainer"></div>
                                     </div>
                                 </div>
+                                <div id="user-post-div">
                             </div>
                         
                     </div>
@@ -95,7 +106,7 @@
         </div>
     </section>
 
-    <div id="user-post-div" style="margin-left: 200px;">
+
     </div>
 
   <!-- post edit offcanvas start -->
@@ -180,6 +191,48 @@
             // Hide more user information
             moreUserInfo.style.display = 'none';
             seeMoreBtn.textContent = 'See more...';
+        }
+        const hobbyIcons = {
+            "Reading": "<i class='fas fa-book' style='color: #4a86e8;'></i>",
+            "Hiking": "<i class='fas fa-hiking' style='color: #f6b26b;'></i>",
+            "Cooking": "<i class='fas fa-utensils' style='color: #e55039;'></i>",
+            "Gardening": "<i class='fas fa-seedling' style='color: #8bc34a;'></i>",
+            "Writing": "<i class='fas fa-pen' style='color: #673ab7;'></i>",
+            "Photography": "<i class='fas fa-camera' style='color: #9e9e9e;'></i>",
+            "Coding": "<i class='fas fa-laptop-code' style='color: #607d8b;'></i>",
+            "Drawing": "<i class='fas fa-draw-polygon' style='color: #ff9800;'></i>",
+            "Swimming": "<i class='fas fa-swimmer' style='color: #00bcd4;'></i>",
+            "Gaming": "<i class='fas fa-gamepad' style='color: #4caf50;'></i>",
+            "Painting": "<i class='fas fa-paint-brush' style='color: #9c27b0;'></i>",
+            "Traveling": "<i class='fas fa-globe-americas' style='color: #795548;'></i>",
+            "Cycling": "<i class='fas fa-bicycle' style='color: #607d8b;'></i>",
+            "Camping": "<i class='fas fa-campground' style='color: #ff9800;'></i>",
+            "Fishing": "<i class='fas fa-fish' style='color: #00bcd4;'></i>",
+            "Birdwatching": "<i class='fas fa-binoculars' style='color: #4caf50;'></i>",
+            "Meditation": "<i class='fas fa-meditate' style='color: #9c27b0;'></i>",
+            "Music": "<i class='fas fa-music' style='color: #795548;'></i>",
+            "Jogging": "<i class='fas fa-running' style='color: #4a86e8;'></i>",
+            "Sports": "<i class='fas fa-futbol' style='color: #f6b26b;'></i>",
+            "Crafts": "<i class='fas fa-craft' style='color: #e55039;'></i>",
+            "Sewing": "<i class='fas fa-scissors' style='color: #8bc34a;'></i>",
+            "Crochet": "<i class='fas fa-crop' style='color: #673ab7;'></i>",
+            "Acting": "<i class='fas fa-theater-masks' style='color: #9e9e9e;'></i>"
+        };
+        const hobbiesString = document.getElementById("hobbies").textContent;
+        console.log(hobbiesString)
+        const hobbiesContainer = document.getElementById("hobbiesContainer");
+        hobbiesContainer.innerHTML = displayHobbiesWithIcons(hobbiesString);
+
+        function displayHobbiesWithIcons(hobbiesString) {
+            const hobbies = hobbiesString.split(',');
+            let html = "";
+            hobbies.forEach(hobby => {
+                const icon = hobbyIcons[hobby.trim()];
+                if (icon) {
+                    html += `<div>${icon} ${hobby.trim()}</div>`;
+                }
+            });
+            return html;
         }
     });
 </script>

@@ -480,6 +480,7 @@ h6 {
 .header-nav .nav-profile img {
   max-height: 36px;
   border-radius: 100px;
+  max-width: 60px;
 }
 
 .header-nav .nav-profile span {

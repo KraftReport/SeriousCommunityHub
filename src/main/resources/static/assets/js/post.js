@@ -5713,13 +5713,13 @@ async function checkUserOrAdminOrGroupOwner(){
         
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" style="border-radius:30px; ">
         <li><button style="text-decoration:none; background-color:white; border:none; font-weight:bold; "class="mx-5 font-monospace text-secondary" onclick="getAllUserGroup('1')">
-          <i id="plane" class="fa-solid fa-paper-plane text-info " data-bs-toggle="offcanvas" data-bs-target="#postMaker" aria-controls="postMaker"></i> a status
+          <i id="plane" class="fa-solid fa-paper-plane text-info " data-bs-toggle="offcanvas" data-bs-target="#postMaker" aria-controls="postMaker"><span style="color: #0d0925">a status</span></i> 
       </button></li>
         <li><button style="text-decoration:none; background-color:white; border:none; font-weight:bold; "class="mx-5 font-monospace text-secondary" onclick="getAllUserGroup('2')">
-          <i id="eveCal" class="fa-solid fa-calendar text-warning" data-bs-toggle="offcanvas" data-bs-target="#eventMaker" aria-controls="eventMaker" ></i> an announcement
+          <i id="eveCal" class="fa-solid fa-calendar text-warning" data-bs-toggle="offcanvas" data-bs-target="#eventMaker" aria-controls="eventMaker" ><span style="color: #0d0925">an announcement</span></i> 
       </button></li>
         <li><button style="text-decoration:none; background-color:white; border:none; font-weight:bold; "class="mx-5 font-monospace text-secondary" onclick="getAllUserGroup('3')">
-          <i id="voBar" class="fa-solid fa-chart-simple text-success" data-bs-toggle="offcanvas" data-bs-target="#pollMaker" aria-controls="pollMaker"></i> a poll
+          <i id="voBar" class="fa-solid fa-chart-simple text-success" data-bs-toggle="offcanvas" data-bs-target="#pollMaker" aria-controls="pollMaker"><span style="color: #0d0925; font-size: small">a poll</span></i>
       </button></li>
       </ul>
 
