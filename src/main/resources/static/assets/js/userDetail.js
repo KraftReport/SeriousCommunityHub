@@ -176,7 +176,7 @@ let eventDiv = document.getElementById('events')
 const mentionSuggestions = document.getElementById('mentionSuggestions');
 
 const mentionCommunityMember = () => {
-    const messageInput = document.getElementById('content');
+    const messageInput = document.getElementById('post-content');
     messageInput.addEventListener('input', async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');

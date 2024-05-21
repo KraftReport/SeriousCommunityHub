@@ -249,6 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (urlPattern.test(content) && imageExtensions.test(content)) {
             const messageImage = document.createElement('img');
             messageImage.src = content;
+            messageImage.style.width = '150px';
+            messageImage.style.height = '150px';
             messageImage.alt = 'Message Image';
             messageContentContainer.appendChild(messageImage);
         } else {
