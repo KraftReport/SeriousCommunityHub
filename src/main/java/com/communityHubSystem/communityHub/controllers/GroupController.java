@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.controllers;
 
+import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.ChatRoomRepository;
 import com.communityHubSystem.communityHub.repositories.CommunityRepository;
@@ -69,7 +70,7 @@ public class GroupController {
 
     @PostMapping("/createCommunity")
     public ResponseEntity<Map<String, String>> createGroup(@ModelAttribute Community community, @RequestParam("ownerId") Long ownerID,
-                                                           @RequestParam("file")MultipartFile file) throws IOException {
+                                                           @RequestParam("file") MultipartFile file) throws IOException {
         if (communityService.existsByName(community.getName())) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Group name already exists");
@@ -78,7 +79,7 @@ public class GroupController {
         //define unique default system admin to get access user_chat_room accept
         Long adminId = 999L;
         var defaultAdmin = userService.findById(adminId);
-        var svgCommunity = communityService.createCommunity(file,community, ownerID);
+        var svgCommunity = communityService.createCommunity(file, community, ownerID);
         String photo = imageUploadService.uploadImage(file);
         var chatRoom = ChatRoom.builder()
                 .date(new Date())
@@ -128,7 +129,7 @@ public class GroupController {
 
                 for (User_Group user_group : user_groups) {
                     var community = communityService.getCommunityById(user_group.getCommunity().getId());
-                    if(community.isActive()) {
+                    if (community.isActive()) {
                         communities.add(community);
                     }
                 }
@@ -142,14 +143,14 @@ public class GroupController {
 
 
     @PostMapping("/createGroup")
-    public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user,@RequestParam("file")MultipartFile file) {
+    public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user, @RequestParam("file") MultipartFile file) {
         List<Long> userList;
         if (user == null) {
             userList = Collections.emptyList();
         } else {
             userList = Arrays.asList(user);
         }
-        communityService.createGroup(file,community, userList);
+        communityService.createGroup(file, community, userList);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -233,7 +234,7 @@ public class GroupController {
                 List<User_Group> user_groups = user_groupService.findByUserId(user.getId());
                 for (User_Group user_group : user_groups) {
                     var community = communityService.getCommunityById(user_group.getCommunity().getId());
-                    if(community.isActive()) {
+                    if (community.isActive()) {
                         communityList.add(community);
                     }
                 }
@@ -246,52 +247,87 @@ public class GroupController {
 
     @GetMapping("/communitySearchMethod/{input}")
     @ResponseBody
-    public ResponseEntity<List<Community>> communitySearchMethod(@PathVariable("input")String  input){
+    public ResponseEntity<List<Community>> communitySearchMethod(@PathVariable("input") String input) {
         return ResponseEntity.ok(communityService.communitySearchMethod(input));
     }
 
     @GetMapping("/getNumberOfMembers/{id}")
     @ResponseBody
-    public ResponseEntity<Object> getNumberOfMembers(@PathVariable("id")String id){
+    public ResponseEntity<Object> getNumberOfMembers(@PathVariable("id") String id) {
         return ResponseEntity.ok(communityService.getNumberOfUsersOfACommunity(Long.valueOf(id)));
     }
 
     @GetMapping("/goToCommunityDetail")
-    public String goToDetail(){
+    public String goToDetail() {
         return "/layout/group-post";
     }
 
     @GetMapping("/getPostsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId")String communityId,
-                                               @PathVariable("page")String page){
-     return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
+    public ResponseEntity<List<Post>> getPosts(@PathVariable("communityId") String communityId,
+                                               @PathVariable("page") String page) {
+        return ResponseEntity.ok(communityService.getPostsForCommunityDetailPage(Long.valueOf(communityId), page).getContent());
     }
 
     @GetMapping("/getEventsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId")String communityId,
-                                                 @PathVariable("page")String page){
-        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
+    public ResponseEntity<List<Event>> getEvents(@PathVariable("communityId") String communityId,
+                                                 @PathVariable("page") String page) {
+        return ResponseEntity.ok(communityService.getEventsForCommunityDetailPage(Long.valueOf(communityId), page).getContent());
     }
 
     @GetMapping("/getPollsForCommunityDetailPage/{communityId}/{page}")
     @ResponseBody
-    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId")String communityId,
-                                                @PathVariable("page")String page){
-        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId),page).getContent());
+    public ResponseEntity<List<Event>> getPolls(@PathVariable("communityId") String communityId,
+                                                @PathVariable("page") String page) {
+        return ResponseEntity.ok(communityService.getPollsForCommunityDetailPage(Long.valueOf(communityId), page).getContent());
     }
 
     @GetMapping("/goMal-chatRoom")
-    public String goToChatRoom(){
+    public String goToChatRoom() {
         System.out.println("Yout shi");
         return "/user/user-chat";
     }
+
     @GetMapping("/getCommunityFromUserGroupIdAndUserId/{userGroupId}/{userId}")
     @ResponseBody
-    public ResponseEntity<Community> getCommunityFromUserGroupIdAndUserId(@PathVariable("userGroupId")String userGroupId,
-                                                                          @PathVariable("userId")String userId){
-        return ResponseEntity.ok(user_groupService.getCommunityByUserGroupIdAndUserId((Long.valueOf(userGroupId)),Long.valueOf(userId)));
+    public ResponseEntity<Community> getCommunityFromUserGroupIdAndUserId(@PathVariable("userGroupId") String userGroupId,
+                                                                          @PathVariable("userId") String userId) {
+        return ResponseEntity.ok(user_groupService.getCommunityByUserGroupIdAndUserId((Long.valueOf(userGroupId)), Long.valueOf(userId)));
+    }
+
+
+    @GetMapping("/get-groupOwner-check/{loginUser}/{id}")
+    @ResponseBody
+    public ResponseEntity<Community> getOwnerForCommunityToCheck(@PathVariable("loginUser") String loginUser,
+                                                              @PathVariable("id") Long id) {
+        var user = userService.findByStaffId(loginUser).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
+        var community = communityService.findByIdAndOwnerName(id, user.getName().trim());
+        if (community == null) {
+            return ResponseEntity.ok(null);
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(community);
+        }
+    }
+
+    @GetMapping("/get-user-checkGroup/{loginUser}")
+    @ResponseBody
+    public ResponseEntity<User> getLoginUserToCheck(@PathVariable("loginUser") String loginUser) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findByStaffId(loginUser).orElseThrow(() -> new CommunityHubException("User name not found exception!")));
+    }
+
+    @GetMapping("/get-groupMembers-check/{id}")
+    @ResponseBody
+    public ResponseEntity<List<User>> getAllUsersForCheck(@PathVariable("id")Long id){
+        List<User_Group> user_groups = user_groupService.findByCommunityId(id);
+        List<User> userList = new ArrayList<>();
+        for(User_Group user_group:user_groups){
+            var user = userService.findById(user_group.getUser().getId());
+            if(!user.getRole().equals(User.Role.ADMIN)){
+                userList.add(user);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userList);
     }
 
 }

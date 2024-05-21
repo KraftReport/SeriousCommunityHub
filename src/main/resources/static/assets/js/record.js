@@ -153,17 +153,36 @@ document.addEventListener('DOMContentLoaded',async () =>{
     await showTrendyCommunityWithMostMembers();
     await showCommunityPostsForBoth();
     document.getElementById('postForWithinOneMonth').addEventListener('click', async () => {
-        const post = await fetchMostTrendyPostWithinOneMonth();
-        console.log('POser',post.id);
-        if(post){ 
+        const checkUser = await getUserToCheckAdminOrNot();
+        if(checkUser.role === 'ADMIN'){
+            const post = await getOnlyPostForAdminWithinOneMonth();
+            console.log('POser',post.id);
+            if(post){
+                localStorage.setItem('trendPostId',post.id)
+                window.location.href = `/trendingPostDetailPage`
+            }
+        }else{
+            const post = await fetchMostTrendyPostWithinOneMonth();
+            console.log('POser',post.id);
+            if(post){
+                localStorage.setItem('trendPostId',post.id)
+                window.location.href = `/trendingPostDetailPage`
+            }
+        }
+    })
+    document.getElementById('postForWithinOneYear').addEventListener('click', async () => {
+        const checkUser = await getUserToCheckAdminOrNot();
+        if(checkUser.role === 'ADMIN'){
+            const p = await getOnlyPostForAdminWithinOneYear();
+            localStorage.setItem('trendPostId',p.id)
+            window.location.href = `/trendingPostDetailPage`
+        }else{
+            const post = await fetchMostTrendyPostWithinOneYear();
+            console.log('POser',post.id);
             localStorage.setItem('trendPostId',post.id)
             window.location.href = `/trendingPostDetailPage`
         }
-    })
 
-    document.getElementById('postForWithinOneYear').addEventListener('click', async () => {
-        const post = await fetchMostTrendyPostWithinOneYear();
-        console.log('POser',post.id);
     })
 
     document.querySelectorAll('.groupCommunityTrendy').forEach(g => g.addEventListener('click',async () => {

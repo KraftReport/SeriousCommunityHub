@@ -24,6 +24,251 @@ window.onload = async () => {
     await getPosts()
 }
 
+let currentPageForAccessLog = '0';
+let isFetchingForAccessLog = false;
+let hasMoreForAccessLog = true;
+
+const getAccessLogData =async () => {
+    isFetchingForAccessLog = true;
+    const data = await fetch(`/user/get-accessLogForLoginUser/${currentPageForAccessLog}`,{
+        method:'GET'
+    });
+    let userTableForAccessLog = document.querySelector('#userAccessLogTable tbody');
+    console.log("Ta kal hla tal")
+    // userTableForAccessLog.innerHTML = '';
+
+    if (!data.ok) {
+        throw new Error(`HTTP error! Status: ${data.status}`);
+    }
+    const res = await data.json();
+    isFetchingForAccessLog = false;
+    if (res.length === 0) {
+        hasMoreForAccessLog = false;
+        return;
+    }
+    const rightIcon = document.createElement('i');
+    rightIcon.classList.add('fa-solid','fa-check')
+    res.forEach(access => {
+        const row = userTableForAccessLog.insertRow();
+        row.insertCell().textContent = access.accessTime;
+        row.insertCell().textContent = access.type;
+        const errorMessageCell = row.insertCell();
+        if (access.errorMessage === null) {
+            const rightIcon = document.createElement('i');
+            rightIcon.classList.add('fa-solid', 'fa-check');
+            rightIcon.style.color = 'green';
+            errorMessageCell.appendChild(rightIcon);
+        } else {
+            errorMessageCell.textContent = access.errorMessage;
+        }
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const modalContent = document.getElementById('accessLog-content');
+    modalContent.addEventListener('scroll', async () => {
+        if (isFetchingForAccessLog || !hasMoreForAccessLog) {
+            console.log('currentPage', currentPageForAccessLog);
+            return;
+        }
+
+        if (modalContent.scrollTop + modalContent.clientHeight >= modalContent.scrollHeight) {
+            currentPageForAccessLog++;
+            console.log('currentPage', currentPageForAccessLog);
+            await getAccessLogData();
+        }
+    });
+});
+
+async function videoObserver() {
+    const videos = document.querySelectorAll('#myVideo');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.play();
+            } else {
+                entry.target.pause();
+            }
+        });
+    });
+
+    videos.forEach(video => {
+        observer.observe(video);
+    });
+}
+
+document.body.addEventListener('hidden.bs.modal', async function (event) {
+    await videoObserver()
+});
+
+const getGroupOrPublicMentionUsers =async (id) => {
+    const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
+    const data = await getUsers.json();
+    return data;
+}
+
+const fetchUserDataByPostedUser = async (id) => {
+    const fetchUserData = await fetch(`/get-userData/${id}`);
+    if (!fetchUserData.ok) {
+        alert('Invalid user');
+    }
+    const userDataForAll = await fetchUserData.json();
+    return userDataForAll;
+};
+
+const mentionPostForComment = (id) => {
+    const messageInput = document.getElementById('commentText');
+    const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
+    mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
+
+    messageInput.addEventListener('input', async (event) => {
+        const inputValue = event.target.value;
+        const mentionIndex = inputValue.lastIndexOf('@');
+        const users = (await getGroupOrPublicMentionUsers(id)).map(user => ({
+            ...user,
+            name: user.name.replace(/\s+/g, '')
+        }));
+
+        if (mentionIndex !== -1) {
+            const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
+            const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery));
+
+            mentionSuggestions.innerHTML = '';
+
+            if (matchedUsers.length > 0) {
+                matchedUsers.forEach(user => {
+                    const suggestionElement = document.createElement('div');
+                    suggestionElement.textContent = user.name;
+                    suggestionElement.classList.add('mentionSuggestion');
+                    suggestionElement.addEventListener('click', function() {
+                        const mentionStart = mentionIndex;
+                        const mentionEnd = mentionIndex + mentionQuery.length + 1;
+                        const mentionText = `@${user.name} `;
+                        const mentionData = {
+                            text: mentionText,
+                            id: user.staffId
+                        };
+                        messageInput.value = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
+                        messageInput.dataset.mentions = JSON.stringify([...JSON.parse(messageInput.dataset.mentions || '[]'), mentionData]);
+                        mentionSuggestions.innerHTML = '';
+                    });
+                    mentionSuggestions.appendChild(suggestionElement);
+                });
+            }
+        } else {
+            mentionSuggestions.innerHTML = '';
+        }
+    });
+};
+
+const extractMentionedUsersForComment = (postText) => {
+    const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
+    return mentions.map(mention => mention.id);
+}
+
+const getAllMember = async () => {
+    const getAllData = await fetch('/get-all-active-user');
+    const response = await getAllData.json();
+    return response;
+};
+
+const highlightMentions = async (description) => {
+
+    const allMembers = await getAllMember();
+    const sanitizedMemberNames = allMembers.map(member => member.name.replace(/\s+/g, ''));
+
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+
+    return description.replace(mentionRegex, (match, username) => {
+        if (sanitizedMemberNames.includes(username)) {
+            return `<span class="mention">${match}</span>`;
+        } else {
+            return match;
+        }
+    });
+};
+
+const deleteAllAccessLog = async () =>{
+    const deleteAll = await fetch(`/user/delete-all-accessLog`,{
+        method:'DELETE'
+    });
+    if(!deleteAll.ok){
+        alert("Something wrong,Please try again later!")
+    }else{
+        let userTableForAccessLog = document.querySelector('#userAccessLogTable tbody');
+         userTableForAccessLog.innerHTML = '';
+        console.log("HEllo a sin pyae tr pot");
+    }
+
+}
+
+const displayNoPostMessage = () => {
+    let footerDiv = document.querySelector('.copyright');
+    footerDiv.innerHTML = '';
+    const divEl = document.createElement('div');
+    divEl.style.fontSize = '20px';
+    divEl.innerHTML = 'No posts available';
+    footerDiv.appendChild(divEl);
+
+}
+
+
+async function timeAgo(createdDate) {
+    console.log("ddd", createdDate)
+    const now = new Date();
+    const diff = now - createdDate;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) {
+        return `just now`;
+    } else if (minutes < 60) {
+        return `${minutes} minutes${minutes > 1 ? '' : ''} ago`;
+    } else if (hours < 24) {
+        return `${hours} hours${hours > 1 ? '' : ''} ago`;
+    } else {
+        return `${days} days${days > 1 ? '' : ''} ago`;
+    }
+}
+
+async function checkPostOwnerOrAdmin(id) {
+    let data = await fetch(`/post/checkPostOwnerOrAdmin/${id}`)
+    let response = await data.json()
+    console.log(response[0])
+    return response[0]
+}
+
+
+const fetchSizes = async (id) => {
+    const reactSize = await fetch(`/like-size/${id}`);
+    const reactCount = await reactSize.json();
+    return reactCount;
+};
+
+const fetchReactType = async (id) => {
+    try {
+        const response = await fetch(`/like-type/${id}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        const reactTypeData = await response.json();
+        console.log('Fetched reactTypeData:', reactTypeData);
+        return reactTypeData;
+    } catch (error) {
+        console.error('Failed to fetch react type:', error);
+        return null;
+    }
+};
+
+const fetchCommentSizes = async (id) => {
+    const commentSize = await fetch(`/comment-size/${id}`);
+    const commentCount = await commentSize.json();
+    return commentCount;
+};
 
 const getPosts = async () => {
     let userId = await getLoginUserId()
@@ -1559,7 +1804,7 @@ const getAllComments = async (id) => {
     }
 };
 
-const displayMessage = async (sender, content, photo, id, postId, localDateTime, chatArea) => {
+const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
@@ -1577,10 +1822,11 @@ const displayMessage = async (sender, content, photo, id, postId, localDateTime,
     } else {
         spanSender.innerHTML = `${sender} : `;
     }
+    const formattedContent = await highlightMentions(content);
     const spanElement = document.createElement('span');
     spanElement.classList.add(`comment-span-container-${id}`);
     spanElement.id = id;
-    spanElement.innerHTML = `${content}`;
+    spanElement.innerHTML = `${formattedContent}`;
     // divItem.style.border = '1px solid lightslategrey';
     divItem.style.padding = '5px';
     divItem.style.borderRadius = '30px'
@@ -1700,6 +1946,7 @@ const displayMessage = async (sender, content, photo, id, postId, localDateTime,
 
     replyButton.addEventListener('click', async () => {
         const commentUser = await fetchCommetedUser(id);
+        const sanitizedUserName = commentUser.user.name.replace(/\s+/g, '');
         if (!replyInput) {
             replyInput = document.createElement('input');
             replyInput.type = 'text';
@@ -1707,7 +1954,7 @@ const displayMessage = async (sender, content, photo, id, postId, localDateTime,
             replyInput.classList.add('reply-input');
             replyInput.style.marginTop = '10px';
             replyInput.style.borderRadius = '10px';
-            replyInput.value = `@ ${commentUser.user.name} : `;
+            replyInput.value = `@${sanitizedUserName} : `;
             replyInput.style.padding = '8px';
             replyInput.readOnly = true;
             divItem.appendChild(replyInput);
@@ -1721,13 +1968,13 @@ const displayMessage = async (sender, content, photo, id, postId, localDateTime,
                 replyInput.classList.add('readonly');
             });
         } else {
-            replyInput.value = `@ ${commentUser.user.name} `;
+            replyInput.value = `@${sanitizedUserName} `;
             replyInput.readOnly = true;
             replyInput.classList.add('readonly');
         }
 
         replyInput.addEventListener('input', function () {
-            if (replyInput.value === `@ ${commentUser.user.name} `) {
+            if (replyInput.value === `@${sanitizedUserName} `) {
                 replyInput.classList.add('readonly');
             } else {
                 replyInput.classList.remove('readonly');
@@ -1880,7 +2127,7 @@ const displayMessage = async (sender, content, photo, id, postId, localDateTime,
     divItem.appendChild(rpDiv);
 };
 
-const onSuccess = async (id) => {
+const onSuccess =async (id) => {
     const reply = await fetchAndDisplayLastReply(id);
     console.log('wow mal ya pr lr')
     await document.querySelector(`.replies-container-${id}`).appendChild(reply);
@@ -1916,7 +2163,8 @@ const fetchAndDisplayLastReply = async (id) => {
         }
         const replyContent = document.createElement('span');
         replyContent.id = reply.id;
-        replyContent.innerHTML = reply.content;
+        const formattedContent = await highlightMentions(reply.content);
+        replyContent.innerHTML = `${formattedContent}`;
         const spElement = document.createElement('span');
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
@@ -1941,8 +2189,9 @@ const fetchAndDisplayLastReply = async (id) => {
         replyButton.style.padding = '10px';
         replyButton.style.marginLeft = '300px';
         replyButton.classList.add('fa-solid', 'fa-reply');
-        replyButton.addEventListener('click', async () => {
+        replyButton.addEventListener('click',async () => {
             const replyUser = await fetchRepliedUserForData(reply.id);
+            const sanitizedUserName = replyUser.user.name.replace(/\s+/g, '');
             if (!replyInputForReply) {
                 replyInputForReply = document.createElement('input');
                 replyInputForReply.type = 'text';
@@ -1950,7 +2199,7 @@ const fetchAndDisplayLastReply = async (id) => {
                 replyInputForReply.classList.add('reply-input');
                 replyInputForReply.style.marginTop = '10px';
                 replyInputForReply.style.borderRadius = '10px';
-                replyInputForReply.value = `@ ${replyUser.user.name} : `;
+                replyInputForReply.value = `@${sanitizedUserName} : `;
                 replyInputForReply.style.padding = '8px';
                 replyInputForReply.readOnly = true;
                 replyElement.appendChild(replyInputForReply);
@@ -1964,13 +2213,13 @@ const fetchAndDisplayLastReply = async (id) => {
                     replyInputForReply.classList.add('readonly');
                 });
             } else {
-                replyInputForReply.value = `@ ${replyUser.user.name} `;
+                replyInputForReply.value = `@${sanitizedUserName} `;
                 replyInputForReply.readOnly = true;
                 replyInputForReply.classList.add('readonly');
             }
 
             replyInputForReply.addEventListener('input', function () {
-                if (replyInputForReply.value === `@ ${replyUser.user.name} `) {
+                if (replyInputForReply.value === `@${sanitizedUserName} `) {
                     replyInputForReply.classList.add('readonly');
                 } else {
                     replyInputForReply.classList.remove('readonly');
@@ -2170,7 +2419,7 @@ const fetchAndDisplayLastReply = async (id) => {
             replyElement.appendChild(iconDiv);
         }
     }
-    console.log('Thi chin tal', replyElement)
+    console.log('Thi chin tal',replyElement)
     return replyElement;
 };
 
@@ -2207,7 +2456,8 @@ const fetchAndDisplayReplies = async (id) => {
         const replyContent = document.createElement('span');
         replyContent.classList.add(`span-reply-container-${reply.id}`)
         replyContent.id = reply.id;
-        replyContent.innerHTML = reply.content;
+        const formattedContent = await highlightMentions(reply.content);
+        replyContent.innerHTML =`${formattedContent}`;
         const spElement = document.createElement('span');
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
@@ -2233,8 +2483,9 @@ const fetchAndDisplayReplies = async (id) => {
         replyButton.style.padding = '10px';
         replyButton.style.marginLeft = '300px';
         replyButton.classList.add('fa-solid', 'fa-reply');
-        replyButton.addEventListener('click', async () => {
+        replyButton.addEventListener('click',async () => {
             const replyUser = await fetchRepliedUserForData(reply.id);
+            const sanitizedUserName = replyUser.user.name.replace(/\s+/g, '');
             if (!replyInputForReply) {
                 replyInputForReply = document.createElement('input');
                 replyInputForReply.type = 'text';
@@ -2242,7 +2493,7 @@ const fetchAndDisplayReplies = async (id) => {
                 replyInputForReply.classList.add('reply-input');
                 replyInputForReply.style.marginTop = '10px';
                 replyInputForReply.style.borderRadius = '10px';
-                replyInputForReply.value = `@ ${replyUser.user.name} : `;
+                replyInputForReply.value = `@${sanitizedUserName} : `;
                 replyInputForReply.style.padding = '8px';
                 replyInputForReply.readOnly = true;
                 replyElement.appendChild(replyInputForReply);
@@ -2256,13 +2507,13 @@ const fetchAndDisplayReplies = async (id) => {
                     replyInputForReply.classList.add('readonly');
                 });
             } else {
-                replyInputForReply.value = `@ ${replyUser.user.name} `;
+                replyInputForReply.value = `@${sanitizedUserName} `;
                 replyInputForReply.readOnly = true;
                 replyInputForReply.classList.add('readonly');
             }
 
             replyInputForReply.addEventListener('input', function () {
-                if (replyInputForReply.value === `@ ${replyUser.user.name} `) {
+                if (replyInputForReply.value === `@${sanitizedUserName} `) {
                     replyInputForReply.classList.add('readonly');
                 } else {
                     replyInputForReply.classList.remove('readonly');
@@ -2554,10 +2805,11 @@ const updateContentForReply = async (id, content) => {
     if (spElement) {
         divEl.removeChild(spElement);
     }
+    const formattedContent = await highlightMentions(content);
     const newSpElement = document.createElement('span');
     newSpElement.id = id;
     newSpElement.classList.add(`span-reply-container-${id}`);
-    newSpElement.innerHTML = content;
+    newSpElement.innerHTML = `${formattedContent}`;
     divEl.appendChild(newSpElement);
     // await getAllComments(postId);
 };
@@ -2586,10 +2838,11 @@ const updateContent = async (id, content) => {
         console.log("shi tal")
         cmtDiv.removeChild(spanElement);
     }
+    const formattedContent = await highlightMentions(content);
     const newSpanElement = document.createElement('span');
     newSpanElement.id = id;
     newSpanElement.classList.add(`comment-span-container-${id}`);
-    newSpanElement.innerHTML = content;
+    newSpanElement.innerHTML = `${formattedContent}`;
     cmtDiv.appendChild(newSpanElement);
     // await getAllComments(postId);
 };

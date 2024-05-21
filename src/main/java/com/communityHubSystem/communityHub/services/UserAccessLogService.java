@@ -11,4 +11,6 @@ public interface UserAccessLogService {
     public List<UserAccessLog> findAllByEmail(String email);
 
     Page<UserAccessLog> findLogsByEmail(String email, Pageable pageable);
+
+   public void deleteAllByEmail(String trim);
 }
