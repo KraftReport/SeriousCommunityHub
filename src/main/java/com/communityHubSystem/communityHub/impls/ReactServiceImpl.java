@@ -50,7 +50,10 @@ public class ReactServiceImpl implements ReactService {
     @Transactional
     @Override
     public void removeReactType(Long id) {
-        reactRepository.findById(id).ifPresent(r -> r.setType(Type.OTHER));
+        reactRepository.findById(id).ifPresent(r -> {
+            r.setType(Type.OTHER);
+            reactRepository.save(r);
+        });
     }
 
     @Override
@@ -66,7 +69,10 @@ public class ReactServiceImpl implements ReactService {
     @Transactional
     @Override
     public void modifyReact(Long id, Type type) {
-        reactRepository.findById(id).ifPresent(r -> r.setType(type));
+        reactRepository.findById(id).ifPresent(r ->{
+            r.setType(type);
+            reactRepository.save(r);
+        });
     }
 
     @Override

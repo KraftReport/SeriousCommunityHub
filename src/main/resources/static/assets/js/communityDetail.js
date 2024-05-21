@@ -250,7 +250,7 @@ const extractMentionedUsersForComment = (postText) => {
 }
 
 const mentionCommunityMember= () => {
-     const messageInput = document.getElementById('content');
+     const messageInput = document.getElementById('post-content');
     messageInput.addEventListener('input',  async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');

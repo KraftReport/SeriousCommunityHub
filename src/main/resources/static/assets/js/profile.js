@@ -834,62 +834,62 @@ const getPosts = async () => {
 }
 
 
-let currentPageForAccessLog = '0';
-let isFetchingForAccessLog = false;
-let hasMoreForAccessLog = true;
-
-const getAccessLogData =async () => {
-    isFetchingForAccessLog = true;
-    const data = await fetch(`/user/get-accessLogForLoginUser/${currentPageForAccessLog}`,{
-        method:'GET'
-    });
-    let userTableForAccessLog = document.querySelector('#userAccessLogTable tbody');
-    console.log("Ta kal hla tal")
-    // userTableForAccessLog.innerHTML = '';
-
-    if (!data.ok) {
-        throw new Error(`HTTP error! Status: ${data.status}`);
-    }
-    const res = await data.json();
-    isFetchingForAccessLog = false;
-    if (res.length === 0) {
-        hasMoreForAccessLog = false;
-        return;
-    }
-    const rightIcon = document.createElement('i');
-    rightIcon.classList.add('fa-solid','fa-check')
-    res.forEach(access => {
-        const row = userTableForAccessLog.insertRow();
-        row.insertCell().textContent = access.accessTime;
-        row.insertCell().textContent = access.type;
-        const errorMessageCell = row.insertCell();
-        if (access.errorMessage === null) {
-            const rightIcon = document.createElement('i');
-            rightIcon.classList.add('fa-solid', 'fa-check');
-            rightIcon.style.color = 'green';
-            errorMessageCell.appendChild(rightIcon);
-        } else {
-            errorMessageCell.textContent = access.errorMessage;
-        }
-    });
-}
-
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const modalContent = document.getElementById('accessLog-content');
-    modalContent.addEventListener('scroll', async () => {
-        if (isFetchingForAccessLog || !hasMoreForAccessLog) {
-            console.log('currentPage', currentPageForAccessLog);
-            return;
-        }
-
-        if (modalContent.scrollTop + modalContent.clientHeight >= modalContent.scrollHeight) {
-            currentPageForAccessLog++;
-            console.log('currentPage', currentPageForAccessLog);
-            await getAccessLogData();
-        }
-    });
-});
+// let currentPageForAccessLog = '0';
+// let isFetchingForAccessLog = false;
+// let hasMoreForAccessLog = true;
+//
+// const getAccessLogData =async () => {
+//     isFetchingForAccessLog = true;
+//     const data = await fetch(`/user/get-accessLogForLoginUser/${currentPageForAccessLog}`,{
+//         method:'GET'
+//     });
+//     let userTableForAccessLog = document.querySelector('#userAccessLogTable tbody');
+//     console.log("Ta kal hla tal")
+//     // userTableForAccessLog.innerHTML = '';
+//
+//     if (!data.ok) {
+//         throw new Error(`HTTP error! Status: ${data.status}`);
+//     }
+//     const res = await data.json();
+//     isFetchingForAccessLog = false;
+//     if (res.length === 0) {
+//         hasMoreForAccessLog = false;
+//         return;
+//     }
+//     const rightIcon = document.createElement('i');
+//     rightIcon.classList.add('fa-solid','fa-check')
+//     res.forEach(access => {
+//         const row = userTableForAccessLog.insertRow();
+//         row.insertCell().textContent = access.accessTime;
+//         row.insertCell().textContent = access.type;
+//         const errorMessageCell = row.insertCell();
+//         if (access.errorMessage === null) {
+//             const rightIcon = document.createElement('i');
+//             rightIcon.classList.add('fa-solid', 'fa-check');
+//             rightIcon.style.color = 'green';
+//             errorMessageCell.appendChild(rightIcon);
+//         } else {
+//             errorMessageCell.textContent = access.errorMessage;
+//         }
+//     });
+// }
+//
+//
+// document.addEventListener('DOMContentLoaded', async () => {
+//     const modalContent = document.getElementById('accessLog-content');
+//     modalContent.addEventListener('scroll', async () => {
+//         if (isFetchingForAccessLog || !hasMoreForAccessLog) {
+//             console.log('currentPage', currentPageForAccessLog);
+//             return;
+//         }
+//
+//         if (modalContent.scrollTop + modalContent.clientHeight >= modalContent.scrollHeight) {
+//             currentPageForAccessLog++;
+//             console.log('currentPage', currentPageForAccessLog);
+//             await getAccessLogData();
+//         }
+//     });
+// });
 
 async function videoObserver() {
     const videos = document.querySelectorAll('#myVideo');
@@ -913,111 +913,111 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
     await videoObserver()
 });
 
-const getGroupOrPublicMentionUsers =async (id) => {
-    const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
-    const data = await getUsers.json();
-    return data;
-}
+// const getGroupOrPublicMentionUsers =async (id) => {
+//     const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
+//     const data = await getUsers.json();
+//     return data;
+// }
 
-const fetchUserDataByPostedUser = async (id) => {
-    const fetchUserData = await fetch(`/get-userData/${id}`);
-    if (!fetchUserData.ok) {
-        alert('Invalid user');
-    }
-    const userDataForAll = await fetchUserData.json();
-    return userDataForAll;
-};
+// const fetchUserDataByPostedUser = async (id) => {
+//     const fetchUserData = await fetch(`/get-userData/${id}`);
+//     if (!fetchUserData.ok) {
+//         alert('Invalid user');
+//     }
+//     const userDataForAll = await fetchUserData.json();
+//     return userDataForAll;
+// };
 
-const mentionPostForComment = (id) => {
-    const messageInput = document.getElementById('commentText');
-    const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
-    mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
+// const mentionPostForComment = (id) => {
+//     const messageInput = document.getElementById('commentText');
+//     const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
+//     mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
+//
+//     messageInput.addEventListener('input', async (event) => {
+//         const inputValue = event.target.value;
+//         const mentionIndex = inputValue.lastIndexOf('@');
+//         const users = await getGroupOrPublicMentionUsers(id);
+//
+//         if (mentionIndex !== -1) {
+//             const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
+//             const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery));
+//
+//             mentionSuggestions.innerHTML = '';
+//
+//             if (matchedUsers.length > 0) {
+//                 matchedUsers.forEach(user => {
+//                     const suggestionElement = document.createElement('div');
+//                     suggestionElement.textContent = user.name;
+//                     suggestionElement.classList.add('mentionSuggestion');
+//                     suggestionElement.addEventListener('click', function() {
+//                         const mentionStart = mentionIndex;
+//                         const mentionEnd = mentionIndex + mentionQuery.length + 1;
+//                         const mentionText = `@${user.name} `;
+//                         const mentionData = {
+//                             text: mentionText,
+//                             id: user.staffId
+//                         };
+//                         messageInput.value = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
+//                         messageInput.dataset.mentions = JSON.stringify([...JSON.parse(messageInput.dataset.mentions || '[]'), mentionData]);
+//                         mentionSuggestions.innerHTML = '';
+//                     });
+//                     mentionSuggestions.appendChild(suggestionElement);
+//                 });
+//             }
+//         } else {
+//             mentionSuggestions.innerHTML = '';
+//         }
+//     });
+// };
 
-    messageInput.addEventListener('input', async (event) => {
-        const inputValue = event.target.value;
-        const mentionIndex = inputValue.lastIndexOf('@');
-        const users = await getGroupOrPublicMentionUsers(id);
+// const extractMentionedUsersForComment = (postText) => {
+//     const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
+//     return mentions.map(mention => mention.id);
+// }
 
-        if (mentionIndex !== -1) {
-            const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
-            const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery));
+// const getAllMember = async () => {
+//     const getAllData = await fetch('/get-all-active-user');
+//     const response = await getAllData.json();
+//     return response;
+// };
 
-            mentionSuggestions.innerHTML = '';
+// const highlightMentions = async (description) => {
+//     const mentionRegex = /@([a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*)/g;
+//
+//     try {
+//         const users = await getAllMember();
+//
+//         if (!Array.isArray(users)) {
+//             console.error('Error: getAllMember() did not return an array');
+//             return description;
+//         }
+//
+//         const userSet = new Set(users.map(user => user.name.toLowerCase()));
+//         return description.replace(mentionRegex, (match, username) => {
+//             const normalizedUsername = username.trim().toLowerCase();
+//             console.log("NormalizedUsername:", normalizedUsername);
+//             if (userSet.has(normalizedUsername)) {
+//                 return `<span class="mention">@${username}</span>`;
+//             } else {
+//                 return `@${username}`;
+//             }
+//         });
+//
+//     } catch (error) {
+//         console.error('Error in highlightMentions:', error);
+//         return description;
+//     }
+// }
 
-            if (matchedUsers.length > 0) {
-                matchedUsers.forEach(user => {
-                    const suggestionElement = document.createElement('div');
-                    suggestionElement.textContent = user.name;
-                    suggestionElement.classList.add('mentionSuggestion');
-                    suggestionElement.addEventListener('click', function() {
-                        const mentionStart = mentionIndex;
-                        const mentionEnd = mentionIndex + mentionQuery.length + 1;
-                        const mentionText = `@${user.name} `;
-                        const mentionData = {
-                            text: mentionText,
-                            id: user.staffId
-                        };
-                        messageInput.value = inputValue.substring(0, mentionStart) + mentionText + inputValue.substring(mentionEnd);
-                        messageInput.dataset.mentions = JSON.stringify([...JSON.parse(messageInput.dataset.mentions || '[]'), mentionData]);
-                        mentionSuggestions.innerHTML = '';
-                    });
-                    mentionSuggestions.appendChild(suggestionElement);
-                });
-            }
-        } else {
-            mentionSuggestions.innerHTML = '';
-        }
-    });
-};
-
-const extractMentionedUsersForComment = (postText) => {
-    const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
-    return mentions.map(mention => mention.id);
-}
-
-const getAllMember = async () => {
-    const getAllData = await fetch('/get-all-active-user');
-    const response = await getAllData.json();
-    return response;
-};
-
-const highlightMentions = async (description) => {
-    const mentionRegex = /@([a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*)/g;
-
-    try {
-        const users = await getAllMember();
-
-        if (!Array.isArray(users)) {
-            console.error('Error: getAllMember() did not return an array');
-            return description;
-        }
-
-        const userSet = new Set(users.map(user => user.name.toLowerCase()));
-        return description.replace(mentionRegex, (match, username) => {
-            const normalizedUsername = username.trim().toLowerCase();
-            console.log("NormalizedUsername:", normalizedUsername);
-            if (userSet.has(normalizedUsername)) {
-                return `<span class="mention">@${username}</span>`;
-            } else {
-                return `@${username}`;
-            }
-        });
-
-    } catch (error) {
-        console.error('Error in highlightMentions:', error);
-        return description;
-    }
-}
-
-const displayNoPostMessage = () => {
-    let footerDiv = document.querySelector('.copyright');
-    footerDiv.innerHTML = '';
-    const divEl = document.createElement('div');
-    divEl.style.fontSize = '20px';
-    divEl.innerHTML = 'No posts available';
-    footerDiv.appendChild(divEl);
-
-}
+// const displayNoPostMessage = () => {
+//     let footerDiv = document.querySelector('.copyright');
+//     footerDiv.innerHTML = '';
+//     const divEl = document.createElement('div');
+//     divEl.style.fontSize = '20px';
+//     divEl.innerHTML = 'No posts available';
+//     footerDiv.appendChild(divEl);
+//
+// }
 
 
 async function timeAgo(createdDate) {
@@ -1048,32 +1048,32 @@ async function checkPostOwnerOrAdmin(id) {
 }
 
 
-const fetchSizes = async (id) => {
-    const reactSize = await fetch(`/like-size/${id}`);
-    const reactCount = await reactSize.json();
-    return reactCount;
-};
+// const fetchSizes = async (id) => {
+//     const reactSize = await fetch(`/like-size/${id}`);
+//     const reactCount = await reactSize.json();
+//     return reactCount;
+// };
 
-const fetchReactType = async (id) => {
-    try {
-        const response = await fetch(`/like-type/${id}`);
-        if (!response.ok) {
-            throw new Error(`Network response was not ok: ${response.statusText}`);
-        }
-        const reactTypeData = await response.json();
-        console.log('Fetched reactTypeData:', reactTypeData);
-        return reactTypeData;
-    } catch (error) {
-        console.error('Failed to fetch react type:', error);
-        return null;
-    }
-};
+// const fetchReactType = async (id) => {
+//     try {
+//         const response = await fetch(`/like-type/${id}`);
+//         if (!response.ok) {
+//             throw new Error(`Network response was not ok: ${response.statusText}`);
+//         }
+//         const reactTypeData = await response.json();
+//         console.log('Fetched reactTypeData:', reactTypeData);
+//         return reactTypeData;
+//     } catch (error) {
+//         console.error('Failed to fetch react type:', error);
+//         return null;
+//     }
+// };
 
-const fetchCommentSizes = async (id) => {
-    const commentSize = await fetch(`/comment-size/${id}`);
-    const commentCount = await commentSize.json();
-    return commentCount;
-};
+// const fetchCommentSizes = async (id) => {
+//     const commentSize = await fetch(`/comment-size/${id}`);
+//     const commentCount = await commentSize.json();
+//     return commentCount;
+// };
 
 const removeReaction = async (id) => {
     const cancelType = await fetch(`/remove-like-type/${id}`);
