@@ -31,7 +31,7 @@ const downloadFile = async (event, url, fileName) => {
             throw new Error('Network response was not ok in fetching download file');
         }
         const blob = await response.blob();
-        console.log(fileName)
+        console.log(fileName+' ------> this is filename')
         const blobUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.style.display = 'none';
@@ -73,6 +73,10 @@ const createARawFilePost = async () => {
     console.log(response)
     document.getElementById('rawForm').reset()
     document.getElementById('raw-preview').innerHTML = ''
+    while (newsfeed.firstChild) {
+        newsfeed.removeChild(newsfeed.firstChild)
+    }
+    welcome()
 
 }
 
@@ -561,7 +565,7 @@ fileInput.addEventListener('change', function () {
 
 async function createPost() {
     loadingModalBox.show()
-    let postText = document.getElementById('content').value
+    let postText = document.getElementById('post-content').value
     console.log(postText)
     let postFile = document.getElementById('file').files[0]
     console.log(postFile)
@@ -681,7 +685,8 @@ const highlightMentions = async (description) => {
 const makeFileDownloadPost = async (resources) => {
     console.log('d ko youk tl naw')
     const parentDiv = document.createElement('div');
-    parentDiv.classList.add('card');
+    parentDiv.classList.add('card','shadow');
+    parentDiv.style.marginLeft = '70px'
     parentDiv.style.width = '300px';
 
    
