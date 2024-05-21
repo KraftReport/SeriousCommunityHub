@@ -564,20 +564,42 @@
     </aside><!-- End Sidebar-->
 </div>
 <main id="main" class="main">
-<a href="http://res.cloudinary.com/dws6icl91/raw/upload/v1716056071/153edde3-dceb-42c1-b2f7-b51b8af1d7ee" download>download</a>
-<a href="http://res.cloudinary.com/dws6icl91/image/upload/v1715837014/873a41fe-0e9d-4c32-9df9-f91d9c51be09" download>download</a>
+<a href="http://res.cloudinary.com/dws6icl91/raw/upload/v1716214659/2d8b53c6-ffaf-476e-8e50-1efc954746c9.xlsx" onclick="downloadFile(event,this.href,'green.xlsx')">download excel</a>
+<a href="https://res.cloudinary.com/dws6icl91/raw/upload/v1716275788/25172a28-2645-47d6-b3e7-f7b2f018cc93.zip" onclick="downloadFile(event,this.href,'sample.js')">Download js</a>
+ 
 
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Test Raw</button>
-    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="rawMaker" aria-labelledby="rawMaker">
         <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling</h5>
+          <h5 class="offcanvas-title font-monospace" id="offcanvasWithBothOptionsLabel">Share Files <i class="fa-solid fa-file "></i></h5>
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
          <form id="rawForm">
-            <input type="file" name="raw" id="raw" multiple>
+        
+           <div>
+            <label for="rawDescription" class="font-monospace m-2">Title <i class="fa-regular fa-clipboard"></i></label>
+           
+                <textarea style=" border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); height: 80px; width: 200px; "  class="font-monospace m-2" type="text" name="content" id="content"></textarea>
+           
+           </div>
+
+            <label id="labelForRawFile" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
+            <input style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "  type="file" name="raw" id="raw" multiple>
+
+
+            <div class="row mb-3">
+                <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
+                <div class="col-sm-10">
+                    <select class="form-select font-monospace" id="groupSelect4" name="groupId"
+                            aria-label="Default select example">
+
+                    </select>
+                </div>
+            </div>
+            <div id="raw-preview"></div>
          </form>
-         <button id="rawSend" onclick="createARawFilePost()">raw send</button>
+         <button style="margin-left: 200px; border-radius: 10px;" data-bs-dismiss="offcanvas" class="btn btn-primary" id="rawSend" onclick="createARawFilePost()">POST</button>
         </div>
       </div>
 
@@ -586,7 +608,7 @@
 
 
 
-
+<!-- 
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling</h5>
@@ -595,12 +617,17 @@
         <div class="offcanvas-body">
           <p>Try scrolling the rest of the page to see this option in action.</p>
         </div>
-      </div>
+      </div> -->
 
+
+      <!-- <div class="button-container">
+        <button id="mainButton" onclick="MainButtonClick()">Click Me</button>
+       
+    </div> -->
 
 
       
-        <button   style="   left:370px; width:244px; height:80px; background-color: #62bdf1;
+        <!-- <button   style="   left:370px; width:244px; height:80px; background-color: #62bdf1;
         border:none;
         color: white;
         padding: 15px 32px;
@@ -616,9 +643,9 @@
         outline: none;"   class="btn btn-secondary dropdown-toggle font-monospace" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
          <i class="fa-regular fa-square-plus"></i> Create 
         </button>
-        <div id="divForCreation" >
+        
 
-    </div>
+    </div> -->
       
 
 
@@ -652,8 +679,11 @@
     <li></li>
 </ul> -->
   
-    <button id="App" class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
-        <i id="pen" class="fa-solid fa-marker"></i>
+    <button id="mainButton" class="createIcon offset-10 m-1"  onclick="mainButtonClick()" >
+        <i id="pen" class="fa-solid fa-marker text-white"></i>
+        <div id="divForCreation" class="popup-buttons">
+ 
+        </div>
     </button>
 
 
@@ -724,7 +754,7 @@
                     <div class="col-sm-10">
 
                                 <textarea class="form-control  font-monospace" style="height: 200px; border-radius: 20px; border: none;" name="content"
-                                          id="content"></textarea>
+                                          id="post-content"></textarea>
 
                     </div>
                 </div>
@@ -750,7 +780,7 @@
             </form><!-- End General Form Elements -->
             <!-- End Quill Editor Default -->
             <div class="container">
-                <div id="preview" class="row" >
+                <div id="preview" class="row" style="display: block;" >
                     
                 </div>
             </div>

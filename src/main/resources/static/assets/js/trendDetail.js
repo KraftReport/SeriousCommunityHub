@@ -1,6 +1,7 @@
 window.onload = async ()=>{
     let postId = localStorage.getItem('trendPostId')
     let data = await fetch(`/post/fetch-post/${postId}`)
+    localStorage.removeItem('trendPostId')
     let response = await data.json()
     console.log(response)
     let description = response.description

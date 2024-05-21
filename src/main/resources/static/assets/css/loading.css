@@ -448,16 +448,19 @@ button {
 
 
 .createIcon {
-    background-color: white;
+    background-color: rgb(44, 142, 221);
     position: fixed;
     bottom: 0;
-    border-radius: 50px;
-    border: 2px solid dodgerblue;
+    border-radius: 12px;
+    color: white;
+    border: none;
     width: 50px;
     height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 
+    0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 .createIcon i {
@@ -743,3 +746,113 @@ code {
   @keyframes l15{ 
     100%{transform: rotate(1turn)}
   }
+
+
+
+  .button-container {
+    position: relative;
+}
+
+#mainButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.popup-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.popup-buttons.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.popup-buttons button {
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+
+.hover-text1 {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute; 
+    transform: translateX(-50%);
+    margin-top: 10px;
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+
+.hover-container1:hover .hover-text1 {
+    visibility: visible;
+    opacity: 1;
+ 
+}
+
+.hover-text2 {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute; 
+    transform: translateX(-50%);
+    margin-top: 10px;
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+
+.hover-container2:hover .hover-text2 {
+    visibility: visible;
+    opacity: 1; 
+}
+
+.hover-text3 {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute; 
+    transform: translateX(-50%);
+    margin-top: 10px;
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+
+.hover-container3:hover .hover-text3 {
+    visibility: visible;
+    opacity: 1; 
+}
+
+.hover-text4 {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute; 
+    transform: translateX(-50%);
+    margin-top: 10px;
+    background-color: black;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+
+.hover-container4:hover .hover-text4 {
+    visibility: visible;
+    opacity: 1; 
+}

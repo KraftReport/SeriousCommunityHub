@@ -11,9 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public interface PostService {
     public Post createPost(PostDto postDTO, MultipartFile[] files, String[] captions) throws IOException;
+    public Post createRawFilePost(PostDto postDto,MultipartFile[] files ) throws IOException, ExecutionException, InterruptedException;
     public List<Post> findAllPost();
 
 

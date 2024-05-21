@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.impls;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.communityHubSystem.communityHub.dto.FirstUpdateDto;
 import com.communityHubSystem.communityHub.dto.PostDto;
 import com.communityHubSystem.communityHub.dto.SecondUpdateDto;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -24,12 +26,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +65,21 @@ public class PostServiceImpl implements PostService {
             return createResource(postDTO, files, captions);
         }
 
+    }
+
+    @Override
+    public Post createRawFilePost(PostDto postDto, MultipartFile[] files ) throws IOException, ExecutionException, InterruptedException {
+        var post = createCaption(postDto);
+        post.setPostType(Post.PostType.RESOURCE);
+        for(int i = 0 ; i< files.length ; i++){
+            var raw = new Resource();
+            raw.setDescription(files[i].getOriginalFilename());
+            raw.setRaw(uploadRawFile(files[i]));
+            raw.setDate(new Date());
+            raw.setPost(post);
+            resourceRepository.save(raw);
+        }
+        return postRepository.save(post);
     }
 
     @Override
@@ -343,7 +365,11 @@ public class PostServiceImpl implements PostService {
     }
 
     public String getFileExtension(MultipartFile file) {
-        return file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.')).toLowerCase();
+        var filename =file.getOriginalFilename();
+        if (filename == null || !filename.contains(".")) {
+            return "";
+        }
+        return filename.substring(filename.lastIndexOf('.'));
     }
 
     public String uploadVideo(MultipartFile file) throws IOException {
@@ -356,6 +382,37 @@ public class PostServiceImpl implements PostService {
         return cloudinary.uploader()
                 .upload(file.getBytes(), Map.of("public_id", UUID.randomUUID().toString()))
                 .get("url").toString();
+    }
+
+    public  String uploadRawFile(MultipartFile file) throws IOException {
+        var extension = getFileExtension(file);
+        var publicId = UUID.randomUUID().toString() + extension;
+        var uploadResult = cloudinary.uploader().uploadLargeRaw(file.getBytes(),
+                ObjectUtils.asMap("resource_type", "raw", "public_id", publicId,"filename",file.getOriginalFilename()));
+        return  uploadResult.get("url").toString();
+    }
+
+    private String ensureHttps(String url) {
+        if (url.startsWith("http://")) {
+            return url.replaceFirst("http://", "https://");
+        }
+        return url;
+    }
+
+
+    private byte[] compressFile(MultipartFile file) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
+
+        ZipEntry zipEntry = new ZipEntry(Objects.requireNonNull(file.getOriginalFilename()));
+        zipEntry.setSize(file.getSize());
+        zipOutputStream.putNextEntry(zipEntry);
+        zipOutputStream.write(file.getBytes());
+        zipOutputStream.closeEntry();
+        zipOutputStream.close();
+        byteArrayOutputStream.close();
+
+        return byteArrayOutputStream.toByteArray();
     }
 
     public static Specification<Post> joinOfPostAndResource(String caption) {
