@@ -44,4 +44,5 @@ public interface CommunityService {
     Page<Event> getPollsForCommunityDetailPage(Long aLong,String page);
 
 
+   public Community findByIdAndOwnerName(Long id, String trim);
 }

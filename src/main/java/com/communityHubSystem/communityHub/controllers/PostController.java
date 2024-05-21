@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/post")
@@ -43,21 +44,11 @@ public class PostController {
     }
 
     @PostMapping("/createARawFilePost")
-    public ResponseEntity<?> createARawFilePost(@RequestParam("rawFiles")MultipartFile[] rawFiles) throws IOException {
+    public ResponseEntity<?> createARawFilePost(@ModelAttribute PostDto postDto,
+                                                @RequestParam(value = "rawFiles",required = false)MultipartFile[] rawFiles ) throws IOException, ExecutionException, InterruptedException {
         System.err.println(rawFiles[0]);
-        for (var r : rawFiles){
-            Map uploadResult = cloudinary.uploader()
-                    .upload(r.getBytes(), ObjectUtils.asMap(
-                            "resource_type", "raw",
-                            "public_id", UUID.randomUUID().toString()
-                    ));
-
-            System.err.println(uploadResult.get("url").toString());
-        }
-
-
-        return ResponseEntity.ok(null);
-
+        System.err.println(postDto + "this is postDto");
+        return ResponseEntity.ok(postService.createRawFilePost(postDto,rawFiles));
     }
 
     @GetMapping("/getAll")

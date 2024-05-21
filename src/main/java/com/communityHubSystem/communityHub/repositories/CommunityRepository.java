@@ -12,4 +12,6 @@ public interface CommunityRepository extends JpaRepository<Community,Long>, JpaS
 
     @Query(value = "select * from community where owner_name = :name",nativeQuery = true)
     Community findCommunityByOwnerName(String name);
+
+    Community findByIdAndOwnerName(Long id, String name);
 }

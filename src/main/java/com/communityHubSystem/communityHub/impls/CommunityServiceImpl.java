@@ -235,6 +235,10 @@ public class CommunityServiceImpl implements CommunityService {
         return fetchEventsForCommunity(aLong,page, Event.EventType.VOTE);
     }
 
+    @Override
+    public Community findByIdAndOwnerName(Long id, String name) {
+        return communityRepository.findByIdAndOwnerName(id,name);
+    }
 
 
     public Page<Event> fetchEventsForCommunity(Long id, String page, Event.EventType eventType) {

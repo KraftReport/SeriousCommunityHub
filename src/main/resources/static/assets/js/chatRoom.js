@@ -19,6 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
         stompClientForChatRoom.connect({}, onConnected, onError);
     };
 
+    document.getElementById('file-input-chatRoom').addEventListener('change', async (event) => {
+        if (event.target.files.length > 0) {
+            console.log('Oh shit  ya nay p')
+            await sendMessageWithAttachment();
+        }
+    });
+
     const mentionUser = async (id) => {
         console.log('mentionUser called');
         const messageInput = document.querySelector('#message');
@@ -230,14 +237,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const messageContentContainer = document.createElement('div');
         messageContentContainer.classList.add('message-content-container');
-        const message = document.createElement('p');
-        const messageContentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-        message.innerHTML = messageContentWithLinks;
+        const urlPattern = new RegExp('^(https?:\\/\\/)?' +
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' +
+            '((\\d{1,3}\\.){3}\\d{1,3}))' +
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+            '(\\?[;&a-z\\d%_.~+=-]*)?' +
+            '(\\#[-a-z\\d_]*)?$', 'i');
+
+        const imageExtensions = /\.(jpeg|jpg|gif|png|bmp|webp)$/i;
+
+        if (urlPattern.test(content) && imageExtensions.test(content)) {
+            const messageImage = document.createElement('img');
+            messageImage.src = content;
+            messageImage.style.width = '150px';
+            messageImage.style.height = '150px';
+            messageImage.alt = 'Message Image';
+            messageContentContainer.appendChild(messageImage);
+        } else {
+            const message = document.createElement('p');
+            const messageContentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            message.innerHTML = messageContentWithLinks;
+            messageContentContainer.appendChild(message);
+        }
         const spanEl = document.createElement('span');
         if (loginUserForChatRoom !== senderId) {
             spanEl.appendChild(userImage);
         }
-        messageContentContainer.appendChild(message);
         messageContainer.appendChild(messageContentContainer);
         chatAreaForChatRoom.appendChild(spanEl);
         chatAreaForChatRoom.appendChild(messageContainer);
@@ -268,6 +293,39 @@ document.addEventListener('DOMContentLoaded', () => {
         connectingElement.style.color = 'red';
     }
 
+    const sendMessageWithAttachment = async () => {
+        const fileInput = document.getElementById('file-input-chatRoom');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select a file!');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('id', selectedRoomId);
+        formData.append('sender', loginUserForChatRoom);
+        formData.append('date', new Date());
+        let response = await fetch('/send-photo-toChatRoom', {
+            method: 'POST',
+            body:formData
+        });
+       if(!response.ok){
+           alert('something wrong please try again!');
+       }
+        const res = await response.json();
+          const chatMessage = {
+              id: selectedRoomId,
+              sender: loginUserForChatRoom,
+              content: res.content,
+              date: new Date()
+          }
+        stompClientForChatRoom.send("/app/chat-withPhoto", {}, JSON.stringify(chatMessage));
+        const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
+        const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
+        await displayMessageForChatRoom(loginUserForChatRoom,res.content,photo,new Date());
+    }
+
     async function sendMessage(event) {
         event.preventDefault();
         const messageContent = messageInput.value.trim();
@@ -280,7 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), showedUserPhoto.photo,new Date());
+            const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
+            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), photo,new Date());
             messageInput.value = '';
             document.querySelector('.emojionearea-editor').innerHTML = '';
         }
@@ -429,8 +488,37 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`${response.message}`);
         } else {
             const response1 = await validateData.json();
-            alert(`${response1.message}`);
-            $('#memberAddModal').modal('hide');
+            $j('#memberAddModal').modal('hide');
+            let alertMessage =  `${response1.message}`;
+            let alertStyle = `
+            background-color: transparent;
+            color: green;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function() {
+                styledAlert.style.display = 'none';
+            }, 3000);
         }
     });
 
@@ -521,8 +609,37 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`${response.message}`);
         }
         const response1 = await validateData.json();
-        alert(`${response1.message}`);
-        $('#memberKickModal').modal('hide');
+        $j('#memberKickModal').modal('hide');
+        let alertMessage =  `${response1.message}`;
+        let alertStyle = `
+            background-color: transparent;
+            color: green;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+
+
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function() {
+            styledAlert.style.display = 'none';
+        }, 3000);
     });
 });
 
@@ -579,3 +696,8 @@ const fetchUserByLogInId = async (id) => {
         return `${days} days${days > 1? '' : ''} ago`;
     }
 }
+
+const chooseMalFile = () => {
+     document.getElementById('file-input-chatRoom').click();
+}
+

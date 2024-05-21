@@ -124,16 +124,6 @@ public class ReactController {
                 .user(loginUser)
                 .build();
         var cmsvg = commentService.save(comment);
-        messagingTemplate.convertAndSend("/user/all/comment-private-message", new CommentDto(
-                commentDto.getPostId(),
-                cmsvg.getId(),
-                commentDto.getReplyId(),
-                postedUser.getStaffId(),
-                loginUser.getName(),
-                commentDto.getContent(),
-                loginUser.getPhoto(),
-                new Date()
-        ));
         if(!loginUser.getId().equals(postedUser.getId())) {
             var noti = Notification.builder()
                     .content(commentDto.getContent())
@@ -143,6 +133,28 @@ public class ReactController {
                     .comment(comment)
                     .build();
             notificationService.save(noti);
+            messagingTemplate.convertAndSend("/user/all/comment-private-message", new CommentDto(
+                    commentDto.getPostId(),
+                    cmsvg.getId(),
+                    commentDto.getReplyId(),
+                    postedUser.getStaffId(),
+                    loginUser.getName(),
+                    commentDto.getContent(),
+                    loginUser.getPhoto(),
+                    new Date()
+            ));
+        }else{
+            String staffId = "99-00000";
+            messagingTemplate.convertAndSend("/user/all/comment-private-message", new CommentDto(
+                    commentDto.getPostId(),
+                    cmsvg.getId(),
+                    commentDto.getReplyId(),
+                    staffId,
+                    loginUser.getName(),
+                    commentDto.getContent(),
+                    loginUser.getPhoto(),
+                    new Date()
+            ));
         }
     }
 
@@ -171,18 +183,30 @@ public class ReactController {
                             .reply(reply)
                             .build();
                     notificationService.save(noti);
+                    messagingTemplate.convertAndSend("/user/all/comment-reply-private-message", new CommentDto(
+                            commentPost.getId(),
+                            commentDto.getCommentId(),
+                            commentDto.getReplyId(),
+                            user.getStaffId(),
+                            loginUser.getName(),
+                            commentDto.getContent(),
+                            loginUser.getPhoto(),
+                            new Date()
+                    ));
+                }else{
+                    String staffId = "99-00000";
+                    messagingTemplate.convertAndSend("/user/all/comment-reply-private-message", new CommentDto(
+                            commentPost.getId(),
+                            commentDto.getCommentId(),
+                            commentDto.getReplyId(),
+                            staffId,
+                            loginUser.getName(),
+                            commentDto.getContent(),
+                            loginUser.getPhoto(),
+                            new Date()
+                    ));
                 }
             }
-            messagingTemplate.convertAndSend("/user/all/comment-reply-private-message", new CommentDto(
-                    commentPost.getId(),
-                    commentDto.getCommentId(),
-                    commentDto.getReplyId(),
-                    user.getStaffId(),
-                    loginUser.getName(),
-                    commentDto.getContent(),
-                    loginUser.getPhoto(),
-                    new Date()
-            ));
         } else {
             var reply = replyService.findById(commentDto.getReplyId());
             var comment = commentService.findById(reply.getComment().getId());
@@ -206,18 +230,30 @@ public class ReactController {
                             .reply(savedReply)
                             .build();
                     notificationService.save(noti);
+                    messagingTemplate.convertAndSend( "/user/all/comment-reply-private-message", new CommentDto(
+                            commentPost.getId(),
+                            comment.getId(),
+                            commentDto.getReplyId(),
+                            user.getStaffId(),
+                            loginUser.getName(),
+                            commentDto.getContent(),
+                            loginUser.getPhoto(),
+                            new Date()
+                    ));
+                }else{
+                    String staffId = "99-00000";
+                    messagingTemplate.convertAndSend( "/user/all/comment-reply-private-message", new CommentDto(
+                            commentPost.getId(),
+                            comment.getId(),
+                            commentDto.getReplyId(),
+                            staffId,
+                            loginUser.getName(),
+                            commentDto.getContent(),
+                            loginUser.getPhoto(),
+                            new Date()
+                    ));
                 }
             }
-            messagingTemplate.convertAndSend( "/user/all/comment-reply-private-message", new CommentDto(
-                    commentPost.getId(),
-                    comment.getId(),
-                    commentDto.getReplyId(),
-                    user.getStaffId(),
-                    loginUser.getName(),
-                    commentDto.getContent(),
-                    loginUser.getPhoto(),
-                    new Date()
-            ));
         }
     }
 
@@ -484,6 +520,26 @@ public class ReactController {
     public ResponseEntity<List<User>> getMentionUsersForPost(@PathVariable("id")Long id){
         return ResponseEntity.status(HttpStatus.OK).body(getMentionsUsersByPostId(id));
     }
+
+    @GetMapping("/get-event-postedUser/{id}")
+    public ResponseEntity<User> getEventPostedUser(@PathVariable("id")String id){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findByStaffId(id).orElseThrow(()->new CommunityHubException("User Name not found exception!")));
+    }
+
+    @GetMapping("/get-eventGroup-postedUser/{id}")
+    public ResponseEntity<List<User>> getEventPostedUserWithinGroup(@PathVariable("id")Long id){
+       List<User_Group> user_groups = user_groupService.findByCommunityId(id);
+      List<User> users = new ArrayList<>();
+       for(User_Group user_group:user_groups){
+           var user = userService.findById(user_group.getUser().getId());
+           if(!user.getRole().equals(User.Role.ADMIN)){
+               users.add(user);
+           }
+       }
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+
+    }
+
 
     public List<User> getMentionsUsersByPostId(Long id){
         var post = postService.findById(id);

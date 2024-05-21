@@ -23,6 +23,7 @@ public class Resource implements Serializable {
     private String description;
     private String photo;
     private String video;
+    private String raw;
     private Date date;
 
 

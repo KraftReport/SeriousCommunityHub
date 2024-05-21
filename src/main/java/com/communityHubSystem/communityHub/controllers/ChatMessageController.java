@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.controllers;
 
 import com.communityHubSystem.communityHub.dto.ChatRoomGroupDto;
+import com.communityHubSystem.communityHub.dto.EventNotiDto;
 import com.communityHubSystem.communityHub.dto.MentionDto;
 import com.communityHubSystem.communityHub.dto.NotificationDtoForChatRoom;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
@@ -14,6 +15,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,6 +49,20 @@ public class ChatMessageController {
                 .content(content)
                 .build();
         chatMessageService.save(chatMessage);
+        messagingTemplate.convertAndSend("/user/chatRoom/queue/messages", new NotificationDtoForChatRoom(
+                roomId,
+                user.getStaffId(),
+                content
+        ));
+    }
+
+    @MessageMapping("/chat-withPhoto")
+    public void processMessageWithPhoto(@Payload Map<String, Object> payload) {
+        Long roomId = Long.parseLong(payload.get("id").toString());
+        String staffId = payload.get("sender").toString();
+        System.out.println("SOMETHING" + roomId);
+        var user = userService.findByStaffId(staffId.trim()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
+        String content = payload.get("content").toString();
         messagingTemplate.convertAndSend("/user/chatRoom/queue/messages", new NotificationDtoForChatRoom(
                 roomId,
                 user.getStaffId(),
@@ -128,14 +144,35 @@ public class ChatMessageController {
         ));
     }
 
-//    @PostMapping("/group-add")
-//    @ResponseBody
-//    public ResponseEntity<Map<String, String>> createdGroup(@RequestParam("name") String name, @RequestParam("selectedUserIds") List<Long> selectedUserIds) {
-//        user_chatRoomService.createdRoom(name, selectedUserIds);
-//        Map<String, String> response = new HashMap<>();
-//        response.put("message", "Group created successfully");
-//        return ResponseEntity.status(HttpStatus.OK).body(response);
-//    }
+
+    @MessageMapping("/event-notification")
+    public void eventNotification(@Payload EventNotiDto eventNotiDto) {
+        if (eventNotiDto.getStatus().equals(EventNotiDto.Status.PUBLIC)) {
+            messagingTemplate.convertAndSend("/user/event-noti/queue/messages", new EventNotiDto(
+                    eventNotiDto.getUserId(),
+                    eventNotiDto.getContent(),
+                    null,
+                    eventNotiDto.getStatus()
+            ));
+        } else {
+            messagingTemplate.convertAndSend("/user/event-noti/queue/messages", new EventNotiDto(
+                    eventNotiDto.getUserId(),
+                    eventNotiDto.getContent(),
+                    eventNotiDto.getGroupId(),
+                    eventNotiDto.getStatus()
+            ));
+        }
+    }
+
+    @PostMapping("/send-photo-toChatRoom")
+    @ResponseBody
+    public ResponseEntity<ChatMessage> handleFileUpload(@RequestParam("file") MultipartFile file,
+                                              @RequestParam("id") Long id,
+                                              @RequestParam("sender") String sender,
+                                              @RequestParam("date") String date) throws IOException {
+       ChatMessage chatMessage = chatMessageService.saveWithAttachment(id,file,sender,date);
+        return ResponseEntity.status(HttpStatus.OK).body(chatMessage);
+    }
 
     @PostMapping("/group-add")
     @ResponseBody

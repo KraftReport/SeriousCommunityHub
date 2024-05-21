@@ -1,3 +1,4 @@
+
 const createBtns = async () => {
     let data = await distinguishMembers(localStorage.getItem('communityIdForDetailPage'))
     let mainDiv = document.getElementById('createBtns')
@@ -47,6 +48,62 @@ const createBtns = async () => {
     }
 }
 
+const checkGroupForMessagingSystem = async (id) => {
+    const user = await getCheckUserForGroup();
+    const memberList = await getAllMembersForMessagingSystem(id);
+    const staffIdList = memberList.map(user => user.staffId);
+    const msgBtn = document.getElementById('chatMessageIconForGroup');
+    if(user.role === 'ADMIN' || staffIdList.includes(loginUser)){
+        msgBtn.style.display = 'block';
+    msgBtn.addEventListener('click',() => {
+        localStorage.setItem('chatRoomIdForGroup', id);
+        window.location.href = `/api/community/goMal-chatRoom`;
+    });
+    }
+}
+
+const getAllMembersForMessagingSystem = async (id) => {
+    const memberData = await fetch(`/api/community/get-groupMembers-check/${id}`)
+    const resData = await memberData.json();
+    return resData;
+}
+
+
+const checkGroupForLoginUser =async (id) => {
+    const invBtn = document.getElementById('inviteBtn');
+    const user = await getCheckUserForGroup();
+    const groupOwner = await getCommunityOwner(id);
+    console.log("DCHeck",user.role)
+    console.log("DCHeck",groupOwner)
+    if(user.role === 'ADMIN' || groupOwner !== null){
+        invBtn.style.display = 'block';
+        invBtn.style.marginLeft = '160px';
+        invBtn.style.marginTop = '-47px';
+    }
+}
+
+const getCommunityOwner = async (id) => {
+    try {
+        const response =  await fetch(`/api/community/get-groupOwner-check/${loginUser}/${id}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        const resOwner = await response.json();
+        console.log('Fetched Owner Data:', resOwner);
+        return resOwner;
+    } catch (error) {
+        console.error('Failed to fetch Owner :', error);
+        return null;
+    }
+
+}
+
+const getCheckUserForGroup = async () => {
+    const data = await fetch(`/api/community/get-user-checkGroup/${loginUser}`)
+    const res = await data.json();
+    return res;
+}
+
 window.onload = async function(){
     console.log('wow wow here')
 
@@ -71,8 +128,6 @@ const fetchPostById = async (id) => {
 }
 
 
-
- 
 
 document.addEventListener('DOMContentLoaded', function() {
     localStorage.removeItem('searchInput');
@@ -152,7 +207,10 @@ const mentionPostForComment = (id) => {
     messageInput.addEventListener('input', async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');
-        const users = await getGroupOrPublicMentionUsers(id);
+        const users = (await getGroupOrPublicMentionUsers(id)).map(user => ({
+            ...user,
+            name: user.name.replace(/\s+/g, '')
+        }));
 
         if (mentionIndex !== -1) {
             const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
@@ -192,11 +250,14 @@ const extractMentionedUsersForComment = (postText) => {
 }
 
 const mentionCommunityMember= () => {
-     const messageInput = document.getElementById('content');
+     const messageInput = document.getElementById('post-content');
     messageInput.addEventListener('input',  async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');
-        const users = await getAllMember();
+        const users = (await getAllMember()).map(user => ({
+            ...user,
+            name: user.name.replace(/\s+/g, '')
+        }));
         if (mentionIndex !== -1) {
             const mentionQuery = inputValue.substring(mentionIndex + 1);
             const matchedUsers = users.filter(user => user.name.toLowerCase().includes(mentionQuery.toLowerCase()));
@@ -236,35 +297,21 @@ const getAllMember = async () => {
     return response;
 };
 
-
 const highlightMentions = async (description) => {
-    const mentionRegex = /@([a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*)/g;
 
-    try {
-        const users = await getAllMember();
+    const allMembers = await getAllMember();
+    const sanitizedMemberNames = allMembers.map(member => member.name.replace(/\s+/g, ''));
 
-        if (!Array.isArray(users)) {
-            console.error('Error: getAllMember() did not return an array');
-            return description;
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+
+    return description.replace(mentionRegex, (match, username) => {
+        if (sanitizedMemberNames.includes(username)) {
+            return `<span class="mention">${match}</span>`;
+        } else {
+            return match;
         }
-
-        const userSet = new Set(users.map(user => user.name.toLowerCase()));
-        return description.replace(mentionRegex, (match, username) => {
-            const normalizedUsername = username.trim().toLowerCase();
-            console.log("NormalizedUsername:", normalizedUsername);
-            if (userSet.has(normalizedUsername)) {
-                return `<span class="mention">@${username}</span>`;
-            } else {
-                return `@${username}`;
-            }
-        });
-
-    } catch (error) {
-        console.error('Error in highlightMentions:', error);
-        return description;
-    }
-}
- 
+    });
+};
 
 async function createPost() {
     loadingModalBox.show()
@@ -1339,913 +1386,919 @@ const pressedLike = async (id, type) => {
      }
  };
 
- const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
-     const user = await fetchUserDataByPostedUser(loginUser);
-     const divItem = document.createElement('div');
-     divItem.classList.add(`user-item-${id}`);
-     const userImage = document.createElement('img');
-     photo = photo || '/static/assets/img/card.jpg';
-     userImage.src = `${photo}`;
-     userImage.alt = 'User Photo';
-     userImage.style.width = '60px';
-     userImage.style.height = '60px';
-     userImage.classList.add('user-photo');
-     userImage.style.border = '2px solid #ccc';
-     const spanSender = document.createElement('span');
-     if (sender === user.name) {
-         spanSender.innerHTML = `You : `;
-     } else {
-         spanSender.innerHTML = `${sender} : `;
-     }
-     const spanElement = document.createElement('span');
-     spanElement.classList.add(`comment-span-container-${id}`);
-     spanElement.id = id;
-     spanElement.innerHTML = `${content}`;
-     // divItem.style.border = '1px solid lightslategrey';
-     divItem.style.padding = '5px';
-     divItem.style.borderRadius = '30px'
-     divItem.style.width = '450px';
+const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
+    const user = await fetchUserDataByPostedUser(loginUser);
+    const divItem = document.createElement('div');
+    divItem.classList.add(`user-item-${id}`);
+    const userImage = document.createElement('img');
+    photo = photo || '/static/assets/img/card.jpg';
+    userImage.src = `${photo}`;
+    userImage.alt = 'User Photo';
+    userImage.style.width = '60px';
+    userImage.style.height = '60px';
+    userImage.classList.add('user-photo');
+    userImage.style.border = '2px solid #ccc';
+    const spanSender = document.createElement('span');
+    if (sender === user.name) {
+        spanSender.innerHTML = `You : `;
+    } else {
+        spanSender.innerHTML = `${sender} : `;
+    }
+    const formattedContent = await highlightMentions(content);
+    const spanElement = document.createElement('span');
+    spanElement.classList.add(`comment-span-container-${id}`);
+    spanElement.id = id;
+    spanElement.innerHTML = `${formattedContent}`;
+    // divItem.style.border = '1px solid lightslategrey';
+    divItem.style.padding = '5px';
+    divItem.style.borderRadius = '30px'
+    divItem.style.width = '450px';
 
-     const convertDiv = document.createElement('div');
-     convertDiv.classList.add('content-container');
-     let createdTime = await timeAgo(new Date(localDateTime))
-     convertDiv.setAttribute('data-toggle', 'tooltip');
-     convertDiv.setAttribute('title', `${createdTime}`);
-     const spanElementForImg = document.createElement('span');
-     spanElementForImg.appendChild(userImage);
-     divItem.appendChild(spanElementForImg);
-     convertDiv.style.marginLeft = '70px';
-     convertDiv.style.marginTop = '-50px';
-     convertDiv.style.padding = '25px';
-     convertDiv.style.borderBottomRightRadius = '20px';
-     convertDiv.style.backgroundColor = 'lightgrey';
-     convertDiv.style.borderTopLeftRadius = '10px';
-     convertDiv.style.borderBottomLeftRadius = '35px';
-     divItem.appendChild(convertDiv);
-     const ddEl = document.createElement('div');
-     ddEl.classList.add(`comment-container-${id}`);
-     ddEl.appendChild(spanSender);
-     ddEl.appendChild(spanElement);
-     convertDiv.appendChild(ddEl);
-     chatArea.appendChild(divItem);
+    const convertDiv = document.createElement('div');
+    convertDiv.classList.add('content-container');
+    let createdTime = await timeAgo(new Date(localDateTime))
+    convertDiv.setAttribute('data-toggle', 'tooltip');
+    convertDiv.setAttribute('title', `${createdTime}`);
+    const spanElementForImg = document.createElement('span');
+    spanElementForImg.appendChild(userImage);
+    divItem.appendChild(spanElementForImg);
+    convertDiv.style.marginLeft = '70px';
+    convertDiv.style.marginTop = '-50px';
+    convertDiv.style.padding = '25px';
+    convertDiv.style.borderBottomRightRadius = '20px';
+    convertDiv.style.backgroundColor = 'lightgrey';
+    convertDiv.style.borderTopLeftRadius = '10px';
+    convertDiv.style.borderBottomLeftRadius = '35px';
+    divItem.appendChild(convertDiv);
+    const ddEl = document.createElement('div');
+    ddEl.classList.add(`comment-container-${id}`);
+    ddEl.appendChild(spanSender);
+    ddEl.appendChild(spanElement);
+    convertDiv.appendChild(ddEl);
+    chatArea.appendChild(divItem);
 
-     const likeIconWithoutColor = document.createElement('i');
-     likeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-up');
-     likeIconWithoutColor.style.fontSize = '20px';
-     likeIconWithoutColor.addEventListener('click', () => {
-         if (iconDiv.contains(dislikeIconWithColor)) {
-             iconDiv.removeChild(dislikeIconWithColor);
-         }
-         iconDiv.appendChild(dislikeIconWithoutColor);
-         iconDiv.removeChild(likeIconWithoutColor);
-         iconDiv.appendChild(likeIconWithColor);
-         const myObj = {
-             postId: postId,
-             commentId: id,
-             sender: loginUser,
-             content: ` liked  your comment!`,
-             type: 'LIKE',
-         }
-         stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
-     });
-     const likeIconWithColor = document.createElement('i');
-     likeIconWithColor.style.fontSize = '20px';
-     likeIconWithColor.classList.add('fa-solid', 'fa-thumbs-up');
-     likeIconWithColor.addEventListener('click', () => {
-         if (iconDiv.contains(dislikeIconWithColor)) {
-             iconDiv.removeChild(dislikeIconWithColor);
-         }
-         iconDiv.appendChild(dislikeIconWithoutColor);
-         iconDiv.removeChild(likeIconWithColor);
-         iconDiv.appendChild(likeIconWithoutColor);
-         const myObj = {
-             postId: postId,
-             commentId: id,
-             sender: loginUser,
-             content: ` liked  your comment!`,
-             type: null,
-         }
-         stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
-     });
-     const dislikeIconWithoutColor = document.createElement('i');
-     dislikeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-down');
-     dislikeIconWithoutColor.style.fontSize = '20px';
-     dislikeIconWithoutColor.style.padding = '10px';
-     dislikeIconWithoutColor.addEventListener('click', () => {
-         iconDiv.removeChild(dislikeIconWithoutColor);
-         iconDiv.appendChild(dislikeIconWithColor);
-         if (iconDiv.contains(likeIconWithColor)) {
-             iconDiv.removeChild(likeIconWithColor);
-         }
-         iconDiv.appendChild(likeIconWithoutColor);
-         const myObj = {
-             postId: postId,
-             commentId: id,
-             sender: loginUser,
-             content: ` disliked  your comment!`,
-             type: 'DISLIKE',
-         }
-         stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
-     });
-     const dislikeIconWithColor = document.createElement('i');
-     dislikeIconWithColor.classList.add('fa-solid', 'fa-thumbs-down');
-     dislikeIconWithColor.style.fontSize = '20px';
-     dislikeIconWithColor.style.padding = '10px';
-     dislikeIconWithColor.addEventListener('click', () => {
-         iconDiv.removeChild(dislikeIconWithColor);
-         iconDiv.appendChild(dislikeIconWithoutColor);
-         if (iconDiv.contains(likeIconWithColor)) {
-             iconDiv.removeChild(likeIconWithColor);
-         }
-         iconDiv.appendChild(likeIconWithoutColor);
-         const myObj = {
-             postId: postId,
-             commentId: id,
-             sender: loginUser,
-             content: ` dislike your comment!`,
-             type: null,
-         }
-         stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
-     });
-     let replyInput = divItem.querySelector('.reply-input');
-     let submitButton = divItem.querySelector('.submit-reply-btn');
-     let cancelButton = divItem.querySelector('.cancel-reply-btn');
+    const likeIconWithoutColor = document.createElement('i');
+    likeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-up');
+    likeIconWithoutColor.style.fontSize = '20px';
+    likeIconWithoutColor.addEventListener('click', () => {
+        if (iconDiv.contains(dislikeIconWithColor)) {
+            iconDiv.removeChild(dislikeIconWithColor);
+        }
+        iconDiv.appendChild(dislikeIconWithoutColor);
+        iconDiv.removeChild(likeIconWithoutColor);
+        iconDiv.appendChild(likeIconWithColor);
+        const myObj = {
+            postId: postId,
+            commentId: id,
+            sender: loginUser,
+            content: ` liked  your comment!`,
+            type: 'LIKE',
+        }
+        stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
+    });
+    const likeIconWithColor = document.createElement('i');
+    likeIconWithColor.style.fontSize = '20px';
+    likeIconWithColor.classList.add('fa-solid', 'fa-thumbs-up');
+    likeIconWithColor.addEventListener('click', () => {
+        if (iconDiv.contains(dislikeIconWithColor)) {
+            iconDiv.removeChild(dislikeIconWithColor);
+        }
+        iconDiv.appendChild(dislikeIconWithoutColor);
+        iconDiv.removeChild(likeIconWithColor);
+        iconDiv.appendChild(likeIconWithoutColor);
+        const myObj = {
+            postId: postId,
+            commentId: id,
+            sender: loginUser,
+            content: ` liked  your comment!`,
+            type: null,
+        }
+        stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
+    });
+    const dislikeIconWithoutColor = document.createElement('i');
+    dislikeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-down');
+    dislikeIconWithoutColor.style.fontSize = '20px';
+    dislikeIconWithoutColor.style.padding = '10px';
+    dislikeIconWithoutColor.addEventListener('click', () => {
+        iconDiv.removeChild(dislikeIconWithoutColor);
+        iconDiv.appendChild(dislikeIconWithColor);
+        if (iconDiv.contains(likeIconWithColor)) {
+            iconDiv.removeChild(likeIconWithColor);
+        }
+        iconDiv.appendChild(likeIconWithoutColor);
+        const myObj = {
+            postId: postId,
+            commentId: id,
+            sender: loginUser,
+            content: ` disliked  your comment!`,
+            type: 'DISLIKE',
+        }
+        stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
+    });
+    const dislikeIconWithColor = document.createElement('i');
+    dislikeIconWithColor.classList.add('fa-solid', 'fa-thumbs-down');
+    dislikeIconWithColor.style.fontSize = '20px';
+    dislikeIconWithColor.style.padding = '10px';
+    dislikeIconWithColor.addEventListener('click', () => {
+        iconDiv.removeChild(dislikeIconWithColor);
+        iconDiv.appendChild(dislikeIconWithoutColor);
+        if (iconDiv.contains(likeIconWithColor)) {
+            iconDiv.removeChild(likeIconWithColor);
+        }
+        iconDiv.appendChild(likeIconWithoutColor);
+        const myObj = {
+            postId: postId,
+            commentId: id,
+            sender: loginUser,
+            content: ` dislike your comment!`,
+            type: null,
+        }
+        stompClient.send('/app/like-commentReact-message', {}, JSON.stringify(myObj));
+    });
+    let replyInput = divItem.querySelector('.reply-input');
+    let submitButton = divItem.querySelector('.submit-reply-btn');
+    let cancelButton = divItem.querySelector('.cancel-reply-btn');
 
-     const replyButton = document.createElement('i');
-     replyButton.classList.add('fa-solid', 'fa-reply');
-     replyButton.style.padding = '10px';
-     replyButton.style.fontSize = '20px';
-     replyButton.style.marginLeft = '310px';
-     replyButton.id = id;
+    const replyButton = document.createElement('i');
+    replyButton.classList.add('fa-solid', 'fa-reply');
+    replyButton.style.padding = '10px';
+    replyButton.style.fontSize = '20px';
+    replyButton.style.marginLeft = '310px';
+    replyButton.id = id;
 
-     replyButton.addEventListener('click', async () => {
-         const commentUser = await fetchCommetedUser(id);
-         if (!replyInput) {
-             replyInput = document.createElement('input');
-             replyInput.type = 'text';
-             replyInput.placeholder = 'Type your reply...';
-             replyInput.classList.add('reply-input');
-             replyInput.style.marginTop = '10px';
-             replyInput.style.borderRadius = '10px';
-             replyInput.value = `@ ${commentUser.user.name} : `;
-             replyInput.style.padding = '8px';
-             replyInput.readOnly = true;
-             divItem.appendChild(replyInput);
+    replyButton.addEventListener('click', async () => {
+        const commentUser = await fetchCommetedUser(id);
+        const sanitizedUserName = commentUser.user.name.replace(/\s+/g, '');
+        if (!replyInput) {
+            replyInput = document.createElement('input');
+            replyInput.type = 'text';
+            replyInput.placeholder = 'Type your reply...';
+            replyInput.classList.add('reply-input');
+            replyInput.style.marginTop = '10px';
+            replyInput.style.borderRadius = '10px';
+            replyInput.value = `@${sanitizedUserName} : `;
+            replyInput.style.padding = '8px';
+            replyInput.readOnly = true;
+            divItem.appendChild(replyInput);
 
-             replyInput.addEventListener('focus', function () {
-                 replyInput.removeAttribute('readOnly');
-                 replyInput.classList.remove('readonly');
-             });
-             replyInput.addEventListener('blur', function () {
-                 replyInput.readOnly = true;
-                 replyInput.classList.add('readonly');
-             });
-         } else {
-             replyInput.value = `@ ${commentUser.user.name} `;
-             replyInput.readOnly = true;
-             replyInput.classList.add('readonly');
-         }
+            replyInput.addEventListener('focus', function () {
+                replyInput.removeAttribute('readOnly');
+                replyInput.classList.remove('readonly');
+            });
+            replyInput.addEventListener('blur', function () {
+                replyInput.readOnly = true;
+                replyInput.classList.add('readonly');
+            });
+        } else {
+            replyInput.value = `@${sanitizedUserName} `;
+            replyInput.readOnly = true;
+            replyInput.classList.add('readonly');
+        }
 
-         replyInput.addEventListener('input', function () {
-             if (replyInput.value === `@ ${commentUser.user.name} `) {
-                 replyInput.classList.add('readonly');
-             } else {
-                 replyInput.classList.remove('readonly');
-             }
-         });
+        replyInput.addEventListener('input', function () {
+            if (replyInput.value === `@${sanitizedUserName} `) {
+                replyInput.classList.add('readonly');
+            } else {
+                replyInput.classList.remove('readonly');
+            }
+        });
 
-         if (!submitButton) {
-             submitButton = document.createElement('button');
-             submitButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'submit-reply-btn');
-             submitButton.textContent = 'Submit';
-             submitButton.addEventListener('click', async () => {
-                 const replyContent = replyInput.value.trim();
-                 if (replyContent !== '') {
-                     const myObj = {
-                         commentId: id,
-                         sender: loginUser,
-                         content: replyContent
-                     };
-                     stompClient.send('/app/comment-reply-message', {}, JSON.stringify(myObj));
-                     const chatArea = document.querySelector('#commentMessageText');
-                     // await displayMessage(user.name, replyContent, user.photo, id, postId, chatArea);
-                     //
-                     //  const reply = await createReplyElement(replyContent,user.name,user.photo,id,postId);
-                     console.log(`Replying to comment ${id}: ${replyContent}`);
-                     repliesContainer.style.display = 'block';
-                     replyInput.value = '';
-                 } else {
-                     alert('Please enter something that you want to reply.');
-                 }
-             });
-             divItem.appendChild(submitButton);
-         }
+        if (!submitButton) {
+            submitButton = document.createElement('button');
+            submitButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'submit-reply-btn');
+            submitButton.textContent = 'Submit';
+            submitButton.addEventListener('click', async () => {
+                const replyContent = replyInput.value.trim();
+                if (replyContent !== '') {
+                    const myObj = {
+                        commentId: id,
+                        sender: loginUser,
+                        content: replyContent
+                    };
+                    stompClient.send('/app/comment-reply-message', {}, JSON.stringify(myObj));
+                    const chatArea = document.querySelector('#commentMessageText');
+                    // await displayMessage(user.name, replyContent, user.photo, id, postId, chatArea);
+                    //
+                    //  const reply = await createReplyElement(replyContent,user.name,user.photo,id,postId);
+                    console.log(`Replying to comment ${id}: ${replyContent}`);
+                    repliesContainer.style.display = 'block';
+                    replyInput.value = '';
+                } else {
+                    alert('Please enter something that you want to reply.');
+                }
+            });
+            divItem.appendChild(submitButton);
+        }
 
-         if (!cancelButton) {
-             cancelButton = document.createElement('button');
-             cancelButton.innerHTML = 'Cancel';
-             cancelButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'cancel-reply-btn');
-             cancelButton.addEventListener('click', () => {
-                 divItem.removeChild(replyInput);
-                 divItem.removeChild(submitButton);
-                 divItem.removeChild(cancelButton);
-             });
-             divItem.appendChild(cancelButton);
-         }
+        if (!cancelButton) {
+            cancelButton = document.createElement('button');
+            cancelButton.innerHTML = 'Cancel';
+            cancelButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'cancel-reply-btn');
+            cancelButton.addEventListener('click', () => {
+                divItem.removeChild(replyInput);
+                divItem.removeChild(submitButton);
+                divItem.removeChild(cancelButton);
+            });
+            divItem.appendChild(cancelButton);
+        }
 
-         replyInput.focus();
-     });
-     divItem.appendChild(replyButton);
-     const iconDiv = document.createElement('div');
-     iconDiv.style.marginLeft = '345px';
-     iconDiv.style.marginTop = '-40px';
-     const react = await commentReactType(id, user.id, postId);
-     if (react !== null && react.type === 'DISLIKE') {
-         iconDiv.appendChild(dislikeIconWithColor);
-     } else {
-         iconDiv.appendChild(dislikeIconWithoutColor);
-     }
+        replyInput.focus();
+    });
+    divItem.appendChild(replyButton);
+    const iconDiv = document.createElement('div');
+    iconDiv.style.marginLeft = '345px';
+    iconDiv.style.marginTop = '-40px';
+    const react = await commentReactType(id, user.id, postId);
+    if (react !== null && react.type === 'DISLIKE') {
+        iconDiv.appendChild(dislikeIconWithColor);
+    } else {
+        iconDiv.appendChild(dislikeIconWithoutColor);
+    }
 
-     if (react !== null && react.type === 'LIKE') {
-         iconDiv.appendChild(likeIconWithColor);
-     } else {
-         iconDiv.appendChild(likeIconWithoutColor);
-     }
-     divItem.appendChild(iconDiv);
-     const replies = await fetchAndDisplayReplies(id);
-     const repliesContainer = document.createElement('div');
-     repliesContainer.classList.add(`replies-container-${id}`);
-     repliesContainer.style.display = 'none';
-
-
-     for (const reply of replies) {
-         repliesContainer.appendChild(reply);
-     }
-     const dropdownMenu = document.createElement('div');
-     dropdownMenu.classList.add('dropdown-menu');
-
-     const dropDownIcon = document.createElement('i');
-     dropDownIcon.classList.add('fa-solid', 'fa-ellipsis-vertical');
-     dropDownIcon.style.padding = '15px';
-     dropDownIcon.style.fontSize = '20px';
-     dropDownIcon.addEventListener('click', () => {
-         dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
-     });
-
-     const seeMoreButton = document.createElement('i');
-     seeMoreButton.classList.add('fa-regular', 'fa-comment');
-     seeMoreButton.style.padding = '10px';
-     seeMoreButton.addEventListener('click', () => {
-         dropdownMenu.style.display = 'none';
-         repliesContainer.style.display = repliesContainer.style.display === 'none' ? 'block' : 'none';
-     });
-
-     dropdownMenu.appendChild(seeMoreButton);
-     divItem.appendChild(dropdownMenu);
-
-     if (sender === user.name) {
-         const editIcon = document.createElement('i');
-         editIcon.classList.add('fa-regular', 'fa-pen-to-square');
-         editIcon.style.padding = '15px';
-         editIcon.addEventListener('click', () => {
-             dropdownMenu.style.display = 'none';
-             let currentContent = null;
-             if (convertDiv.contains(spanElement)) {
-                 currentContent = spanElement.innerHTML;
-             }
-             console.log('textArea', currentContent);
-             const textarea = document.createElement('textarea');
-             textarea.style.borderRadius = '10px';
-             textarea.style.backgroundColor = 'lightgrey';
-             textarea.value = currentContent;
-             ddEl.replaceChild(textarea, spanElement);
-             const saveButton = document.createElement('button');
-             saveButton.textContent = 'Save';
-             saveButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'save-button');
-             saveButton.addEventListener('click', async () => {
-                 const updatedContent = textarea.value.trim();
-                 if (updatedContent !== '') {
-                     const commentId = spanElement.id;
-                     await updateContent(commentId, updatedContent);
-                     spanElement.innerHTML = updatedContent;
-                     ddEl.removeChild(textarea);
-                     divItem.removeChild(saveButton);
-                 } else {
-                     alert('Please enter something for the comment.');
-                 }
-             });
-             divItem.appendChild(saveButton);
-         });
-         dropdownMenu.appendChild(editIcon);
-
-         const trashIcon = document.createElement('i');
-         trashIcon.classList.add('fa-solid', 'fa-trash');
-         trashIcon.style.padding = '10px';
-         trashIcon.addEventListener('click', async () => {
-             dropdownMenu.style.display = 'none';
-             const commentId = spanElement.id;
-             console.log("Span Element id", commentId);
-             await deleteComment(commentId);
-         });
-         dropdownMenu.appendChild(trashIcon);
-         divItem.appendChild(dropdownMenu);
-     }
-     const chDiv = document.createElement('div');
-     chDiv.style.marginLeft = '410px';
-     chDiv.style.marginTop = '-45px';
-     chDiv.appendChild(dropDownIcon);
-     divItem.appendChild(chDiv);
-     const rpDiv = document.createElement('div');
-     rpDiv.appendChild(repliesContainer);
-     divItem.appendChild(rpDiv);
- };
-
- const onSuccess =async (id) => {
-     const reply = await fetchAndDisplayLastReply(id);
-     console.log('wow mal ya pr lr')
-     await document.querySelector(`.replies-container-${id}`).appendChild(reply);
- }
-
- const fetchAndDisplayLastReply = async (id) => {
-     const fetchReplies = await fetch(`/getAll-comment/${id}`);
-     const fetchDataForReplies = await fetchReplies.json();
-     const replyElement = document.createElement('div');
-     const lastReplyIndex = fetchDataForReplies.length - 1;
-     if (lastReplyIndex >= 0) {
-         const reply = fetchDataForReplies[lastReplyIndex];
-         replyElement.classList.add(`reply-item-${reply.id}`);
-         let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
-         replyElement.setAttribute('data-toggle', 'tooltip');
-         replyElement.setAttribute('title', `${createdTimeForReply}`);
-         const user = await fetchUserDataByPostedUser(loginUser);
-         const userRpImage = document.createElement('img');
-         const photo = reply.user.photo || '/static/assets/img/card.jpg';
-         userRpImage.src = `${photo}`;
-         userRpImage.alt = 'User Photo';
-         userRpImage.classList.add('user-photo');
-         userRpImage.style.height = '50px';
-         userRpImage.style.width = '50px';
-         userRpImage.style.marginLeft = '50px';
-         userRpImage.style.backgroundColor = '#cccccc';
-         replyElement.classList.add('reply-item');
-         const replySender = document.createElement('span');
-         if (reply.user.name === user.name) {
-             replySender.innerHTML = `You : `;
-         } else {
-             replySender.innerHTML = `${reply.user.name} : `;
-         }
-         const replyContent = document.createElement('span');
-         replyContent.id = reply.id;
-         replyContent.innerHTML = reply.content;
-         const spElement = document.createElement('span');
-         const contentElement = document.createElement('span');
-         const divEl = document.createElement('div');
-         divEl.style.marginLeft = '110px';
-         divEl.style.padding = '20px';
-         divEl.style.backgroundColor = 'lightgrey';
-         divEl.style.marginTop = '-30px';
-         divEl.style.borderTopLeftRadius = '10px';
-         divEl.style.borderBottomLeftRadius = '30px';
-         divEl.style.borderBottomRightRadius = '15px';
-         spElement.appendChild(userRpImage);
-         replyElement.appendChild(spElement);
-         divEl.appendChild(replySender);
-         divEl.appendChild(replyContent);
-         contentElement.appendChild(divEl);
-         replyElement.appendChild(contentElement);
-
-         let replyInputForReply = replyElement.querySelector('.reply-input');
-         let submitButton = replyElement.querySelector('.submit-reply-btn');
-         let cancelButton = replyElement.querySelector('.cancel-reply-btn');
-         const replyButton = document.createElement('i');
-         replyButton.style.padding = '10px';
-         replyButton.style.marginLeft = '300px';
-         replyButton.classList.add('fa-solid', 'fa-reply');
-         replyButton.addEventListener('click',async () => {
-             const replyUser = await fetchRepliedUserForData(reply.id);
-             if (!replyInputForReply) {
-                 replyInputForReply = document.createElement('input');
-                 replyInputForReply.type = 'text';
-                 replyInputForReply.placeholder = 'Type your reply...';
-                 replyInputForReply.classList.add('reply-input');
-                 replyInputForReply.style.marginTop = '10px';
-                 replyInputForReply.style.borderRadius = '10px';
-                 replyInputForReply.value = `@ ${replyUser.user.name} : `;
-                 replyInputForReply.style.padding = '8px';
-                 replyInputForReply.readOnly = true;
-                 replyElement.appendChild(replyInputForReply);
-
-                 replyInputForReply.addEventListener('focus', function () {
-                     replyInputForReply.removeAttribute('readOnly');
-                     replyInputForReply.classList.remove('readonly');
-                 });
-                 replyInputForReply.addEventListener('blur', function () {
-                     replyInputForReply.readOnly = true;
-                     replyInputForReply.classList.add('readonly');
-                 });
-             } else {
-                 replyInputForReply.value = `@ ${replyUser.user.name} `;
-                 replyInputForReply.readOnly = true;
-                 replyInputForReply.classList.add('readonly');
-             }
-
-             replyInputForReply.addEventListener('input', function () {
-                 if (replyInputForReply.value === `@ ${replyUser.user.name} `) {
-                     replyInputForReply.classList.add('readonly');
-                 } else {
-                     replyInputForReply.classList.remove('readonly');
-                 }
-             });
-             if (!submitButton) {
-                 submitButton = document.createElement('button');
-                 submitButton.style.marginTop = '10px';
-                 submitButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'submit-reply-btn');
-                 submitButton.textContent = 'Submit';
-                 submitButton.addEventListener('click', async () => {
-                     const replyContent = replyInputForReply.value.trim();
-                     if (replyContent !== '') {
-                         const myObj = {
-                             replyId: reply.id,
-                             sender: loginUser,
-                             content: replyContent
-                         };
-                         stompClient.send('/app/comment-reply-message', {}, JSON.stringify(myObj));
-                         const chatArea = document.querySelector('#commentMessageText');
-                         //await displayMessage(user.name, replyContent, user.photo, id, reply.comment.post.id, chatArea);
-                         console.log("kyi mal", user.name, replyContent, user.photo, id, reply.comment.post.id);
-                         console.log(`Replying to comment ${id}: ${replyContent}`);
-                         replyInputForReply.value = '';
-                     } else {
-                         alert('Please enter something that you want to reply.');
-                     }
-                 });
-
-                 replyElement.appendChild(submitButton);
-             }
-             if (!cancelButton) {
-                 cancelButton = document.createElement('button');
-                 cancelButton.innerHTML = 'Cancel';
-                 cancelButton.style.marginTop = '10px';
-                 cancelButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'cancel-reply-btn');
-                 cancelButton.addEventListener('click', () => {
-                     replyElement.removeChild(replyInputForReply);
-                     replyElement.removeChild(submitButton);
-                     replyElement.removeChild(cancelButton);
-                 });
-                 replyElement.appendChild(cancelButton);
-             }
-             replyInputForReply.focus();
-         });
-         replyElement.appendChild(replyButton);
-         const likeIconWithoutColor = document.createElement('i');
-         likeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-up');
-         likeIconWithoutColor.style.fontSize = '20px';
-         likeIconWithoutColor.addEventListener('click', () => {
-             if (iconDiv.contains(dislikeIconWithColor)) {
-                 iconDiv.removeChild(dislikeIconWithColor);
-             }
-             iconDiv.appendChild(dislikeIconWithoutColor);
-             iconDiv.removeChild(likeIconWithoutColor);
-             iconDiv.appendChild(likeIconWithColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` like  your reply!`,
-                 type: 'LIKE',
-             };
-
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
-
-         const likeIconWithColor = document.createElement('i');
-         likeIconWithColor.style.fontSize = '20px';
-         likeIconWithColor.classList.add('fa-solid', 'fa-thumbs-up');
-         likeIconWithColor.addEventListener('click', () => {
-             if (iconDiv.contains(dislikeIconWithColor)) {
-                 iconDiv.removeChild(dislikeIconWithColor);
-             }
-             iconDiv.appendChild(dislikeIconWithoutColor);
-             iconDiv.removeChild(likeIconWithColor);
-             iconDiv.appendChild(likeIconWithoutColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` liked  your reply!`,
-                 type: null,
-             }
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
-         const dislikeIconWithoutColor = document.createElement('i');
-         dislikeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-down');
-         dislikeIconWithoutColor.style.fontSize = '20px';
-         dislikeIconWithoutColor.style.padding = '10px';
-         dislikeIconWithoutColor.addEventListener('click', () => {
-             iconDiv.removeChild(dislikeIconWithoutColor);
-             iconDiv.appendChild(dislikeIconWithColor);
-             if (iconDiv.contains(likeIconWithColor)) {
-                 iconDiv.removeChild(likeIconWithColor);
-             }
-             iconDiv.appendChild(likeIconWithoutColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` dislike your reply!`,
-                 type: 'DISLIKE',
-             }
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
-         const dislikeIconWithColor = document.createElement('i');
-         dislikeIconWithColor.classList.add('fa-solid', 'fa-thumbs-down');
-         dislikeIconWithColor.style.fontSize = '20px';
-         dislikeIconWithColor.style.padding = '10px';
-         dislikeIconWithColor.addEventListener('click', () => {
-             iconDiv.removeChild(dislikeIconWithColor);
-             iconDiv.appendChild(dislikeIconWithoutColor);
-             if (iconDiv.contains(likeIconWithColor)) {
-                 iconDiv.removeChild(likeIconWithColor);
-             }
-             iconDiv.appendChild(likeIconWithoutColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` dislike your comment!`,
-                 type: null,
-             }
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
-
-         const iconDiv = document.createElement('div');
-         iconDiv.style.marginLeft = '360px';
-         iconDiv.style.marginTop = '-40px';
-         const isReact = await replyReactType(id, user.id, reply.id);
-         if (isReact !== null && isReact.type === 'DISLIKE') {
-             iconDiv.appendChild(dislikeIconWithColor);
-         } else {
-             iconDiv.appendChild(dislikeIconWithoutColor);
-         }
-
-         if (isReact !== null && isReact.type === 'LIKE') {
-             iconDiv.appendChild(likeIconWithColor);
-         } else {
-             iconDiv.appendChild(likeIconWithoutColor);
-         }
-         const dropdownMenu = document.createElement('div');
-         dropdownMenu.classList.add('dropdown-menu');
-
-         const dropDownIcon = document.createElement('i');
-         dropDownIcon.classList.add('fa-solid', 'fa-ellipsis-vertical');
-         dropDownIcon.style.padding = '15px';
-         dropDownIcon.addEventListener('click', () => {
-             dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
-         });
-
-         if (reply.user.name === user.name) {
-             const editIcon = document.createElement('i');
-             editIcon.classList.add('fa-regular', 'fa-pen-to-square');
-             editIcon.style.padding = '15px';
-             editIcon.addEventListener('click', () => {
-                 dropdownMenu.style.display = 'none';
-                 const currentContent = replyContent.innerHTML;
-                 const textarea = document.createElement('textarea');
-                 textarea.style.borderRadius = '10px';
-                 textarea.style.backgroundColor = 'lightgrey';
-                 textarea.value = currentContent;
-                 divEl.replaceChild(textarea, replyContent);
-                 const saveButton = document.createElement('button');
-                 saveButton.textContent = 'Save';
-                 saveButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'save-button');
-                 saveButton.addEventListener('click', async () => {
-                     const updatedContent = textarea.value.trim();
-                     if (updatedContent !== '') {
-                         const replyId = reply.id;
-                         await updateContentForReply(replyId, updatedContent);
-                         replyContent.innerHTML = updatedContent;
-                         divEl.removeChild(textarea);
-                         replyElement.removeChild(saveButton);
-                     } else {
-                         alert('Please enter something for the reply.');
-                     }
-                 });
-                 replyElement.appendChild(saveButton);
-             });
-             dropdownMenu.appendChild(editIcon);
-             replyElement.appendChild(dropdownMenu);
-
-             const trashIcon = document.createElement('i');
-             trashIcon.classList.add('fa-solid', 'fa-trash');
-             trashIcon.style.padding = '15px';
-             trashIcon.addEventListener('click', async () => {
-                 dropdownMenu.style.display = 'none';
-                 const replyId = replyContent.id;
-                 console.log("Span Reply id", replyId);
-                 await deleteReply(replyId);
-             });
-             dropdownMenu.appendChild(trashIcon);
-             replyElement.appendChild(dropdownMenu);
-             replyElement.appendChild(dropDownIcon);
-             replyElement.appendChild(iconDiv);
-         }
-     }
-     console.log('Thi chin tal',replyElement)
-     return replyElement;
- };
+    if (react !== null && react.type === 'LIKE') {
+        iconDiv.appendChild(likeIconWithColor);
+    } else {
+        iconDiv.appendChild(likeIconWithoutColor);
+    }
+    divItem.appendChild(iconDiv);
+    const replies = await fetchAndDisplayReplies(id);
+    const repliesContainer = document.createElement('div');
+    repliesContainer.classList.add(`replies-container-${id}`);
+    repliesContainer.style.display = 'none';
 
 
- const fetchAndDisplayReplies = async (id) => {
-     const fetchReplies = await fetch(`/getAll-comment/${id}`);
-     const fetchDataForReplies = await fetchReplies.json();
+    for (const reply of replies) {
+        repliesContainer.appendChild(reply);
+    }
+    const dropdownMenu = document.createElement('div');
+    dropdownMenu.classList.add('dropdown-menu');
 
-     const replies = [];
+    const dropDownIcon = document.createElement('i');
+    dropDownIcon.classList.add('fa-solid', 'fa-ellipsis-vertical');
+    dropDownIcon.style.padding = '15px';
+    dropDownIcon.style.fontSize = '20px';
+    dropDownIcon.addEventListener('click', () => {
+        dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
+    });
 
-     for (const reply of fetchDataForReplies) {
-         const user = await fetchUserDataByPostedUser(loginUser);
-         const replyElement = document.createElement('div');
+    const seeMoreButton = document.createElement('i');
+    seeMoreButton.classList.add('fa-regular', 'fa-comment');
+    seeMoreButton.style.padding = '10px';
+    seeMoreButton.addEventListener('click', () => {
+        dropdownMenu.style.display = 'none';
+        repliesContainer.style.display = repliesContainer.style.display === 'none' ? 'block' : 'none';
+    });
 
-         const userRpImage = document.createElement('img');
-         const photo = reply.user.photo || '/static/assets/img/card.jpg';
-         userRpImage.src = `${photo}`;
-         userRpImage.alt = 'User Photo';
-         userRpImage.classList.add('user-photo');
-         userRpImage.style.height = '50px';
-         userRpImage.style.width = '50px';
-         userRpImage.style.marginLeft = '50px';
-         userRpImage.style.backgroundColor = '#cccccc';
-         replyElement.classList.add(`reply-item-${reply.id}`);
-         let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
-         replyElement.setAttribute('data-toggle', 'tooltip');
-         replyElement.setAttribute('title', `${createdTimeForReply}`);
-         const replySender = document.createElement('span');
-         if (reply.user.name === user.name) {
-             replySender.innerHTML = `You : `;
-         } else {
-             replySender.innerHTML = `${reply.user.name} : `;
-         }
-         const replyContent = document.createElement('span');
-         replyContent.classList.add(`span-reply-container-${reply.id}`)
-         replyContent.id = reply.id;
-         replyContent.innerHTML = reply.content;
-         const spElement = document.createElement('span');
-         const contentElement = document.createElement('span');
-         const divEl = document.createElement('div');
-         divEl.classList.add(`reply-container-div-${reply.id}`);
-         divEl.style.marginLeft = '110px';
-         divEl.style.padding = '20px';
-         divEl.style.backgroundColor = 'lightgrey';
-         divEl.style.marginTop = '-30px';
-         divEl.style.borderTopLeftRadius = '10px';
-         divEl.style.borderBottomLeftRadius = '30px';
-         divEl.style.borderBottomRightRadius = '15px';
-         spElement.appendChild(userRpImage);
-         replyElement.appendChild(spElement);
-         divEl.appendChild(replySender);
-         divEl.appendChild(replyContent);
-         contentElement.appendChild(divEl);
-         replyElement.appendChild(contentElement);
+    dropdownMenu.appendChild(seeMoreButton);
+    divItem.appendChild(dropdownMenu);
 
-         let replyInputForReply = replyElement.querySelector('.reply-input');
-         let submitButton = replyElement.querySelector('.submit-reply-btn');
-         let cancelButton = replyElement.querySelector('.cancel-reply-btn');
-         const replyButton = document.createElement('i');
-         replyButton.style.padding = '10px';
-         replyButton.style.marginLeft = '300px';
-         replyButton.classList.add('fa-solid', 'fa-reply');
-         replyButton.addEventListener('click',async () => {
-             const replyUser = await fetchRepliedUserForData(reply.id);
-             if (!replyInputForReply) {
-                 replyInputForReply = document.createElement('input');
-                 replyInputForReply.type = 'text';
-                 replyInputForReply.placeholder = 'Type your reply...';
-                 replyInputForReply.classList.add('reply-input');
-                 replyInputForReply.style.marginTop = '10px';
-                 replyInputForReply.style.borderRadius = '10px';
-                 replyInputForReply.value = `@ ${replyUser.user.name} : `;
-                 replyInputForReply.style.padding = '8px';
-                 replyInputForReply.readOnly = true;
-                 replyElement.appendChild(replyInputForReply);
+    if (sender === user.name) {
+        const editIcon = document.createElement('i');
+        editIcon.classList.add('fa-regular', 'fa-pen-to-square');
+        editIcon.style.padding = '15px';
+        editIcon.addEventListener('click', () => {
+            dropdownMenu.style.display = 'none';
+            let currentContent = null;
+            if (convertDiv.contains(spanElement)) {
+                currentContent = spanElement.innerHTML;
+            }
+            console.log('textArea', currentContent);
+            const textarea = document.createElement('textarea');
+            textarea.style.borderRadius = '10px';
+            textarea.style.backgroundColor = 'lightgrey';
+            textarea.value = currentContent;
+            ddEl.replaceChild(textarea, spanElement);
+            const saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            saveButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'save-button');
+            saveButton.addEventListener('click', async () => {
+                const updatedContent = textarea.value.trim();
+                if (updatedContent !== '') {
+                    const commentId = spanElement.id;
+                    await updateContent(commentId, updatedContent);
+                    spanElement.innerHTML = updatedContent;
+                    ddEl.removeChild(textarea);
+                    divItem.removeChild(saveButton);
+                } else {
+                    alert('Please enter something for the comment.');
+                }
+            });
+            divItem.appendChild(saveButton);
+        });
+        dropdownMenu.appendChild(editIcon);
 
-                 replyInputForReply.addEventListener('focus', function () {
-                     replyInputForReply.removeAttribute('readOnly');
-                     replyInputForReply.classList.remove('readonly');
-                 });
-                 replyInputForReply.addEventListener('blur', function () {
-                     replyInputForReply.readOnly = true;
-                     replyInputForReply.classList.add('readonly');
-                 });
-             } else {
-                 replyInputForReply.value = `@ ${replyUser.user.name} `;
-                 replyInputForReply.readOnly = true;
-                 replyInputForReply.classList.add('readonly');
-             }
+        const trashIcon = document.createElement('i');
+        trashIcon.classList.add('fa-solid', 'fa-trash');
+        trashIcon.style.padding = '10px';
+        trashIcon.addEventListener('click', async () => {
+            dropdownMenu.style.display = 'none';
+            const commentId = spanElement.id;
+            console.log("Span Element id", commentId);
+            await deleteComment(commentId);
+        });
+        dropdownMenu.appendChild(trashIcon);
+        divItem.appendChild(dropdownMenu);
+    }
+    const chDiv = document.createElement('div');
+    chDiv.style.marginLeft = '410px';
+    chDiv.style.marginTop = '-45px';
+    chDiv.appendChild(dropDownIcon);
+    divItem.appendChild(chDiv);
+    const rpDiv = document.createElement('div');
+    rpDiv.appendChild(repliesContainer);
+    divItem.appendChild(rpDiv);
+};
 
-             replyInputForReply.addEventListener('input', function () {
-                 if (replyInputForReply.value === `@ ${replyUser.user.name} `) {
-                     replyInputForReply.classList.add('readonly');
-                 } else {
-                     replyInputForReply.classList.remove('readonly');
-                 }
-             });
-             if (!submitButton) {
-                 submitButton = document.createElement('button');
-                 submitButton.style.marginTop = '10px';
-                 submitButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'submit-reply-btn');
-                 submitButton.textContent = 'Submit';
-                 submitButton.addEventListener('click', async () => {
-                     const replyContent = replyInputForReply.value.trim();
-                     if (replyContent !== '') {
-                         const myObj = {
-                             replyId: reply.id,
-                             sender: loginUser,
-                             content: replyContent
-                         };
-                         stompClient.send('/app/comment-reply-message', {}, JSON.stringify(myObj));
-                         const chatArea = document.querySelector('#commentMessageText');
-                         //  await displayMessage(user.name, replyContent, user.photo, id, reply.comment.post.id, chatArea);
-                         console.log("kyi mal", user.name, replyContent, user.photo, id, reply.comment.post.id);
-                         console.log(`Replying to comment ${id}: ${replyContent}`);
-                         replyInputForReply.value = '';
-                     } else {
-                         alert('Please enter something that you want to reply.');
-                     }
-                 });
+const onSuccess =async (id) => {
+    const reply = await fetchAndDisplayLastReply(id);
+    console.log('wow mal ya pr lr')
+    await document.querySelector(`.replies-container-${id}`).appendChild(reply);
+}
 
-                 replyElement.appendChild(submitButton);
-             }
-             if (!cancelButton) {
-                 cancelButton = document.createElement('button');
-                 cancelButton.innerHTML = 'Cancel';
-                 cancelButton.style.marginTop = '10px';
-                 cancelButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'cancel-reply-btn');
-                 cancelButton.addEventListener('click', () => {
-                     replyElement.removeChild(replyInputForReply);
-                     replyElement.removeChild(submitButton);
-                     replyElement.removeChild(cancelButton);
-                 });
-                 replyElement.appendChild(cancelButton);
-             }
-             replyInputForReply.focus();
-         });
-         replyElement.appendChild(replyButton);
-         const likeIconWithoutColor = document.createElement('i');
-         likeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-up');
-         likeIconWithoutColor.style.fontSize = '20px';
-         likeIconWithoutColor.addEventListener('click', () => {
-             if (iconDiv.contains(dislikeIconWithColor)) {
-                 iconDiv.removeChild(dislikeIconWithColor);
-             }
-             iconDiv.appendChild(dislikeIconWithoutColor);
-             iconDiv.removeChild(likeIconWithoutColor);
-             iconDiv.appendChild(likeIconWithColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` like  your reply!`,
-                 type: 'LIKE',
-             };
+const fetchAndDisplayLastReply = async (id) => {
+    const fetchReplies = await fetch(`/getAll-comment/${id}`);
+    const fetchDataForReplies = await fetchReplies.json();
+    const replyElement = document.createElement('div');
+    const lastReplyIndex = fetchDataForReplies.length - 1;
+    if (lastReplyIndex >= 0) {
+        const reply = fetchDataForReplies[lastReplyIndex];
+        replyElement.classList.add(`reply-item-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        replyElement.setAttribute('data-toggle', 'tooltip');
+        replyElement.setAttribute('title', `${createdTimeForReply}`);
+        const user = await fetchUserDataByPostedUser(loginUser);
+        const userRpImage = document.createElement('img');
+        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        userRpImage.src = `${photo}`;
+        userRpImage.alt = 'User Photo';
+        userRpImage.classList.add('user-photo');
+        userRpImage.style.height = '50px';
+        userRpImage.style.width = '50px';
+        userRpImage.style.marginLeft = '50px';
+        userRpImage.style.backgroundColor = '#cccccc';
+        replyElement.classList.add('reply-item');
+        const replySender = document.createElement('span');
+        if (reply.user.name === user.name) {
+            replySender.innerHTML = `You : `;
+        } else {
+            replySender.innerHTML = `${reply.user.name} : `;
+        }
+        const replyContent = document.createElement('span');
+        replyContent.id = reply.id;
+        const formattedContent = await highlightMentions(reply.content);
+        replyContent.innerHTML = `${formattedContent}`;
+        const spElement = document.createElement('span');
+        const contentElement = document.createElement('span');
+        const divEl = document.createElement('div');
+        divEl.style.marginLeft = '110px';
+        divEl.style.padding = '20px';
+        divEl.style.backgroundColor = 'lightgrey';
+        divEl.style.marginTop = '-30px';
+        divEl.style.borderTopLeftRadius = '10px';
+        divEl.style.borderBottomLeftRadius = '30px';
+        divEl.style.borderBottomRightRadius = '15px';
+        spElement.appendChild(userRpImage);
+        replyElement.appendChild(spElement);
+        divEl.appendChild(replySender);
+        divEl.appendChild(replyContent);
+        contentElement.appendChild(divEl);
+        replyElement.appendChild(contentElement);
 
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
+        let replyInputForReply = replyElement.querySelector('.reply-input');
+        let submitButton = replyElement.querySelector('.submit-reply-btn');
+        let cancelButton = replyElement.querySelector('.cancel-reply-btn');
+        const replyButton = document.createElement('i');
+        replyButton.style.padding = '10px';
+        replyButton.style.marginLeft = '300px';
+        replyButton.classList.add('fa-solid', 'fa-reply');
+        replyButton.addEventListener('click',async () => {
+            const replyUser = await fetchRepliedUserForData(reply.id);
+            const sanitizedUserName = replyUser.user.name.replace(/\s+/g, '');
+            if (!replyInputForReply) {
+                replyInputForReply = document.createElement('input');
+                replyInputForReply.type = 'text';
+                replyInputForReply.placeholder = 'Type your reply...';
+                replyInputForReply.classList.add('reply-input');
+                replyInputForReply.style.marginTop = '10px';
+                replyInputForReply.style.borderRadius = '10px';
+                replyInputForReply.value = `@${sanitizedUserName} : `;
+                replyInputForReply.style.padding = '8px';
+                replyInputForReply.readOnly = true;
+                replyElement.appendChild(replyInputForReply);
 
-         const likeIconWithColor = document.createElement('i');
-         likeIconWithColor.style.fontSize = '20px';
-         likeIconWithColor.classList.add('fa-solid', 'fa-thumbs-up');
-         likeIconWithColor.addEventListener('click', () => {
-             if (iconDiv.contains(dislikeIconWithColor)) {
-                 iconDiv.removeChild(dislikeIconWithColor);
-             }
-             iconDiv.appendChild(dislikeIconWithoutColor);
-             iconDiv.removeChild(likeIconWithColor);
-             iconDiv.appendChild(likeIconWithoutColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` liked  your reply!`,
-                 type: null,
-             }
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
-         const dislikeIconWithoutColor = document.createElement('i');
-         dislikeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-down');
-         dislikeIconWithoutColor.style.fontSize = '20px';
-         dislikeIconWithoutColor.style.padding = '10px';
-         dislikeIconWithoutColor.addEventListener('click', () => {
-             iconDiv.removeChild(dislikeIconWithoutColor);
-             iconDiv.appendChild(dislikeIconWithColor);
-             if (iconDiv.contains(likeIconWithColor)) {
-                 iconDiv.removeChild(likeIconWithColor);
-             }
-             iconDiv.appendChild(likeIconWithoutColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` dislike your reply!`,
-                 type: 'DISLIKE',
-             }
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
-         const dislikeIconWithColor = document.createElement('i');
-         dislikeIconWithColor.classList.add('fa-solid', 'fa-thumbs-down');
-         dislikeIconWithColor.style.fontSize = '20px';
-         dislikeIconWithColor.style.padding = '10px';
-         dislikeIconWithColor.addEventListener('click', () => {
-             iconDiv.removeChild(dislikeIconWithColor);
-             iconDiv.appendChild(dislikeIconWithoutColor);
-             if (iconDiv.contains(likeIconWithColor)) {
-                 iconDiv.removeChild(likeIconWithColor);
-             }
-             iconDiv.appendChild(likeIconWithoutColor);
-             const myObj = {
-                 postId: reply.id,
-                 commentId: id,
-                 sender: loginUser,
-                 content: ` dislike your comment!`,
-                 type: null,
-             }
-             stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
-         });
+                replyInputForReply.addEventListener('focus', function () {
+                    replyInputForReply.removeAttribute('readOnly');
+                    replyInputForReply.classList.remove('readonly');
+                });
+                replyInputForReply.addEventListener('blur', function () {
+                    replyInputForReply.readOnly = true;
+                    replyInputForReply.classList.add('readonly');
+                });
+            } else {
+                replyInputForReply.value = `@${sanitizedUserName} `;
+                replyInputForReply.readOnly = true;
+                replyInputForReply.classList.add('readonly');
+            }
 
-         const iconDiv = document.createElement('div');
-         iconDiv.style.marginLeft = '360px';
-         iconDiv.style.marginTop = '-40px';
-         const isReact = await replyReactType(id, user.id, reply.id);
-         if (isReact !== null && isReact.type === 'DISLIKE') {
-             iconDiv.appendChild(dislikeIconWithColor);
-         } else {
-             iconDiv.appendChild(dislikeIconWithoutColor);
-         }
+            replyInputForReply.addEventListener('input', function () {
+                if (replyInputForReply.value === `@${sanitizedUserName} `) {
+                    replyInputForReply.classList.add('readonly');
+                } else {
+                    replyInputForReply.classList.remove('readonly');
+                }
+            });
+            if (!submitButton) {
+                submitButton = document.createElement('button');
+                submitButton.style.marginTop = '10px';
+                submitButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'submit-reply-btn');
+                submitButton.textContent = 'Submit';
+                submitButton.addEventListener('click', async () => {
+                    const replyContent = replyInputForReply.value.trim();
+                    if (replyContent !== '') {
+                        const myObj = {
+                            replyId: reply.id,
+                            sender: loginUser,
+                            content: replyContent
+                        };
+                        stompClient.send('/app/comment-reply-message', {}, JSON.stringify(myObj));
+                        const chatArea = document.querySelector('#commentMessageText');
+                        //await displayMessage(user.name, replyContent, user.photo, id, reply.comment.post.id, chatArea);
+                        console.log("kyi mal", user.name, replyContent, user.photo, id, reply.comment.post.id);
+                        console.log(`Replying to comment ${id}: ${replyContent}`);
+                        replyInputForReply.value = '';
+                    } else {
+                        alert('Please enter something that you want to reply.');
+                    }
+                });
 
-         if (isReact !== null && isReact.type === 'LIKE') {
-             iconDiv.appendChild(likeIconWithColor);
-         } else {
-             iconDiv.appendChild(likeIconWithoutColor);
-         }
-         const dropdownMenu = document.createElement('div');
-         dropdownMenu.classList.add('dropdown-menu');
+                replyElement.appendChild(submitButton);
+            }
+            if (!cancelButton) {
+                cancelButton = document.createElement('button');
+                cancelButton.innerHTML = 'Cancel';
+                cancelButton.style.marginTop = '10px';
+                cancelButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'cancel-reply-btn');
+                cancelButton.addEventListener('click', () => {
+                    replyElement.removeChild(replyInputForReply);
+                    replyElement.removeChild(submitButton);
+                    replyElement.removeChild(cancelButton);
+                });
+                replyElement.appendChild(cancelButton);
+            }
+            replyInputForReply.focus();
+        });
+        replyElement.appendChild(replyButton);
+        const likeIconWithoutColor = document.createElement('i');
+        likeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-up');
+        likeIconWithoutColor.style.fontSize = '20px';
+        likeIconWithoutColor.addEventListener('click', () => {
+            if (iconDiv.contains(dislikeIconWithColor)) {
+                iconDiv.removeChild(dislikeIconWithColor);
+            }
+            iconDiv.appendChild(dislikeIconWithoutColor);
+            iconDiv.removeChild(likeIconWithoutColor);
+            iconDiv.appendChild(likeIconWithColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` like  your reply!`,
+                type: 'LIKE',
+            };
 
-         const dropDownIcon = document.createElement('i');
-         dropDownIcon.classList.add('fa-solid', 'fa-ellipsis-vertical');
-         dropDownIcon.style.padding = '15px';
-         dropDownIcon.addEventListener('click', () => {
-             dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
-         });
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
 
-         if (reply.user.name === user.name) {
-             const editIcon = document.createElement('i');
-             editIcon.classList.add('fa-regular', 'fa-pen-to-square');
-             editIcon.style.padding = '15px';
-             editIcon.addEventListener('click', () => {
-                 dropdownMenu.style.display = 'none';
-                 const currentContent = replyContent.innerHTML;
-                 const textarea = document.createElement('textarea');
-                 textarea.style.borderRadius = '10px';
-                 textarea.style.backgroundColor = 'lightgrey';
-                 textarea.value = currentContent;
-                 divEl.replaceChild(textarea, replyContent);
-                 const saveButton = document.createElement('button');
-                 saveButton.textContent = 'Save';
-                 saveButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'save-button');
-                 saveButton.addEventListener('click', async () => {
-                     const updatedContent = textarea.value.trim();
-                     if (updatedContent !== '') {
-                         const replyId = reply.id;
-                         await updateContentForReply(replyId, updatedContent);
-                         replyContent.innerHTML = updatedContent;
-                         divEl.removeChild(textarea);
-                         replyElement.removeChild(saveButton);
-                     } else {
-                         alert('Please enter something for the reply.');
-                     }
-                 });
-                 replyElement.appendChild(saveButton);
-             });
-             dropdownMenu.appendChild(editIcon);
-             // replyElement.appendChild(dropdownMenu);
+        const likeIconWithColor = document.createElement('i');
+        likeIconWithColor.style.fontSize = '20px';
+        likeIconWithColor.classList.add('fa-solid', 'fa-thumbs-up');
+        likeIconWithColor.addEventListener('click', () => {
+            if (iconDiv.contains(dislikeIconWithColor)) {
+                iconDiv.removeChild(dislikeIconWithColor);
+            }
+            iconDiv.appendChild(dislikeIconWithoutColor);
+            iconDiv.removeChild(likeIconWithColor);
+            iconDiv.appendChild(likeIconWithoutColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` liked  your reply!`,
+                type: null,
+            }
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
+        const dislikeIconWithoutColor = document.createElement('i');
+        dislikeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-down');
+        dislikeIconWithoutColor.style.fontSize = '20px';
+        dislikeIconWithoutColor.style.padding = '10px';
+        dislikeIconWithoutColor.addEventListener('click', () => {
+            iconDiv.removeChild(dislikeIconWithoutColor);
+            iconDiv.appendChild(dislikeIconWithColor);
+            if (iconDiv.contains(likeIconWithColor)) {
+                iconDiv.removeChild(likeIconWithColor);
+            }
+            iconDiv.appendChild(likeIconWithoutColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` dislike your reply!`,
+                type: 'DISLIKE',
+            }
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
+        const dislikeIconWithColor = document.createElement('i');
+        dislikeIconWithColor.classList.add('fa-solid', 'fa-thumbs-down');
+        dislikeIconWithColor.style.fontSize = '20px';
+        dislikeIconWithColor.style.padding = '10px';
+        dislikeIconWithColor.addEventListener('click', () => {
+            iconDiv.removeChild(dislikeIconWithColor);
+            iconDiv.appendChild(dislikeIconWithoutColor);
+            if (iconDiv.contains(likeIconWithColor)) {
+                iconDiv.removeChild(likeIconWithColor);
+            }
+            iconDiv.appendChild(likeIconWithoutColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` dislike your comment!`,
+                type: null,
+            }
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
 
-             const trashIcon = document.createElement('i');
-             trashIcon.classList.add('fa-solid', 'fa-trash');
-             trashIcon.style.padding = '15px';
-             trashIcon.addEventListener('click', async () => {
-                 dropdownMenu.style.display = 'none';
-                 const replyId = replyContent.id;
-                 console.log("Span Reply id", replyId);
-                 await deleteReply(replyId);
-             });
-             dropdownMenu.appendChild(trashIcon);
-             replyElement.appendChild(dropdownMenu);
-             replyElement.appendChild(dropDownIcon);
-         }
-         replyElement.appendChild(iconDiv);
+        const iconDiv = document.createElement('div');
+        iconDiv.style.marginLeft = '360px';
+        iconDiv.style.marginTop = '-40px';
+        const isReact = await replyReactType(id, user.id, reply.id);
+        if (isReact !== null && isReact.type === 'DISLIKE') {
+            iconDiv.appendChild(dislikeIconWithColor);
+        } else {
+            iconDiv.appendChild(dislikeIconWithoutColor);
+        }
 
-         replies.push(replyElement);
-     }
-     return replies;
- };
+        if (isReact !== null && isReact.type === 'LIKE') {
+            iconDiv.appendChild(likeIconWithColor);
+        } else {
+            iconDiv.appendChild(likeIconWithoutColor);
+        }
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.classList.add('dropdown-menu');
+
+        const dropDownIcon = document.createElement('i');
+        dropDownIcon.classList.add('fa-solid', 'fa-ellipsis-vertical');
+        dropDownIcon.style.padding = '15px';
+        dropDownIcon.addEventListener('click', () => {
+            dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        if (reply.user.name === user.name) {
+            const editIcon = document.createElement('i');
+            editIcon.classList.add('fa-regular', 'fa-pen-to-square');
+            editIcon.style.padding = '15px';
+            editIcon.addEventListener('click', () => {
+                dropdownMenu.style.display = 'none';
+                const currentContent = replyContent.innerHTML;
+                const textarea = document.createElement('textarea');
+                textarea.style.borderRadius = '10px';
+                textarea.style.backgroundColor = 'lightgrey';
+                textarea.value = currentContent;
+                divEl.replaceChild(textarea, replyContent);
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Save';
+                saveButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'save-button');
+                saveButton.addEventListener('click', async () => {
+                    const updatedContent = textarea.value.trim();
+                    if (updatedContent !== '') {
+                        const replyId = reply.id;
+                        await updateContentForReply(replyId, updatedContent);
+                        replyContent.innerHTML = updatedContent;
+                        divEl.removeChild(textarea);
+                        replyElement.removeChild(saveButton);
+                    } else {
+                        alert('Please enter something for the reply.');
+                    }
+                });
+                replyElement.appendChild(saveButton);
+            });
+            dropdownMenu.appendChild(editIcon);
+            replyElement.appendChild(dropdownMenu);
+
+            const trashIcon = document.createElement('i');
+            trashIcon.classList.add('fa-solid', 'fa-trash');
+            trashIcon.style.padding = '15px';
+            trashIcon.addEventListener('click', async () => {
+                dropdownMenu.style.display = 'none';
+                const replyId = replyContent.id;
+                console.log("Span Reply id", replyId);
+                await deleteReply(replyId);
+            });
+            dropdownMenu.appendChild(trashIcon);
+            replyElement.appendChild(dropdownMenu);
+            replyElement.appendChild(dropDownIcon);
+            replyElement.appendChild(iconDiv);
+        }
+    }
+    console.log('Thi chin tal',replyElement)
+    return replyElement;
+};
+
+
+const fetchAndDisplayReplies = async (id) => {
+    const fetchReplies = await fetch(`/getAll-comment/${id}`);
+    const fetchDataForReplies = await fetchReplies.json();
+
+    const replies = [];
+
+    for (const reply of fetchDataForReplies) {
+        const user = await fetchUserDataByPostedUser(loginUser);
+        const replyElement = document.createElement('div');
+
+        const userRpImage = document.createElement('img');
+        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        userRpImage.src = `${photo}`;
+        userRpImage.alt = 'User Photo';
+        userRpImage.classList.add('user-photo');
+        userRpImage.style.height = '50px';
+        userRpImage.style.width = '50px';
+        userRpImage.style.marginLeft = '50px';
+        userRpImage.style.backgroundColor = '#cccccc';
+        replyElement.classList.add(`reply-item-${reply.id}`);
+        let createdTimeForReply = await timeAgo(new Date(reply.localDateTime))
+        replyElement.setAttribute('data-toggle', 'tooltip');
+        replyElement.setAttribute('title', `${createdTimeForReply}`);
+        const replySender = document.createElement('span');
+        if (reply.user.name === user.name) {
+            replySender.innerHTML = `You : `;
+        } else {
+            replySender.innerHTML = `${reply.user.name} : `;
+        }
+        const replyContent = document.createElement('span');
+        replyContent.classList.add(`span-reply-container-${reply.id}`)
+        replyContent.id = reply.id;
+        const formattedContent = await highlightMentions(reply.content);
+        replyContent.innerHTML =`${formattedContent}`;
+        const spElement = document.createElement('span');
+        const contentElement = document.createElement('span');
+        const divEl = document.createElement('div');
+        divEl.classList.add(`reply-container-div-${reply.id}`);
+        divEl.style.marginLeft = '110px';
+        divEl.style.padding = '20px';
+        divEl.style.backgroundColor = 'lightgrey';
+        divEl.style.marginTop = '-30px';
+        divEl.style.borderTopLeftRadius = '10px';
+        divEl.style.borderBottomLeftRadius = '30px';
+        divEl.style.borderBottomRightRadius = '15px';
+        spElement.appendChild(userRpImage);
+        replyElement.appendChild(spElement);
+        divEl.appendChild(replySender);
+        divEl.appendChild(replyContent);
+        contentElement.appendChild(divEl);
+        replyElement.appendChild(contentElement);
+
+        let replyInputForReply = replyElement.querySelector('.reply-input');
+        let submitButton = replyElement.querySelector('.submit-reply-btn');
+        let cancelButton = replyElement.querySelector('.cancel-reply-btn');
+        const replyButton = document.createElement('i');
+        replyButton.style.padding = '10px';
+        replyButton.style.marginLeft = '300px';
+        replyButton.classList.add('fa-solid', 'fa-reply');
+        replyButton.addEventListener('click',async () => {
+            const replyUser = await fetchRepliedUserForData(reply.id);
+            const sanitizedUserName = replyUser.user.name.replace(/\s+/g, '');
+            if (!replyInputForReply) {
+                replyInputForReply = document.createElement('input');
+                replyInputForReply.type = 'text';
+                replyInputForReply.placeholder = 'Type your reply...';
+                replyInputForReply.classList.add('reply-input');
+                replyInputForReply.style.marginTop = '10px';
+                replyInputForReply.style.borderRadius = '10px';
+                replyInputForReply.value = `@${sanitizedUserName} : `;
+                replyInputForReply.style.padding = '8px';
+                replyInputForReply.readOnly = true;
+                replyElement.appendChild(replyInputForReply);
+
+                replyInputForReply.addEventListener('focus', function () {
+                    replyInputForReply.removeAttribute('readOnly');
+                    replyInputForReply.classList.remove('readonly');
+                });
+                replyInputForReply.addEventListener('blur', function () {
+                    replyInputForReply.readOnly = true;
+                    replyInputForReply.classList.add('readonly');
+                });
+            } else {
+                replyInputForReply.value = `@${sanitizedUserName} `;
+                replyInputForReply.readOnly = true;
+                replyInputForReply.classList.add('readonly');
+            }
+
+            replyInputForReply.addEventListener('input', function () {
+                if (replyInputForReply.value === `@${sanitizedUserName} `) {
+                    replyInputForReply.classList.add('readonly');
+                } else {
+                    replyInputForReply.classList.remove('readonly');
+                }
+            });
+            if (!submitButton) {
+                submitButton = document.createElement('button');
+                submitButton.style.marginTop = '10px';
+                submitButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'submit-reply-btn');
+                submitButton.textContent = 'Submit';
+                submitButton.addEventListener('click', async () => {
+                    const replyContent = replyInputForReply.value.trim();
+                    if (replyContent !== '') {
+                        const myObj = {
+                            replyId: reply.id,
+                            sender: loginUser,
+                            content: replyContent
+                        };
+                        stompClient.send('/app/comment-reply-message', {}, JSON.stringify(myObj));
+                        const chatArea = document.querySelector('#commentMessageText');
+                        //  await displayMessage(user.name, replyContent, user.photo, id, reply.comment.post.id, chatArea);
+                        console.log("kyi mal", user.name, replyContent, user.photo, id, reply.comment.post.id);
+                        console.log(`Replying to comment ${id}: ${replyContent}`);
+                        replyInputForReply.value = '';
+                    } else {
+                        alert('Please enter something that you want to reply.');
+                    }
+                });
+
+                replyElement.appendChild(submitButton);
+            }
+            if (!cancelButton) {
+                cancelButton = document.createElement('button');
+                cancelButton.innerHTML = 'Cancel';
+                cancelButton.style.marginTop = '10px';
+                cancelButton.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'cancel-reply-btn');
+                cancelButton.addEventListener('click', () => {
+                    replyElement.removeChild(replyInputForReply);
+                    replyElement.removeChild(submitButton);
+                    replyElement.removeChild(cancelButton);
+                });
+                replyElement.appendChild(cancelButton);
+            }
+            replyInputForReply.focus();
+        });
+        replyElement.appendChild(replyButton);
+        const likeIconWithoutColor = document.createElement('i');
+        likeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-up');
+        likeIconWithoutColor.style.fontSize = '20px';
+        likeIconWithoutColor.addEventListener('click', () => {
+            if (iconDiv.contains(dislikeIconWithColor)) {
+                iconDiv.removeChild(dislikeIconWithColor);
+            }
+            iconDiv.appendChild(dislikeIconWithoutColor);
+            iconDiv.removeChild(likeIconWithoutColor);
+            iconDiv.appendChild(likeIconWithColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` like  your reply!`,
+                type: 'LIKE',
+            };
+
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
+
+        const likeIconWithColor = document.createElement('i');
+        likeIconWithColor.style.fontSize = '20px';
+        likeIconWithColor.classList.add('fa-solid', 'fa-thumbs-up');
+        likeIconWithColor.addEventListener('click', () => {
+            if (iconDiv.contains(dislikeIconWithColor)) {
+                iconDiv.removeChild(dislikeIconWithColor);
+            }
+            iconDiv.appendChild(dislikeIconWithoutColor);
+            iconDiv.removeChild(likeIconWithColor);
+            iconDiv.appendChild(likeIconWithoutColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` liked  your reply!`,
+                type: null,
+            }
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
+        const dislikeIconWithoutColor = document.createElement('i');
+        dislikeIconWithoutColor.classList.add('fa-regular', 'fa-thumbs-down');
+        dislikeIconWithoutColor.style.fontSize = '20px';
+        dislikeIconWithoutColor.style.padding = '10px';
+        dislikeIconWithoutColor.addEventListener('click', () => {
+            iconDiv.removeChild(dislikeIconWithoutColor);
+            iconDiv.appendChild(dislikeIconWithColor);
+            if (iconDiv.contains(likeIconWithColor)) {
+                iconDiv.removeChild(likeIconWithColor);
+            }
+            iconDiv.appendChild(likeIconWithoutColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` dislike your reply!`,
+                type: 'DISLIKE',
+            }
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
+        const dislikeIconWithColor = document.createElement('i');
+        dislikeIconWithColor.classList.add('fa-solid', 'fa-thumbs-down');
+        dislikeIconWithColor.style.fontSize = '20px';
+        dislikeIconWithColor.style.padding = '10px';
+        dislikeIconWithColor.addEventListener('click', () => {
+            iconDiv.removeChild(dislikeIconWithColor);
+            iconDiv.appendChild(dislikeIconWithoutColor);
+            if (iconDiv.contains(likeIconWithColor)) {
+                iconDiv.removeChild(likeIconWithColor);
+            }
+            iconDiv.appendChild(likeIconWithoutColor);
+            const myObj = {
+                postId: reply.id,
+                commentId: id,
+                sender: loginUser,
+                content: ` dislike your comment!`,
+                type: null,
+            }
+            stompClient.send('/app/like-replyReact-message', {}, JSON.stringify(myObj));
+        });
+
+        const iconDiv = document.createElement('div');
+        iconDiv.style.marginLeft = '360px';
+        iconDiv.style.marginTop = '-40px';
+        const isReact = await replyReactType(id, user.id, reply.id);
+        if (isReact !== null && isReact.type === 'DISLIKE') {
+            iconDiv.appendChild(dislikeIconWithColor);
+        } else {
+            iconDiv.appendChild(dislikeIconWithoutColor);
+        }
+
+        if (isReact !== null && isReact.type === 'LIKE') {
+            iconDiv.appendChild(likeIconWithColor);
+        } else {
+            iconDiv.appendChild(likeIconWithoutColor);
+        }
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.classList.add('dropdown-menu');
+
+        const dropDownIcon = document.createElement('i');
+        dropDownIcon.classList.add('fa-solid', 'fa-ellipsis-vertical');
+        dropDownIcon.style.padding = '15px';
+        dropDownIcon.addEventListener('click', () => {
+            dropdownMenu.style.display = dropdownMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        if (reply.user.name === user.name) {
+            const editIcon = document.createElement('i');
+            editIcon.classList.add('fa-regular', 'fa-pen-to-square');
+            editIcon.style.padding = '15px';
+            editIcon.addEventListener('click', () => {
+                dropdownMenu.style.display = 'none';
+                const currentContent = replyContent.innerHTML;
+                const textarea = document.createElement('textarea');
+                textarea.style.borderRadius = '10px';
+                textarea.style.backgroundColor = 'lightgrey';
+                textarea.value = currentContent;
+                divEl.replaceChild(textarea, replyContent);
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Save';
+                saveButton.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'save-button');
+                saveButton.addEventListener('click', async () => {
+                    const updatedContent = textarea.value.trim();
+                    if (updatedContent !== '') {
+                        const replyId = reply.id;
+                        await updateContentForReply(replyId, updatedContent);
+                        replyContent.innerHTML = updatedContent;
+                        divEl.removeChild(textarea);
+                        replyElement.removeChild(saveButton);
+                    } else {
+                        alert('Please enter something for the reply.');
+                    }
+                });
+                replyElement.appendChild(saveButton);
+            });
+            dropdownMenu.appendChild(editIcon);
+            // replyElement.appendChild(dropdownMenu);
+
+            const trashIcon = document.createElement('i');
+            trashIcon.classList.add('fa-solid', 'fa-trash');
+            trashIcon.style.padding = '15px';
+            trashIcon.addEventListener('click', async () => {
+                dropdownMenu.style.display = 'none';
+                const replyId = replyContent.id;
+                console.log("Span Reply id", replyId);
+                await deleteReply(replyId);
+            });
+            dropdownMenu.appendChild(trashIcon);
+            replyElement.appendChild(dropdownMenu);
+            replyElement.appendChild(dropDownIcon);
+        }
+        replyElement.appendChild(iconDiv);
+
+        replies.push(replyElement);
+    }
+    return replies;
+};
 
 
  const replyReactType = async (commentId, userId, replyId) => {
@@ -2327,10 +2380,11 @@ const pressedLike = async (id, type) => {
      if(spElement){
          divEl.removeChild(spElement);
      }
+     const formattedContent = await highlightMentions(content);
      const newSpElement = document.createElement('span');
      newSpElement.id = id;
      newSpElement.classList.add(`span-reply-container-${id}`);
-     newSpElement.innerHTML = content;
+     newSpElement.innerHTML = `${formattedContent}`;
      divEl.appendChild(newSpElement);
      // await getAllComments(postId);
  };
@@ -2359,10 +2413,11 @@ const pressedLike = async (id, type) => {
          console.log("shi tal")
          cmtDiv.removeChild(spanElement);
      }
+     const formattedContent = await highlightMentions(content);
      const newSpanElement = document.createElement('span');
      newSpanElement.id = id;
      newSpanElement.classList.add(`comment-span-container-${id}`);
-     newSpanElement.innerHTML = content;
+     newSpanElement.innerHTML = `${formattedContent}`;
      cmtDiv.appendChild(newSpanElement);
      // await getAllComments(postId);
  };
@@ -5092,6 +5147,10 @@ async function startUp(){
     document.getElementById('communityImage').src = data.image
     document.getElementById('communityName').textContent = data.name
     document.getElementById('communityMembers').textContent = 10
+        console.log("HI Group",communityId)
+        await checkGroupForLoginUser(communityId);
+         await checkGroupForMessagingSystem(communityId);
+
 }
 
 
@@ -5371,4 +5430,3 @@ document.getElementById('poll_end_date').addEventListener('change', pollValidate
 let startDate = document.getElementById('start_date')
 let endDate = document.getElementById('end_date')
 
- 

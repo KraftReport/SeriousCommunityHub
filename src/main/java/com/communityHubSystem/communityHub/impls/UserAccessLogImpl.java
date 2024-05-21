@@ -26,4 +26,9 @@ public class UserAccessLogImpl implements UserAccessLogService {
         return userAccessLogRepository.findAllByEmailOrderByAccessTimeDesc(email.trim(), pageable);
     }
 
+    @Override
+    public void deleteAllByEmail(String email) {
+        userAccessLogRepository.deleteAllByEmail(email);
+    }
+
 }
