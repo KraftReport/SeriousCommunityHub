@@ -124,7 +124,10 @@ const mentionPostForComment = (id) => {
     messageInput.addEventListener('input', async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');
-        const users = await getGroupOrPublicMentionUsers(id);
+        const users = (await getGroupOrPublicMentionUsers(id)).map(user => ({
+            ...user,
+            name: user.name.replace(/\s+/g, '')
+        }));
 
         if (mentionIndex !== -1) {
             const mentionQuery = inputValue.substring(mentionIndex + 1).toLowerCase();
@@ -164,7 +167,10 @@ const mentionCommunityMember = () => {
     messageInput.addEventListener('input', async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');
-        const users = await getAllMember();
+        const users = (await getAllMember()).map(user => ({
+            ...user,
+            name: user.name.replace(/\s+/g, '')
+        }));
         const mentionSuggestions = document.getElementById('mentionSuggestions');
 
         if (mentionIndex !== -1) {
@@ -558,32 +564,20 @@ const renderPostDescription = (description) => {
 };
 
 const highlightMentions = async (description) => {
-    const mentionRegex = /@([a-zA-Z0-9_]+(?: [a-zA-Z0-9_]+)*)/g;
 
-    try {
-        const users = await getAllMember();
+    const allMembers = await getAllMember();
+    const sanitizedMemberNames = allMembers.map(member => member.name.replace(/\s+/g, ''));
 
-        if (!Array.isArray(users)) {
-            console.error('Error: getAllMember() did not return an array');
-            return description;
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+
+    return description.replace(mentionRegex, (match, username) => {
+        if (sanitizedMemberNames.includes(username)) {
+            return `<span class="mention">${match}</span>`;
+        } else {
+            return match;
         }
-
-        const userSet = new Set(users.map(user => user.name.toLowerCase()));
-        return description.replace(mentionRegex, (match, username) => {
-            const normalizedUsername = username.trim().toLowerCase();
-            console.log("NormalizedUsername:", normalizedUsername);
-            if (userSet.has(normalizedUsername)) {
-                return `<span class="mention">@${username}</span>`;
-            } else {
-                return `@${username}`;
-            }
-        });
-
-    } catch (error) {
-        console.error('Error in highlightMentions:', error);
-        return description;
-    }
-}
+    });
+};
 
 async function welcome() {
     await checkUserOrAdminOrGroupOwner()
@@ -2230,6 +2224,8 @@ const createEventPost = async () => {
     const description = document.getElementById('eventdescription').value;
     const startDate = document.getElementById('start_date').value;
     const endDate = document.getElementById('end_date').value;
+    const groupId = document.getElementById('groupSelect2').value;
+    console.log("HEllo this is groupId",groupId);
 
     if (!title || !description || !startDate || !endDate) {
         document.getElementById('eventForm').reset()
@@ -2258,6 +2254,12 @@ const createEventPost = async () => {
         if (result) {
             document.getElementById('eventForm').reset();
             await removeCat();
+            if(groupId){
+               await sendEventPrivateNotificationToAllActiveUsers(groupId);
+            }else{
+               await sendEventPublicNotificationToAllActiveUsers();
+            }
+
         }
     } catch (error) {
         console.error('Error:', error);
@@ -2416,6 +2418,7 @@ const connect = () => {
         stompClient.subscribe(`/user/${loginUser}/comment-private-message`, receivedMessageForComment);
         stompClient.subscribe(`/user/all/comment-reply-private-message`, receivedMessageForCommentReply);
         stompClient.subscribe(`/user/mention/queue/messages`, receivedMessageForMention);
+        stompClient.subscribe(`/user/event-noti/queue/messages`, receivedMessageForMEventNoti);
     });
 };
 
@@ -2449,6 +2452,27 @@ const sendMentionNotification = async (mentionedUsers, id) => {
     }
 };
 
+const sendEventPublicNotificationToAllActiveUsers = async () => {
+   const text = " has just made a new event,let enjoy it!";
+    const myObj = {
+        userId:loginUser,
+        content:text,
+        groupId:null,
+        status:'PUBLIC'
+    }
+    stompClient.send('/app/event-notification', {}, JSON.stringify(myObj));
+}
+
+const sendEventPrivateNotificationToAllActiveUsers = async (id) => {
+    const text = " has just made a new event,let enjoy it!";
+    const myObj = {
+        userId:loginUser,
+        content:text,
+        groupId:id,
+        status:'PRIVATE'
+    }
+    stompClient.send('/app/event-notification', {}, JSON.stringify(myObj));
+}
 
 const showNotiCount = async () => {
     const notiShow = document.getElementById('notiCount');
@@ -2592,10 +2616,11 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
     } else {
         spanSender.innerHTML = `${sender} : `;
     }
+    const formattedContent = await highlightMentions(content);
     const spanElement = document.createElement('span');
     spanElement.classList.add(`comment-span-container-${id}`);
     spanElement.id = id;
-    spanElement.innerHTML = `${content}`;
+    spanElement.innerHTML = `${formattedContent}`;
     // divItem.style.border = '1px solid lightslategrey';
     divItem.style.padding = '5px';
     divItem.style.borderRadius = '30px'
@@ -2715,6 +2740,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
 
     replyButton.addEventListener('click', async () => {
         const commentUser = await fetchCommetedUser(id);
+        const sanitizedUserName = commentUser.user.name.replace(/\s+/g, '');
         if (!replyInput) {
             replyInput = document.createElement('input');
             replyInput.type = 'text';
@@ -2722,7 +2748,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
             replyInput.classList.add('reply-input');
             replyInput.style.marginTop = '10px';
             replyInput.style.borderRadius = '10px';
-            replyInput.value = `@ ${commentUser.user.name} : `;
+            replyInput.value = `@${sanitizedUserName} : `;
             replyInput.style.padding = '8px';
             replyInput.readOnly = true;
             divItem.appendChild(replyInput);
@@ -2736,13 +2762,13 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
                 replyInput.classList.add('readonly');
             });
         } else {
-            replyInput.value = `@ ${commentUser.user.name} `;
+            replyInput.value = `@${sanitizedUserName} `;
             replyInput.readOnly = true;
             replyInput.classList.add('readonly');
         }
 
         replyInput.addEventListener('input', function () {
-            if (replyInput.value === `@ ${commentUser.user.name} `) {
+            if (replyInput.value === `@${sanitizedUserName} `) {
                 replyInput.classList.add('readonly');
             } else {
                 replyInput.classList.remove('readonly');
@@ -2931,7 +2957,8 @@ const fetchAndDisplayLastReply = async (id) => {
         }
         const replyContent = document.createElement('span');
         replyContent.id = reply.id;
-        replyContent.innerHTML = reply.content;
+        const formattedContent = await highlightMentions(reply.content);
+        replyContent.innerHTML = `${formattedContent}`;
         const spElement = document.createElement('span');
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
@@ -2958,6 +2985,7 @@ const fetchAndDisplayLastReply = async (id) => {
         replyButton.classList.add('fa-solid', 'fa-reply');
         replyButton.addEventListener('click',async () => {
             const replyUser = await fetchRepliedUserForData(reply.id);
+            const sanitizedUserName = replyUser.user.name.replace(/\s+/g, '');
             if (!replyInputForReply) {
                 replyInputForReply = document.createElement('input');
                 replyInputForReply.type = 'text';
@@ -2965,7 +2993,7 @@ const fetchAndDisplayLastReply = async (id) => {
                 replyInputForReply.classList.add('reply-input');
                 replyInputForReply.style.marginTop = '10px';
                 replyInputForReply.style.borderRadius = '10px';
-                replyInputForReply.value = `@ ${replyUser.user.name} : `;
+                replyInputForReply.value = `@${sanitizedUserName} : `;
                 replyInputForReply.style.padding = '8px';
                 replyInputForReply.readOnly = true;
                 replyElement.appendChild(replyInputForReply);
@@ -2979,13 +3007,13 @@ const fetchAndDisplayLastReply = async (id) => {
                     replyInputForReply.classList.add('readonly');
                 });
             } else {
-                replyInputForReply.value = `@ ${replyUser.user.name} `;
+                replyInputForReply.value = `@${sanitizedUserName} `;
                 replyInputForReply.readOnly = true;
                 replyInputForReply.classList.add('readonly');
             }
 
             replyInputForReply.addEventListener('input', function () {
-                if (replyInputForReply.value === `@ ${replyUser.user.name} `) {
+                if (replyInputForReply.value === `@${sanitizedUserName} `) {
                     replyInputForReply.classList.add('readonly');
                 } else {
                     replyInputForReply.classList.remove('readonly');
@@ -3222,7 +3250,8 @@ const fetchAndDisplayReplies = async (id) => {
         const replyContent = document.createElement('span');
         replyContent.classList.add(`span-reply-container-${reply.id}`)
         replyContent.id = reply.id;
-        replyContent.innerHTML = reply.content;
+        const formattedContent = await highlightMentions(reply.content);
+        replyContent.innerHTML =`${formattedContent}`;
         const spElement = document.createElement('span');
         const contentElement = document.createElement('span');
         const divEl = document.createElement('div');
@@ -3250,6 +3279,7 @@ const fetchAndDisplayReplies = async (id) => {
         replyButton.classList.add('fa-solid', 'fa-reply');
         replyButton.addEventListener('click',async () => {
             const replyUser = await fetchRepliedUserForData(reply.id);
+            const sanitizedUserName = replyUser.user.name.replace(/\s+/g, '');
             if (!replyInputForReply) {
                 replyInputForReply = document.createElement('input');
                 replyInputForReply.type = 'text';
@@ -3257,7 +3287,7 @@ const fetchAndDisplayReplies = async (id) => {
                 replyInputForReply.classList.add('reply-input');
                 replyInputForReply.style.marginTop = '10px';
                 replyInputForReply.style.borderRadius = '10px';
-                replyInputForReply.value = `@ ${replyUser.user.name} : `;
+                replyInputForReply.value = `@${sanitizedUserName} : `;
                 replyInputForReply.style.padding = '8px';
                 replyInputForReply.readOnly = true;
                 replyElement.appendChild(replyInputForReply);
@@ -3271,13 +3301,13 @@ const fetchAndDisplayReplies = async (id) => {
                     replyInputForReply.classList.add('readonly');
                 });
             } else {
-                replyInputForReply.value = `@ ${replyUser.user.name} `;
+                replyInputForReply.value = `@${sanitizedUserName} `;
                 replyInputForReply.readOnly = true;
                 replyInputForReply.classList.add('readonly');
             }
 
             replyInputForReply.addEventListener('input', function () {
-                if (replyInputForReply.value === `@ ${replyUser.user.name} `) {
+                if (replyInputForReply.value === `@${sanitizedUserName} `) {
                     replyInputForReply.classList.add('readonly');
                 } else {
                     replyInputForReply.classList.remove('readonly');
@@ -3562,10 +3592,11 @@ const updateContentForReply = async (id, content) => {
     if(spElement){
         divEl.removeChild(spElement);
     }
+    const formattedContent = await highlightMentions(content);
     const newSpElement = document.createElement('span');
     newSpElement.id = id;
     newSpElement.classList.add(`span-reply-container-${id}`);
-    newSpElement.innerHTML = content;
+    newSpElement.innerHTML = `${formattedContent}`;
     divEl.appendChild(newSpElement);
     // await getAllComments(postId);
 };
@@ -3594,10 +3625,11 @@ const updateContent = async (id, content) => {
         console.log("shi tal")
         cmtDiv.removeChild(spanElement);
     }
+    const formattedContent = await highlightMentions(content);
         const newSpanElement = document.createElement('span');
         newSpanElement.id = id;
         newSpanElement.classList.add(`comment-span-container-${id}`);
-        newSpanElement.innerHTML = content;
+        newSpanElement.innerHTML = `${formattedContent}`;
         cmtDiv.appendChild(newSpanElement);
     // await getAllComments(postId);
 };
@@ -3627,6 +3659,49 @@ const receivedMessageForComment = async (payload) => {
     const localDateTime = new Date().toLocaleString();
     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
 };
+
+const receivedMessageForMEventNoti = async (payload) => {
+    console.log("Message Receive for event");
+    const message = JSON.parse(payload.body);
+    const user = await getPostedEventUser(message.userId);
+
+
+    if(message.groupId){
+        const groupMemberList = await getPostedEventUserWithinGroup(message.groupId);
+        const staffIdList = groupMemberList.map(user => user.staffId);
+        if(loginUser !== message.userId && staffIdList.includes(loginUser)){
+            notificationCount += 1;
+            await showNotiCount();
+            const msg = message.content;
+            const photo = user.photo || '/static/assets/img/card.jpg';
+            await notifyMessageForReact(msg, "System", photo, null);
+        }
+    }else{
+       const userList = await getAllMember();
+        const staffIdList = userList.map(user => user.staffId);
+       if(loginUser !== message.userId && staffIdList.includes(loginUser)){
+           notificationCount += 1;
+           await showNotiCount();
+           const msg = message.content;
+           const photo = user.photo || '/static/assets/img/card.jpg';
+           await notifyMessageForReact(msg, "System", photo, null);
+       }
+    }
+
+}
+
+
+const getPostedEventUserWithinGroup = async (id) => {
+    const data = await fetch(`/get-eventGroup-postedUser/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+const getPostedEventUser = async (id) => {
+    const data = await fetch(`/get-event-postedUser/${id}`);
+    const res = await data.json();
+    return res;
+}
 
 const receivedMessageForMention = async (payload) => {
     try {
@@ -3676,6 +3751,7 @@ const receivedMessageForCommentReply = async (payload) => {
 
 const pressedComment = async (id) => {
     console.log('comment', id);
+    const postedUser = await fetchPostedUser(id);
     await getAllComments(id);
     await mentionPostForComment(id)
     document.getElementById('sendCommentButton').addEventListener('click', async () => {
@@ -3685,6 +3761,9 @@ const pressedComment = async (id) => {
             sender: loginUser,
             content: cmtValue,
         };
+        if(loginUser === postedUser){
+            await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
+        }
         document.getElementById('commentForm').reset();
         stompClient.send('/app/comment-message', {}, JSON.stringify(myObj));
     });
@@ -4022,7 +4101,7 @@ const deleteAllNotifications =async  () => {
 
 const deletedNotification = async (id) =>{
     const deleteNoti = await fetch(`/delete-noti/${id}`,{
-        method:'DELETE'
+      method:'DELETE'
     });
     if(!deleteNoti.ok){
         alert('something wrong please try again later');

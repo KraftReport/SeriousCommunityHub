@@ -662,7 +662,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="userAccessLogStaticBoxLabel">Access Log<i class="fa-solid fa-lock-open" style="margin-left: 300px"></i></h5>
+                <h5 class="modal-title" id="userAccessLogStaticBoxLabel">Access Log<i class="fa-solid fa-lock-open" style="margin-left: 10px;"></i><i class="fa-solid fa-trash" onclick="deleteAllAccessLog()" style="margin-left: 240px;" data-toggle="tooltip" title="Delete All"></i></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="accessLog-content" style="overflow-y: auto; height: 350px;">
@@ -679,8 +679,7 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Understood</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -1031,6 +1030,9 @@
                         if (!response.ok) {
                             throw new Error('Failed to update profile');
                         }
+                        document.getElementById('newSkillNameInput').value=''
+                        document.getElementById('newSkillExperienceInput').value='';
+                        document.getElementById('newSkillInput').style.display = 'none';
                         return response.json();
                     })
                     .then(data => {
@@ -1041,7 +1043,7 @@
                     });
 
                 // Clear the local storage
-                localStorage.clear();
+                // localStorage.clear();
             } else {
                 // update  without skills
                 fetch('/user/updateProfile', {

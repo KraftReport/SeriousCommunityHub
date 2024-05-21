@@ -59,9 +59,15 @@
             <form id="messageForm" name="messageForm" class="hidden">
                 <div class="message-input">
                     <input autocomplete="off" type="text" id="message" placeholder="Type your message...">
-                    <button style="margin-right: 30px; margin-top: -4px"><i class="fa-solid fa-paper-plane"></i>
+                    <button style="margin-top: -4px"><i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                    <button style="margin-right: 10px; margin-top: -4px" id="imageUploadForChat" onclick="chooseMalFile()"><i class="fa-solid fa-image"></i>
                     </button>
                 </div>
+            </form>
+            <form id="photoFormForChatRoom">
+                <input class="form-control" type="file" name="file" id="file-input-chatRoom"
+                       style="display: none">
             </form>
         </div>
     </div>
