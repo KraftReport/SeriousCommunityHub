@@ -257,6 +257,7 @@ const mentionCommunityMember = () => {
     messageInput.addEventListener('input', async (event) => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');
+        console.log('sdfdfdf',inputValue)
         const users = (await getAllMember()).map(user => ({
             ...user,
             name: user.name.replace(/\s+/g, '')
@@ -560,7 +561,7 @@ fileInput.addEventListener('change', function () {
 
 async function createPost() {
     loadingModalBox.show()
-    let postText = document.getElementById('post-content').value
+    let postText = document.getElementById('content').value
     console.log(postText)
     let postFile = document.getElementById('file').files[0]
     console.log(postFile)
@@ -2504,7 +2505,7 @@ document.getElementById('pollForm').addEventListener('submit', function (event) 
 
 async function getAllUserGroup(num) {
     let groups = document.getElementById('groupSelect' + num)
-   await mentionCommunityMember();
+     mentionCommunityMember();
     let data = await fetch('/api/community/loginUserGroups')
     let result = await data.json();
     console.log(result)
@@ -5984,7 +5985,7 @@ async function checkUserOrAdminOrGroupOwner(){
         div.innerHTML = `
         
         
-        <button  style="text-decoration:none; background-color:white; border:none; font-weight:bold; border-radius:10px;   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 
+        <button  onclick="mentionCommunityMember()" style="text-decoration:none; background-color:white; border:none; font-weight:bold; border-radius:10px;   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 
         0 6px 6px rgba(0, 0, 0, 0.23); "class="mx-5 font-monospace text-secondary hover-container1" onclick="getAllUserGroup('1')" data-bs-toggle="offcanvas" data-bs-target="#postMaker" aria-controls="postMaker">
         <div class="d-flex"><i id="plane" class="fa-solid fa-paper-plane text-info " ></i> <p class="hover-text1" style="right:-50px; top:-10px;">a status</p></div>
     </button> 
@@ -6010,7 +6011,7 @@ async function checkUserOrAdminOrGroupOwner(){
         div.innerHTML = `
         
         
-        <button  style="text-decoration:none; background-color:white; border:none; font-weight:bold; border-radius:10px;   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 
+        <button onclick="mentionCommunityMember()" style="text-decoration:none; background-color:white; border:none; font-weight:bold; border-radius:10px;   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 
         0 6px 6px rgba(0, 0, 0, 0.23); "class="mx-5 font-monospace text-secondary hover-container1" onclick="getAllUserGroup('1')" data-bs-toggle="offcanvas" data-bs-target="#postMaker" aria-controls="postMaker">
         <div class="d-flex"><i id="plane" class="fa-solid fa-paper-plane text-info " ></i> <p class="hover-text1" style="right:-50px; top:-10px;">a status</p></div>
     </button> 
@@ -6034,7 +6035,7 @@ async function checkUserOrAdminOrGroupOwner(){
     if(response[0]==='MEMBER'){
         div.innerHTML = `
          
-        <button  style="text-decoration:none; background-color:white; border:none; font-weight:bold; border-radius:10px;   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 
+        <button onclick="mentionCommunityMember()" style="text-decoration:none; background-color:white; border:none; font-weight:bold; border-radius:10px;   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 
         0 6px 6px rgba(0, 0, 0, 0.23); "class="mx-5 font-monospace text-secondary hover-container1" onclick="getAllUserGroup('1')" data-bs-toggle="offcanvas" data-bs-target="#postMaker" aria-controls="postMaker">
         <div class="d-flex"><i id="plane" class="fa-solid fa-paper-plane text-info " ></i> <p class="hover-text1" style="right:-50px; top:-10px;">a status</p></div>
     </button> 
