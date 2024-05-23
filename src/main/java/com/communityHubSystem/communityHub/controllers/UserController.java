@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.controllers;
 
+import com.communityHubSystem.communityHub.dto.SkillDto;
 import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Policy;
@@ -7,9 +8,7 @@ import com.communityHubSystem.communityHub.models.Skill;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.models.User_Skill;
 import com.communityHubSystem.communityHub.repositories.*;
-import com.communityHubSystem.communityHub.services.ExcelUploadService;
-import com.communityHubSystem.communityHub.services.PostService;
-import com.communityHubSystem.communityHub.services.UserService;
+import com.communityHubSystem.communityHub.services.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -43,6 +42,8 @@ public class UserController {
     private final User_ChatRoomRepository user_ChatRoomRepository;
     private final PolicyRepository policyRepository;
     private final ExcelUploadService excelUploadService;
+    private final User_SkillService user_skillService;
+    private final SkillService skillService;
 
 
     @GetMapping("/allUser")
@@ -106,7 +107,7 @@ public class UserController {
             for (User_Skill user_skill : user_skills) {
                 System.out.println(user_skill.getSkill().getName());
                 var skill = skillRepository.findById(user_skill.getId()).orElseThrow(() -> new CommunityHubException("Skill not found exception!"));
-                if(skill != null){
+                if (skill != null) {
                     skills.add(skill);
                 }
             }
@@ -204,8 +205,8 @@ public class UserController {
         var user = userService.updateProfilePhoto(userDTO.getFile());
         Map<String, String> response = new HashMap<>();
         response.put("photo", user.getPhoto());
-       session.removeAttribute("user");
-       session.setAttribute("user",user);
+        session.removeAttribute("user");
+        session.setAttribute("user", user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -477,20 +478,111 @@ public class UserController {
 
     @GetMapping("/checkUserOrAdminOrGroupOwner")
     @ResponseBody
-    public ResponseEntity<List<Object>> checkUserOrAdminOrGroupOwner(){
+    public ResponseEntity<List<Object>> checkUserOrAdminOrGroupOwner() {
         return ResponseEntity.ok(userService.checkUserOrAdminOrGroupOwner());
     }
 
     @GetMapping("/getCurrentLoginUser")
     @ResponseBody
-    public ResponseEntity<User> getCurrentLoginUser(){
+    public ResponseEntity<User> getCurrentLoginUser() {
         return ResponseEntity.ok(userService.getLogin());
     }
 
     @GetMapping("/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/{id}")
     @ResponseBody
-    public ResponseEntity<List<Object>> checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(@PathVariable("id")String id){
+    public ResponseEntity<List<Object>> checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(@PathVariable("id") String id) {
         return ResponseEntity.ok(userService.checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(Long.valueOf(id)));
+    }
+
+    @PostMapping("/saveSkillToDb")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> saveSkillAndShowItBack(@RequestBody SkillDto skillDto) {
+        Map<String, String> res = new HashMap<>();
+        var user = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("User name not found Exception!"));
+        List<User_Skill> user_skills = user_skillService.findByUserId(user.getId());
+        List<Skill> listString = new ArrayList<>();
+        for (User_Skill user_skill : user_skills) {
+            var skill = skillService.findById(user_skill.getSkill().getId());
+            listString.add(skill);
+        }
+        System.out.println("SDFDSF" + skillDto.getName());
+        System.out.println("ERERE" + skillDto.getExperience());
+        boolean isExisted = listString.stream()
+                .anyMatch(u -> u.getName().equals(skillDto.getName().trim()));
+        System.out.println("DFDSF" + isExisted);
+        var skillObj = skillService.findByName(skillDto.getName().trim());
+        if (skillObj != null && isExisted) {
+            var userSkill = user_skillService.findBySkillId(skillObj.getId());
+            var user_Skill = User_Skill.builder()
+                    .skill(skillObj)
+                    .user(user)
+                    .experience(skillDto.getExperience())
+                    .build();
+            user_skillService.save(user_Skill);
+            res.put("id", skillObj.getId().toString());
+            res.put("name", skillDto.getName());
+            res.put("experience", skillDto.getExperience());
+            return ResponseEntity.status(HttpStatus.OK).body(res);
+        } else {
+            var skill = Skill.builder()
+                    .name(skillDto.getName())
+                    .build();
+            var svgSkill = skillService.saveSkill(skill);
+            var user_skill = User_Skill.builder()
+                    .skill(svgSkill)
+                    .user(user)
+                    .experience(skillDto.getExperience())
+                    .build();
+            user_skillService.save(user_skill);
+            res.put("id", svgSkill.getId().toString());
+            res.put("name", skillDto.getName());
+            res.put("experience", skillDto.getExperience());
+
+            return ResponseEntity.status(HttpStatus.OK).body(res);
+
+        }
+    }
+
+    @GetMapping("/deleteSkill/{id}")
+    public ResponseEntity<Map<String, String>> deleteSkill(@PathVariable("id") Long id) {
+        user_skillService.deleteSkillById(id);
+        //skillRepository.deleteById(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Delete Successful");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+    }
+
+    @PostMapping("/updateSkill/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> updateSkill(
+            @PathVariable("id") Long id,
+            @RequestBody SkillDto skillDto) {
+
+        System.out.println("hjkl" + id);
+        User_Skill userSkill = userSkillRepository.findById(id).orElseThrow(() -> new RuntimeException("Skill not found"));
+        Skill skill = userSkill.getSkill();
+
+        String newName = skillDto.getName();
+        String newExperience = skillDto.getExperience();
+
+        if (newName != null && !newName.isEmpty()) {
+            skill.setName(newName);
+        }
+        if (newExperience != null && !newExperience.isEmpty()) {
+            userSkill.setExperience(newExperience);
+        }
+
+        skillRepository.save(skill);
+        userSkillRepository.save(userSkill);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("id", id.toString());
+        response.put("name", skill.getName());
+        response.put("experience", userSkill.getExperience());
+        response.put("message", "Update Successful");
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
 

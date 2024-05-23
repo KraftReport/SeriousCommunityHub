@@ -106,6 +106,85 @@ document.addEventListener('DOMContentLoaded', () => {
         findAndDisplayConnectedUsers().then();
     }
 
+    //for voice start
+
+    let mediaRecorder;
+    let recordedChunks = [];
+    let mediaStream;
+
+    document.getElementById('startRecordButton').addEventListener('click', startRecording);
+    document.getElementById('stopRecordButton').addEventListener('click', stopRecording);
+    document.getElementById('sendVoiceButton').addEventListener('click', sendVoiceMessage);
+    document.getElementById('dismissVoiceButton').addEventListener('click', cancelRecording);
+
+    async function startRecording() {
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(mediaStream);
+            recordedChunks = [];
+            mediaRecorder.ondataavailable = function(e) {
+                recordedChunks.push(e.data);
+            };
+            mediaRecorder.start();
+            document.getElementById('startRecordButton').style.display = 'none';
+            document.getElementById('stopRecordButton').style.display = 'inline-block';
+        } catch (err) {
+            console.log('Error recording audio: ' + err);
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+            mediaRecorder.onstop = function() {
+                const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(blob);
+                document.getElementById('audioPreview').src = audioUrl;
+                document.getElementById('sendVoiceButton').style.display = 'inline-block';
+                document.getElementById('audioPreview').style.display = 'inline-block';
+                document.getElementById('dismissVoiceButton').style.display = 'inline-block';
+                stopMediaStream();
+            };
+        }
+        document.getElementById('startRecordButton').style.display = 'none';
+        document.getElementById('stopRecordButton').style.display = 'none';
+    }
+
+    function cancelRecording() {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+            mediaRecorder.onstop = function() {
+                recordedChunks = [];
+                resetRecordingUI();
+                stopMediaStream();
+            };
+        } else {
+            resetRecordingUI();
+        }
+    }
+
+    function resetRecordingUI() {
+        recordedChunks = [];
+        document.getElementById('audioPreview').src = '';
+        document.getElementById('audioPreview').style.display = 'none';
+        document.getElementById('sendVoiceButton').style.display = 'none';
+        document.getElementById('startRecordButton').style.display = 'inline-block';
+        document.getElementById('stopRecordButton').style.display = 'none';
+        document.getElementById('dismissVoiceButton').style.display = 'none';
+        stopMediaStream();
+    }
+
+    function stopMediaStream() {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+    }
+
+
+
+    //for voice end
+
     async function findAndDisplayConnectedUsers() {
         const response = await fetch('/user/room-list');
         let connectedRooms = await response.json();
@@ -169,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         groupPhotoId.innerHTML = '';
         const isSelected = document.getElementById('IsSelected');
         const vdShow = document.getElementById('vd-icon');
-        const barAboveMessages = document.getElementById('bar-above-messages'); // Use getElementById
+        const barAboveMessages = document.getElementById('bar-above-messages');
         if (!selectedRoomId) {
             barAboveMessages.classList.add('hidden');
             isSelected.style.display = 'none';
@@ -216,7 +295,21 @@ document.addEventListener('DOMContentLoaded', () => {
         clickedUser.removeEventListener('click', userItemClick);
     }
 
-    async function displayMessageForChatRoom(senderId, content, photo,date) {
+    const searchPostWithUrl =async (url) => {
+        const fetchPost = await fetch(`/post/get-postWithUrl?url=${encodeURIComponent(url)}`);
+        if(fetchPost.ok){
+            const res = await fetchPost.json();
+            console.log("PostID",res.id);
+            localStorage.setItem('trendPostId',res.id);
+            window.location.href = `/trendingPostDetailPage`
+        }else{
+            const res = await fetchPost.text();
+            console.log("A sin pyae")
+            window.location.href = `/access-denied`
+        }
+    }
+
+    const displayMessageForChatRoom = async (senderId, content, photo, voiceData, date) => {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
         const userImage = document.createElement('img');
@@ -253,9 +346,20 @@ document.addEventListener('DOMContentLoaded', () => {
             messageImage.style.height = '150px';
             messageImage.alt = 'Message Image';
             messageContentContainer.appendChild(messageImage);
+        } else if (voiceData) {
+            const audioElement = await createAudioElement(voiceData);
+            messageContentContainer.appendChild(audioElement);
+            messageContainer.style.backgroundColor = 'transparent';
         } else {
             const message = document.createElement('p');
-            const messageContentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            const messageContentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+                if (url.includes('communityHub.com/posts')) {
+                    messageContainer.style.width = '400px';
+                    messageContainer.style.backgroundColor = 'ghostwhite';
+                    return `<a href="${url}" class="post-link">${url}</a>`;
+                }
+                return `<a href="${url}" target="_blank">${url}</a>`;
+            });
             message.innerHTML = messageContentWithLinks;
             messageContentContainer.appendChild(message);
         }
@@ -267,7 +371,23 @@ document.addEventListener('DOMContentLoaded', () => {
         chatAreaForChatRoom.appendChild(spanEl);
         chatAreaForChatRoom.appendChild(messageContainer);
         chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
+
+        const postLinks = document.querySelectorAll('.post-link');
+        postLinks.forEach(link => {
+            link.addEventListener('click', async (event) => {
+                event.preventDefault();
+                await searchPostWithUrl(link.href);
+            });
+        });
+    };
+
+    async function createAudioElement(voiceUrl) {
+        const audioElement = document.createElement('audio');
+        audioElement.controls = true;
+        audioElement.src = voiceUrl;
+        return audioElement;
     }
+
 
     async function fetchAndDisplayUserChat() {
         const userChatResponse = await fetch(`/messages/${selectedRoomId}`);
@@ -283,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             console.log('Data', formattedTime);
             const chatUser = await fetchUserByLogInId(chat.sender);
-            await displayMessageForChatRoom(chat.sender, chat.content, chatUser.photo,chat.date);
+            await displayMessageForChatRoom(chat.sender, chat.content, chatUser.photo,chat.voiceUrl,chat.date);
         }
         chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
     }
@@ -323,7 +443,39 @@ document.addEventListener('DOMContentLoaded', () => {
         stompClientForChatRoom.send("/app/chat-withPhoto", {}, JSON.stringify(chatMessage));
         const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
         const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
-        await displayMessageForChatRoom(loginUserForChatRoom,res.content,photo,new Date());
+        await displayMessageForChatRoom(loginUserForChatRoom,res.content,photo,null,new Date());
+    }
+
+    async function sendVoiceMessage() {
+        const formData = new FormData();
+        formData.append('file', new Blob(recordedChunks, { type: 'audio/webm' }));
+        formData.append('id', selectedRoomId);
+        formData.append('sender', loginUserForChatRoom);
+        formData.append('date', new Date());
+
+        const response = await fetch('/upload-voice-message', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            console.log('Voice message sent successfully.');
+            const res = await response.json();
+            const chatMessage = {
+                id: selectedRoomId,
+                sender: loginUserForChatRoom,
+                voiceUrl: res.voiceUrl,
+                date: new Date()
+            }
+            stompClientForChatRoom.send("/app/chat-withVoice", {}, JSON.stringify(chatMessage));
+            const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
+            const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
+            await displayMessageForChatRoom(loginUserForChatRoom,null,photo,res.voiceUrl,new Date());
+        } else {
+            console.error('Failed to send voice message.');
+        }
+
+        resetRecordingUI();
     }
 
     async function sendMessage(event) {
@@ -339,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
             const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
-            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), photo,new Date());
+            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), photo,null,new Date());
             messageInput.value = '';
             document.querySelector('.emojionearea-editor').innerHTML = '';
         }
@@ -361,7 +513,12 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Message is for selected room and not sent by current user.');
             const receivedUser = await fetchUserByLogInId(message.sender);
             console.log('Received user:', receivedUser);
-            await displayMessageForChatRoom(message.sender, message.content, receivedUser.photo,new Date());
+     if(message.content){
+         await displayMessageForChatRoom(message.sender, message.content, receivedUser.photo,null,new Date());
+     }else{
+         await displayMessageForChatRoom(message.sender, null, receivedUser.photo,message.voiceUrl,new Date());
+     }
+
             chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
         }
 
@@ -397,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo,new Date());
+            await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo,null,new Date());
         }
     };
 

@@ -181,16 +181,32 @@ public class RecordController {
 
     @GetMapping("/data")
     public ResponseEntity<Map<String, Object>> getPostData() {
-        List<User> users = getAllActiveUserWithoutAdmin();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName().trim();
 
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isEmpty()) {
+            throw new CommunityHubException("User name not found Exception!");
+        }
+
+        User people = optionalUser.get();
         Map<String, Object> postData = new HashMap<>();
-        for (User user : users) {
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("name", user.getName());
-            userData.put("staffId", user.getStaffId());
-            userData.put("data", getUserData(user.getId()));
 
-            postData.put(String.valueOf(user.getId()), userData);
+        if (User.Role.ADMIN.equals(people.getRole())) {
+            List<User> users = getAllActiveUserWithoutAdmin();
+            for (User user : users) {
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("name", user.getName());
+                userData.put("staffId", user.getStaffId());
+                userData.put("data", getUserData(user.getId()));
+                postData.put(String.valueOf(user.getId()), userData);
+            }
+        } else {
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("name", people.getName());
+            userData.put("staffId", people.getStaffId());
+            userData.put("data", getUserData(people.getId()));
+            postData.put(String.valueOf(people.getId()), userData);
         }
 
         return new ResponseEntity<>(postData, HttpStatus.OK);

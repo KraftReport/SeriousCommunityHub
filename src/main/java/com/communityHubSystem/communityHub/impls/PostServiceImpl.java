@@ -296,6 +296,11 @@ public class PostServiceImpl implements PostService {
         return postRepository.findAllByIsDeletedAndUserGroupIdJPQL(false,id);
     }
 
+    @Override
+    public Post findByUrl(String url) {
+        return postRepository.findByUrl(url);
+    }
+
 
     public boolean isValidPhotoExtension(String extension) {
         return photoExtensions.contains(extension);
@@ -357,6 +362,8 @@ public class PostServiceImpl implements PostService {
         } else {
             post.setAccess(Access.PUBLIC);
         }
+        post = postRepository.save(post);
+        post.setUrl(generateUniqueUrl(post.getId()));
         return postRepository.save(post);
     }
 
@@ -433,6 +440,11 @@ public class PostServiceImpl implements PostService {
             }
             return criteriaBuilder.disjunction();
         };
+    }
+
+
+    public static String generateUniqueUrl(Long postId) {
+        return "https://communityHub.com/posts/" + postId  + UUID.randomUUID().toString();
     }
 
 }

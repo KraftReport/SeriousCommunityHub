@@ -24,7 +24,7 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="total-tab" sec:authorize="hasAnyAuthority('ADMIN')" data-bs-toggle="tab" data-bs-target="#totalTab"
+                    <button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#totalTab"
                             type="button" role="tab" aria-controls="totalTab" aria-selected="false">TrendyTotalsList
                     </button>
                 </li>
@@ -141,7 +141,7 @@
                 <div class="tab-pane fade" id="totalTab" role="tabpanel" aria-labelledby="polls-tab">
                     <div id="trendyTotalList" class=" ">
                         <div>
-                            <input type="text" class="form-control" id="userSearch" placeholder="Search users" style="margin-right: 329px; width: 150px; height: 40px;"><br><br>
+                            <input type="text" class="form-control" id="userSearch"  sec:authorize="hasAnyAuthority('ADMIN')" placeholder="Search users" style="margin-right: 329px; width: 150px; height: 40px;"><br><br>
                             <div id="pieChartContainer" style="display: flex; flex-wrap: wrap;"></div>
                         </div>
                     </div>

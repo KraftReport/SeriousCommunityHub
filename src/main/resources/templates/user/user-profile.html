@@ -175,7 +175,7 @@
                 <form id="profile-form">
 
                     <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
+                        <label for="phone" class="form-label" style="font-weight: bold">Phone</label>
                         <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone"
                                th:value="${user.phone}">
                     </div>
@@ -183,7 +183,7 @@
                     <div th:if="${user.hobby}">
                         <div id="hobbyChangeForm">
                             <div class="mb-3">
-                                <label class="form-label">Hobby</label>
+                                <label class="form-label" style="font-weight: bold">Hobby</label>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-check">
@@ -371,7 +371,7 @@
                         <div id="hobbyChangeForm">
                             <div class="mb-3">
                                 <div class="mb-3">
-                                    <label class="form-label">Hobby</label>
+                                    <label class="form-label" style="font-weight: bold">Hobby</label>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-check">
@@ -556,7 +556,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="gender" class="form-label">Gender</label>
+                        <label for="gender" class="form-label" style="font-weight: bold">Gender</label>
                         <select id="gender" name="gender" class="form-control">
                             <option value="male" th:selected="${user.gender == 'male'}">Male</option>
                             <option value="female" th:selected="${user.gender == 'female'}">Female</option>
@@ -564,22 +564,20 @@
                             </option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Skills</label>
-                        <div id="skillsDropdown">
+                    <div class="mb-3" id="forSkillAddButton">
+                        <label class="form-label" style="font-weight: bold">Skills</label>
+                        <div class="d-flex align-items-start">
+                            <div id="skillsDropdown" class="flex-grow-1"></div>
 
                         </div>
-                        <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
                         <div id="newSkillInput" style="display: none;">
-                            <input type="text" class="form-control mt-2" placeholder="Enter new skill"
-                                   id="newSkillNameInput">
-                            <input type="text" class="form-control mt-2" placeholder="Experience"
-                                   id="newSkillExperienceInput">
+                            <input type="text" class="form-control mt-2" placeholder="Enter new skill" id="newSkillNameInput">
+                            <input type="text" class="form-control mt-2" placeholder="Experience" id="newSkillExperienceInput">
                         </div>
-                        <script src="/assets/js/skill.js" defer></script>
+                        <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
+                        <script src="/static/assets/js/skill.js" defer></script>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="updateBtn">Update</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="updateBtn" style="margin-left: 680px;">Update</button>
                 </form>
             </div>
         </div>

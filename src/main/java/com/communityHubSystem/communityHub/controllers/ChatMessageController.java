@@ -1,9 +1,6 @@
 package com.communityHubSystem.communityHub.controllers;
 
-import com.communityHubSystem.communityHub.dto.ChatRoomGroupDto;
-import com.communityHubSystem.communityHub.dto.EventNotiDto;
-import com.communityHubSystem.communityHub.dto.MentionDto;
-import com.communityHubSystem.communityHub.dto.NotificationDtoForChatRoom;
+import com.communityHubSystem.communityHub.dto.*;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.services.*;
@@ -67,6 +64,20 @@ public class ChatMessageController {
                 roomId,
                 user.getStaffId(),
                 content
+        ));
+    }
+
+    @MessageMapping("/chat-withVoice")
+    public void processMessageWithAudio(@Payload Map<String, Object> payload) {
+        Long roomId = Long.parseLong(payload.get("id").toString());
+        String staffId = payload.get("sender").toString();
+        System.out.println("SOMETHING" + roomId);
+        var user = userService.findByStaffId(staffId.trim()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
+        String voiceUrl = payload.get("voiceUrl").toString();
+        messagingTemplate.convertAndSend("/user/chatRoom/queue/messages", new NotificationDtoForAudio(
+                roomId,
+                user.getStaffId(),
+                voiceUrl
         ));
     }
 
@@ -181,6 +192,33 @@ public class ChatMessageController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Group created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/upload-voice-message")
+    @ResponseBody
+    public ResponseEntity<ChatMessage> saveChatMessage(@RequestParam("file") MultipartFile file,
+                                                       @RequestParam("id") Long id,
+                                                       @RequestParam("sender") String sender,
+                                                       @RequestParam("date") String date) throws IOException {
+
+       var chatMessage = chatMessageService.saveWithAudio(file,id,sender,date);
+        return ResponseEntity.status(HttpStatus.OK).body(chatMessage);
+    }
+
+    @PostMapping("/share-toChatRoom")
+    @ResponseBody
+    public ResponseEntity<?> shareAndSaveIt(@RequestBody ChatMessageDto chatMessageDto){
+        var svgMsg = ChatMessage.builder()
+                .chatRoom(ChatRoom.builder().id(chatMessageDto.getRoomId()).build())
+                .date(new Date())
+                .sender(chatMessageDto.getSender())
+                .content(chatMessageDto.getContent())
+                .build();
+        System.out.println("YOur takdjfksdf"+chatMessageDto.getContent());
+        System.out.println("YOur takdjfksdf"+chatMessageDto.getSender());
+        System.out.println("YOur takdjfksdf"+chatMessageDto.getRoomId());
+        chatMessageService.save(svgMsg);
+        return ResponseEntity.status(HttpStatus.OK).body("Share Successful");
     }
 
 }
