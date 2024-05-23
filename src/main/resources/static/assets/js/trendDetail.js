@@ -45,12 +45,23 @@ const insertNameAndDepartmentAndEmail = async (userName,department,email) => {
 }
 
 const insertAccessAndGroupAndTime = async (access,group,time) => {
-    let accessDiv = document.getElementById('accessDiv')
+    let privateAccessDiv = document.getElementById('privateAccessDiv')
+    let publicAccessDiv = document.getElementById('publicAccessDiv')
     let groupDiv = document.getElementById('groupDiv')
     let timeDiv = document.getElementById('timeDiv')
-    accessDiv.textContent = access
-    groupDiv.textContent = group
-    timeDiv.textContent = time
+    if(access === 'PUBLIC'){
+        document.getElementById('fa-lock').style.display = 'none'
+        document.getElementById('fa-lock-open').style.display = 'block'
+        privateAccessDiv.style.display = 'none' 
+        groupDiv.textContent = '-'
+        timeDiv.textContent = time
+    }else{
+        document.getElementById('fa-lock').style.display = 'none'
+        document.getElementById('fa-lock-open').style.display = 'block'
+        publicAccessDiv.style.display = 'none' 
+        groupDiv.textContent = group
+        timeDiv.textContent = time
+    }
 }
 
 const insertDescription = async (description) => {
@@ -59,33 +70,101 @@ const insertDescription = async (description) => {
 }
 
 const insertResources = async (resources) => {
+    const parentDivForRaw = document.createElement('div');
+    parentDivForRaw.classList.add('card','shadow');
+    parentDivForRaw.style.marginLeft = '70px'
+    parentDivForRaw.style.width = '300px';
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group', 'list-group-flush');
     for(r of resources){
-        let parentDiv = document.getElementById('parentDiv')
-        let mainDiv = document.createElement('div')
-        let captionDiv = document.createElement('div')
-        let caption = document.createElement('p')
-        let resourceDiv = document.createElement('div')
-        let resource = null
-        if(r.photo === null){
-            resource = document.createElement('video')
-            resource.src = r.video
+        if(r.raw===null){
+            document.getElementById('parentDivForRaw').classList.add('hidden')
+            let parentDiv = document.getElementById('parentDiv')
+            let mainDiv = document.createElement('div')
+            let captionDiv = document.createElement('div')
+            let caption = document.createElement('p')
+            let resourceDiv = document.createElement('div')
+            let resource = null
+            if(r.photo === null){
+                resource = document.createElement('video')
+                resource.src = r.video
+            }
+            if(r.video === null){
+                resource = document.createElement('img')
+                resource.src = r.photo
+            } 
+            captionDiv.classList.add('font-monospace')
+            captionDiv.classList.add('m-2')
+            resource.style.width = '400px'
+            resource.style.marginLeft = '200px'
+            caption.textContent = r.description
+            captionDiv.appendChild(caption) 
+            resourceDiv.appendChild(resource)
+            mainDiv.appendChild(captionDiv)
+            mainDiv.appendChild(resourceDiv)
+            parentDiv.appendChild(mainDiv) 
+        }else {
+            document.getElementById('parentDiv').classList.add('hidden') 
+            console.log('d ko youk tl naw')
+         
+                let name = r.description
+                console.log('loop pat nay b')
+                const li = document.createElement('li');
+                li.classList.add('list-group-item','d-flex');
+                li.style.maxWidth = '400px'
+                li.style.justifyContent = 'space-between' 
+        
+                const mDiv = document.createElement('div')
+                mDiv.textContent = r.description
+                mDiv.classList.add('font-monospace')
+                
+        
+                const downloadIcon = document.createElement('i')
+                downloadIcon.classList.add('fa-solid','fa-down-long','text-primary')
+         
+        
+                const a = document.createElement('a');
+                a.href = r.raw;
+                a.classList.add('font-monospace')  
+                a.onclick = (event) => downloadFile(event,r.raw,r.description)
+                console.log(name) 
+        
+                
+                a.appendChild(downloadIcon)
+                li.appendChild(mDiv)
+                li.appendChild(a)
+                ul.appendChild(li)
         }
-        if(r.video === null){
-            resource = document.createElement('img')
-            resource.src = r.photo
-        } 
-        captionDiv.classList.add('font-monospace')
-        captionDiv.classList.add('m-2')
-        resource.style.width = '400px'
-        resource.style.marginLeft = '200px'
-        caption.textContent = r.description
-        captionDiv.appendChild(caption) 
-        resourceDiv.appendChild(resource)
-        mainDiv.appendChild(captionDiv)
-        mainDiv.appendChild(resourceDiv)
-        parentDiv.appendChild(mainDiv) 
+        parentDivForRaw.appendChild(ul)
+        document.getElementById('parentDivForRaw').appendChild(parentDivForRaw)
     }
 }
+
+// const downloadFile = async (event, url, fileName) => {
+//     event.preventDefault();
+//     try {
+//         const response = await fetch(url, {
+//             redirect: 'follow' // Follow redirects
+//         });
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok in fetching download file');
+//         }
+//         const blob = await response.blob();
+//         console.log(fileName+' ------> this is filename')
+//         const blobUrl = window.URL.createObjectURL(blob);
+//         const a = document.createElement('a');
+//         a.style.display = 'none';
+//         a.href = blobUrl;
+//         a.download = fileName; // Ensure the file name is set correctly
+//         document.body.appendChild(a);
+//         a.click();
+//         window.URL.revokeObjectURL(blobUrl);
+//         document.body.removeChild(a);
+//     } catch (error) {
+//         alert('Failed to download the file');
+//         console.error('There is a problem downloading the file:', error);
+//     }
+// };
 
 const makeSeeMore = async (text,btn) => {
     let max = 20

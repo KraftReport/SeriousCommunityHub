@@ -3649,8 +3649,7 @@ const getPosts = async () => {
     for (const p of response) {
         let res = p.resources
         let thisIsRawPost = false
-        let target = ''
-        console.log(raw)
+        let target = '' 
         console.log(res)
             let ug = p.userGroup !== null ? p.userGroup : null
             let gp = ug !== null ? ug.community : null 
@@ -3742,7 +3741,7 @@ const getPosts = async () => {
 
         post+=`</div>
         <div id="post-update-section-${p.id}">
-        <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+        <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
               ${formattedDescription}
               `
           for(file of res){

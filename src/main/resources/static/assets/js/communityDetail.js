@@ -12,17 +12,41 @@ const createBtns = async () => {
     let optionForPoll = document.createElement('option')
     let pollGroupSelect = document.getElementById('groupSelect3')
     let rawCreateionBtn = document.createElement('button')
-    let rawGroupSelect = document.createElement('groupSelect4')
+    let rawGroupSelect = document.getElementById('groupSelect4')
     let optionForRaw = document.createElement('option')
 
-    optionForRaw.value = localStorage.getItem('communityIdForDetailPage')
-    optionForRaw.textContent = 'groupId'
-    optionForRaw.selected = true
-    rawGroupSelect.appendChild(optionForRaw)
-    rawCreateionBtn.setAttribute('data-bs-toggle','offcanvas')
-    rawCreateionBtn.setAttribute('data-bs-target','#rawMaker')
-    rawCreateionBtn.setAttribute('aria-controls','rawMaker')
-    rawCreateionBtn.textContent = 'File'
+    let firstSpanForPost = document.createElement('span')
+    let secondSpanForPost = document.createElement('span')
+    let thirdSpanForPost = document.createElement('span')
+
+    let firstSpanForFile = document.createElement('span')
+    let secondSpanForFile = document.createElement('span')
+    let thirdSpanForFile = document.createElement('span')
+
+    let firstSpanForEvent = document.createElement('span')
+    let secondSpanForEvent = document.createElement('span')
+    let thirdSpanForEvent = document.createElement('span')
+
+    let firstSpanForPoll = document.createElement('span')
+    let secondSpanForPoll = document.createElement('span')
+    let thirdSpanForPoll = document.createElement('span')
+
+    let controller1 = document.createElement('div')
+    let controller2 = document.createElement('div')
+
+    let paperPlane = document.createElement('i')
+    paperPlane.classList.add('fa-solid','fa-paper-plane','text-info') 
+    let fileBox = document.createElement('i')
+    fileBox.classList.add('fa-solid','fa-box-open','text-danger')
+    let calendarIcon = document.createElement('i')
+    calendarIcon.classList.add('fa-solid','fa-calendar','text-warning')
+    let graph = document.createElement('i')
+    graph.classList.add('fa-solid','fa-chart-simple','text-success')
+
+    console.log(optionForRaw)
+    console.log(rawGroupSelect)
+
+
 
     optionForPost.value = localStorage.getItem('communityIdForDetailPage')
     optionForPost.textContent = 'groupId'
@@ -30,8 +54,33 @@ const createBtns = async () => {
     postGroupSelect.appendChild(optionForPost)
     postCreateBtn.setAttribute('data-bs-toggle','offcanvas')
     postCreateBtn.setAttribute('data-bs-target','#postMaker')
-    postCreateBtn.setAttribute('aria-controls','postMaker')
-    postCreateBtn.textContent = 'Post'
+    postCreateBtn.setAttribute('aria-controls','postMaker') 
+    postCreateBtn.classList.add('group-pushable')
+    firstSpanForPost.classList.add('group-shadow')
+    secondSpanForPost.classList.add('group-edge')
+    thirdSpanForPost.classList.add('group-front','text')
+    thirdSpanForPost.appendChild(paperPlane) 
+    postCreateBtn.appendChild(firstSpanForPost)
+    postCreateBtn.appendChild(secondSpanForPost)
+    postCreateBtn.appendChild(thirdSpanForPost)
+
+    optionForRaw.value = localStorage.getItem('communityIdForDetailPage')
+    optionForRaw.textContent = 'groupId'
+    optionForRaw.selected = true
+    rawGroupSelect.appendChild(optionForRaw)
+    rawCreateionBtn.setAttribute('data-bs-toggle','offcanvas')
+    rawCreateionBtn.setAttribute('data-bs-target','#rawMaker')
+    rawCreateionBtn.setAttribute('aria-controls','rawMaker') 
+    rawCreateionBtn.classList.add('group-pushable')
+    firstSpanForFile.classList.add('group-shadow')
+    secondSpanForFile.classList.add('group-edge')
+    thirdSpanForFile.classList.add('group-front','text')
+    thirdSpanForFile.appendChild(fileBox)
+    rawCreateionBtn.appendChild(firstSpanForFile)
+    rawCreateionBtn.appendChild(secondSpanForFile)
+    rawCreateionBtn.appendChild(thirdSpanForFile) 
+
+    
 
     optionForEvent.value = localStorage.getItem('communityIdForDetailPage')
     optionForEvent.textContent = 'groupId'
@@ -39,8 +88,15 @@ const createBtns = async () => {
     eventGroupSelect.appendChild(optionForEvent)
     eventCreateBtn.setAttribute('data-bs-toggle','offcanvas')
     eventCreateBtn.setAttribute('data-bs-target','#eventMaker')
-    eventCreateBtn.setAttribute('aria-controls','eventMaker')
-    eventCreateBtn.textContent = 'Event'
+    eventCreateBtn.setAttribute('aria-controls','eventMaker') 
+    eventCreateBtn.classList.add('group-pushable')
+    firstSpanForEvent.classList.add('group-shadow')
+    secondSpanForEvent.classList.add('group-edge')
+    thirdSpanForEvent.classList.add('group-front','text')
+    thirdSpanForEvent.appendChild(calendarIcon)
+    eventCreateBtn.appendChild(firstSpanForEvent)
+    eventCreateBtn.appendChild(secondSpanForEvent)
+    eventCreateBtn.appendChild(thirdSpanForEvent)
 
     optionForPoll.value = localStorage.getItem('communityIdForDetailPage')
     optionForPoll.textContent = 'groupId'
@@ -48,19 +104,43 @@ const createBtns = async () => {
     pollGroupSelect.appendChild(optionForPoll)
     pollCreateBtn.setAttribute('data-bs-toggle','offcanvas')
     pollCreateBtn.setAttribute('data-bs-target','#pollMaker')
-    pollCreateBtn.setAttribute('aria-controls','pollMaker')
-    pollCreateBtn.textContent = 'Poll' 
+    pollCreateBtn.setAttribute('aria-controls','pollMaker') 
+    pollCreateBtn.classList.add('group-pushable')
+    firstSpanForPoll.classList.add('group-shadow')
+    secondSpanForPoll.classList.add('group-edge')
+    thirdSpanForPoll.classList.add('group-front','text')
+    thirdSpanForPoll.appendChild(graph)
+    pollCreateBtn.appendChild(firstSpanForPoll)
+    pollCreateBtn.appendChild(secondSpanForPoll)
+    pollCreateBtn.appendChild(thirdSpanForPoll)
     
-    if(data === 'ADMIN' || data === 'OWNER'){
-        mainDiv.appendChild(postCreateBtn)
-        mainDiv.appendChild(rawCreateionBtn)
-        mainDiv.appendChild(eventCreateBtn)
-        mainDiv.appendChild(pollCreateBtn)
+    if(data === 'ADMIN' || data === 'OWNER'){ 
+        controller1.appendChild(postCreateBtn)
+        controller1.appendChild(rawCreateionBtn)
+        controller2.appendChild(eventCreateBtn)
+        controller2.appendChild(pollCreateBtn)
+        mainDiv.classList.add('d-flex')
+        mainDiv.style.marginTop = '30px'
+        mainDiv.style.marginLeft = '430px'
+        mainDiv.appendChild(controller1)
+        mainDiv.append(controller2)
     }else{
-        mainDiv.appendChild(postCreateBtn)
-        mainDiv.appendChild(rawCreateionBtn)
+        controller1.appendChild(postCreateBtn)
+        controller1.appendChild(rawCreateionBtn)
+        mainDiv.classList.add('d-flex')
+        mainDiv.style.marginTop = '30px'
+        mainDiv.style.marginLeft= '650px'
+        mainDiv.appendChild(controller1)
     }
 }
+
+
+document.getElementById('labelForRawFile').addEventListener('click',()=>{
+    console.log('here')
+    document.getElementById('raw').click()
+})
+
+
 
 
 document.getElementById('raw').addEventListener('change', function () {
@@ -4211,6 +4291,50 @@ window.addEventListener('scroll', async () => {
 
 
 
+const makeFileDownloadPost = async (resources) => {
+    console.log('d ko youk tl naw')
+    const parentDiv = document.createElement('div');
+    parentDiv.classList.add('card','shadow');
+    parentDiv.style.marginLeft = '70px'
+    parentDiv.style.width = '300px';
+
+   
+    
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group', 'list-group-flush');
+
+    for (const r of resources) {
+        let name = r.description
+        console.log('loop pat nay b')
+        const li = document.createElement('li');
+        li.classList.add('list-group-item','d-flex');
+        li.style.maxWidth = '400px'
+        li.style.justifyContent = 'space-between' 
+
+        const mDiv = document.createElement('div')
+        mDiv.textContent = r.description
+        mDiv.classList.add('font-monospace')
+        
+
+        const downloadIcon = document.createElement('i')
+        downloadIcon.classList.add('fa-solid','fa-down-long','text-primary')
+ 
+
+        const a = document.createElement('a');
+        a.href = r.raw;
+        a.classList.add('font-monospace')  
+        a.onclick = (event) => downloadFile(event,r.raw,r.description)
+        console.log(name) 
+
+        
+        a.appendChild(downloadIcon)
+        li.appendChild(mDiv)
+        li.appendChild(a)
+        ul.appendChild(li)
+    }
+    parentDiv.appendChild(ul)
+    return parentDiv.outerHTML
+}
 
 
 
@@ -4231,8 +4355,7 @@ async function getPosts(){
             for (const p of response) {
                 let res = p.resources
                 let thisIsRawPost = false
-                let target = ''
-                console.log(raw)
+                let target = '' 
                 console.log(res)
                     let ug = p.userGroup !== null ? p.userGroup : null
                     let gp = ug !== null ? ug.community : null 
@@ -4323,7 +4446,7 @@ async function getPosts(){
                      
          post+=` </div>
           <div id="post-update-section-${p.id}">
-          <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+          <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
                 ${formattedDescription}
                 `
                 for(file of res){
@@ -5597,4 +5720,5 @@ document.getElementById('poll_end_date').addEventListener('change', pollValidate
 
 let startDate = document.getElementById('start_date')
 let endDate = document.getElementById('end_date')
+
 

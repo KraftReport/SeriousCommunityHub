@@ -739,8 +739,7 @@ async function welcome() {
             for (const p of response) {
                 let res = p.resources
                 let thisIsRawPost = false
-                let target = ''
-                console.log(raw)
+                let target = '' 
                 console.log(res)
                     let ug = p.userGroup !== null ? p.userGroup : null
                     let gp = ug !== null ? ug.community : null 
@@ -791,14 +790,14 @@ async function welcome() {
                     post += `
     
           <div class="post" id="post-delete-section-${p.id}">
-          <div class="post-top">
+          <div class="post-top"> 
               <div class="">
                   <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
               </div>
               <div class="post-info">
                   <div class="d-flex">
                   <p class="name">${p.user.name}</p>
-                  ${CommunityName}
+                  <div>${CommunityName}</div>
                   </div>
                   <span class="time">${createdTime}</span>
               </div>`
@@ -830,7 +829,8 @@ async function welcome() {
             }
                      
             
-          post+=`</div>
+          post+=` 
+          </div>
     <div id="post-update-section-${p.id}">
     <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
           ${formattedDescription}
@@ -2510,7 +2510,7 @@ async function getAllUserGroup(num) {
     console.log(result)
     let group = ''
     if((localStorage.getItem('loginUserRole')==='OWNER' && num === '2') || ( localStorage.getItem('loginUserRole')==='OWNER'  && num === '3')
-|| ( localStorage.getItem('loginUserRole')==='OWNER'  && num === '4')){
+ ){
  group += ``
     }else{
         group += `<option selected  value=0>PUBLIC</option> `

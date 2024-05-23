@@ -1,4 +1,54 @@
+
+const makeFileDownloadPost = async (resources) => {
+    console.log('d ko youk tl naw')
+    const parentDiv = document.createElement('div');
+    parentDiv.classList.add('card','shadow');
+    parentDiv.style.marginLeft = '70px'
+    parentDiv.style.width = '300px';
+
+   
+    
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group', 'list-group-flush');
+
+    for (const r of resources) {
+        let name = r.description
+        console.log('loop pat nay b')
+        const li = document.createElement('li');
+        li.classList.add('list-group-item','d-flex');
+        li.style.maxWidth = '400px'
+        li.style.justifyContent = 'space-between' 
+
+        const mDiv = document.createElement('div')
+        mDiv.textContent = r.description
+        mDiv.classList.add('font-monospace')
+        
+
+        const downloadIcon = document.createElement('i')
+        downloadIcon.classList.add('fa-solid','fa-down-long','text-primary')
+ 
+
+        const a = document.createElement('a');
+        a.href = r.raw;
+        a.classList.add('font-monospace')  
+        a.onclick = (event) => downloadFile(event,r.raw,r.description)
+        console.log(name) 
+
+        
+        a.appendChild(downloadIcon)
+        li.appendChild(mDiv)
+        li.appendChild(a)
+        ul.appendChild(li)
+    }
+    parentDiv.appendChild(ul)
+    return parentDiv.outerHTML
+}
+
+
+
 window.onload =  createPostsForSearch
+
+
 
 
 async function searchMethod(){
@@ -1972,6 +2022,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
+const downloadFile = async (event, url, fileName) => {
+    event.preventDefault();
+    try {
+        const response = await fetch(url, {
+            redirect: 'follow' // Follow redirects
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok in fetching download file');
+        }
+        const blob = await response.blob();
+        console.log(fileName+' ------> this is filename')
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = fileName; // Ensure the file name is set correctly
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(a);
+    } catch (error) {
+        alert('Failed to download the file');
+        console.error('There is a problem downloading the file:', error);
+    }
+};
+
+
+
+
+
 async function createPostsForSearch(){
     document.getElementById('searchInput').focus()
     let data = await fetch('/post/searchPost/'+localStorage.getItem('searchInput'))
@@ -1992,6 +2072,16 @@ async function createPostsForSearch(){
         return
     }
     for (const p of response) {
+        let res = p.resources
+        let thisIsRawPost = false
+        let target = '' 
+        console.log(res)
+            let ug = p.userGroup !== null ? p.userGroup : null
+            let gp = ug !== null ? ug.community : null 
+            let gpName = gp !== null ? gp.name : null
+            let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
+            <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
+            </div>`
         let rows = ''
         let createdTime = await timeAgo(new Date(p.createdDate))
         const reactCount = await fetchSizes(p.id);
@@ -2039,7 +2129,10 @@ async function createPostsForSearch(){
                 <img src="${p.user.photo}" alt="">
             </div>
             <div class="post-info">
-                <p class="name">${p.user.name}</p>
+            <div class="d-flex">
+            <p class="name">${p.user.name}</p>
+            ${CommunityName}
+            </div>
                 <span class="time">${createdTime}</span>
             </div>`
             let user = await checkPostOwnerOrAdmin(p.id)
@@ -2061,11 +2154,32 @@ async function createPostsForSearch(){
             }
 
 
+            for(file of res){
+                if(file.raw !== null){
+                    thisIsRawPost = true
+                     
+                }else{
+                    target =`#newsfeedPost${p.id}`
+                }
+            }
+                
+
         rows+=`</div> 
         <div id="post-update-section-${p.id}">
-        <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+        <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
         ${formattedDescription}
         `
+
+        for(file of res){
+            if(file.raw !== null){
+                thisIsRawPost = true
+                
+            console.log('we are here')
+            rows += await makeFileDownloadPost(p.resources)
+            break;
+            }
+        }
+        if(thisIsRawPost === false){
         let oneTag = null
         let oneCloseTag = null
         let twoTag = null
@@ -2350,6 +2464,8 @@ async function createPostsForSearch(){
 
 
         }
+
+    }
 
 
         rows+= ` 
@@ -3255,8 +3371,16 @@ async function showSearchEvents(input){
         return
     }
     console.log(response)
+
+    
     let row = ''
     for (const r of response) {
+        let ug = r.user_group !== null ? r.user_group : null
+        let gp = ug !== null ? ug.community : null 
+        let gpName = gp !== null ? gp.name : null
+        let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
+        <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
+        </div>`
         const reactCountForEvent = await fetchReactCountForEvent(r.id);
         console.log('length',reactCountForEvent.length);
         let createdTime = await timeAgo(new Date(r.created_date))
@@ -3331,7 +3455,10 @@ async function showSearchEvents(input){
                     <img src="${r.user.photo}" alt="">
                 </div>
                 <div class="post-info">
-                    <p class="name">${r.user.name}</p>
+                <div class="d-flex">
+                <p class="name">${r.user.name}</p>
+                ${CommunityName}
+                </div>
                     <span class="time">${createdTime}</span>
                 </div>
                 <div class="dropdown offset-8">
@@ -4427,6 +4554,12 @@ async function goToPollTab(){
     }
     let rows = ''
     for (let r of response) {
+        let ug = r.user_group !== null ? r.user_group : null
+        let gp = ug !== null ? ug.community : null 
+        let gpName = gp !== null ? gp.name : null
+        let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
+        <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
+        </div>`
         let expired = ''
         if(new Date()>new Date(r.end_date)){
             expired=`
@@ -4455,7 +4588,10 @@ POLL IS EXPIRED
                 <img src="${r.user.photo}" alt="">
             </div>
             <div class="post-info">
-                <p class="name">${r.user.name}</p>
+            <div class="d-flex">
+            <p class="name">${r.user.name}</p>
+            ${CommunityName}
+            </div>
                 <span class="time">${createdTime}</span>
             </div>
                         <div class="dropdown offset-8">
