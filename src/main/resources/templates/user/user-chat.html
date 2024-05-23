@@ -61,6 +61,11 @@
                     <input autocomplete="off" type="text" id="message" placeholder="Type your message...">
                     <button style="margin-top: -4px"><i class="fa-solid fa-paper-plane"></i>
                     </button>
+                    <button id="startRecordButton" class="btn btn-primary"><i class="fa-solid fa-microphone"></i></button>
+                    <button id="stopRecordButton" class="btn btn-danger" style="display: none;"><i class="fa-solid fa-record-vinyl"></i></button>
+                    <button id="sendVoiceButton" class="btn btn-success" style="display: none;"><i class="fa-solid fa-check"></i></button>
+                    <audio id="audioPreview" controls style="display: none;"></audio>
+                    <button id="dismissVoiceButton" class="btn btn-success" style="display: none;"><i class="fa-solid fa-rectangle-xmark"></i></button>
                     <button style="margin-right: 10px; margin-top: -4px" id="imageUploadForChat" onclick="chooseMalFile()"><i class="fa-solid fa-image"></i>
                     </button>
                 </div>

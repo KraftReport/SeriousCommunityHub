@@ -40,4 +40,6 @@ public interface PostService {
    public List<Post> findAllPostByIsDeleted(boolean value,Long id);
 
    public List<Post> findAllPostByIsDeletedAndUserGroupId(Long id);
+
+    public Post findByUrl(String url);
 }

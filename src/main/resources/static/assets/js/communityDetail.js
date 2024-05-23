@@ -365,19 +365,19 @@ async function createPost() {
     
 }
 
-const extractMentionedUsers = (postText) => {
-    const mentionRegex = /\[\[([^\]]+)\]\]/g;
-    let mentionedUsers = [];
-    let match;
-
-    while ((match = mentionRegex.exec(postText)) !== null) {
-        mentionedUsers.push(match[1].trim());
-    }
-
-    console.log("Mentioned Users: ", mentionedUsers);
-
-    return mentionedUsers;
-};
+// const extractMentionedUsers = (postText) => {
+//     const mentionRegex = /\[\[([^\]]+)\]\]/g;
+//     let mentionedUsers = [];
+//     let match;
+//
+//     while ((match = mentionRegex.exec(postText)) !== null) {
+//         mentionedUsers.push(match[1].trim());
+//     }
+//
+//     console.log("Mentioned Users: ", mentionedUsers);
+//
+//     return mentionedUsers;
+// };
 
 
  

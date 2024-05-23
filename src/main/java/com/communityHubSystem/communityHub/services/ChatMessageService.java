@@ -12,4 +12,6 @@ public interface ChatMessageService {
   public List<ChatMessage> findChatMessagesByRoomId(Long id);
 
     public ChatMessage saveWithAttachment(Long id, MultipartFile file, String sender, String date) throws IOException;
+
+    public ChatMessage saveWithAudio(MultipartFile file, Long id, String sender, String date) throws IOException;
 }
