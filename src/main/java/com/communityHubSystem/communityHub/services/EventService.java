@@ -55,4 +55,5 @@ public interface EventService {
     List<Event> getCalendarEventsForEachLoginUser();
 
     List<Event> checkBirthdayOfEmployees() throws ParseException;
+    public List<Object> checkEventOwnerOrAdmin(Long id);
 }

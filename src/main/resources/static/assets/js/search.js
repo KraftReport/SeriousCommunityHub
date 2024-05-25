@@ -6,7 +6,8 @@ const makeFileDownloadPost = async (resources) => {
     parentDiv.style.marginLeft = '70px'
     parentDiv.style.width = '300px';
 
-   
+
+
     
     const ul = document.createElement('ul');
     ul.classList.add('list-group', 'list-group-flush');
@@ -48,6 +49,12 @@ const makeFileDownloadPost = async (resources) => {
 
 window.onload =  createPostsForSearch
 
+const checkEventOwnerOrAdmin = async (id) => {
+    let data = await fetch(`/event/checkEventOwnerOrAdmin/${id}`)
+    let response = await data.json()
+    console.log(response[0])
+    return response[0]
+}
 
 
 
@@ -2075,9 +2082,8 @@ async function createPostsForSearch(){
             let ug = p.userGroup !== null ? p.userGroup : null
             let gp = ug !== null ? ug.community : null 
             let gpName = gp !== null ? gp.name : null
-            let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
-            <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
-            </div>`
+            let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
+            `
         let rows = ''
         let createdTime = await timeAgo(new Date(p.createdDate))
         const reactCount = await fetchSizes(p.id);
@@ -2120,33 +2126,57 @@ async function createPostsForSearch(){
         rows += `
 
         <div class="post" id="post-delete-section-${p.id}">
-        <div class="post-top">
-            <div class="dp">
-                <img src="${p.user.photo}" alt="">
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
+        <div class="d-flex">
+
+            <div>
+            <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
-            <div class="post-info">
-            <div class="d-flex">
-            <p class="name">${p.user.name}</p>
-                            ${CommunityName} <i class="fa-solid fa-link" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i>
-            </div>
-                <span class="time">${createdTime}</span>
-            </div>`
+            <div class="post-info" style="width:100px;">
+
+            <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
+            ${CommunityName}
+            <span class="time font-monospace">${createdTime}</span>
+
+        </div>
+        </div>`
             let user = await checkPostOwnerOrAdmin(p.id)
             if(user === 'ADMIN' || user === 'OWNER'){
               rows += `<div class="dropdown offset-8">
-              <a class=" dropdown-toggle" onclick="getPostDetail(${p.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-ellipsis-h "></i>
-                    </a>
+                    </div>
             
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <li><i class="fa-solid fa-link" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i></li>`
   
               if(user=== 'OWNER'){
                   rows+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
               }
                 
-                 rows +=`<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
+                 rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item" >Delete Post</div>
+
+                 </li>
               </ul>
-            </div>`
+            </div>
+
+            <!-- Modal -->
+<div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-body font-monospace">
+    Are you sure do you want to delete this post ?
+    <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+    <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+    <button onclick="deletePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+    </div>
+    </div>
+
+  </div>
+</div>
+</div>
+</div>`
             }
 
 
@@ -2160,7 +2190,7 @@ async function createPostsForSearch(){
             }
                 
 
-        rows+=`</div> 
+        rows+=`
         <div id="post-update-section-${p.id}">
         <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
         ${formattedDescription}
@@ -3488,14 +3518,13 @@ async function showSearchEvents(input){
     console.log(response)
 
     
-    let row = ''
+    let rows = ''
     for (const r of response) {
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
-        let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
-        <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
-        </div>`
+        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
+        `
         const reactCountForEvent = await fetchReactCountForEvent(r.id);
         console.log('length',reactCountForEvent.length);
         let createdTime = await timeAgo(new Date(r.created_date))
@@ -3562,30 +3591,58 @@ async function showSearchEvents(input){
         let endMinutes = endDate.getMinutes()
         let formattedStartDate = `${startDay} / ${startMonth} / ${startYear}  `;
         let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `
-        let rows =''
-        rows += `
+        let row =''
+        row += `
         <div class="post" id="delete-event-section-${r.id}">
-            <div class="post-top">
-                <div class="dp">
-                    <img src="${r.user.photo}" alt="">
-                </div>
-                <div class="post-info">
-                <div class="d-flex">
-                <p class="name">${r.user.name}</p>
-                ${CommunityName}
-                </div>
-                    <span class="time">${createdTime}</span>
-                </div>
-                <div class="dropdown offset-8">
-                    <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-ellipsis-h "></i>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#eventEditOffcanvas">Edit</a></li>
-                        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
-                    </ul>
-                </div>
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
+        <div class="d-flex">
+
+            <div>
+            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
+            <div class="post-info" style="width:100px;">
+
+            <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
+            ${CommunityName}
+            <span class="time font-monospace">${createdTime}</span>
+
+        </div>
+        </div>`
+        let user = await checkEventOwnerOrAdmin(r.id)
+        console.log(user)
+        if(user === 'ADMIN' || user === 'OWNER'){
+               row+= `<div class="dropdown ">
+                    <div class="  " onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h "></i>
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+                      if(user === 'OWNER'){  row+=`<li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#eventEditOffcanvas">Edit</a></li>`}
+                      row+=  `<li><a class="dropdown-item" data-bs-toggle="modal"   data-bs-target="#deleteEventAsk${r.id}" >Delete Post</a></li>
+                    </ul>
+                </div>`}
+
+            row+=`</div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteEventAsk${r.id}" tabindex="-1" aria-labelledby="deleteEventAsk${r.id}" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-body font-monospace fw-normal">
+                  Are you sure do you want to delete this post ?
+                  <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+                  <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+                  <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+                  </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+
+
             <div id="event-update-section-${r.id}">
             <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
                 <div class="card" style="width: 30rem;  margin-left:12px ;">
@@ -3615,7 +3672,9 @@ async function showSearchEvents(input){
                                         <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
+                                <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2">
+                                ${expired}
+                                <img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
                             </div>
                         </div>
                     </div>
@@ -3655,10 +3714,9 @@ async function showSearchEvents(input){
 </div>
 
         </div>`;
-
-        row += rows
+    rows += row;
     }
-    document.getElementById('pills-event-search').innerHTML = row
+    document.getElementById('pills-event-search').innerHTML = rows
     const likeButtons = document.querySelectorAll(".like_button1");
     likeButtons.forEach(likeButton => {
         likeButton.addEventListener('click', async (event) => {
@@ -4672,9 +4730,8 @@ async function goToPollTab(){
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
-        let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
-        <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
-        </div>`
+        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
+        `
         let expired = ''
         if(new Date()>new Date(r.end_date)){
             expired=`
@@ -4698,28 +4755,53 @@ POLL IS EXPIRED
 
         row += `
         <div class="post" id="pollPostDiv-${r.id}">
-        <div class="post-top">
-            <div class="dp">
-                <img src="${r.user.photo}" alt="">
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
+        <div class="d-flex">
+
+            <div>
+            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
-            <div class="post-info">
-            <div class="d-flex">
-            <p class="name">${r.user.name}</p>
+            <div class="post-info" style="width:100px;">
+
+            <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
             ${CommunityName}
+            <span class="time font-monospace">${createdTime}</span>
+
+        </div>
+
+        </div>`
+
+
+        let user = await checkEventOwnerOrAdmin(r.id)
+        if(user === 'ADMIN' || user === 'OWNER'){
+                row+=`<div class="dropdown ">
+                    <div class="  " onclick="getPollEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h "></i>
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+                       if(user === 'OWNER'){ row+=`  <li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#pollEditOffcanvas">Edit</a></li>`}
+                        row+=`<li><a class="dropdown-item" data-bs-toggle="modal"   data-bs-target="#deletePollAsk${r.id}" >Delete Post</a></li>
+                    </ul>
+                </div>`}
+            row+=`</div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deletePollAsk${r.id}" tabindex="-1" aria-labelledby="deletePollAsk${r.id}" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-body font-monospace fw-normal">
+                  Are you sure do you want to delete this post ?
+                  <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+                  <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+                  <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+                  </div>
+                  </div>
+
+                </div>
+              </div>
             </div>
-                <span class="time">${createdTime}</span>
-            </div>
-                        <div class="dropdown offset-8">
-      <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-h "></i>
-            </a>
-    
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#pollEditOffcanvas">Edit</a></li>
-        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
-      </ul>
-    </div>
-        </div> 
+
         <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
           <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>

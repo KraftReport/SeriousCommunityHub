@@ -20,6 +20,19 @@
 // }
 
 
+
+async function goToCommunityDetail(id){
+    let data = await fetch(`/user/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/${id}`)
+    let response = await data.json()
+    if(response[0] === 'VISITOR'){
+        alert('you have not access to view this group')
+    }else{
+        localStorage.setItem('communityIdForDetailPage',id)
+        window.location.href = 'api/community/goToCommunityDetail'
+    }
+}
+
+
 const fetchMostTrendyPostWithinOneMonth = async () => {
     const fetchData =  await fetch(`/user/record-user-post-withinOneMonth`);
     const response = await fetchData.json();
@@ -870,3 +883,10 @@ const showAllPostsCommentSizeForEachMonth =async (id,year,month) =>{
     const res = await data.json();
     console.log("Comment size========>",res);
 }
+
+const clickSeeMore = async () => {
+    let gp = await getTrendyCommunity()
+    console.log('wow')
+    await goToCommunityDetail(gp.id)
+}
+
