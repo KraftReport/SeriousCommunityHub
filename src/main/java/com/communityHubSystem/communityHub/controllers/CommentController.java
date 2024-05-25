@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -121,6 +122,21 @@ public class CommentController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
     }
+
+    @GetMapping("/get-activeUser-forMention")
+    public ResponseEntity<List<User>> getAllUsersForMentionWithoutLoginUser() {
+        var users = userService.getAllUser();
+        var loginUser = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CommunityHubException("User name not found exception"));
+
+        List<User> userList = users.stream()
+                .filter(User::isActive)
+                .filter(user -> !user.getId().equals(loginUser.getId()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(userList);
+    }
+
 
     @GetMapping("/get-all-active-user")
     public ResponseEntity<List<User>> getAllActiveUsers() {

@@ -300,8 +300,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if(fetchPost.ok){
             const res = await fetchPost.json();
             console.log("PostID",res.id);
-            localStorage.setItem('trendPostId',res.id);
-            window.location.href = `/trendingPostDetailPage`
+            localStorage.setItem('trendPostIdForSinglePost',res.id);
+            window.location.href = `/user-details-post`
         }else{
             const res = await fetchPost.text();
             console.log("A sin pyae")

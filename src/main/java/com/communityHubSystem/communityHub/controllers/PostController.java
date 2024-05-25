@@ -153,4 +153,17 @@ public class PostController {
         }
     }
 
+    @GetMapping("/singlePost/{id}")
+    public ResponseEntity<Post> getSinglePost(@PathVariable("id")Long id){
+        var post = postService.findById(id);
+        if(post != null){
+            if(!post.isDeleted()){
+                return ResponseEntity.status(HttpStatus.OK).body(post);
+            }else{
+                return ResponseEntity.ok(null);
+            }
+        }else{
+            return ResponseEntity.ok(null);
+        }
+    }
 }

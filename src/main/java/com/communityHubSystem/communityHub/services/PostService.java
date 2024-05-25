@@ -42,4 +42,8 @@ public interface PostService {
    public List<Post> findAllPostByIsDeletedAndUserGroupId(Long id);
 
     public Post findByUrl(String url);
+
+   public List<Post> findByYearAndMonth(int year, int month);
+
+   public List<Post> findByUserIdAndYearAndMonth(Long userId, int year, int month);
 }

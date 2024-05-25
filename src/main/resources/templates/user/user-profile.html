@@ -616,7 +616,29 @@
 </div>
 
 <!-- Modal -->
-
+<div class="modal fade" id="postUrlForShare" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 800px" id="forShareingContent">
+            <div class="modal-header" style="background-color: #007bff;color: #fff">
+                <h5 class="modal-title" id="staticBackdropLabel" style="font-size: 18px;font-weight: bold"><i class="fa-solid fa-share"></i>Share</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex" id="forPostShareDiv">
+                    <p><input id="postShareUrl" style="height: 50px; border-radius: 10px; width: 450px" readonly type="text" value="https://communityHub.com/posts/20c5acacf1-fe23-4b63-8cd7-bc50c643006c"></p>
+                    <button type="button" onclick="copyButton()" class="btn btn-primary" style="height: 50px"><i class="fa-solid fa-copy"></i> Copy</button>
+                    <div style="margin-left: 10px">
+                        <select name="status" id="statusForShare" class="form-select" style="height: 50px; width: 140px;">
+                            <option  value="">All Users</option>
+                            <option  value="true">Active</option>
+                            <option value="false">Removed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="staticBackdropLabel" aria-hidden="true">

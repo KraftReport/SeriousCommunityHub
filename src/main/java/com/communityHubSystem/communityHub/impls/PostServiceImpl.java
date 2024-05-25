@@ -301,6 +301,16 @@ public class PostServiceImpl implements PostService {
         return postRepository.findByUrl(url);
     }
 
+    @Override
+    public List<Post> findByYearAndMonth(int year, int month) {
+        return postRepository.findByYearAndMonth(year,month);
+    }
+
+    @Override
+    public List<Post> findByUserIdAndYearAndMonth(Long userId, int year, int month) {
+        return postRepository.findByUserIdAndYearAndMonth(userId,year,month);
+    }
+
 
     public boolean isValidPhotoExtension(String extension) {
         return photoExtensions.contains(extension);

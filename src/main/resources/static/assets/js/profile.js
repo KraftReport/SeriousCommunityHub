@@ -343,6 +343,126 @@ const makeFileDownloadPost = async (resources) => {
     return parentDiv.outerHTML
 }
 
+const showPhotoUrl =async (url) => {
+    let previousUrlValue =  document.getElementById('postShareUrl');
+    document.getElementById('forShareingContent').style.width = '800px';
+    const divEl = document.getElementById('forSharingButton');
+    if(divEl){
+        divEl.remove();
+    }
+    await getShareGroup();
+    console.log("URL",previousUrlValue)
+    console.log("Original",url)
+    previousUrlValue.value = '';
+    previousUrlValue.value = url;
+}
+
+const copyButton = async () => {
+    let copyText = document.getElementById("postShareUrl");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+}
+
+//for share group start
+
+const getShareGroup = async () => {
+    const data = await fetch(`/user/getCommunity-list-forShare`);
+    const res = await data.json();
+    console.log("hahahahah yaya");
+    const selectBox = document.getElementById('statusForShare');
+    const postShareDiv = document.getElementById('forPostShareDiv');
+    selectBox.innerHTML = '';
+
+    const allUsersOption = document.createElement('option');
+    allUsersOption.value = '';
+    allUsersOption.text = 'Select a group';
+    selectBox.appendChild(allUsersOption);
+
+    res.forEach((item) => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.text = item.name;
+        selectBox.appendChild(option);
+    });
+
+    const postShareButton = document.createElement('button');
+    postShareButton.type = 'button';
+    postShareButton.id = 'forSharingButton';
+    postShareButton.classList.add('btn','btn-outline-primary');
+    postShareButton.style.height = '50px';
+    postShareButton.innerHTML = '<i class="fa-solid fa-share"></i> Share';
+    postShareButton.style.display = 'none';
+
+    selectBox.addEventListener('change', newChild => {
+        if (selectBox.value) {
+            postShareButton.style.display = 'block';
+            const divEL = document.getElementById('forSharingButton');
+            document.getElementById('forShareingContent').style.width = '850px';
+            if(!divEL) {
+                postShareDiv.appendChild(postShareButton);
+            }
+            postShareButton.addEventListener('click',async () => {
+                const postURl = document.getElementById('postShareUrl').value;
+                console.log("PostURl",postURl)
+                await postShareToGroup(selectBox.value,loginUser,postURl);
+            });
+        } else {
+            document.getElementById('forShareingContent').style.width = '800px';
+            postShareButton.style.display = 'none';
+        }
+    });
+}
+
+const postShareToGroup =async (id,staffId,content) => {
+    const chatMessage = {
+        roomId: id,
+        sender: staffId,
+        content: content,
+    };
+    const getData = await fetch(`/share-toChatRoom`,{
+        method:'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:JSON.stringify(chatMessage)
+    })
+    if(!getData){
+        alert("Something wrong please try again!");
+    }
+    const res = await getData.text();
+    if(res){
+        let alertMessage =  `${res}`;
+        let alertStyle = `
+            background-color: white;
+            color: green;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+
+
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function() {
+            styledAlert.style.display = 'none';
+        }, 3000);
+    }
+}
+
 
 const getPosts = async () => {
     let userId = await getLoginUserId()
@@ -414,19 +534,19 @@ const getPosts = async () => {
         post += `
 
       <div class="post" id="post-delete-section-${p.id}">
-      <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
-          
+      <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
       <div class="d-flex">
-     
+
           <div>
           <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
           </div>
           <div class="post-info" style="width:100px;">
 
           <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
-          ${CommunityName} 
+          ${CommunityName}
           <span class="time font-monospace">${createdTime}</span>
-         
+
       </div>
       </div>`
           let user = await checkPostOwnerOrAdmin(p.id)
@@ -442,17 +562,17 @@ const getPosts = async () => {
             if(user=== 'OWNER'){
                 post+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
             }
-              
+
                post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item" >Delete Post</div>
-              
-               </li> 
+
+               </li>
             </ul>
-          </div> 
-          
+          </div>
+
           <!-- Modal -->
 <div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
 <div class="modal-dialog">
-<div class="modal-content"> 
+<div class="modal-content">
   <div class="modal-body font-monospace">
   Are you sure do you want to delete this post ?
   <div class="d-flex" style="margin-left:300px; margin-top:30px;">
@@ -465,7 +585,7 @@ const getPosts = async () => {
 </div>
 </div>
 </div>`
-   
+
         }
 
 

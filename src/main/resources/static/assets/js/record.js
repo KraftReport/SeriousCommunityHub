@@ -32,6 +32,7 @@ async function goToCommunityDetail(id){
     }
 }
 
+
 const fetchMostTrendyPostWithinOneMonth = async () => {
     const fetchData =  await fetch(`/user/record-user-post-withinOneMonth`);
     const response = await fetchData.json();
@@ -165,6 +166,7 @@ document.addEventListener('DOMContentLoaded',async () =>{
     await showOneTrendyPostWithinOneYear();
     await showTrendyCommunityWithMostMembers();
     await showCommunityPostsForBoth();
+    // await showDetailsForEachPost();
     document.getElementById('postForWithinOneMonth').addEventListener('click', async () => {
         const checkUser = await getUserToCheckAdminOrNot();
         if(checkUser.role === 'ADMIN'){
@@ -442,13 +444,22 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             for (const [userId, userDetail] of Object.entries(data)) {
                 Promise.all([
-                    fetch(`/user/getPosts-eachUser/month/${userId}`),
-                    fetch(`/user/getPosts-eachUser/year/${userId}`),
-                    fetch(`/user/getPosts-eachUser/all/${userId}`),
-                    fetch(`/user/activeUser-ReactsCount/${userId}`),
-                    fetch(`/user/activeUser-CommentsCount/${userId}`)
+                    fetch(`/user/getPosts-eachUser/month/${userId}`).then(response => response.ok ? response.json() : []),
+                    fetch(`/user/getPosts-eachUser/year/${userId}`).then(response => response.ok ? response.json() : []),
+                    fetch(`/user/getPosts-eachUser/all/${userId}`).then(response => response.ok ? response.json() : []),
+                    fetch(`/user/activeUser-ReactsCount/${userId}`).then(response => response.ok ? response.json() : 0),
+                    fetch(`/user/activeUser-CommentsCount/${userId}`).then(response => response.ok ? response.json() : 0)
                 ])
-                    .then(responses => Promise.all(responses.map(response => response.json())))
+                    .then(responses => Promise.all(responses.map(response => {
+                        // Check if the response is a number or an array
+                        if (Array.isArray(response)) {
+                            return response;
+                        } else if (typeof response === 'number') {
+                            return response;
+                        } else {
+                            return 0;
+                        }
+                    })))
                     .then(([postsWithinMonth, postsWithinYear, totalPosts, totalReacts, totalComments]) => {
                         const chartContainer = document.createElement('div');
                         chartContainer.className = 'piechart-container';
@@ -468,28 +479,36 @@ document.addEventListener("DOMContentLoaded", function() {
 
                         const labels = ['Posts within one month', 'Posts within one year', 'Total Posts', 'Total Reacts', 'Total Comments'];
                         const counts = [
-                            postsWithinMonth.length,
-                            postsWithinYear.length,
-                            totalPosts.length,
-                            totalReacts,
-                            totalComments
+                            Array.isArray(postsWithinMonth) ? postsWithinMonth.length : 0,
+                            Array.isArray(postsWithinYear) ? postsWithinYear.length : 0,
+                            Array.isArray(totalPosts) ? totalPosts.length : 0,
+                            typeof totalReacts === 'number' ? totalReacts : 0,
+                            typeof totalComments === 'number' ? totalComments : 0
                         ];
                         const colors = ['red', 'green', 'blue', 'orange', 'purple'];
+
+                        const isActive = counts.some(count => count > 0);
+                        const titleText = isActive ?
+                            `Data Distribution for User ${userDetail.staffId} (${userDetail.name})` :
+                            `Data Distribution for User ${userDetail.staffId} (${userDetail.name}) - No active yet`;
 
                         new Chart(ctx, {
                             type: 'pie',
                             data: {
+                                labels: labels,
                                 datasets: [{
+                                    label:'Counts',
                                     data: counts,
                                     backgroundColor: colors,
                                 }],
+
                             },
                             options: {
                                 responsive: true,
                                 plugins: {
                                     title: {
                                         display: true,
-                                        text: `Data Distribution for User ${userDetail.staffId} (${userDetail.name})`
+                                        text: titleText
                                     },
                                     legend: {
                                         position: 'top',
@@ -527,10 +546,347 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+
+//for piechart for eachMonth
+document.addEventListener("DOMContentLoaded", async function() {
+    const yearData = document.getElementById('searchWithYear');
+    const monthData = document.getElementById('searchWithMonth');
+    const pieChartContainer = document.getElementById('pieChartContainerForEach');
+
+    const showDetailsForEachPost = async () => {
+        const users = await getUsersWithoutAdmin();
+
+        const renderChartForUser = async (user, yearValue, monthValue) => {
+            try {
+                const data = await fetch(`/user/dataPerMonth/${user.id}/${yearValue}/${monthValue}`).then(response => response.json());
+                const userDetail = data[user.id];
+
+                const postsWithinMonth = await fetch(`/user/posts-perMonth-forAdmin/${user.id}/${yearValue}/${monthValue}`).then(response => response.ok ? response.json() : []);
+                const totalReacts = await fetch(`/user/posts-perMonth-reactSize-forAdmin/${user.id}/${yearValue}/${monthValue}`).then(response => response.ok ? response.json() : 0);
+                const totalComments = await fetch(`/user/posts-perMonth-commentSize-forAdmin/${user.id}/${yearValue}/${monthValue}`).then(response => response.ok ? response.json() : 0);
+
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'piechart-containerForPost';
+                chartContainer.dataset.username = userDetail.name.toLowerCase();
+
+                const pieCanvas = document.createElement('canvas');
+                pieCanvas.id = `pieChart-${user.id}`;
+
+                const pieChartDiv = document.createElement('div');
+                pieChartDiv.className = 'piechart';
+                pieChartDiv.appendChild(pieCanvas);
+
+                chartContainer.appendChild(pieChartDiv);
+                pieChartContainer.appendChild(chartContainer);
+
+                const ctx = pieCanvas.getContext('2d');
+
+                const labels = ['Posts within one month', 'Total Reacts', 'Total Comments'];
+                const counts = [
+                    Array.isArray(postsWithinMonth) ? postsWithinMonth.length : 0,
+                    typeof totalReacts === 'number' ? totalReacts : 0,
+                    typeof totalComments === 'number' ? totalComments : 0
+                ];
+                const colors = ['red', 'green', 'blue'];
+
+                const isActive = counts.some(count => count > 0);
+                const titleText = isActive ?
+                    `Data Distribution for User ${userDetail.staffId} (${userDetail.name})` :
+                    `Data Distribution for User ${userDetail.staffId} (${userDetail.name}) - No activity yet`;
+
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        datasets: [{
+                            data: counts,
+                            backgroundColor: colors,
+                        }],
+                        labels: labels
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: titleText
+                            },
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = labels[context.dataIndex] || '';
+                                        const value = context.raw;
+                                        return `${label}: ${value}`;
+                                    }
+                                }
+                            },
+                        }
+                    },
+                });
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        const handleClick = async () => {
+            const yearValue = yearData.value;
+            const monthValue = monthData.value;
+
+            pieChartContainer.innerHTML = ''; // Clear previous charts
+
+            for (const user of users) {
+                await renderChartForUser(user, yearValue, monthValue);
+            }
+        };
+
+        yearData.addEventListener('change', handleClick);
+        monthData.addEventListener('change', handleClick);
+
+        document.getElementById('userSearchForPost').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const allUsers = document.querySelectorAll('.piechart-containerForPost');
+
+            allUsers.forEach(userContainer => {
+                const userName = userContainer.dataset.username;
+                if (userName.includes(searchValue)) {
+                    userContainer.style.display = 'block';
+                } else {
+                    userContainer.style.display = 'none';
+                }
+            });
+        });
+    };
+
+    await showDetailsForEachPost();
+});
+
+
+//for barChart
+document.addEventListener("DOMContentLoaded", function() {
+    const pieChartContainer = document.getElementById('pieChartContainer');
+
+    fetch('/user/barchartdata')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            for (const [userId, userDetail] of Object.entries(data)) {
+                const userData = userDetail.data;
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'chart-container';
+                chartContainer.dataset.username = userDetail.name.toLowerCase();
+
+                const canvas = document.createElement('canvas');
+                canvas.id = `chart-${userId}`;
+
+                const chartDiv = document.createElement('div');
+                chartDiv.className = 'chart';
+                chartDiv.appendChild(canvas);
+
+                chartContainer.appendChild(chartDiv);
+                pieChartContainer.appendChild(chartContainer);
+
+                const ctx = canvas.getContext('2d');
+                const labels = ['Posts within one month', 'Posts within one year', 'Total Posts', 'Total Reacts', 'Total Comments'];
+                const counts = [
+                    userData.within_one_month,
+                    userData.within_one_year,
+                    userData.total_posts,
+                    userData.total_reacts,
+                    userData.total_comments
+                ];
+                const colors = ['red', 'green', 'blue', 'orange', 'purple'];
+                if (userDetail.role === 'USER') {
+                    const myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Counts',
+                                data: counts,
+                                backgroundColor: colors,
+                            }],
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+
+                                },
+                                legend: {
+                                    display: false,
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.dataset.label || '';
+                                            const value = context.raw;
+                                            return `${label}: ${value}`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        },
+                    });
+                }
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+});
+
+
+//for lineChart each month
+document.addEventListener("DOMContentLoaded", async function() {
+    const yearData = document.getElementById('searchYear');
+    const lineChartContainerForEachMonth = document.getElementById('lineChartContainerForEachMonth');
+
+    const renderLineChartForUser = async (user, yearValue) => {
+        try {
+            const data = await fetch(`/user/postCountsPerMonth/${user.id}/${yearValue}`).then(response => response.json());
+            const userDetail = data[user.id];
+
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'linechart-containerForPost';
+            chartContainer.dataset.username = userDetail.name.toLowerCase();
+
+            const lineCanvas = document.createElement('canvas');
+            lineCanvas.id = `lineChart-${user.id}`;
+
+            const lineChartDiv = document.createElement('div');
+            lineChartDiv.className = 'linechart';
+            lineChartDiv.appendChild(lineCanvas);
+
+            chartContainer.appendChild(lineChartDiv);
+            lineChartContainerForEachMonth.appendChild(chartContainer);
+
+            const ctx = lineCanvas.getContext('2d');
+
+            const labels = Array.from({ length: 12 }, (_, i) => (i + 1).toString()); // Months 1 to 12
+
+            const dataValues = Object.values(userDetail);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label:'Post Counts',
+                        data: dataValues,
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Post Counts for User ${userDetail.staffId} (${userDetail.name})`
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
+    document.getElementById('userSearchForPostMonth').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const allUsers = document.querySelectorAll('.linechart-containerForPost');
+
+        allUsers.forEach(userContainer => {
+            const userName = userContainer.dataset.username;
+            if (userName.includes(searchValue)) {
+                userContainer.style.display = 'block';
+            } else {
+                userContainer.style.display = 'none';
+            }
+        });
+    });
+
+    const handleClick = async () => {
+        const yearValue = yearData.value;
+
+        lineChartContainerForEachMonth.innerHTML = '';
+
+        const users = await getUsersWithoutAdmin();
+
+        for (const user of users) {
+            await renderLineChartForUser(user, yearValue);
+        }
+    };
+
+    yearData.addEventListener('change', handleClick);
+
+    await handleClick();
+});
+
+
+const showDetailsForEachPost =async () => {
+    const users = await getUsersWithoutAdmin();
+    const yearData = document.getElementById('searchWithYear');
+    const monthData = document.getElementById('searchWithMonth');
+    users.forEach(user => {
+        yearData.addEventListener('click',async () => {
+            console.log("USERID=====>",user.id)
+         const yearValue = yearData.value;
+         const monthValue = monthData.value;
+           await showAllPostsForEachMonth(user.id,yearValue,monthValue);
+           await showAllPostsReactSizeForEachMonth(user.id,yearValue,monthValue);
+           await showAllPostsCommentSizeForEachMonth(user.id,yearValue,monthValue);
+        });
+
+        monthData.addEventListener('click',async () => {
+            const yearValue = yearData.value;
+            const monthValue = monthData.value;
+            await showAllPostsForEachMonth(user.id,yearValue,monthValue);
+            await showAllPostsReactSizeForEachMonth(user.id,yearValue,monthValue);
+            await showAllPostsCommentSizeForEachMonth(user.id,yearValue,monthValue);
+        });
+    });
+}
+
+const showAllPostsForEachMonth =async (id,year,month) =>{
+    const data = await fetch(`/user/posts-perMonth-forAdmin/${id}/${year}/${month}`);
+    if(!data.ok){
+       alert('There is no posts in this month!');
+    }
+    const res = await data.json();
+    console.log("postSize===========>",res.length);
+}
+
+const showAllPostsReactSizeForEachMonth =async (id,year,month) =>{
+    const data = await fetch(`/user/posts-perMonth-reactSize-forAdmin/${id}/${year}/${month}`);
+    if(!data.ok){
+        alert('There is no react in this month!');
+    }
+    const res = await data.json();
+    console.log("React size=======>",res);
+}
+
+const showAllPostsCommentSizeForEachMonth =async (id,year,month) =>{
+    const data = await fetch(`/user/posts-perMonth-commentSize-forAdmin/${id}/${year}/${month}`);
+    if(!data.ok){
+        alert('There is no comment in this month!');
+    }
+    const res = await data.json();
+    console.log("Comment size========>",res);
+}
+
 const clickSeeMore = async () => {
     let gp = await getTrendyCommunity()
     console.log('wow')
     await goToCommunityDetail(gp.id)
 }
 
- 

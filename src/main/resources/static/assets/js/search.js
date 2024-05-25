@@ -7,7 +7,7 @@ const makeFileDownloadPost = async (resources) => {
     parentDiv.style.width = '300px';
 
 
-   
+
     
     const ul = document.createElement('ul');
     ul.classList.add('list-group', 'list-group-flush');
@@ -2055,10 +2055,6 @@ const downloadFile = async (event, url, fileName) => {
     }
 };
 
-
-
-
-
 async function createPostsForSearch(){
     document.getElementById('searchInput').focus()
     let data = await fetch('/post/searchPost/'+localStorage.getItem('searchInput'))
@@ -2086,7 +2082,7 @@ async function createPostsForSearch(){
             let ug = p.userGroup !== null ? p.userGroup : null
             let gp = ug !== null ? ug.community : null 
             let gpName = gp !== null ? gp.name : null
-            let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+            let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
             `
         let rows = ''
         let createdTime = await timeAgo(new Date(p.createdDate))
@@ -2130,19 +2126,19 @@ async function createPostsForSearch(){
         rows += `
 
         <div class="post" id="post-delete-section-${p.id}">
-        <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
-          
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
         <div class="d-flex">
-       
+
             <div>
             <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
             <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
-            ${CommunityName} 
+            ${CommunityName}
             <span class="time font-monospace">${createdTime}</span>
-           
+
         </div>
         </div>`
             let user = await checkPostOwnerOrAdmin(p.id)
@@ -2160,15 +2156,15 @@ async function createPostsForSearch(){
               }
                 
                  rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item" >Delete Post</div>
-                
-                 </li> 
+
+                 </li>
               </ul>
-            </div> 
-            
+            </div>
+
             <!-- Modal -->
 <div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
 <div class="modal-dialog">
-  <div class="modal-content"> 
+  <div class="modal-content">
     <div class="modal-body font-monospace">
     Are you sure do you want to delete this post ?
     <div class="d-flex" style="margin-left:300px; margin-top:30px;">
@@ -2194,7 +2190,7 @@ async function createPostsForSearch(){
             }
                 
 
-        rows+=` 
+        rows+=`
         <div id="post-update-section-${p.id}">
         <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
         ${formattedDescription}
@@ -2695,8 +2691,127 @@ async function createPostsForSearch(){
     document.getElementById('searchInput').value = localStorage.getItem('searchInput')+''
 }
 
+async function getShareGroup(){
+    const data = await fetch(`/user/getCommunity-list-forShare`);
+    const res = await data.json();
+    console.log("hahahahah yaya");
+    const selectBox = document.getElementById('statusForShare');
+    const postShareDiv = document.getElementById('forPostShareDiv');
+    selectBox.innerHTML = '';
 
- 
+    const allUsersOption = document.createElement('option');
+    allUsersOption.value = '';
+    allUsersOption.text = 'Select a group';
+    selectBox.appendChild(allUsersOption);
+
+    res.forEach((item) => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.text = item.name;
+        selectBox.appendChild(option);
+    });
+
+    const postShareButton = document.createElement('button');
+    postShareButton.type = 'button';
+    postShareButton.id = 'forSharingButton';
+    postShareButton.classList.add('btn','btn-outline-primary');
+    postShareButton.style.height = '50px';
+    postShareButton.innerHTML = '<i class="fa-solid fa-share"></i> Share';
+    postShareButton.style.display = 'none';
+
+    selectBox.addEventListener('change', newChild => {
+        if (selectBox.value) {
+            postShareButton.style.display = 'block';
+            const divEL = document.getElementById('forSharingButton');
+            document.getElementById('forShareingContent').style.width = '850px';
+            if(!divEL) {
+                postShareDiv.appendChild(postShareButton);
+            }
+            postShareButton.addEventListener('click',async () => {
+                const postURl = document.getElementById('postShareUrl').value;
+                console.log("PostURl",postURl)
+                await postShareToGroup(selectBox.value,loginUser,postURl);
+            });
+        } else {
+            document.getElementById('forShareingContent').style.width = '800px';
+            postShareButton.style.display = 'none';
+        }
+    });
+}
+
+async function postShareToGroup(id,staffId,content){
+    const chatMessage = {
+        roomId: id,
+        sender: staffId,
+        content: content,
+    };
+    const getData = await fetch(`/share-toChatRoom`,{
+        method:'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:JSON.stringify(chatMessage)
+    })
+    if(!getData){
+        alert("Something wrong please try again!");
+    }
+    const res = await getData.text();
+    if(res){
+        let alertMessage =  `${res}`;
+        let alertStyle = `
+            background-color: white;
+            color: green;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+
+
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function() {
+            styledAlert.style.display = 'none';
+        }, 3000);
+    }
+}
+
+async function showPhotoUrl(url){
+    let previousUrlValue =  document.getElementById('postShareUrl');
+    document.getElementById('forShareingContent').style.width = '800px';
+    const divEl = document.getElementById('forSharingButton');
+    if(divEl){
+        divEl.remove();
+    }
+    await getShareGroup();
+    console.log("URL",previousUrlValue)
+    console.log("Original",url)
+    previousUrlValue.value = '';
+    previousUrlValue.value = url;
+}
+
+const copyButton = async () => {
+    let copyText = document.getElementById("postShareUrl");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+}
+
+//for share group start
+
+
 
 const removeCat = async () =>{ 
     lodader.classList.add('hidden')
@@ -3408,7 +3523,7 @@ async function showSearchEvents(input){
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
-        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
         `
         const reactCountForEvent = await fetchReactCountForEvent(r.id);
         console.log('length',reactCountForEvent.length);
@@ -3479,19 +3594,19 @@ async function showSearchEvents(input){
         let row =''
         row += `
         <div class="post" id="delete-event-section-${r.id}">
-        <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
-  
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
         <div class="d-flex">
-       
+
             <div>
             <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
             <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
-            ${CommunityName} 
+            ${CommunityName}
             <span class="time font-monospace">${createdTime}</span>
-           
+
         </div>
         </div>`
         let user = await checkEventOwnerOrAdmin(r.id)
@@ -3508,11 +3623,11 @@ async function showSearchEvents(input){
                 </div>`}
 
             row+=`</div>
-            
+
             <!-- Modal -->
             <div class="modal fade" id="deleteEventAsk${r.id}" tabindex="-1" aria-labelledby="deleteEventAsk${r.id}" aria-hidden="true">
               <div class="modal-dialog">
-                <div class="modal-content"> 
+                <div class="modal-content">
                   <div class="modal-body font-monospace fw-normal">
                   Are you sure do you want to delete this post ?
                   <div class="d-flex" style="margin-left:300px; margin-top:30px;">
@@ -3520,13 +3635,13 @@ async function showSearchEvents(input){
                   <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
                   </div>
                   </div>
-             
+
                 </div>
               </div>
             </div>
-            
 
-         
+
+
 
             <div id="event-update-section-${r.id}">
             <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
@@ -4615,7 +4730,7 @@ async function goToPollTab(){
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
-        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
         `
         let expired = ''
         if(new Date()>new Date(r.end_date)){
@@ -4640,24 +4755,24 @@ POLL IS EXPIRED
 
         row += `
         <div class="post" id="pollPostDiv-${r.id}">
-        <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
-          
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
         <div class="d-flex">
-       
+
             <div>
             <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
-    
+
             <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
-            ${CommunityName} 
+            ${CommunityName}
             <span class="time font-monospace">${createdTime}</span>
-           
+
         </div>
-    
+
         </div>`
-    
-     
+
+
         let user = await checkEventOwnerOrAdmin(r.id)
         if(user === 'ADMIN' || user === 'OWNER'){
                 row+=`<div class="dropdown ">
@@ -4670,11 +4785,11 @@ POLL IS EXPIRED
                     </ul>
                 </div>`}
             row+=`</div>
-    
+
             <!-- Modal -->
             <div class="modal fade" id="deletePollAsk${r.id}" tabindex="-1" aria-labelledby="deletePollAsk${r.id}" aria-hidden="true">
               <div class="modal-dialog">
-                <div class="modal-content"> 
+                <div class="modal-content">
                   <div class="modal-body font-monospace fw-normal">
                   Are you sure do you want to delete this post ?
                   <div class="d-flex" style="margin-left:300px; margin-top:30px;">
@@ -4682,11 +4797,11 @@ POLL IS EXPIRED
                   <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
                   </div>
                   </div>
-             
+
                 </div>
               </div>
             </div>
-    
+
         <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
           <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
