@@ -327,6 +327,16 @@ public class RecordController {
         return new ResponseEntity<>(postData, HttpStatus.OK);
     }
 
+    @GetMapping("/get-currentMonthPost/{id}")
+    public ResponseEntity<List<Post>> getPosts(@PathVariable("id") Long id) {
+       List<Post> postList = postService.getPostsByCurrentMonthAndYearAndUserId(id);
+        if (!postList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(postList);
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
+        }
+    }
+
 
     private Map<String, Object> getUserDataForEachUserPost(Long userId, int year) {
         Map<String, Object> userData = new HashMap<>();
