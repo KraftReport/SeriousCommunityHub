@@ -566,20 +566,43 @@
                 </a>
             </li><!-- End Contact Page Nav -->
             <li class="nav-item">
-                <a class="nav-link collapsed" th:href="@{/logout}">
                     <i class="bi bi-dash-circle"></i>
-                    <span>Log Out</span>
-                </a>
+                    <span onclick="logOutFunction()">Log Out</span>
+                <!-- </a> -->
             </li>
 
 
         </ul>
+        
+        <!-- logout modal box start  -->
+
+
+ 
+  
+  <!-- Modal -->
+
+
+
+        <!-- logout modal box end  -->
 
     </aside><!-- End Sidebar-->
 </div>
 <main id="main" class="main">
-<a href="http://res.cloudinary.com/dws6icl91/raw/upload/v1716214659/2d8b53c6-ffaf-476e-8e50-1efc954746c9.xlsx" onclick="downloadFile(event,this.href,'green.xlsx')">download excel</a>
-<a href="https://res.cloudinary.com/dws6icl91/raw/upload/v1716275788/25172a28-2645-47d6-b3e7-f7b2f018cc93.zip" onclick="downloadFile(event,this.href,'sample.js')">Download js</a>
+
+    <div class="modal fade" id="logOutModalBox" tabindex="-1" aria-labelledby="logOutModalBox" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content"> 
+            <div class="modal-body font-monospace">
+              Are you sure to logout from current account ?
+           <div class="d-flex">
+            <button class="btn btn-success" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+              <a class="nav-link collapsed" style="text-decoration: none;" th:href="@{/logout}"><button class="btn btn-danger"><i class="fa-solid fa-check"></i></button></a>
+           </div>
+            </div>
+           
+          </div>
+        </div>
+      </div>
  
 
 

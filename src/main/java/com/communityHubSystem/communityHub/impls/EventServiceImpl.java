@@ -27,9 +27,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.Period;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -350,13 +348,17 @@ public class EventServiceImpl implements EventService {
     public Page<Event> getEventsForNewsfeed(String page) {
         var all = eventRepository.findAll();
         var loginUser = getCurrentLoginUser();
+        var now = LocalDateTime.now();
         if(loginUser.getRole().equals(User.Role.ADMIN)){
-            var allList = all.stream().filter(s->!s.isDeleted() && s.getEventType().equals(Event.EventType.EVENT)).sorted(Comparator.comparing(Event::getCreated_date).reversed()).toList();
+            var allList = all.stream().filter(s->!s.isDeleted() &&
+                    s.getEventType().equals(Event.EventType.EVENT) &&
+                    s.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().isAfter(now)).sorted(Comparator.comparing(Event::getCreated_date).reversed()).toList();
             return getPaginationOfEvents(allList,page);
         }
-        var filteredEvents = new ArrayList<>(all.stream().filter(e -> e.getEventType().equals(Event.EventType.EVENT) && !e
+        var filteredEvents = new ArrayList<>(all.stream().filter(e ->  e
+                .getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().isAfter(now) && e.getEventType().equals(Event.EventType.EVENT) && !e
                 .isDeleted() && e
-                .getAccess().equals(Access.PUBLIC)).toList());
+                .getAccess().equals(Access.PUBLIC)).toList() );
         filteredEvents.addAll(getEventsOfGroupForLoginUser(Event.EventType.EVENT));
         filteredEvents.sort(Comparator.comparing(Event::getCreated_date).reversed());
         return getPaginationOfEvents(filteredEvents,page);
@@ -370,12 +372,16 @@ public class EventServiceImpl implements EventService {
     @Override
     public Page<Event> getPolForNewsfeed(String page) {
         var all = eventRepository.findAll();
+        var now = LocalDateTime.now();
         var loginUser = getCurrentLoginUser();
         if(loginUser.getRole().equals(User.Role.ADMIN)){
-            var allList = all.stream().filter(s->!s.isDeleted() && s.getEventType().equals(Event.EventType.VOTE)).sorted(Comparator.comparing(Event::getCreated_date).reversed()).toList();
+            var allList = all.stream().filter(s->!s.isDeleted() &&
+                    s.getEventType().equals(Event.EventType.VOTE) &&
+                    s.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().isAfter(now)).sorted(Comparator.comparing(Event::getCreated_date).reversed()).toList();
             return getPaginationOfEvents(allList,page);
         }
-        var filteredPolls = new ArrayList<>(all.stream().filter(e->e.getEventType().equals(Event.EventType.VOTE) && !e
+        var filteredPolls = new ArrayList<>(all.stream().filter(e->e.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().isAfter(now) && e.
+                getEventType().equals(Event.EventType.VOTE) && !e
                 .isDeleted() && e
                 .getAccess().equals(Access.PUBLIC)).toList());
         filteredPolls.addAll(getEventsOfGroupForLoginUser(Event.EventType.VOTE));
@@ -433,6 +439,23 @@ public class EventServiceImpl implements EventService {
         System.err.println(list);
 
         return list;
+    }
+
+    @Override
+    public List<Object> checkEventOwnerOrAdmin(Long id) {
+        var obj = new ArrayList<Object>();
+        var found = eventRepository.findById(id).orElseThrow(() -> new CommunityHubException("event not found"));
+        var loginUser = getCurrentLoginUser();
+        if (loginUser.getId().equals(found.getUser().getId())) {
+            obj.add("OWNER");
+            return obj;
+        } else if (loginUser.getRole().equals(User.Role.ADMIN)) {
+            obj.add("ADMIN");
+            return obj;
+        } else {
+            obj.add("NO");
+            return obj;
+        }
     }
 
     private String escapeSql(String str) {

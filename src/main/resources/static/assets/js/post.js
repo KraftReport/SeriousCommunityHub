@@ -9,8 +9,21 @@ let mark = document.getElementById('markBox')
 let eventDiv = document.getElementById('events')
 const mentionSuggestions = document.getElementById('mentionSuggestions');
 let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
+let logOutModalBox = new bootstrap.Modal(document.getElementById('logOutModalBox'))
 
 window.onload = welcome;
+
+const checkEventOwnerOrAdmin = async (id) => {
+    let data = await fetch(`/event/checkEventOwnerOrAdmin/${id}`)
+    let response = await data.json()
+    console.log(response[0])
+    return response[0]
+}
+
+const logOutFunction  = async () => {
+    logOutModalBox.show()
+}
+
 
 const mainButtonClick = async () => {
     const popupButtons = document.getElementById('divForCreation');
@@ -745,9 +758,8 @@ async function welcome() {
                     let ug = p.userGroup !== null ? p.userGroup : null
                     let gp = ug !== null ? ug.community : null 
                     let gpName = gp !== null ? gp.name : null
-                    let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
-                    <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
-                    </div>`
+                    let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+                    `
                     let createdTime = await timeAgo(new Date(p.createdDate))
                     const reactCount = await fetchSizes(p.id);
                     const reactType = await fetchReactType(p.id);
@@ -791,33 +803,57 @@ async function welcome() {
                     post += `
     
           <div class="post" id="post-delete-section-${p.id}">
-          <div class="post-top">
-              <div class="">
-                  <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+          <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+          
+          <div class="d-flex">
+         
+              <div>
+              <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
               </div>
-              <div class="post-info">
-                  <div class="d-flex">
-                  <p class="name">${p.user.name}</p>
-                  ${CommunityName} <i class="fa-solid fa-link" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i>
-                  </div>
-                  <span class="time">${createdTime}</span>
-              </div>`
+              <div class="post-info" style="width:100px;">
+
+              <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
+              ${CommunityName} 
+              <span class="time font-monospace">${createdTime}</span>
+             
+          </div>
+          </div>`
               let user = await checkPostOwnerOrAdmin(p.id)
               if(user === 'ADMIN' || user === 'OWNER'){
                 post += `<div class="dropdown offset-8">
-                <a class=" dropdown-toggle" onclick="getPostDetail(${p.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                       <i class="fas fa-ellipsis-h "></i>
-                      </a>
+                      </div>
               
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li><i class="fa-solid fa-link" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i></li>`
     
                 if(user=== 'OWNER'){
                     post+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
                 }
                   
-                   post +=`<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
+                   post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item" >Delete Post</div>
+                  
+                   </li> 
                 </ul>
-              </div>`
+              </div> 
+              
+              <!-- Modal -->
+<div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to delete this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="deletePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+</div>`
               }
 
               for(file of res){
@@ -831,7 +867,7 @@ async function welcome() {
                      
             
           post+=`
-          </div>
+         
     <div id="post-update-section-${p.id}">
     <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
           ${formattedDescription}
@@ -884,8 +920,8 @@ async function welcome() {
                     }
                     if (one !== null  ) {
                         post+= `
-<div class="d-flex" > 
-<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+<div class="d-flex" style="margin-left:65px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:400px; border-radius : 15px; max-height:500px;   height: auto; width: auto;" alt="">${oneCloseTag}
 </div>
 `
                     }
@@ -918,9 +954,9 @@ async function welcome() {
                     }
                     if (one !== null && two !== null  ) {
                         post+= `
-<div class="d-flex" > 
-<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
+<div class="d-flex" style="margin-left:120px;" > 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px;  height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
 </div> `
                     }
                 })
@@ -963,12 +999,12 @@ async function welcome() {
                     }
                     if (one !== null && two !== null && three !== null  ) {
                         post+= `
-<div class="d-flex" > 
-<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+<div class="d-flex" style="margin-left:10px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
 </div>
-<div class="d-flex"> 
-<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag}
+<div class="d-flex" style="margin-left:10px;"> 
+<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin-left:127px; height: auto; width: auto;" alt="">${threeCloseTag}
 </div>`
                     }
                 })
@@ -1026,13 +1062,13 @@ async function welcome() {
 
                     if (one !== null && two !== null && three !== null && four !== null) {
                         post+= `
-  <div class="d-flex" > 
-  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+  <div class="d-flex" style="margin-left:60px;"> 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${twoCloseTag}
   </div>
-  <div class="d-flex"> 
-  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-  <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+  <div class="d-flex" style="margin-left:60px;"> 
+  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${threeCloseTag}
+  <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${fourCloseTag}
   </div>`
                     }
                 })
@@ -1107,15 +1143,15 @@ async function welcome() {
                     if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
 
                         post+= `
-  <div class="d-flex" > 
-  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+  <div class="d-flex" style="margin-left:10px;"> 
+  <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+  <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
   </div>
-  <div class="d-flex"> 
-  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-  <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
-  <div style="position: relative; display: inline-block;">
-  <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+  <div class="d-flex" style="margin-left:10px;"> 
+  <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${threeCloseTag}
+  <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fourCloseTag}
+  <div style="position: relative; display: inline-block;" >
+  <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fiveCloseTag}
   <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
   </div>
   </div>`
@@ -1183,30 +1219,29 @@ async function welcome() {
                         let active = index == 0 ? 'active' : ''
                         if (r.photo === null && r.video !== null) {
                             post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" >
-                            <p style="background-color:white;">${r.description.replace(/\n/g, '<br>')}</p>
                   <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
                   <div class="carousel-caption d-none d-md-block"> 
+                  <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
                 </div>
                   </div> `
                         } else if (r.video === null && r.photo !== null) {
-                            post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">  
-                            <p style="background-color:white;">${r.description.replace(/\n/g, '<br>')}</p>
+                            post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
                   <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-                  <div class="carousel-caption d-none d-md-block">
+                  <div class="carousel-caption d-none d-md-block"> 
+                  <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
                 </div>
                 </div>`
                         } else {
                             post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                            <p style="background-color:white;">${r.description.replace(/\n/g, '<br>')}</p>
                   <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
                   <div class="carousel-caption d-none d-md-block"> 
+                  <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
                 </div>
                 </div>`
                             post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                            <p style="background-color:white;">${r.description.replace(/\n/g, '<br>')}</p>
                 <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
                 <div class="carousel-caption d-none d-md-block"> 
-           
+                <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
               </div>
               </div>
                `
@@ -2188,12 +2223,11 @@ async function getAllEventsForPost() {
         displayNoPostMessage();
     } else {
         for (const r of response) {
+            
             let ug = r.user_group !== null ? r.user_group : null
             let gp = ug !== null ? ug.community : null 
             let gpName = gp !== null ? gp.name : null
-            let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
-            <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
-            </div>`
+                    let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>`
             
 
             if(new Date()>new Date(r.end_date)){
@@ -2261,27 +2295,56 @@ async function getAllEventsForPost() {
             let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `;
             let row = `
                 <div class="post" id="delete-event-section-${r.id}">
-                    <div class="post-top">
-                        <div class="dp">
-                            <img src="${r.user.photo}" alt="">
-                        </div>
-                        <div class="post-info">
-                        <div class="d-flex">
-                        <p class="name">${r.user.name}</p>
-                        ${CommunityName}
-                        </div>
-                            <span class="time">${createdTime}</span>
-                        </div>
-                        <div class="dropdown offset-8">
-                            <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-h "></i>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#eventEditOffcanvas">Edit</a></li>
-                                <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
-                            </ul>
-                        </div>
+                <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+          
+                <div class="d-flex">
+               
+                    <div>
+                  
+                    <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
                     </div>
+                    <div class="post-info" style="width:100px;">
+      
+                    <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
+                    ${CommunityName} 
+                    <span class="time font-monospace">${createdTime}</span>
+                   
+                </div>
+                </div>`
+                let user = await checkEventOwnerOrAdmin(r.id)
+                console.log(user)
+                if(user === 'ADMIN' || user === 'OWNER'){
+                       row+= `<div class="dropdown ">
+                            <div class="  " onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-h "></i>
+                            </div>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+                              if(user === 'OWNER'){  row+=`<li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#eventEditOffcanvas">Edit</a></li>`}
+                              row+=  `<li><a class="dropdown-item" data-bs-toggle="modal"   data-bs-target="#deleteEventAsk${r.id}" >Delete Post</a></li>
+                            </ul>
+                        </div>`}
+
+                    row+=`</div>
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteEventAsk${r.id}" tabindex="-1" aria-labelledby="deleteEventAsk${r.id}" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content"> 
+                          <div class="modal-body font-monospace fw-normal">
+                          Are you sure do you want to delete this post ?
+                          <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+                          <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+                          <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+                          </div>
+                          </div>
+                     
+                        </div>
+                      </div>
+                    </div>
+                    
+
+                 
+
                     <div id="event-update-section-${r.id}">
                     <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
                         <div class="card" style="width: 30rem;  margin-left:12px ;">
@@ -2311,7 +2374,10 @@ async function getAllEventsForPost() {
                                                 <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
                                             </div>
                                         </div>
-                                        <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
+                                        <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2">
+                                        ${expired}
+                                        <img src="${r.photo}" style="width:250px; height:200px; border-radius:20px">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -5480,9 +5546,7 @@ async function getAllPollPost(){
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
-        let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
-        <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
-        </div>`
+        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>`
         let expired = ''
         if(new Date()>new Date(r.end_date)){
             expired=`
@@ -5505,29 +5569,55 @@ POLL IS EXPIRED
         let createdTime = await timeAgo(new Date(r.created_date))
 
         row += `
-        <div class="post" id="pollPostDiv-${r.id}">
-        <div class="post-top">
-            <div class="dp">
-                <img src="${r.user.photo}" alt="">
-            </div>
-            <div class="post-info">
-            <div class="d-flex">
-            <p class="name">${r.user.name}</p>
-            ${CommunityName}
-            </div>
-                <span class="time">${createdTime}</span>
-            </div>
-                        <div class="dropdown offset-8">
-      <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-h "></i>
-            </a>
-    
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#pollEditOffcanvas">Edit</a></li>
-        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
-      </ul>
+        <div class="post" id="pollPostDiv-${r.id}"> 
+ 
+
+    <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+          
+    <div class="d-flex">
+   
+        <div>
+        <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+        </div>
+        <div class="post-info" style="width:100px;">
+
+        <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
+        ${CommunityName} 
+        <span class="time font-monospace">${createdTime}</span>
+       
     </div>
-        </div> 
+
+    </div>`
+
+ 
+    let user = await checkEventOwnerOrAdmin(r.id)
+    if(user === 'ADMIN' || user === 'OWNER'){
+            row+=`<div class="dropdown ">
+                <div class="  " onclick="getPollEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-ellipsis-h "></i>
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+                   if(user === 'OWNER'){ row+=`  <li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#pollEditOffcanvas">Edit</a></li>`}
+                    row+=`<li><a class="dropdown-item" data-bs-toggle="modal"   data-bs-target="#deletePollAsk${r.id}" >Delete Post</a></li>
+                </ul>
+            </div>`}
+        row+=`</div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="deletePollAsk${r.id}" tabindex="-1" aria-labelledby="deletePollAsk${r.id}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content"> 
+              <div class="modal-body font-monospace fw-normal">
+              Are you sure do you want to delete this post ?
+              <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+              <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+              <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
           <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>
@@ -6263,3 +6353,5 @@ document.getElementById('rawSend').addEventListener('click',createARawFilePost()
 // });
 
 
+
+ 

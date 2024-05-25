@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -243,10 +245,13 @@ public class CommunityServiceImpl implements CommunityService {
 
     public Page<Event> fetchEventsForCommunity(Long id, String page, Event.EventType eventType) {
         List<Event> postList = new ArrayList<>();
+        var now = LocalDateTime.now();
         List<User_Group> userGroupList = user_groupRepository.findByCommunityId(id);
         for (User_Group user_group : userGroupList) {
             List<Event> userGroupPosts = eventRepository.findByUserGroupId(user_group.getId());
-            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted() && u.getEventType().equals(eventType)).toList();
+            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted() &&
+                    u.getEventType().equals(eventType) &&
+                    u.getEnd_date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().isAfter(now)).toList();
             System.err.println("WOWOOWOWOWO"+user_group.getId());
             postList.addAll(filteredList);
         }

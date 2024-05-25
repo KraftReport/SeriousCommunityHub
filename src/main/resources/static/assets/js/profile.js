@@ -414,33 +414,58 @@ const getPosts = async () => {
         post += `
 
       <div class="post" id="post-delete-section-${p.id}">
-      <div class="post-top">
-          <div class="dp">
-              <img src="${p.user.photo}" alt="">
-          </div>
-          <div class="post-info">
-          <div class="d-flex">
-          <p class="name">${p.user.name}</p>
-          ${CommunityName}
-          </div>
-              <span class="time">${createdTime}</span>
-          </div>`
-        let user = await checkPostOwnerOrAdmin(p.id)
-        if (user === 'ADMIN' || user === 'OWNER') {
-            post += `<div class="dropdown offset-8">
-            <a class=" dropdown-toggle" onclick="getPostDetail(${p.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-ellipsis-h "></i>
-                  </a>
+      <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
           
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+      <div class="d-flex">
+     
+          <div>
+          <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+          </div>
+          <div class="post-info" style="width:100px;">
 
-            if (user === 'OWNER') {
-                post += `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
+          <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
+          ${CommunityName} 
+          <span class="time font-monospace">${createdTime}</span>
+         
+      </div>
+      </div>`
+          let user = await checkPostOwnerOrAdmin(p.id)
+          if(user === 'ADMIN' || user === 'OWNER'){
+            post += `<div class="dropdown offset-8">
+            <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-h "></i>
+                  </div>
+          
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <li><i class="fa-solid fa-link" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i></li>`
+
+            if(user=== 'OWNER'){
+                post+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
             }
-
-            post += `<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li>
+              
+               post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item" >Delete Post</div>
+              
+               </li> 
             </ul>
-          </div>`
+          </div> 
+          
+          <!-- Modal -->
+<div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content"> 
+  <div class="modal-body font-monospace">
+  Are you sure do you want to delete this post ?
+  <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+  <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+  <button onclick="deletePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+  </div>
+  </div>
+
+</div>
+</div>
+</div>
+</div>`
+   
         }
 
 
