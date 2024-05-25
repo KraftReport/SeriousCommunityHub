@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -541,22 +542,33 @@ public class ReactController {
     }
 
 
-    public List<User> getMentionsUsersByPostId(Long id){
+    public List<User> getMentionsUsersByPostId(Long id) {
         var post = postService.findById(id);
-        if(post.getAccess().equals(Access.PUBLIC)){
-           return userService.getAllActiveUser();
-        }else{
-            var userGroups = user_groupService.findByCommunityId(post.getUserGroup().getCommunity().getId());
-         List<User> userList = new ArrayList<>();
-            for(User_Group user_group:userGroups){
-             var user = userService.findById(user_group.getUser().getId());
-             if(!user.getRole().equals(User.Role.ADMIN)){
-                 userList.add(user);
-             }
-         }
-            return userList;
+        var loginUser = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CommunityHubException("User name not found exception!"));
+
+        if (post == null) {
+            throw new CommunityHubException("Post not found!");
         }
+
+        List<User> users = new ArrayList<>();
+
+        if (post.getAccess().equals(Access.PUBLIC)) {
+            users = userService.getAllActiveUser().stream()
+                    .filter(user -> !user.getId().equals(loginUser.getId()))
+                    .collect(Collectors.toList());
+        } else {
+            var userGroups = user_groupService.findByCommunityId(post.getUserGroup().getCommunity().getId());
+            for (User_Group userGroup : userGroups) {
+                var user = userService.findById(userGroup.getUser().getId());
+                if (user != null && !user.getRole().equals(User.Role.ADMIN) && !user.getId().equals(loginUser.getId())) {
+                    users.add(user);
+                }
+            }
+        }
+        return users;
     }
+
 
 }
 

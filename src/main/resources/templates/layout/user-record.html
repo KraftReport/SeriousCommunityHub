@@ -28,6 +28,17 @@
                             type="button" role="tab" aria-controls="totalTab" aria-selected="false">TrendyTotalsList
                     </button>
                 </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="total-tabPerMonth" data-bs-toggle="tab" data-bs-target="#totalTabPerMonth"
+                            type="button" role="tab" aria-controls="totalTabPerMonth" aria-selected="false" sec:authorize="hasAnyAuthority('ADMIN')">TrendyTotalsListPerMonth
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="total-postPerMonth" data-bs-toggle="tab" data-bs-target="#totalPostPerMonth"
+                            type="button" role="tab" aria-controls="totalPostPerMonth" aria-selected="false" sec:authorize="hasAnyAuthority('ADMIN')">User Progress
+                    </button>
+                </li>
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="postListTab" role="tabpanel" aria-labelledby="postList-tab">
@@ -98,8 +109,8 @@
                                 <div class="content content_1">
                                     <div class="title" id="trendyGroupName">İstanbul</div>
                                     <div class="text">
-                                <span id="trendyGroupDescription"></span>
-                                  <span id="trendyGroupMembers"></span>
+                                        <span id="trendyGroupDescription"></span>
+                                        <span id="trendyGroupMembers"></span>
                                     </div>
                                     <button class="groupCommunityTrendy">Click to see</button>
                                 </div>
@@ -112,9 +123,9 @@
                                 <div class="content content_2">
                                     <div class="title">Posts List Within A Month</div>
                                     <div class="text">
-                                    <span id="totalPostsForOneMonth"></span>
-                                    <span id="totalReactsForOneMonth"></span>
-                                    <span id="totalCommentsForOneMonth"></span>
+                                        <span id="totalPostsForOneMonth"></span>
+                                        <span id="totalReactsForOneMonth"></span>
+                                        <span id="totalCommentsForOneMonth"></span>
                                     </div>
                                     <button class="groupCommunityTrendy">Click to see</button>
                                 </div>
@@ -146,7 +157,59 @@
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="tab-pane fade" id="totalTabPerMonth" role="tabpanel" aria-labelledby="total-tabPerMonth" >
+                    <div id="trendyPostPerMonth" class="">
+                        <div style="display: flex">
+                            <div>
+                                <select name="status" id="searchWithYear" class="form-select">
+                                    <option value="2024">2024</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                </select>
+                            </div>
+                            <div style="margin-left: 20px">
+                                <select name="status" id="searchWithMonth" class="form-select">
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                            <div style="margin-left: 650px;">
+                                <input type="text" class="form-control" id="userSearchForPost" placeholder="Search users">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div id="pieChartContainerForEach" style="display: flex; flex-wrap: wrap;"></div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="totalPostPerMonth" role="tabpanel" aria-labelledby="total-postPerMonth" >
+                    <div id="postPerMonth" class="">
+                        <div style="display: flex">
+                            <div>
+                                <select name="status" id="searchYear" class="form-select">
+                                    <option value="2024">2024</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                </select>
+                            </div>
+                            <div style="margin-left: 650px;">
+                                <input type="text" class="form-control" id="userSearchForPostMonth" placeholder="Search users">
+                            </div>
+                        </div>
+                        <br><br>
+                        <div id="lineChartContainerForEachMonth" style="display: flex; flex-wrap: wrap;"></div>
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -154,13 +217,20 @@
         <script src="https://code.jquery.com/jquery-3.7.1.js"
                 integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <style>
-            .piechart-container {
+            #pieChartContainer {
                 display: flex;
-                justify-content: center;
-                align-items: center;
-                width: calc(100% / 3);
-                height: calc(100vh / 3);
-                margin-bottom: 80px;
+                flex-wrap: wrap;
+                gap: 20px; /* Adjust this value to increase or decrease the space between charts */
+            }
+
+            .piechart-container {
+                flex: 1 1 200px; /* Allows each chart container to grow and shrink, set minimum width to 200px */
+                margin: 10px; /* Additional margin around each chart */
+                padding: 20px; /* Padding inside each chart container */
+                border: 1px solid #ccc; /* Optional: Add a border around each chart container */
+                border-radius: 10px; /* Optional: Rounded corners for each chart container */
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for better visual separation */
+                background-color: #f9f9f9; /* Optional: Background color for each chart container */
             }
 
             .piechart {
@@ -168,6 +238,49 @@
                 height: 300px;
                 border-radius: 50%;
             }
+            .chart{
+                width: 600px;
+                height: 600px;
+            }
+
+            .piechart-containerForPost {
+                margin: 10px; /* Adjust the margin to create space between charts */
+                padding: 10px; /* Optional: add padding if needed */
+                border: 1px solid #ddd; /* Optional: add a border for better visual separation */
+                border-radius: 5px; /* Optional: add border radius for rounded corners */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for better separation */
+                background-color: #f9f9f9; /* Optional: add a background color */
+            }
+
+            #pieChartContainerForEach {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .chart-container {
+                flex: 1 1 200px; /* Allows each chart container to grow and shrink, set minimum width to 200px */
+                margin: 10px; /* Additional margin around each chart */
+                padding: 20px; /* Padding inside each chart container */
+                border: 1px solid #ccc; /* Optional: Add a border around each chart container */
+                border-radius: 10px; /* Optional: Rounded corners for each chart container */
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for better visual separation */
+                background-color: #f9f9f9; /* Optional: Background color for each chart container */
+            }
+
+            .linechart-containerForPost {
+                margin: 10px; /* Adjust the margin to create space between charts */
+                padding: 10px; /* Optional: add padding if needed */
+                border: 1px solid #ddd; /* Optional: add a border for better visual separation */
+                border-radius: 5px; /* Optional: add border radius for rounded corners */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for better separation */
+                background-color: #f9f9f9; /* Optional: add a background color */
+            }
+
+            #lineChartContainerForEachMonth {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
         </style>
     </body>
 </html>

@@ -225,8 +225,8 @@
     </header><!-- End Header -->
 </div>
 <div th:replace="~{index::navbar}"></div>
-<main id="main" class="main" style="margin-left: 400px;">
-
+<main id="main" class="main">
+    <div class="middle-panel">
 <div class="container">
     <div class="d-flex" style="margin-left: 150px;">
 
@@ -268,6 +268,10 @@
          
          <div class="font-monospace m-2 d-flex"><i class="fa-regular fa-clock text-primary"></i> <p id="timeDiv" class="font-monospace fw-bold" style="margin-left: 15px;">CREATED DATE</p></div>
 
+         <div class="font-monospace m-2 d-flex"><i class="fa-solid fa-heart"></i> <p id="reactCount" class="font-monospace fw-bold" style="margin-left: 15px;">React Count</p></div>
+
+         <div class="font-monospace m-2 d-flex"><i class="fa-solid fa-comments"></i> <p id="commentCount" class="font-monospace fw-bold" style="margin-left: 15px;">Comment Count</p></div>
+
     </div>
 </div>
           </div>
@@ -289,15 +293,33 @@
             <div class="card-body" id="parentDiv"> 
             </div>
           </div>
+
     
           <div class="card">
             <div class="card-body" id="parentDivForRaw" style="margin-top: 20px;"> 
             </div>
           </div>
+
       
 </div>
- 
+    </div>
 
+    <div class="modal fade" id="staticBackdropForCommentView" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabelForCommentView"><i class="fa-solid fa-comments"></i>Comments</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="height: 400px; overflow-y: auto;">
+                    <div  class="mb-container" id="commentViewMessage"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 </main>

@@ -255,7 +255,7 @@ const mentionCommunityMember = () => {
         const inputValue = event.target.value;
         const mentionIndex = inputValue.lastIndexOf('@');
         console.log('sdfdfdf',inputValue)
-        const users = (await getAllMember()).map(user => ({
+        const users = (await getAllMembersWithoutLoginUser()).map(user => ({
             ...user,
             name: user.name.replace(/\s+/g, '')
         }));
@@ -458,6 +458,12 @@ const fetchInvitationMessage = async () => {
     const response = await data.json();
     return response;
 }
+
+const getAllMembersWithoutLoginUser = async () => {
+    const getAllData = await fetch('/get-activeUser-forMention');
+    const response = await getAllData.json();
+    return response;
+};
 
 const getAllMember = async () => {
     const getAllData = await fetch('/get-all-active-user');
@@ -1261,7 +1267,7 @@ async function welcome() {
                 </div>
                 <span>Like ${reactCount.length}</span>`;
             } else {
-                await pressedLike(postId, "LIKE");
+                await pressedLike12(postId, "LIKE");
                 await new Promise(resolve => setTimeout(resolve, 200));
                 console.log("hello this is like reaction");
                 const reactCount = await fetchSizes(postId);
@@ -1301,7 +1307,7 @@ async function welcome() {
             like_image.addEventListener('click', async (event) => {
                 let dataTitle = event.currentTarget.dataset.title;
                 const postId = likeButton.id;
-                await pressedLike(postId, dataTitle);
+                await pressedLike12(postId, dataTitle);
                 await new Promise(resolve => setTimeout(resolve, 200));
                 const reactCount = await fetchSizes(postId);
                 if (dataTitle === "LIKE") {
@@ -1433,8 +1439,8 @@ const postShareToGroup =async (id,staffId,content) => {
       if(res){
           let alertMessage =  `${res}`;
           let alertStyle = `
-            background-color: green;
-            color: blue;
+            background-color: white;
+            color: green;
             border: 1px solid #cc0000;
              border-radius: 15px;
         `;
@@ -2887,7 +2893,7 @@ const pressedLikeForEvent = async (id, type) => {
     stompClient.send('/app/react-event-message', {}, JSON.stringify(myObj));
 };
 
-const pressedLike = async (id, type) => {
+const pressedLike12 = async (id, type) => {
     console.log('PostId', id);
     const myObj = {
         postId: id,

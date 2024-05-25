@@ -94,44 +94,44 @@ public class RecordController {
 
     @GetMapping("/record-groupPostComments-listForOneMonth")
     public ResponseEntity<Long> getCommentTotalSizeForTrendyCommunityWithinOneMonth() {
-        return ResponseEntity.status(HttpStatus.OK).body(getReactSizeForMostCommunityMembersWithinOneYear());
+        return ResponseEntity.status(HttpStatus.OK).body(getCommentSizeForMostCommunityMembersWithinOneMonth());
     }
 
     @GetMapping("/record-groupPostComments-listForOneYear")
     public ResponseEntity<Long> getCommentTotalSizeForTrendyCommunityWithinOneYear() {
-        return ResponseEntity.status(HttpStatus.OK).body(getReactSizeForMostCommunityMembersWithinOneYear());
+        return ResponseEntity.status(HttpStatus.OK).body(getCommentSizeForMostCommunityMembersWithinOneYear());
     }
 
     // for admin view start
 
     //call active all users without admin
     @GetMapping("/activeUsers-forAdmin")
-    public ResponseEntity<List<User>> getActiveUsersForAdmin(){
+    public ResponseEntity<List<User>> getActiveUsersForAdmin() {
         return ResponseEntity.status(HttpStatus.OK).body(getAllActiveUserWithoutAdmin());
     }
 
     //get one post for admin in a month
     @GetMapping("/onlyOne-trendyPost-withinOneMonth")
-    public ResponseEntity<Post> getOnlyOneTrendyPostForAdminInOneMonth(){
+    public ResponseEntity<Post> getOnlyOneTrendyPostForAdminInOneMonth() {
         return ResponseEntity.status(HttpStatus.OK).body(getOnlyOneTrendyPostWithinActiveUserInOneMonth());
-   }
+    }
 
     //get one post for admin in a year
     @GetMapping("/onlyOne-trendyPost-withinOneYear")
-    public ResponseEntity<Post> getOnlyOneTrendyPostForAdminInOneYear(){
+    public ResponseEntity<Post> getOnlyOneTrendyPostForAdminInOneYear() {
         return ResponseEntity.status(HttpStatus.OK).body(getOnlyOneTrendyPostWithinActiveUserInOneYear());
     }
 
     //get unique post react
     @GetMapping("/onlyOne-trendyPostReacts-withinOneMonth/{id}")
-    public ResponseEntity<Long> getOnlyOneTrendyPostReactsForAdmin(@PathVariable("id")Long id){
+    public ResponseEntity<Long> getOnlyOneTrendyPostReactsForAdmin(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(getReactsForUniquePost(id));
     }
 
 
     //get unique post comment
     @GetMapping("/onlyOne-trendyPostComments-withinOneMonth/{id}")
-    public ResponseEntity<Long> getOnlyOneTrendyPostCommentsForAdmin(@PathVariable("id")Long id){
+    public ResponseEntity<Long> getOnlyOneTrendyPostCommentsForAdmin(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(getCommentsForUniquePost(id));
     }
 
@@ -139,50 +139,102 @@ public class RecordController {
 
     // dr do call yin react a kone ya
     @GetMapping("/activeUser-ReactsCount/{id}")
-    public ResponseEntity<Long> getReactsForActiveUser(@PathVariable("id")Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(getAllReactsForActiveUser(id));
+    public ResponseEntity<Long> getReactsForActiveUser(@PathVariable("id") Long id) {
+        Long reactCount = getAllReactsForActiveUser(id);
+        return ResponseEntity.status(HttpStatus.OK).body(reactCount != null ? reactCount : 0L);
     }
 
-    //get one user all posts comments
-    // dr ko call yin comments a kone ya
+    // get one user all posts comments
     @GetMapping("/activeUser-CommentsCount/{id}")
-    public ResponseEntity<Long> getCommentsForActiveUser(@PathVariable("id")Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(getAllCommentsForActiveUser(id));
+    public ResponseEntity<Long> getCommentsForActiveUser(@PathVariable("id") Long id) {
+        Long commentCount = getAllCommentsForActiveUser(id);
+        return ResponseEntity.status(HttpStatus.OK).body(commentCount != null ? commentCount : 0L);
     }
+
 
     //get one user all posts and count
     @GetMapping("/activeUser-PostsForAdmin/{id}")
-    public ResponseEntity<List<Post>> getPostsForActiveUser(@PathVariable("id")Long id){
+    public ResponseEntity<List<Post>> getPostsForActiveUser(@PathVariable("id") Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(getAllPostsForActiveUser(id));
     }
 
     @GetMapping("/check-role")
-    public ResponseEntity<User> getUserToCheckWhetherAdminOrUser(){
+    public ResponseEntity<User> getUserToCheckWhetherAdminOrUser() {
         return ResponseEntity.status(HttpStatus.OK).body(loginUser());
     }
 
     //dr do call yin month post ya
     @GetMapping("/getPosts-eachUser/month/{id}")
-    public ResponseEntity<List<Post>> getPostsForEachUserInAMonth(@PathVariable("id")Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(getPostsForEachUserWithinOneMonth(id));
+    public ResponseEntity<List<Post>> getPostsForEachUserInAMonth(@PathVariable("id") Long id) {
+        List<Post> postList = getPostsForEachUserWithinOneMonth(id);
+        return ResponseEntity.ok(postList.isEmpty() ? new ArrayList<>() : postList);
     }
 
-    // dr do call yin year post ya
     @GetMapping("/getPosts-eachUser/year/{id}")
-    public ResponseEntity<List<Post>> getPostsForEachUserInAYear(@PathVariable("id")Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(getPostsForEachUserWithinOneYear(id));
+    public ResponseEntity<List<Post>> getPostsForEachUserInAYear(@PathVariable("id") Long id) {
+        List<Post> postList = getPostsForEachUserWithinOneYear(id);
+        return ResponseEntity.ok(postList.isEmpty() ? new ArrayList<>() : postList);
     }
 
-    // dr ko call yin a kone ya
     @GetMapping("/getPosts-eachUser/all/{id}")
-    public ResponseEntity<List<Post>> getPostsForEachUser(@PathVariable("id")Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(getAllPostsForEachUser(id));
+    public ResponseEntity<List<Post>> getPostsForEachUser(@PathVariable("id") Long id) {
+        List<Post> postList = getAllPostsForEachUser(id);
+        return ResponseEntity.ok(postList.isEmpty() ? new ArrayList<>() : postList);
     }
 
     @GetMapping("/data")
     public ResponseEntity<Map<String, Object>> getPostData() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName().trim();
+
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isEmpty()) {
+            throw new CommunityHubException("User name not found Exception!");
+        }
+        User people = optionalUser.get();
+        Map<String, Object> postData = new HashMap<>();
+
+        if (User.Role.ADMIN.equals(people.getRole())) {
+            List<User> users = getAllActiveUserWithoutAdmin();
+            for (User user : users) {
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("name", user.getName());
+                userData.put("staffId", user.getStaffId());
+                userData.put("data", getUserData(user.getId()));
+                postData.put(String.valueOf(user.getId()), userData);
+            }
+        }
+        return new ResponseEntity<>(postData, HttpStatus.OK);
+    }
+
+    @GetMapping("/barchartdata")
+    public ResponseEntity<Map<String, Object>> getBarChartData() {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isEmpty()) {
+            throw new CommunityHubException("User name not found Exception!");
+        }
+
+        User people = optionalUser.get();
+        Map<String, Object> postData = new HashMap<>();
+
+        if (User.Role.USER.equals(people.getRole())) {
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("name", people.getName());
+            userData.put("staffId", people.getStaffId());
+            userData.put("role",people.getRole());
+            userData.put("data", getUserData(people.getId()));
+            postData.put(String.valueOf(people.getId()), userData);
+        }
+
+        return new ResponseEntity<>(postData, HttpStatus.OK);
+    }
+
+    @GetMapping("/dataPerMonth/{id}/{year}/{month}")
+    public ResponseEntity<Map<String, Object>> getPostDataForEachMonth(@PathVariable("id")Long id,
+                                                                       @PathVariable("year")int year,
+                                                                       @PathVariable("month")int month) {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         Optional<User> optionalUser = userService.findByStaffId(staffId);
         if (optionalUser.isEmpty()) {
@@ -198,7 +250,7 @@ public class RecordController {
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("name", user.getName());
                 userData.put("staffId", user.getStaffId());
-                userData.put("data", getUserData(user.getId()));
+                userData.put("data", getUserDataForEachPost(id,year,month));
                 postData.put(String.valueOf(user.getId()), userData);
             }
         } else {
@@ -210,6 +262,79 @@ public class RecordController {
         }
 
         return new ResponseEntity<>(postData, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/posts/by-month/{year}")
+    public ResponseEntity<Map<Integer, List<Post>>> getPostsByMonth(@PathVariable("year") int year) {
+        Map<Integer, List<Post>> postsByMonth = getAllPostsPerMonth(year);
+        return new ResponseEntity<>(postsByMonth, HttpStatus.OK);
+    }
+
+    @GetMapping("/posts-perMonth-forAdmin/{id}/{year}/{month}")
+    public ResponseEntity<List<Post>> getAllPostsByMonthForAdmin(@PathVariable("id") Long id,
+                                                                 @PathVariable("year") int year,
+                                                                 @PathVariable("month") int month) {
+        List<Post> postList = getAllPostsForEachMonth(id, year, month);
+        if (!postList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(postList);
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
+        }
+    }
+
+    @GetMapping("/posts-perMonth-reactSize-forAdmin/{id}/{year}/{month}")
+    public ResponseEntity<Long> getAllPostsReactSizeByMonthForAdmin(@PathVariable("id") Long id,
+                                                                    @PathVariable("year") int year,
+                                                                    @PathVariable("month") int month) {
+        Long reactCount = getReactSizeForEachMonth(id, year, month);
+        return ResponseEntity.status(HttpStatus.OK).body(reactCount);
+
+    }
+
+    @GetMapping("/posts-perMonth-commentSize-forAdmin/{id}/{year}/{month}")
+    public ResponseEntity<Long> getAllPostsCommentSizeByMonthForAdmin(@PathVariable("id") Long id,
+                                                                      @PathVariable("year") int year,
+                                                                      @PathVariable("month") int month) {
+        Long commentCount = getCommentSizeForEachMonth(id, year, month);
+        return ResponseEntity.status(HttpStatus.OK).body(commentCount);
+    }
+
+
+    @GetMapping("/postCountsPerMonth/{id}/{year}")
+    public ResponseEntity<Map<String, Object>> getPostCountsPerMonth(@PathVariable("id") Long id,
+                                                                     @PathVariable("year") int year) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName().trim();
+
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isEmpty()) {
+            throw new CommunityHubException("User name not found Exception!");
+        }
+
+        User people = optionalUser.get();
+        Map<String, Object> postData = new HashMap<>();
+
+        if (User.Role.ADMIN.equals(people.getRole())) {
+            List<User> users = getAllActiveUserWithoutAdmin();
+            for (User user : users) {
+                Map<String, Object> userData = getUserDataForEachUserPost(id, year);
+                userData.put("name", user.getName());
+                userData.put("staffId", user.getStaffId());
+                postData.put(String.valueOf(user.getId()), userData);
+            }
+        }
+        return new ResponseEntity<>(postData, HttpStatus.OK);
+    }
+
+
+    private Map<String, Object> getUserDataForEachUserPost(Long userId, int year) {
+        Map<String, Object> userData = new HashMap<>();
+        for (int month = 1; month <= 12; month++) {
+            Long postsWithinMonth = (long) getAllPostsForEachMonth(userId, year, month).size();
+            userData.put(String.valueOf(month), postsWithinMonth);
+        }
+        return userData;
     }
 
     //for admin view end
@@ -231,6 +356,21 @@ public class RecordController {
 
         return userData;
     }
+
+    private Map<String, Object> getUserDataForEachPost(Long userId,int year,int month) {
+        Map<String, Object> userData = new HashMap<>();
+        Long postsWithinMonth = (long) getAllPostsForEachMonth(userId,year,month).size();
+        Long totalReacts = getReactSizeForEachMonth(userId,year,month);
+
+        Long totalComments = getCommentSizeForEachMonth(userId,year,month);
+
+        userData.put("within_one_month", postsWithinMonth);
+        userData.put("total_reacts", totalReacts);
+        userData.put("total_comments", totalComments);
+
+        return userData;
+    }
+
     // for login user trendy post start
     public User loginUser() {
         var user = userService.findByStaffId(SecurityContextHolder
@@ -682,10 +822,10 @@ public class RecordController {
         List<User_Group> user_groups = user_groupService.findByCommunityId(community.getId());
         if (!user_groups.isEmpty()) {
             for (User_Group user_group : user_groups) {
-               var user = userService.findById(user_group.getUser().getId());
-               if(!user.getRole().equals(User.Role.ADMIN)){
-                   user_groupList.add(user_group);
-               }
+                var user = userService.findById(user_group.getUser().getId());
+                if (!user.getRole().equals(User.Role.ADMIN)) {
+                    user_groupList.add(user_group);
+                }
             }
             return user_groupList;
         } else {
@@ -779,19 +919,19 @@ public class RecordController {
         }
     }
 
-    public Long getCommentsForUniquePost(Long postId){
+    public Long getCommentsForUniquePost(Long postId) {
         var post = postService.findById(postId);
-       Long count = 0L;
-       var commentSize = commentService.findCommentSizeByPostId(post.getId());
-       count += commentSize;
-       List<Comment> commentList = commentService.findCommentsByPostId(post.getId());
-       for(Comment comment:commentList){
-           count += replyService.findReplySizeByCommentId(comment.getId());
-       }
-       return count;
+        Long count = 0L;
+        var commentSize = commentService.findCommentSizeByPostId(post.getId());
+        count += commentSize;
+        List<Comment> commentList = commentService.findCommentsByPostId(post.getId());
+        for (Comment comment : commentList) {
+            count += replyService.findReplySizeByCommentId(comment.getId());
+        }
+        return count;
     }
 
-    public Long getReactsForUniquePost(Long postId){
+    public Long getReactsForUniquePost(Long postId) {
         var post = postService.findById(postId);
         return reactService.finReactByCommentIdIsNullAndPostIdAndReplyIdIsNull(post.getId());
     }
@@ -808,8 +948,8 @@ public class RecordController {
     public List<User> getAllActiveUserWithoutAdmin() {
         List<User> users = userService.getAllActiveUser();
         List<User> userList = new ArrayList<>();
-        for(User user:users){
-            if(!user.getRole().equals(User.Role.ADMIN)){
+        for (User user : users) {
+            if (!user.getRole().equals(User.Role.ADMIN)) {
                 userList.add(user);
             }
         }
@@ -857,8 +997,8 @@ public class RecordController {
                 .collect(Collectors.toList());
     }
 
-    public List<Post> getPostsForEachUserWithinOneMonth(Long userId){
-        var posts = postService.findAllPostByIsDeleted(false,userId);
+    public List<Post> getPostsForEachUserWithinOneMonth(Long userId) {
+        var posts = postService.findAllPostByIsDeleted(false, userId);
         LocalDate currentDate = LocalDate.now();
         LocalDate startDateOfMonth = LocalDate.of(currentDate.getYear(), currentDate.getMonth(), 1);
         return posts.stream()
@@ -869,8 +1009,8 @@ public class RecordController {
                 .collect(Collectors.toList());
     }
 
-    public List<Post> getPostsForEachUserWithinOneYear(Long userId){
-        var posts = postService.findAllPostByIsDeleted(false,userId);
+    public List<Post> getPostsForEachUserWithinOneYear(Long userId) {
+        var posts = postService.findAllPostByIsDeleted(false, userId);
         LocalDate currentDate = LocalDate.now();
         LocalDate startDateOfYear = LocalDate.of(currentDate.getYear(), 1, 1);
         return posts.stream()
@@ -881,8 +1021,8 @@ public class RecordController {
                 .collect(Collectors.toList());
     }
 
-    public List<Post> getAllPostsForEachUser(Long userId){
-        return postService.findAllPostByIsDeleted(false,userId);
+    public List<Post> getAllPostsForEachUser(Long userId) {
+        return postService.findAllPostByIsDeleted(false, userId);
     }
 
     private long calculatePostEngagement(Post post) {
@@ -894,11 +1034,11 @@ public class RecordController {
         return sizeOfReact + sizeOfComment + sizeOfReply;
     }
 
-    public List<Post> getAllPostsForAdminToShowActiveUser(){
+    public List<Post> getAllPostsForAdminToShowActiveUser() {
         var users = getAllActiveUser();
         List<User> userList = new ArrayList<>();
-        for(User user:users){
-            if(!user.getRole().equals(User.Role.ADMIN)){
+        for (User user : users) {
+            if (!user.getRole().equals(User.Role.ADMIN)) {
                 userList.add(user);
             }
         }
@@ -909,4 +1049,59 @@ public class RecordController {
     }
 
     //for admin end
+    public Map<Integer, List<Post>> getAllPostsPerMonth(int year) {
+        Map<Integer, List<Post>> postsByMonth = new HashMap<>();
+
+        for (int month = 1; month <= 12; month++) {
+            List<Post> posts = postService.findByYearAndMonth(year, month);
+            postsByMonth.put(month, posts);
+        }
+        return postsByMonth;
+    }
+
+    //over all
+    public List<Post> getAllPostsForEachMonth(Long userId, int year, int month) {
+        List<Post> postList = postService.findByUserIdAndYearAndMonth(userId, year, month);
+        List<Post> posts = new ArrayList<>();
+
+        for (Post post : postList) {
+            if (!post.isDeleted()) {
+                posts.add(post);
+            }
+        }
+        return posts;
+    }
+
+    public Long getReactSizeForEachMonth(Long userId, int year, int month) {
+        List<Post> postList = postService.findByUserIdAndYearAndMonth(userId, year, month);
+        Long totalCount = 0L;
+        if (!postList.isEmpty()) {
+            for (Post post : postList) {
+                Long reactSize = reactService.finReactByCommentIdIsNullAndPostIdAndReplyIdIsNull(post.getId());
+                totalCount += reactSize;
+            }
+            return totalCount;
+        } else {
+            return totalCount;
+        }
+    }
+
+    public Long getCommentSizeForEachMonth(Long userId, int year, int month) {
+        Long totalCount = 0L;
+        List<Post> postList = postService.findByUserIdAndYearAndMonth(userId, year, month);
+        if (!postList.isEmpty()) {
+            for (Post post : postList) {
+                Long commentSize = commentService.findCommentSizeByPostId(post.getId());
+                List<Comment> comments = commentService.findCommentsByPostId(post.getId());
+                Long replySize = 0L;
+                for (Comment comment : comments) {
+                    replySize += replyService.findReplySizeByCommentId(comment.getId());
+                }
+                totalCount = commentSize + replySize;
+            }
+            return totalCount;
+        } else {
+            return totalCount;
+        }
+    }
 }

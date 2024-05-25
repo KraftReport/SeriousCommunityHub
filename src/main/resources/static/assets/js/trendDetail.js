@@ -22,7 +22,7 @@ window.onload = async ()=>{
     let formattedDate = `${startYear} - ${startMonth} - ${startDay}`
     await insertPhoto(userPhoto)
     await insertNameAndDepartmentAndEmail(userName,department,email)
-    await insertAccessAndGroupAndTime(access,groupId,formattedDate)
+    await insertAccessAndGroupAndTime(access,groupId,formattedDate,postId)
     await insertDescription(description)
     if(resources !== null){
         await insertResources(resources)
@@ -44,25 +44,50 @@ const insertNameAndDepartmentAndEmail = async (userName,department,email) => {
     emailDiv.textContent = email
 }
 
-const insertAccessAndGroupAndTime = async (access,group,time) => {
-    let privateAccessDiv = document.getElementById('privateAccessDiv')
-    let publicAccessDiv = document.getElementById('publicAccessDiv')
-    let groupDiv = document.getElementById('groupDiv')
-    let timeDiv = document.getElementById('timeDiv')
-    if(access === 'PUBLIC'){
-        document.getElementById('fa-lock').style.display = 'none'
-        document.getElementById('fa-lock-open').style.display = 'block'
-        privateAccessDiv.style.display = 'none' 
-        groupDiv.textContent = '-'
-        timeDiv.textContent = time
-    }else{
-        document.getElementById('fa-lock').style.display = 'none'
-        document.getElementById('fa-lock-open').style.display = 'block'
-        publicAccessDiv.style.display = 'none' 
-        groupDiv.textContent = group
-        timeDiv.textContent = time
+const insertAccessAndGroupAndTime = async (access, group, time, postId) => {
+    let privateAccessDiv = document.getElementById('privateAccessDiv');
+    let publicAccessDiv = document.getElementById('publicAccessDiv');
+    let groupDiv = document.getElementById('groupDiv');
+    let timeDiv = document.getElementById('timeDiv');
+    const reactSize = document.getElementById('reactCount');
+    const commentSize = document.getElementById('commentCount');
+
+
+    const reactCount = await getSizeOfReactForPost(postId);
+    const commentCount = await getSizeOfCommentForPost(postId);
+
+
+    const btn = document.createElement('button');
+    btn.classList.add('btn', 'btn-outline-primary');
+    btn.setAttribute('data-bs-toggle', 'modal');
+    btn.setAttribute('data-bs-target', '#staticBackdropForCommentView');
+    btn.textContent = 'Click to see';
+    btn.addEventListener('click',async () => {
+       await getAllCommentsForSinglePost(postId);
+    })
+
+    // Insert content based on access
+    if (access === 'PUBLIC') {
+        document.getElementById('fa-lock').style.display = 'none';
+        document.getElementById('fa-lock-open').style.display = 'block';
+        privateAccessDiv.style.display = 'none';
+        groupDiv.textContent = '-';
+    } else {
+        document.getElementById('fa-lock').style.display = 'none';
+        document.getElementById('fa-lock-open').style.display = 'block';
+        publicAccessDiv.style.display = 'none';
+        groupDiv.textContent = group;
     }
+
+    timeDiv.textContent = time;
+    reactSize.innerHTML = `${reactCount}`;
+
+
+    commentSize.innerHTML = '';
+    commentSize.textContent = `${commentCount} `;
+    commentSize.appendChild(btn);
 }
+
 
 const insertDescription = async (description) => {
     let descDiv = document.getElementById('descDiv')
@@ -189,3 +214,204 @@ const makeSeeMore = async (text,btn) => {
         button.style.display = 'none'
     }
 }
+
+const getSizeOfReactForPost =async (id) => {
+    const data = await fetch(`/user/onlyOne-trendyPostReacts-withinOneMonth/${id}`)
+    const res = await data.json();
+    return res;
+}
+
+const getSizeOfCommentForPost = async (id) => {
+    const data = await fetch(`/user/onlyOne-trendyPostComments-withinOneMonth/${id}`)
+    const res = await data.json();
+    return res;
+}
+
+//display comment
+const getAllCommentsForSinglePost = async (id) => {
+    const fetchComments = await fetch(`/getComment/${id}`);
+    if (!fetchComments.ok) {
+        alert('There is something wrong in the comment section,Please try again!');
+    }
+    const getData = await fetchComments.json();
+    const chatArea = document.querySelector('#commentViewMessage');
+    chatArea.innerHTML = '';
+    for (const c of getData) {
+        let localDateTime = new Date(c.localDateTime);
+        await displayMessageForSinglePost(c.user.name, c.content, c.user.photo, c.id, c.post.id, localDateTime, chatArea);
+        console.log('data time',localDateTime)
+    }
+};
+// import  { displayMessage } from '/static/assets/js/post.js';
+
+const fetchUserDataByPostedUserForSinglePost = async (id) => {
+    const fetchUserData = await fetch(`/get-userData/${id}`);
+    if (!fetchUserData.ok) {
+        alert('Invalid user');
+    }
+    const userDataForAll = await fetchUserData.json();
+    return userDataForAll;
+};
+const highlightMentionsForSinglePost = async (description) => {
+
+    const allMembers = await getAllMember();
+    const sanitizedMemberNames = allMembers.map(member => member.name.replace(/\s+/g, ''));
+
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+
+    return description.replace(mentionRegex, (match, username) => {
+        if (sanitizedMemberNames.includes(username)) {
+            return `<span class="mention">${match}</span>`;
+        } else {
+            return match;
+        }
+    });
+};
+
+async function timeAgoForSinglePost(createdDate) {
+    console.log("ddd",createdDate)
+    const now = new Date();
+    const diff = now - createdDate;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) {
+        return `just now`;
+    } else if (minutes < 60) {
+        return `${minutes} minutes${minutes > 1? '' : ''} ago`;
+    } else if (hours < 24) {
+        return `${hours} hours${hours > 1? '' : ''} ago`;
+    } else {
+        return `${days} days${days > 1? '' : ''} ago`;
+    }
+}
+
+const commentReactTypeForSinglePost = async (id, userId, postId) => {
+    const fetchType = await fetch(`/comment-type-react/${id}/${userId}/${postId}`);
+    const response = await fetchType.json();
+    return response;
+}
+
+const displayMessageForSinglePost = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
+    const user = await fetchUserDataByPostedUserForSinglePost(loginUser);
+    const divItem = document.createElement('div');
+    divItem.classList.add(`user-item-${id}`);
+    const userImage = document.createElement('img');
+    photo = photo || '/static/assets/img/card.jpg';
+    userImage.src = `${photo}`;
+    userImage.alt = 'User Photo';
+    userImage.style.width = '60px';
+    userImage.style.height = '60px';
+    userImage.classList.add('user-photo');
+    userImage.style.border = '2px solid #ccc';
+    const spanSender = document.createElement('span');
+    if (sender === user.name) {
+        spanSender.innerHTML = `You : `;
+    } else {
+        spanSender.innerHTML = `${sender} : `;
+    }
+    const formattedContent = await highlightMentionsForSinglePost(content);
+    const spanElement = document.createElement('span');
+    spanElement.classList.add(`comment-span-container-${id}`);
+    spanElement.id = id;
+    spanElement.innerHTML = `${formattedContent}`;
+    // divItem.style.border = '1px solid lightslategrey';
+    divItem.style.padding = '5px';
+    divItem.style.borderRadius = '30px'
+    divItem.style.width = '450px';
+
+    const convertDiv = document.createElement('div');
+    convertDiv.classList.add('content-container');
+    let createdTime = await timeAgoForSinglePost(new Date(localDateTime))
+    convertDiv.setAttribute('data-toggle', 'tooltip');
+    convertDiv.setAttribute('title', `${createdTime}`);
+    const spanElementForImg = document.createElement('span');
+    spanElementForImg.appendChild(userImage);
+    divItem.appendChild(spanElementForImg);
+    convertDiv.style.marginLeft = '70px';
+    convertDiv.style.marginTop = '-50px';
+    convertDiv.style.padding = '25px';
+    convertDiv.style.borderBottomRightRadius = '20px';
+    convertDiv.style.backgroundColor = 'lightgrey';
+    convertDiv.style.borderTopLeftRadius = '10px';
+    convertDiv.style.borderBottomLeftRadius = '35px';
+    divItem.appendChild(convertDiv);
+    const ddEl = document.createElement('div');
+    ddEl.classList.add(`comment-container-${id}`);
+    ddEl.appendChild(spanSender);
+    ddEl.appendChild(spanElement);
+    convertDiv.appendChild(ddEl);
+    chatArea.appendChild(divItem);
+    let replyInput = divItem.querySelector('.reply-input');
+    let submitButton = divItem.querySelector('.submit-reply-btn');
+    let cancelButton = divItem.querySelector('.cancel-reply-btn');
+    const replies = await fetchAndDisplayRepliesForSinglePost(id);
+    const repliesContainer = document.createElement('div');
+    repliesContainer.classList.add(`replies-container-${id}`);
+    repliesContainer.style.display = 'block';
+    for (const reply of replies) {
+        repliesContainer.appendChild(reply);
+    }
+    const rpDiv = document.createElement('div');
+    rpDiv.appendChild(repliesContainer);
+    divItem.appendChild(rpDiv);
+};
+
+
+const fetchAndDisplayRepliesForSinglePost = async (id) => {
+    const fetchReplies = await fetch(`/getAll-comment/${id}`);
+    const fetchDataForReplies = await fetchReplies.json();
+
+    const replies = [];
+
+    for (const reply of fetchDataForReplies) {
+        const user = await fetchUserDataByPostedUserForSinglePost(loginUser);
+        const replyElement = document.createElement('div');
+
+        const userRpImage = document.createElement('img');
+        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        userRpImage.src = `${photo}`;
+        userRpImage.alt = 'User Photo';
+        userRpImage.classList.add('user-photo');
+        userRpImage.style.height = '50px';
+        userRpImage.style.width = '50px';
+        userRpImage.style.marginLeft = '50px';
+        userRpImage.style.backgroundColor = '#cccccc';
+        replyElement.classList.add(`reply-item-${reply.id}`);
+        let createdTimeForReply = await timeAgoForSinglePost(new Date(reply.localDateTime))
+        replyElement.setAttribute('data-toggle', 'tooltip');
+        replyElement.setAttribute('title', `${createdTimeForReply}`);
+        const replySender = document.createElement('span');
+        if (reply.user.name === user.name) {
+            replySender.innerHTML = `You : `;
+        } else {
+            replySender.innerHTML = `${reply.user.name} : `;
+        }
+        const replyContent = document.createElement('span');
+        replyContent.classList.add(`span-reply-container-${reply.id}`)
+        replyContent.id = reply.id;
+        const formattedContent = await highlightMentionsForSinglePost(reply.content);
+        replyContent.innerHTML =`${formattedContent}`;
+        const spElement = document.createElement('span');
+        const contentElement = document.createElement('span');
+        const divEl = document.createElement('div');
+        divEl.classList.add(`reply-container-div-${reply.id}`);
+        divEl.style.marginLeft = '110px';
+        divEl.style.padding = '20px';
+        divEl.style.backgroundColor = 'lightgrey';
+        divEl.style.marginTop = '-30px';
+        divEl.style.borderTopLeftRadius = '10px';
+        divEl.style.borderBottomLeftRadius = '30px';
+        divEl.style.borderBottomRightRadius = '15px';
+        spElement.appendChild(userRpImage);
+        replyElement.appendChild(spElement);
+        divEl.appendChild(replySender);
+        divEl.appendChild(replyContent);
+        contentElement.appendChild(divEl);
+        replyElement.appendChild(contentElement);
+        replies.push(replyElement);
+    }
+    return replies;
+};

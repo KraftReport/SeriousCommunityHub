@@ -198,7 +198,9 @@ public class GroupController {
         List<User> users = new ArrayList<>();
         for (User_Group user_group : user_groups) {
             User user = userService.findById(user_group.getUser().getId());
-            users.add(user);
+            if(!user.getRole().equals(User.Role.ADMIN)){
+                users.add(user);
+            }
         }
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }

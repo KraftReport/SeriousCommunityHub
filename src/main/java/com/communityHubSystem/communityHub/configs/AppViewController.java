@@ -15,6 +15,7 @@ public class AppViewController implements WebMvcConfigurer {
         registry.addViewController("/signIn").setViewName("/layout/login");
         registry.addViewController("/access-denied").setViewName("/deny/access-denied");
         registry.addViewController("/logout").setViewName("/layout/login");
+        registry.addViewController("/user-details-post").setViewName("/user/user-details-post");
     }
 
     @Override
