@@ -859,7 +859,7 @@ async function welcome() {
     </div>
   </div>
 </div>
-</div>`
+`
               }
 
               for(file of res){
@@ -872,7 +872,7 @@ async function welcome() {
             }
                      
             
-          post+=`
+          post+=`</div>
          
     <div id="post-update-section-${p.id}">
     <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
