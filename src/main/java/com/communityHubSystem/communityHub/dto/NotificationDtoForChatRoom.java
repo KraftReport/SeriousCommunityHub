@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class NotificationDtoForChatRoom {
 
+    private Long chatId;
     private Long id;
     private String sender;
     private String content;

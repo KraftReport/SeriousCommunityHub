@@ -2894,7 +2894,7 @@ const notifyMessageForReact = async (message, sender, photo, type) => {
     const pElement = document.createElement('p');
     const imgElement = document.createElement('img');
     const imgReactElement = document.createElement('img');
-    photo = photo || '/static/assets/img/card.jpg';
+    photo = photo ||  '/static/assets/img/default-logo.png';
     imgElement.src = `${photo}`;
     imgElement.width = 40;
     imgElement.height = 40;
@@ -2991,7 +2991,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
     const userImage = document.createElement('img');
-    photo = photo || '/static/assets/img/card.jpg';
+    photo = photo ||  '/static/assets/img/default-logo.png';
     userImage.src = `${photo}`;
     userImage.alt = 'User Photo';
     userImage.style.width = '60px';
@@ -3328,7 +3328,7 @@ const fetchAndDisplayLastReply = async (id) => {
         replyElement.setAttribute('title', `${createdTimeForReply}`);
         const user = await fetchUserDataByPostedUser(loginUser);
         const userRpImage = document.createElement('img');
-        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        const photo = reply.user.photo ||  '/static/assets/img/default-logo.png';
         userRpImage.src = `${photo}`;
         userRpImage.alt = 'User Photo';
         userRpImage.classList.add('user-photo');
@@ -3617,7 +3617,7 @@ const fetchAndDisplayReplies = async (id) => {
         const replyElement = document.createElement('div');
 
         const userRpImage = document.createElement('img');
-        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        const photo = reply.user.photo ||  '/static/assets/img/default-logo.png';
         userRpImage.src = `${photo}`;
         userRpImage.alt = 'User Photo';
         userRpImage.classList.add('user-photo');
@@ -4033,7 +4033,7 @@ const receivedMessageForComment = async (payload) => {
         await showNotiCount();
         console.log(message.photo, message.sender, message.content, message.postId);
         const msg = ' commented to your photo';
-        message.photo = message.photo || '/static/assets/img/card.jpg';
+        message.photo = message.photo ||  '/static/assets/img/default-logo.png';
         await notifyMessageForReact(msg, message.sender, message.photo, null);
     }
      const commentCountSize = await fetchCommentSizes(message.postId);
@@ -4042,7 +4042,7 @@ const receivedMessageForComment = async (payload) => {
     // await welcome();
     let mentionedUsers = extractMentionedUsersForComment(message.content);
     await sendMentionNotificationForComment(mentionedUsers,message.commentId);
-    message.photo = message.photo || '/static/assets/img/card.jpg';
+    message.photo = message.photo ||  '/static/assets/img/default-logo.png';
     const chatArea = document.querySelector('#commentMessageText');
     const localDateTime = new Date().toLocaleString();
     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
@@ -4061,7 +4061,7 @@ const receivedMessageForMEventNoti = async (payload) => {
             notificationCount += 1;
             await showNotiCount();
             const msg = message.content;
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo ||  '/static/assets/img/default-logo.png';
             await notifyMessageForReact(msg, "System", photo, null);
         }
     }else{
@@ -4071,7 +4071,7 @@ const receivedMessageForMEventNoti = async (payload) => {
            notificationCount += 1;
            await showNotiCount();
            const msg = message.content;
-           const photo = user.photo || '/static/assets/img/card.jpg';
+           const photo = user.photo ||  '/static/assets/img/default-logo.png';
            await notifyMessageForReact(msg, "System", photo, null);
        }
     }
@@ -4101,7 +4101,7 @@ const receivedMessageForMention = async (payload) => {
             notificationCount += 1;
             await showNotiCount();
             const msg = message.content;
-            message.photo = user.photo || '/static/assets/img/card.jpg';
+            message.photo = user.photo ||  '/static/assets/img/default-logo.png';
             await notifyMessageForReact(msg, user.name, user.photo, null);
         }
     } catch (error) {
@@ -4149,9 +4149,9 @@ const pressedComment = async (id) => {
             sender: loginUser,
             content: cmtValue,
         };
-        if(loginUser === postedUser){
-            await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
-        }
+        // if(loginUser === postedUser){
+        //     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
+        // }
         document.getElementById('commentForm').reset();
         stompClient.send('/app/comment-message', {}, JSON.stringify(myObj));
     });
@@ -4255,7 +4255,7 @@ const fetchNotificationPerPage = async () => {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
             const user = await fetchUserDataByPostedUser(reactType.user.staffId);
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo || '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -4294,7 +4294,7 @@ const fetchNotificationPerPage = async () => {
         if (noti.commentId && !noti.replyId && !noti.reactId) {
             const commentUser = await fetchCommetedUser(noti.commentId);
             console.log('Comment user', commentUser.user.name)
-            const photo = commentUser.user.photo || '/static/assets/img/card.jpg';
+            const photo = commentUser.user.photo || '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -4314,7 +4314,7 @@ const fetchNotificationPerPage = async () => {
             const replyUser = await fetchRepliedUserForData(noti.replyId);
             console.log('photo', replyUser.user.photo);
             console.log('photo', replyUser.user.staffId);
-            const photo = replyUser.user.photo || '/static/assets/img/card.jpg';
+            const photo = replyUser.user.photo ||  '/static/assets/img/default-logo.png';
             console.log('Reply user', replyUser.user.name);
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
@@ -4336,7 +4336,7 @@ const fetchNotificationPerPage = async () => {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
             const user = await fetchUserDataByPostedUser(reactType.user.staffId);
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo ||  '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -4376,7 +4376,7 @@ const fetchNotificationPerPage = async () => {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
             const user = await fetchUserDataByPostedUser(reactType.user.staffId);
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo ||  '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -4418,7 +4418,7 @@ const fetchNotificationPerPage = async () => {
             console.log("SDFDSF555"+mention.post.id)
             if(!mention.comment) {
                 const getUser = await getMentionUser(mention.postedUserId);
-                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                const photo = getUser.photo || '/static/assets/img/default-logo.png';
                 console.log("MenitonUSer", getUser.name)
                 let imgElement = document.createElement('img');
                 imgElement.src = `${photo}`;
@@ -4435,7 +4435,7 @@ const fetchNotificationPerPage = async () => {
                 divElement.appendChild(pElement);
             }else{
                 const getUser = await getMentionUser(mention.postedUserId);
-                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                const photo = getUser.photo ||  '/static/assets/img/default-logo.png';
                 console.log("MenitonUSer", getUser.name)
                 let imgElement = document.createElement('img');
                 imgElement.src = `${photo}`;

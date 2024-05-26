@@ -169,7 +169,7 @@ public class CommentController {
         var loginUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User name not found Exception"));
         var react = reactService.findByUserIdAndEventId(loginUser.getId(), id);
         if (react == null) {
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(Type.OTHER);
         } else {
             return ResponseEntity.ok(react.getType());
         }

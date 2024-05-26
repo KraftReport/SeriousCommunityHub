@@ -93,7 +93,7 @@ public class ReactController {
         var post = postService.findById(id);
         var react = reactService.findReactByPostIdAndUserId(post.getId(), user.getId());
         if (react == null) {
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(Type.OTHER);
         } else {
             return ResponseEntity.ok(react.getType());
         }

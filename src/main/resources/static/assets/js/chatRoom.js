@@ -309,17 +309,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const displayMessageForChatRoom = async (senderId, content, photo, voiceData, date) => {
+    const displayMessageForChatRoom = async (id, senderId, content, photo, voiceData, date) => {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
+        messageContainer.id = id;
+
         const userImage = document.createElement('img');
-        const image = photo || '/static/assets/img/card.jpg';
+        const image = photo || '/static/assets/img/default-logo.png';
         userImage.src = `${image}`;
         userImage.alt = 'User Photo';
         userImage.classList.add('user-photo');
+
         let createdTime = await formattedDate(new Date(date));
         messageContainer.setAttribute('data-toggle', 'tooltip');
         messageContainer.setAttribute('title', `${createdTime}`);
+
+        const deleteIcon = document.createElement('i');
+        deleteIcon.classList.add('fa-solid', 'fa-trash', 'delete-icon');
+
         if (senderId === loginUserForChatRoom) {
             messageContainer.classList.add('sender');
         } else {
@@ -328,8 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
             messageContainer.style.marginTop = '-35px';
             messageContainer.style.borderBottomRightRadius = '10px';
         }
+
         const messageContentContainer = document.createElement('div');
         messageContentContainer.classList.add('message-content-container');
+
         const urlPattern = new RegExp('^(https?:\\/\\/)?' +
             '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' +
             '((\\d{1,3}\\.){3}\\d{1,3}))' +
@@ -363,6 +372,14 @@ document.addEventListener('DOMContentLoaded', () => {
             message.innerHTML = messageContentWithLinks;
             messageContentContainer.appendChild(message);
         }
+
+        // Append delete icon to messageContentContainer
+        if (loginUserForChatRoom === senderId) {
+            const span = document.createElement('span');
+            span.appendChild(deleteIcon);
+            messageContentContainer.appendChild(span);
+        }
+
         const spanEl = document.createElement('span');
         if (loginUserForChatRoom !== senderId) {
             spanEl.appendChild(userImage);
@@ -379,7 +396,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 await searchPostWithUrl(link.href);
             });
         });
+
+        // Add event listener for delete icon
+        deleteIcon.addEventListener('click', async () => {
+            chatAreaForChatRoom.removeChild(messageContainer);
+            const chatId = messageContainer.id;
+            await deleteMessage(chatId);
+        });
     };
+    const deleteMessage = async (chatId) => {
+        try {
+            // const isoDateString = new Date(messageDate).toISOString();
+            const response = await fetch(`/delete-message/${chatId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete message');
+            }
+        } catch (error) {
+            console.error('Error deleting message:', error);
+        }
+    };
+
+
 
     async function createAudioElement(voiceUrl) {
         const audioElement = document.createElement('audio');
@@ -403,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             console.log('Data', formattedTime);
             const chatUser = await fetchUserByLogInId(chat.sender);
-            await displayMessageForChatRoom(chat.sender, chat.content, chatUser.photo,chat.voiceUrl,chat.date);
+            await displayMessageForChatRoom(chat.id,chat.sender, chat.content, chatUser.photo,chat.voiceUrl,chat.date);
         }
         chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
     }
@@ -438,12 +481,13 @@ document.addEventListener('DOMContentLoaded', () => {
               id: selectedRoomId,
               sender: loginUserForChatRoom,
               content: res.content,
+              chatId:res.id,
               date: new Date()
           }
         stompClientForChatRoom.send("/app/chat-withPhoto", {}, JSON.stringify(chatMessage));
         const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
         const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
-        await displayMessageForChatRoom(loginUserForChatRoom,res.content,photo,null,new Date());
+        // await displayMessageForChatRoom(loginUserForChatRoom,res.content,photo,null,new Date());
     }
 
     async function sendVoiceMessage() {
@@ -465,12 +509,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: selectedRoomId,
                 sender: loginUserForChatRoom,
                 voiceUrl: res.voiceUrl,
+                chatId:res.id,
                 date: new Date()
             }
             stompClientForChatRoom.send("/app/chat-withVoice", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
             const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
-            await displayMessageForChatRoom(loginUserForChatRoom,null,photo,res.voiceUrl,new Date());
+            // await displayMessageForChatRoom(loginUserForChatRoom,null,photo,res.voiceUrl,new Date());
         } else {
             console.error('Failed to send voice message.');
         }
@@ -490,8 +535,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
-            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), photo,null,new Date());
+            const photo = showedUserPhoto.photo || '/static/assets/img/default-logo.png';
+            // await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), photo,null,Date.now());
             messageInput.value = '';
             document.querySelector('.emojionearea-editor').innerHTML = '';
         }
@@ -509,14 +554,14 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Type of message.id:', typeof message.id);
         console.log('Are they strictly equal?:', selectedRoomId === message.id.toString());
 
-        if (message.id && selectedRoomId === message.id.toString() && message.sender !== loginUserForChatRoom) {
+        if (message.id && selectedRoomId === message.id.toString()) {
             console.log('Message is for selected room and not sent by current user.');
             const receivedUser = await fetchUserByLogInId(message.sender);
             console.log('Received user:', receivedUser);
      if(message.content){
-         await displayMessageForChatRoom(message.sender, message.content, receivedUser.photo,null,new Date());
+         await displayMessageForChatRoom(message.chatId,message.sender, message.content, receivedUser.photo,null,Date.now());
      }else{
-         await displayMessageForChatRoom(message.sender, null, receivedUser.photo,message.voiceUrl,new Date());
+         await displayMessageForChatRoom(message.chatId,message.sender, null, receivedUser.photo,message.voiceUrl,Date.now());
      }
 
             chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
@@ -554,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo,null,new Date());
+            // await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo,null,new Date());
         }
     };
 
@@ -603,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
             label.setAttribute('for', `checkbox-user-${user.id}`);
             label.textContent = user.name;
             const imgDiv = document.createElement('img');
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo || '/static/assets/img/default-logo.png';
             imgDiv.src = `${photo}`;
             imgDiv.style.width = '50px';
             imgDiv.style.height = '50px';
@@ -723,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
             label.setAttribute('for', `checkbox-user-${user.id}`);
             label.textContent = user.name;
             const imgDiv = document.createElement('img');
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo || '/static/assets/img/default-logo.png';
             imgDiv.src = `${photo}`;
             imgDiv.style.width = '50px';
             imgDiv.style.height = '50px';

@@ -44,20 +44,26 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Transactional
     @Override
-    public Community createCommunity(MultipartFile file,Community community, Long id) throws IOException {
+    public Community createCommunity(MultipartFile file, Community community, Long id) throws IOException {
         var user = userRepository.findById(id).orElseThrow();
         community.setOwnerName(user.getName());
         community.setActive(true);
         community.setDate(new Date());
-        if (file != null) {
+
+        if (file != null && !file.isEmpty()) {
             String imageUrl = imageUploadService.uploadImage(file);
             community.setImage(imageUrl);
+        } else {
+            String defaultUrl = "/assets/img/default-logo.png";
+            community.setImage(defaultUrl);
         }
+
         Community com = communityRepository.save(community);
         User_Group user_group = new User_Group();
         user_group.setUser(user);
         user_group.setCommunity(com);
         user_groupRepository.save(user_group);
+
         return com;
     }
 
@@ -113,6 +119,7 @@ public class CommunityServiceImpl implements CommunityService {
             for (Long u_id : ids) {
                 User_Group user_group = new User_Group();
                 User user = userRepository.findById(u_id).orElseThrow();
+                user_group.setDate(new Date());
                 user_group.setCommunity(community);
                 user_group.setUser(user);
                 user_groupRepository.save(user_group);
@@ -151,6 +158,12 @@ public class CommunityServiceImpl implements CommunityService {
     public void kickGroup(Community community, List<Long> ids) {
         communityRepository.findById(community.getId()).ifPresent(c -> {
             for (Long u_id : ids) {
+                var user = userRepository.findById(u_id).orElseThrow(() -> new CommunityHubException("User  not found exception!"));
+                var isExisted = communityRepository.findByIdAndOwnerName(community.getId(),user.getName().trim());
+                if(isExisted != null){
+                    isExisted.setOwnerName("ANONYMOUS");
+                    communityRepository.save(isExisted);
+                }
                 user_groupRepository.deleteByCommunityIdAndUserId(community.getId(), u_id);
             }
         });

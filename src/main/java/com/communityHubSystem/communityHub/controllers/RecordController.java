@@ -222,7 +222,7 @@ public class RecordController {
             Map<String, Object> userData = new HashMap<>();
             userData.put("name", people.getName());
             userData.put("staffId", people.getStaffId());
-            userData.put("role",people.getRole());
+            userData.put("role", people.getRole());
             userData.put("data", getUserData(people.getId()));
             postData.put(String.valueOf(people.getId()), userData);
         }
@@ -231,9 +231,9 @@ public class RecordController {
     }
 
     @GetMapping("/dataPerMonth/{id}/{year}/{month}")
-    public ResponseEntity<Map<String, Object>> getPostDataForEachMonth(@PathVariable("id")Long id,
-                                                                       @PathVariable("year")int year,
-                                                                       @PathVariable("month")int month) {
+    public ResponseEntity<Map<String, Object>> getPostDataForEachMonth(@PathVariable("id") Long id,
+                                                                       @PathVariable("year") int year,
+                                                                       @PathVariable("month") int month) {
         var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         Optional<User> optionalUser = userService.findByStaffId(staffId);
@@ -250,7 +250,7 @@ public class RecordController {
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("name", user.getName());
                 userData.put("staffId", user.getStaffId());
-                userData.put("data", getUserDataForEachPost(id,year,month));
+                userData.put("data", getUserDataForEachPost(id, year, month));
                 postData.put(String.valueOf(user.getId()), userData);
             }
         } else {
@@ -328,13 +328,68 @@ public class RecordController {
     }
 
     @GetMapping("/get-currentMonthPost/{id}")
-    public ResponseEntity<List<Post>> getPosts(@PathVariable("id") Long id) {
-       List<Post> postList = postService.getPostsByCurrentMonthAndYearAndUserId(id);
+    public ResponseEntity<List<Post>> getPostsMonth(@PathVariable("id") Long id) {
+        List<Post> postList = postService.getPostsByCurrentMonthAndYearAndUserId(id);
         if (!postList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(postList);
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
         }
+    }
+
+    @GetMapping("/get-currentMonthPostReact/{id}")
+    public ResponseEntity<Long> getPostsReact(@PathVariable("id") Long id) {
+        LocalDate currentDate = LocalDate.now();
+        int currentYear = currentDate.getYear();
+        int currentMonth = currentDate.getMonthValue();
+        Long reactSize = getReactSizeForEachMonth(id, currentYear, currentMonth);
+        return ResponseEntity.status(HttpStatus.OK).body(reactSize);
+
+    }
+
+    @GetMapping("/get-currentMonthPostComment/{id}")
+    public ResponseEntity<Long> getPostsComment(@PathVariable("id") Long id) {
+        LocalDate currentDate = LocalDate.now();
+        int currentYear = currentDate.getYear();
+        int currentMonth = currentDate.getMonthValue();
+        Long commentSize = getCommentSizeForEachMonth(id, currentYear, currentMonth);
+        return ResponseEntity.status(HttpStatus.OK).body(commentSize);
+
+    }
+
+    @GetMapping("/dataMonthlyPost/{id}")
+    public ResponseEntity<Map<String, Object>> getPostDataPerMonth(@PathVariable("id") Long id) {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isEmpty()) {
+            throw new CommunityHubException("User name not found Exception!");
+        }
+
+        User people = optionalUser.get();
+        Map<String, Object> postData = new HashMap<>();
+        LocalDate currentDate = LocalDate.now();
+        int year = currentDate.getYear();
+        int month = currentDate.getMonthValue();
+
+        if (User.Role.ADMIN.equals(people.getRole())) {
+            List<User> users = getAllActiveUserWithoutAdmin();
+            for (User user : users) {
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("name", user.getName());
+                userData.put("staffId", user.getStaffId());
+                userData.put("data", getUserDataForEachPost(id, year, month));
+                postData.put(String.valueOf(user.getId()), userData);
+            }
+        } else {
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("name", people.getName());
+            userData.put("staffId", people.getStaffId());
+            userData.put("data", getUserData(people.getId()));
+            postData.put(String.valueOf(people.getId()), userData);
+        }
+
+        return new ResponseEntity<>(postData, HttpStatus.OK);
     }
 
 
@@ -367,12 +422,12 @@ public class RecordController {
         return userData;
     }
 
-    private Map<String, Object> getUserDataForEachPost(Long userId,int year,int month) {
+    private Map<String, Object> getUserDataForEachPost(Long userId, int year, int month) {
         Map<String, Object> userData = new HashMap<>();
-        Long postsWithinMonth = (long) getAllPostsForEachMonth(userId,year,month).size();
-        Long totalReacts = getReactSizeForEachMonth(userId,year,month);
+        Long postsWithinMonth = (long) getAllPostsForEachMonth(userId, year, month).size();
+        Long totalReacts = getReactSizeForEachMonth(userId, year, month);
 
-        Long totalComments = getCommentSizeForEachMonth(userId,year,month);
+        Long totalComments = getCommentSizeForEachMonth(userId, year, month);
 
         userData.put("within_one_month", postsWithinMonth);
         userData.put("total_reacts", totalReacts);

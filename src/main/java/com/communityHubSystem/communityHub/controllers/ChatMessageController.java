@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,20 +36,24 @@ public class ChatMessageController {
     private final CommentService commentService;
 
     @MessageMapping("/chat")
-    public void processMessage(@Payload Map<String, Object> payload) {
+    public void processMessage(@Payload Map<String, Object> payload) throws ParseException {
         Long roomId = Long.parseLong(payload.get("id").toString());
         String staffId = payload.get("sender").toString();
         System.out.println("SOMETHING" + roomId);
         var user = userService.findByStaffId(staffId.trim()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
         String content = payload.get("content").toString();
+        String dateString = payload.get("date").toString();
+
+        Date date = Date.from(Instant.parse(dateString));
         ChatMessage chatMessage = ChatMessage.builder()
                 .chatRoom(ChatRoom.builder().id(roomId).build())
-                .date(new Date())
+                .date(date)
                 .sender(staffId)
                 .content(content)
                 .build();
-        chatMessageService.save(chatMessage);
+        var svgCh = chatMessageService.save(chatMessage);
         messagingTemplate.convertAndSend("/user/chatRoom/queue/messages", new NotificationDtoForChatRoom(
+                svgCh.getId(),
                 roomId,
                 user.getStaffId(),
                 content
@@ -57,10 +64,12 @@ public class ChatMessageController {
     public void processMessageWithPhoto(@Payload Map<String, Object> payload) {
         Long roomId = Long.parseLong(payload.get("id").toString());
         String staffId = payload.get("sender").toString();
+        Long chatId = Long.parseLong(payload.get("chatId").toString());
         System.out.println("SOMETHING" + roomId);
         var user = userService.findByStaffId(staffId.trim()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
         String content = payload.get("content").toString();
         messagingTemplate.convertAndSend("/user/chatRoom/queue/messages", new NotificationDtoForChatRoom(
+                chatId,
                 roomId,
                 user.getStaffId(),
                 content
@@ -71,10 +80,12 @@ public class ChatMessageController {
     public void processMessageWithAudio(@Payload Map<String, Object> payload) {
         Long roomId = Long.parseLong(payload.get("id").toString());
         String staffId = payload.get("sender").toString();
+        Long chatId = Long.parseLong(payload.get("chatId").toString());
         System.out.println("SOMETHING" + roomId);
         var user = userService.findByStaffId(staffId.trim()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
         String voiceUrl = payload.get("voiceUrl").toString();
         messagingTemplate.convertAndSend("/user/chatRoom/queue/messages", new NotificationDtoForAudio(
+                chatId,
                 roomId,
                 user.getStaffId(),
                 voiceUrl
@@ -174,6 +185,13 @@ public class ChatMessageController {
             ));
         }
     }
+
+    @GetMapping("/delete-message/{id}")
+    public ResponseEntity<?> deleteMessage(@PathVariable("id")Long id) {
+        chatMessageService.deleteById(id);
+            return ResponseEntity.ok().build();
+    }
+
 
     @PostMapping("/send-photo-toChatRoom")
     @ResponseBody

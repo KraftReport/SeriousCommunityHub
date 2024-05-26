@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 public class NotificationDtoForAudio {
 
+    private Long chatId;
     private Long id;
     private String sender;
     private String voiceUrl;
