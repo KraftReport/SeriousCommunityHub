@@ -11,20 +11,17 @@
 <main id="main" class="main">
     <div class="container mt-5">
         <span id="message"></span>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCommunityModal" sec:authorize="hasAnyAuthority('ADMIN')">
-            Create Community
-        </button>
+<!--        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCommunityModal" sec:authorize="hasAnyAuthority('ADMIN')">-->
+<!--            Create Community-->
+<!--        </button>-->
         <br><br>
 
         <!-- Create Community Modal -->
         <div class="modal fade" id="createCommunityModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createCommunityModalLabel">Create Community</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times</span>
-                        </button>
+                    <div class="modal-header" style="background-color: #007bff">
+                        <h5 class="modal-title" id="createCommunityModalLabel" style="color:white;">Create Community</h5>
                     </div>
                     <div class="modal-body">
                         <form id="createCommunityForm">
@@ -35,7 +32,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="ownerId">Choose Owner Name:</label>
-                                <select class="form-control" id="ownerId" name="ownerId">
+                                <select class="form-control" id="ownerId" name="ownerId" >
                                     <option value="">Select Owner</option>
                                     <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.name}"></option>
                                 </select>
@@ -66,13 +63,16 @@
         <link rel="stylesheet" href="/assets/css/group-card.css">
         <div class="row" id="communityCards"></div>
     </div>
+    <button style="background-color: transparent;border-radius: 50px;border: 1px solid dodgerblue" id="App" class="createIcon offset-10 m-1" data-toggle="modal" data-target="#createCommunityModal" sec:authorize="hasAnyAuthority('ADMIN')">
+        <i class="fa-solid fa-user-pen"></i>
+    </button>
     <!-- Add Community Modal -->
     <div class="container">
         <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createGroupModalLabel">Add User in Community</h5>
+                    <div class="modal-header" style="background-color: #007bff">
+                        <h5 class="modal-title" id="createGroupModalLabel" style="color: white">Add User in Community</h5>
                     </div>
                     <div class="modal-body">
                         <form id="createGroupForm">
@@ -94,7 +94,7 @@
                             </div><br>
                             <div class="form-group">
                                 <label for="image1">Image:</label>
-                                <input type="file" class="form-control" accept="image/**" id="image1" name="file" multiple="multiple"/>
+                                <input type="file" class="form-control" accept="image/**" id="image1" name="file" style="border-right: 15px;" multiple="multiple"/>
                             </div>
                             <span id="photo"></span>
                         </form>
@@ -179,12 +179,6 @@ async function goToCommunityDetail(id){
             document.getElementById('descriptionError').innerHTML = '';
         }
 
-        if (file.trim() === '') {
-            document.getElementById('fileError').innerHTML = 'Please select a group photo';
-            isValid = false;
-        } else {
-            document.getElementById('fileError').innerHTML = '';
-        }
 
         if(!isValid){
             e.preventDefault();

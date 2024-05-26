@@ -48,4 +48,7 @@ public interface PostService {
    public List<Post> findByYearAndMonth(int year, int month);
 
    public List<Post> findByUserIdAndYearAndMonth(Long userId, int year, int month);
+
+   public List<Post> getPostsByCurrentMonthAndYearAndUserId(Long id);
+
 }

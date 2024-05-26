@@ -70,17 +70,18 @@ public class GroupController {
 
     @PostMapping("/createCommunity")
     public ResponseEntity<Map<String, String>> createGroup(@ModelAttribute Community community, @RequestParam("ownerId") Long ownerID,
-                                                           @RequestParam("file") MultipartFile file) throws IOException {
+                                                           @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
         if (communityService.existsByName(community.getName())) {
             Map<String, String> response = new HashMap<>();
             response.put("message", "Group name already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        //define unique default system admin to get access user_chat_room accept
+
+        // Define unique default system admin to get access user_chat_room accept
         Long adminId = 999L;
         var defaultAdmin = userService.findById(adminId);
         var svgCommunity = communityService.createCommunity(file, community, ownerID);
-        String photo = imageUploadService.uploadImage(file);
+        String photo = (file != null && !file.isEmpty()) ? imageUploadService.uploadImage(file) : "/assets/img/default-logo.png";
         var chatRoom = ChatRoom.builder()
                 .date(new Date())
                 .name(svgCommunity.getName())
@@ -106,7 +107,6 @@ public class GroupController {
         response.put("message", "Created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
     @GetMapping("viewcommunity")
     public String views() {
         return "user/community-view";

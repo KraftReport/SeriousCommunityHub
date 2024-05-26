@@ -23,8 +23,8 @@ public class ChatMessageImpl implements ChatMessageService {
 
    @Transactional
     @Override
-    public void save(ChatMessage chatMessage) {
-        chatMessageRepository.save(chatMessage);
+    public ChatMessage save(ChatMessage chatMessage) {
+      return  chatMessageRepository.save(chatMessage);
     }
 
     @Override
@@ -60,6 +60,16 @@ public class ChatMessageImpl implements ChatMessageService {
        return chatMessageRepository.save(chatMessage);
     }
 
+    @Override
+    public void deleteByDate(Long id,Long date) {
+       var chatMessage = chatMessageRepository.findChatMessagesByChatRoomIdAndDate(id,date);
+        chatMessageRepository.deleteById(chatMessage.getId());
+   }
+
+    @Override
+    public void deleteById(Long id) {
+        chatMessageRepository.deleteById(id);
+    }
 
     public String uploadPhoto(MultipartFile file) throws IOException {
         return cloudinary.uploader()

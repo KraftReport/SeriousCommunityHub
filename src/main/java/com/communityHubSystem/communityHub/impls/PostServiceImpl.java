@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -349,6 +350,14 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> findByUserIdAndYearAndMonth(Long userId, int year, int month) {
         return postRepository.findByUserIdAndYearAndMonth(userId,year,month);
+    }
+
+    @Override
+    public List<Post> getPostsByCurrentMonthAndYearAndUserId(Long userId) {
+        LocalDate currentDate = LocalDate.now();
+        int currentYear = currentDate.getYear();
+        int currentMonth = currentDate.getMonthValue();
+        return postRepository.findByUserIdAndYearAndMonth(userId,currentYear,currentMonth);
     }
 
 

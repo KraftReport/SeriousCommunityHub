@@ -553,6 +553,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     const monthData = document.getElementById('searchWithMonth');
     const pieChartContainer = document.getElementById('pieChartContainerForEach');
 
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+
+    yearData.value = currentYear;
+    monthData.value = currentMonth;
+
     const showDetailsForEachPost = async () => {
         const users = await getUsersWithoutAdmin();
 
@@ -634,7 +641,7 @@ document.addEventListener("DOMContentLoaded", async function() {
             const yearValue = yearData.value;
             const monthValue = monthData.value;
 
-            pieChartContainer.innerHTML = ''; // Clear previous charts
+            pieChartContainer.innerHTML = '';
 
             for (const user of users) {
                 await renderChartForUser(user, yearValue, monthValue);
@@ -657,6 +664,8 @@ document.addEventListener("DOMContentLoaded", async function() {
                 }
             });
         });
+
+        await handleClick();
     };
 
     await showDetailsForEachPost();
@@ -743,94 +752,99 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 //for lineChart each month
-document.addEventListener("DOMContentLoaded", async function() {
-    const yearData = document.getElementById('searchYear');
-    const lineChartContainerForEachMonth = document.getElementById('lineChartContainerForEachMonth');
+// document.addEventListener("DOMContentLoaded", async function() {
 
-    const renderLineChartForUser = async (user, yearValue) => {
-        try {
-            const data = await fetch(`/user/postCountsPerMonth/${user.id}/${yearValue}`).then(response => response.json());
-            const userDetail = data[user.id];
+    const showPostsPerMonth = async () => {
+        const yearData = document.getElementById('searchYear');
+        const lineChartContainerForEachMonth = document.getElementById('lineChartContainerForEachMonth');
+        const renderLineChartForUser = async (user, yearValue) => {
+            try {
+                const response = await fetch(`/user/postCountsPerMonth/${user.id}/${yearValue}`);
+                const data = await response.json();
+                const userDetail = data[user.id];
 
-            const chartContainer = document.createElement('div');
-            chartContainer.className = 'linechart-containerForPost';
-            chartContainer.dataset.username = userDetail.name.toLowerCase();
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'linechart-containerForPost';
+                chartContainer.dataset.username = userDetail.name.toLowerCase();
 
-            const lineCanvas = document.createElement('canvas');
-            lineCanvas.id = `lineChart-${user.id}`;
+                const lineCanvas = document.createElement('canvas');
+                lineCanvas.id = `lineChart-${user.id}`;
 
-            const lineChartDiv = document.createElement('div');
-            lineChartDiv.className = 'linechart';
-            lineChartDiv.appendChild(lineCanvas);
+                const lineChartDiv = document.createElement('div');
+                lineChartDiv.className = 'linechart';
+                lineChartDiv.appendChild(lineCanvas);
 
-            chartContainer.appendChild(lineChartDiv);
-            lineChartContainerForEachMonth.appendChild(chartContainer);
+                chartContainer.appendChild(lineChartDiv);
+                lineChartContainerForEachMonth.appendChild(chartContainer);
 
-            const ctx = lineCanvas.getContext('2d');
+                const ctx = lineCanvas.getContext('2d');
 
-            const labels = Array.from({ length: 12 }, (_, i) => (i + 1).toString()); // Months 1 to 12
+                const labels = Array.from({ length: 12 }, (_, i) => (i + 1).toString()); // Months 1 to 12
 
-            const dataValues = Object.values(userDetail);
+                const dataValues = Object.values(userDetail);
 
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label:'Post Counts',
-                        data: dataValues,
-                        fill: false,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `Post Counts for User ${userDetail.staffId} (${userDetail.name})`
-                        },
-                        legend: {
-                            display: false
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Post Counts',
+                            data: dataValues,
+                            fill: false,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `Post Counts for User ${userDetail.staffId} (${userDetail.name})`
+                            },
+                            legend: {
+                                display: false
+                            }
                         }
                     }
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-        }
-    };
-    document.getElementById('userSearchForPostMonth').addEventListener('input', function() {
-        const searchValue = this.value.toLowerCase();
-        const allUsers = document.querySelectorAll('.linechart-containerForPost');
-
-        allUsers.forEach(userContainer => {
-            const userName = userContainer.dataset.username;
-            if (userName.includes(searchValue)) {
-                userContainer.style.display = 'block';
-            } else {
-                userContainer.style.display = 'none';
+                });
+            } catch (error) {
+                console.error('Error fetching user data:', error);
             }
+        };
+
+        document.getElementById('userSearchForPostMonth').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const allUsers = document.querySelectorAll('.linechart-containerForPost');
+
+            allUsers.forEach(userContainer => {
+                const userName = userContainer.dataset.username;
+                userContainer.style.display = userName.includes(searchValue) ? 'block' : 'none';
+            });
         });
-    });
 
-    const handleClick = async () => {
-        const yearValue = yearData.value;
+        const handleClick = async () => {
+            const yearValue = yearData.value;
 
-        lineChartContainerForEachMonth.innerHTML = '';
+            // Clear previous charts
+            lineChartContainerForEachMonth.innerHTML = '';
 
-        const users = await getUsersWithoutAdmin();
+            const users = await getUsersWithoutAdmin();
 
-        for (const user of users) {
-            await renderLineChartForUser(user, yearValue);
-        }
+            for (const user of users) {
+                await renderLineChartForUser(user, yearValue);
+            }
+        };
+
+        yearData.addEventListener('change', handleClick);
+
+        // Trigger the initial render
+        await handleClick();
     };
 
-    yearData.addEventListener('change', handleClick);
+// });
 
-    await handleClick();
-});
+
 
 
 const showDetailsForEachPost =async () => {
