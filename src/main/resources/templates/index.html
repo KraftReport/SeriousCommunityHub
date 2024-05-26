@@ -400,10 +400,10 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
+                            <div class="dropdown-item d-flex align-items-center" onclick="logOutFunction()">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Sign Out</span>
-                            </a>
+                            </div>
                         </li>
 
                     </ul><!-- End Profile Dropdown Items -->
@@ -596,7 +596,7 @@
               Are you sure to logout from current account ?
            <div class="d-flex">
             <button class="btn btn-success" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
-              <a class="nav-link collapsed" style="text-decoration: none;" th:href="@{/logout}"><button class="btn btn-danger"><i class="fa-solid fa-check"></i></button></a>
+              <a class="nav-link collapsed" style="text-decoration: none;" onclick="clearLocalStorage()" th:href="@{/logout}"><button class="btn btn-danger"><i class="fa-solid fa-check"></i></button></a>
            </div>
             </div>
            
@@ -621,7 +621,7 @@
            
            </div>
 
-            <label id="labelForRawFile" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
+            <label id="labelForRawFile" onclick="clickRawFileIcon()" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
             <input style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "  type="file" name="raw" id="raw" multiple>
 
 
@@ -843,12 +843,20 @@
         <div class="offcanvas-body">
            
                    <div class="modal-body" id="editModal">
-                       ...
+                       
+
+                    <div id="update-raw-old"></div>
+
+                    <div id="update-raw-preview"></div>
+
                    </div>  
-                       <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+                       <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
                        data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
                        </button>
  
+                       <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
+                       data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                       </button>
                 
            </div>
        </div>

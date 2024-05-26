@@ -2126,19 +2126,19 @@ async function createPostsForSearch(){
         rows += `
 
         <div class="post" id="post-delete-section-${p.id}">
-        <div class="post-top" style="max-width:500px; justify-content:space-between;">
-
+        <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+        
         <div class="d-flex">
-
+       
             <div>
             <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
             <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
-            ${CommunityName}
+            ${CommunityName} 
             <span class="time font-monospace">${createdTime}</span>
-
+           
         </div>
         </div>`
             let user = await checkPostOwnerOrAdmin(p.id)
@@ -2149,22 +2149,22 @@ async function createPostsForSearch(){
                     </div>
             
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <li><i class="fa-solid fa-link" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i></li>`
+              <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
   
               if(user=== 'OWNER'){
-                  rows+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
+                  rows+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
               }
                 
-                 rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item" >Delete Post</div>
-
-                 </li>
+                 rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>
+                
+                 </li> 
               </ul>
-            </div>
-
+            </div> 
+            
             <!-- Modal -->
 <div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
 <div class="modal-dialog">
-  <div class="modal-content">
+  <div class="modal-content"> 
     <div class="modal-body font-monospace">
     Are you sure do you want to delete this post ?
     <div class="d-flex" style="margin-left:300px; margin-top:30px;">
@@ -2176,322 +2176,316 @@ async function createPostsForSearch(){
   </div>
 </div>
 </div>
-</div>`
+`
             }
-
 
             for(file of res){
-                if(file.raw !== null){
-                    thisIsRawPost = true
-                     
-                }else{
-                    target =`#newsfeedPost${p.id}`
-                }
-            }
-                
-
-        rows+=`
-        <div id="post-update-section-${p.id}">
-        <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
+              if(file.raw !== null){
+                  thisIsRawPost = true
+                   
+              }else{
+                  target =`#newsfeedPost${p.id}`
+              }
+          }
+                   
+          
+        rows+=`</div>
+       
+  <div id="post-update-section-${p.id}">
+  <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
         ${formattedDescription}
         `
-
         for(file of res){
-            if(file.raw !== null){
-                thisIsRawPost = true
-                
-            console.log('we are here')
-            rows += await makeFileDownloadPost(p.resources)
-            break;
-            }
-        }
-        if(thisIsRawPost === false){
-        let oneTag = null
-        let oneCloseTag = null
-        let twoTag = null
-        let twoCloseTag = null
-        let threeTag = null
-        let threeCloseTag = null
-        let fourTag = null
-        let fourCloseTag = null
-        let fiveTag = null
-        let fiveCloseTag = null
-        let oneControlAttr = null
-        let twoControlAttr = null
-        let threeControlAttr = null
-        let fourControlAttr = null
-        let fiveControlAttr = null
-        let one = null
-        let two = null
-        let three = null
-        let four = null
-        let five = null
-        let six = null
+          if(file.raw !== null){
+              thisIsRawPost = true
+              
+          console.log('we are here')
+          rows += await makeFileDownloadPost(p.resources)
+          break;
+          }
+      }
+      if(thisIsRawPost === false){
+          let oneTag = null
+          let oneCloseTag = null
+          let twoTag = null
+          let twoCloseTag = null
+          let threeTag = null
+          let threeCloseTag = null
+          let fourTag = null
+          let fourCloseTag = null
+          let fiveTag = null
+          let fiveCloseTag = null
+          let oneControlAttr = null
+          let twoControlAttr = null
+          let threeControlAttr = null
+          let fourControlAttr = null
+          let fiveControlAttr = null
+          let one = null
+          let two = null
+          let three = null
+          let four = null
+          let five = null
+          let six = null
 
-        if(p.resources.length === 1){
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if (one !== null  ) {
-                    rows+= `
-    <div class="d-flex" > 
-    <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
-    </div>
-    `
-                }
-            })
-        }
-        if(p.resources.length === 2){
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if (one !== null && two !== null  ) {
-                    rows+= `
-    <div class="d-flex" > 
-    <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-    <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
-    </div> `
-                }
-            })
-        }
-        if(p.resources.length === 3){
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if(index === 2 && r.photo !== null){
-                    three = r.photo
-                    threeTag = 'img'
-                    threeCloseTag = ''
-                    threeControlAttr = ''
-                }else if(index === 2 && r.video !== null){
-                    three = r.video
-                    threeTag = 'video'
-                    threeCloseTag = '</video>'
-                    threeControlAttr = 'controls'
-                }
-                if (one !== null && two !== null && three !== null  ) {
-                    rows+= `
-    <div class="d-flex" > 
-    <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-    <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-    </div>
-    <div class="d-flex"> 
-    <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
-    </div>`
-                }
-            })
-        }
-        if(p.resources.length === 4){
-            p.resources.forEach((r, index) => {
-                console.log(r)
+          if(p.resources.length === 1 ){
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if (one !== null  ) {
+                      rows+= `
+<div class="d-flex" style="margin-left:65px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:400px; border-radius : 15px; max-height:500px;   height: auto; width: auto;" alt="">${oneCloseTag}
+</div>
+`
+                  }
+              })
+          }
+          if(p.resources.length === 2){
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if (one !== null && two !== null  ) {
+                      rows+= `
+<div class="d-flex" style="margin-left:120px;" > 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px;  height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div> `
+                  }
+              })
+          }
+          if(p.resources.length === 3){
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if(index === 2 && r.photo !== null){
+                      three = r.photo
+                      threeTag = 'img'
+                      threeCloseTag = ''
+                      threeControlAttr = ''
+                  }else if(index === 2 && r.video !== null){
+                      three = r.video
+                      threeTag = 'video'
+                      threeCloseTag = '</video>'
+                      threeControlAttr = 'controls'
+                  }
+                  if (one !== null && two !== null && three !== null  ) {
+                      rows+= `
+<div class="d-flex" style="margin-left:10px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div>
+<div class="d-flex" style="margin-left:10px;"> 
+<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin-left:127px; height: auto; width: auto;" alt="">${threeCloseTag}
+</div>`
+                  }
+              })
+          }
+          if(p.resources.length === 4){
+              p.resources.forEach((r, index) => {
+                  console.log(r)
 
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if(index === 2 && r.photo !== null){
-                    three = r.photo
-                    threeTag = 'img'
-                    threeCloseTag = ''
-                    threeControlAttr = ''
-                }else if(index === 2 && r.video !== null){
-                    three = r.video
-                    threeTag = 'video'
-                    threeCloseTag = '</video>'
-                    threeControlAttr = 'controls'
-                }
-                if(index === 3 && r.photo !== null){
-                    four = r.photo
-                    fourTag = 'img'
-                    fourCloseTag = ''
-                    fourControlAttr = ''
-                }else if(index === 3 && r.video !== null){
-                    four = r.video
-                    fourTag = 'video'
-                    fourCloseTag = '</video>'
-                    fourControlAttr = 'controls'
-                }
-
-
-                if (one !== null && two !== null && three !== null && four !== null) {
-                    rows+= `
-        <div class="d-flex" > 
-        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-        <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-        </div>
-        <div class="d-flex"> 
-        <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-        <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
-        </div>`
-                }
-            })
-
-        }
-
-        if(p.resources.length > 4 ){
-            let text = p.resources.length -4
-            console.log(text)
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if(index === 2 && r.photo !== null){
-                    three = r.photo
-                    threeTag = 'img'
-                    threeCloseTag = ''
-                    threeControlAttr = ''
-                }else if(index === 2 && r.video !== null){
-                    three = r.video
-                    threeTag = 'video'
-                    threeCloseTag = '</video>'
-                    threeControlAttr = 'controls'
-                }
-                if(index === 3 && r.photo !== null){
-                    four = r.photo
-                    fourTag = 'img'
-                    fourCloseTag = ''
-                    fourControlAttr = ''
-                }else if(index === 3 && r.video !== null){
-                    four = r.video
-                    fourTag = 'video'
-                    fourCloseTag = '</video>'
-                    fourControlAttr = 'controls'
-                }
-                if(index === 4 && r.photo !== null){
-                    five = r.photo
-                    fiveTag = 'img'
-                    fiveCloseTag = ''
-                    fiveControlAttr = ''
-                }else if(index === 4 && r.video !== null){
-                    five = r.video
-                    fiveTag = 'video'
-                    fiveCloseTag = '</video>'
-                    fiveControlAttr = 'controls'
-                }
-
-                if(index === 5 ){
-                    six = 'hello'
-                }
-
-                if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
-
-                    rows+= `
-        <div class="d-flex" > 
-        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-        <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-        </div>
-        <div class="d-flex"> 
-        <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-        <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
-        <div style="position: relative; display: inline-block;">
-        <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
-        </div>
-        </div>`
-                }
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if(index === 2 && r.photo !== null){
+                      three = r.photo
+                      threeTag = 'img'
+                      threeCloseTag = ''
+                      threeControlAttr = ''
+                  }else if(index === 2 && r.video !== null){
+                      three = r.video
+                      threeTag = 'video'
+                      threeCloseTag = '</video>'
+                      threeControlAttr = 'controls'
+                  }
+                  if(index === 3 && r.photo !== null){
+                      four = r.photo
+                      fourTag = 'img'
+                      fourCloseTag = ''
+                      fourControlAttr = ''
+                  }else if(index === 3 && r.video !== null){
+                      four = r.video
+                      fourTag = 'video'
+                      fourCloseTag = '</video>'
+                      fourControlAttr = 'controls'
+                  }
 
 
+                  if (one !== null && two !== null && three !== null && four !== null) {
+                      rows+= `
+<div class="d-flex" style="margin-left:60px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div>
+<div class="d-flex" style="margin-left:60px;"> 
+<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${threeCloseTag}
+<${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${fourCloseTag}
+</div>`
+                  }
+              })
 
+          }
 
-            })
+          if(p.resources.length > 4 ){
+              let text = p.resources.length === 5 ? '' : p.resources.length - 5
+              console.log(text)
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if(index === 2 && r.photo !== null){
+                      three = r.photo
+                      threeTag = 'img'
+                      threeCloseTag = ''
+                      threeControlAttr = ''
+                  }else if(index === 2 && r.video !== null){
+                      three = r.video
+                      threeTag = 'video'
+                      threeCloseTag = '</video>'
+                      threeControlAttr = 'controls'
+                  }
+                  if(index === 3 && r.photo !== null){
+                      four = r.photo
+                      fourTag = 'img'
+                      fourCloseTag = ''
+                      fourControlAttr = ''
+                  }else if(index === 3 && r.video !== null){
+                      four = r.video
+                      fourTag = 'video'
+                      fourCloseTag = '</video>'
+                      fourControlAttr = 'controls'
+                  }
+                  if(index === 4 && r.photo !== null){
+                      five = r.photo
+                      fiveTag = 'img'
+                      fiveCloseTag = ''
+                      fiveControlAttr = ''
+                  }else if(index === 4 && r.video !== null){
+                      five = r.video
+                      fiveTag = 'video'
+                      fiveCloseTag = '</video>'
+                      fiveControlAttr = 'controls'
+                  }
 
+                  if(index === 5 ){
+                      six = 'hello'
+                  }
 
+                  if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
 
+                      rows+= `
+<div class="d-flex" style="margin-left:10px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div>
+<div class="d-flex" style="margin-left:10px;"> 
+<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${threeCloseTag}
+<${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fourCloseTag}
+<div style="position: relative; display: inline-block;" >
+<${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fiveCloseTag}
+<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
+</div>
+</div>`
+                  }
 
-        }
+              })
 
-    }
+          }
+        
+      }
+         
 
 
         rows+= ` 

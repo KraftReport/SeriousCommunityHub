@@ -36,7 +36,7 @@ public class Post implements Serializable {
     private String url;
 
     public enum PostType{
-        EVENT,CONTENT,POLL,RESOURCE
+        CONTENT,RESOURCE,RAW
     }
 
 

@@ -16,6 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
     @Query("SELECT p FROM Post p JOIN FETCH p.resources ORDER BY p.createdDate DESC")
     List<Post> findAllWithResources();
 
+    @Query(value = "select * from post where user_id = :id",nativeQuery = true)
     List<Post> findPostsByUserId(Long id);
 
     List<Post> findPostsByAccess(Access access);

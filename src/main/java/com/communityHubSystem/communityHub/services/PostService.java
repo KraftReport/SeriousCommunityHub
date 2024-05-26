@@ -27,7 +27,9 @@ public interface PostService {
     public void deletePost(Long id);
     public List<Post> searchMethod(String input);
     public Post firstUpdate(FirstUpdateDto firstUpdateDto, MultipartFile[] files, String[] captions) throws IOException;
+    public Post firstUpdateRaw(FirstUpdateDto firstUpdateDto,MultipartFile[] multipartFiles) throws IOException;
     public Post secondUpdate(List<SecondUpdateDto> secondUpdateDto);
+    public Post secondUpdateRaw(List<SecondUpdateDto> secondUpdateDtos);
     public List<Object> getFivePostsPerTime(String page);
 
    //public Page<ViewPostDto> findPostRelatedToUser(String page);

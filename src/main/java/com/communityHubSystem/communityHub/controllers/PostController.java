@@ -92,6 +92,17 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(postService.secondUpdate(secondUpdateDto));
     }
 
+    @PostMapping("/firstUpdateRaw")
+    public ResponseEntity<Post> firstUpdateRaw(@ModelAttribute FirstUpdateDto firstUpdateDto,
+                                               @RequestParam(value = "files",required = false)MultipartFile[] files) throws IOException {
+        return ResponseEntity.status(HttpStatus.OK).body(postService.firstUpdateRaw(firstUpdateDto,files));
+    }
+
+    @PostMapping("/secondUpdateRaw")
+    public ResponseEntity<Post> secondUpdateRaw(@RequestBody List<SecondUpdateDto> secondUpdateDto){
+        return ResponseEntity.status(HttpStatus.OK).body(postService.secondUpdateRaw(secondUpdateDto));
+    }
+
 
     @GetMapping("/fivePost/{page}")
     public ResponseEntity<List<Post>> getTenPosts(@PathVariable("page") String page) {

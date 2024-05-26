@@ -70,7 +70,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post createRawFilePost(PostDto postDto, MultipartFile[] files ) throws IOException, ExecutionException, InterruptedException {
         var post = createCaption(postDto);
-        post.setPostType(Post.PostType.RESOURCE);
+        post.setPostType(Post.PostType.RAW);
         for(int i = 0 ; i< files.length ; i++){
             var raw = new Resource();
             raw.setDescription(files[i].getOriginalFilename());
@@ -156,6 +156,24 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Post firstUpdateRaw(FirstUpdateDto firstUpdateDto, MultipartFile[] multipartFiles) throws IOException {
+        var found = postRepository.findById(Long.valueOf(firstUpdateDto.getPostId())).orElseThrow(()->new CommunityHubException("post not found"));
+        found.setDescription(firstUpdateDto.getUpdatePostText());
+      if(multipartFiles != null){
+          for (var multipartFile : multipartFiles) {
+              var raw = new Resource();
+              raw.setDescription(multipartFile.getOriginalFilename());
+              System.err.println(multipartFile.getOriginalFilename()+"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]");
+              raw.setRaw(uploadRawFile(multipartFile));
+              raw.setDate(new Date());
+              raw.setPost(found);
+              resourceRepository.save(raw);
+          }
+      }
+        return postRepository.save(found);
+    }
+
+    @Override
     @Transactional
     public Post secondUpdate(List<SecondUpdateDto> secondUpdateDto) {
         var found = new Post();
@@ -175,6 +193,28 @@ public class PostServiceImpl implements PostService {
             }
         }
    //   var originalPost = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("Post not found Exception"));
+        return found;
+    }
+
+    @Override
+    public Post secondUpdateRaw(List<SecondUpdateDto> secondUpdateDtos) {
+        var found = new Post();
+//        Long postId = null;
+        for (var s : secondUpdateDtos) {
+            if (Objects.equals(s.getPostCaption(), "deleted")) {
+                var del = resourceRepository.findById(Long.valueOf(s.getResourceId())).orElseThrow(() -> new CommunityHubException("resource not found"));
+                resourceRepository.deleteWithId(Long.parseLong(s.getResourceId()));
+                Long   postId = del.getPost().getId();
+                var post = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("not found"));
+                postRepository.save(post);
+            } else {
+                var resource = resourceRepository.findById(Long.valueOf(s.getResourceId())).orElseThrow(() -> new CommunityHubException(("resource not found")));
+                resource.setDescription(s.getPostCaption());
+                resourceRepository.save(resource);
+                found = resource.getPost();
+            }
+        }
+        //   var originalPost = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("Post not found Exception"));
         return found;
     }
 

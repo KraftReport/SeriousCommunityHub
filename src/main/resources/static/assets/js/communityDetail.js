@@ -4537,19 +4537,19 @@ async function getPosts(){
                 post += `
 
                 <div class="post" id="post-delete-section-${p.id}">
-                <div class="post-top" style="max-width:500px; justify-content:space-between;">
-
+                <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+                
                 <div class="d-flex">
-
+               
                     <div>
                     <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
                     </div>
                     <div class="post-info" style="width:100px;">
-
+      
                     <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
-                    ${CommunityName}
+                    ${CommunityName} 
                     <span class="time font-monospace">${createdTime}</span>
-
+                   
                 </div>
                 </div>`
                     let user = await checkPostOwnerOrAdmin(p.id)
@@ -4558,24 +4558,24 @@ async function getPosts(){
                       <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-ellipsis-h "></i>
                             </div>
-
+                    
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                      <li><i class="fa-solid fa-link" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i></li>`
-
+                      <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
+          
                       if(user=== 'OWNER'){
-                          post+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
+                          post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
                       }
-
-                         post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item" >Delete Post</div>
-
-                         </li>
+                        
+                         post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>
+                        
+                         </li> 
                       </ul>
-                    </div>
-
+                    </div> 
+                    
                     <!-- Modal -->
       <div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
+          <div class="modal-content"> 
             <div class="modal-body font-monospace">
             Are you sure do you want to delete this post ?
             <div class="d-flex" style="margin-left:300px; margin-top:30px;">
@@ -4583,25 +4583,25 @@ async function getPosts(){
             <button onclick="deletePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
             </div>
             </div>
-
+       
           </div>
         </div>
       </div>
-      </div>`
+      `
                     }
-
+      
                     for(file of res){
                       if(file.raw !== null){
                           thisIsRawPost = true
-
+                           
                       }else{
                           target =`#newsfeedPost${p.id}`
                       }
                   }
-
-
-                post+=`
-
+                           
+                  
+                post+=`</div>
+               
           <div id="post-update-section-${p.id}">
           <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
                 ${formattedDescription}
@@ -4609,7 +4609,7 @@ async function getPosts(){
                 for(file of res){
                   if(file.raw !== null){
                       thisIsRawPost = true
-
+                      
                   console.log('we are here')
                   post += await makeFileDownloadPost(p.resources)
                   break;
@@ -4637,7 +4637,7 @@ async function getPosts(){
                   let four = null
                   let five = null
                   let six = null
-
+      
                   if(p.resources.length === 1 ){
                       p.resources.forEach((r, index) => {
                           if(index === 0 && r.photo !== null){
@@ -4654,8 +4654,8 @@ async function getPosts(){
                           }
                           if (one !== null  ) {
                               post+= `
-      <div class="d-flex" >
-      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
+      <div class="d-flex" style="margin-left:65px;"> 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:400px; border-radius : 15px; max-height:500px;   height: auto; width: auto;" alt="">${oneCloseTag}
       </div>
       `
                           }
@@ -4688,9 +4688,9 @@ async function getPosts(){
                           }
                           if (one !== null && two !== null  ) {
                               post+= `
-      <div class="d-flex" >
-      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag}
+      <div class="d-flex" style="margin-left:120px;" > 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px;  height: auto; width: auto;" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
       </div> `
                           }
                       })
@@ -4733,12 +4733,12 @@ async function getPosts(){
                           }
                           if (one !== null && two !== null && three !== null  ) {
                               post+= `
-      <div class="d-flex" >
-      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+      <div class="d-flex" style="margin-left:10px;"> 
+      <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+      <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
       </div>
-      <div class="d-flex">
-      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag}
+      <div class="d-flex" style="margin-left:10px;"> 
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin-left:127px; height: auto; width: auto;" alt="">${threeCloseTag}
       </div>`
                           }
                       })
@@ -4746,7 +4746,7 @@ async function getPosts(){
                   if(p.resources.length === 4){
                       p.resources.forEach((r, index) => {
                           console.log(r)
-
+      
                           if(index === 0 && r.photo !== null){
                               console.log('two')
                               one = r.photo
@@ -4792,23 +4792,23 @@ async function getPosts(){
                               fourCloseTag = '</video>'
                               fourControlAttr = 'controls'
                           }
-
-
+      
+      
                           if (one !== null && two !== null && three !== null && four !== null) {
                               post+= `
-        <div class="d-flex" >
-        <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-        <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+        <div class="d-flex" style="margin-left:60px;"> 
+        <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${oneCloseTag}
+        <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${twoCloseTag}
         </div>
-        <div class="d-flex">
-        <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-        <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
+        <div class="d-flex" style="margin-left:60px;"> 
+        <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${threeCloseTag}
+        <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${fourCloseTag}
         </div>`
                           }
                       })
-
+      
                   }
-
+      
                   if(p.resources.length > 4 ){
                       let text = p.resources.length === 5 ? '' : p.resources.length - 5
                       console.log(text)
@@ -4869,36 +4869,35 @@ async function getPosts(){
                               fiveCloseTag = '</video>'
                               fiveControlAttr = 'controls'
                           }
-
+      
                           if(index === 5 ){
                               six = 'hello'
                           }
-
+      
                           if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
-
+      
                               post+= `
-        <div class="d-flex" >
-        <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-        <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag}
+        <div class="d-flex" style="margin-left:10px;"> 
+        <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+        <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
         </div>
-        <div class="d-flex">
-        <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-        <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
-        <div style="position: relative; display: inline-block;">
-        <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
+        <div class="d-flex" style="margin-left:10px;"> 
+        <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${threeCloseTag}
+        <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fourCloseTag}
+        <div style="position: relative; display: inline-block;" >
+        <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fiveCloseTag}
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
         </div>
         </div>`
                           }
-
+      
                       })
-
+      
                   }
-
+                
               }
-
-
-
+                 
+      
                           post += `
                 </div>
                 </div>
