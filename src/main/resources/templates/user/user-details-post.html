@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{index::head}">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:replace="~{index::header}"></div>
+<div th:replace="~{index::navbar}"></div>
+<div id="main" class="main">
+    <script src="/static/assets/js/details.js"></script>
+    <div class="middle-panel">
+    <ul class="nav nav-tabs my-3" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="postDetails-tab"  data-bs-toggle="tab" data-bs-target="#postDetailsTab" type="button" role="tab" aria-controls="PostDetailsTab" aria-selected="true">Post Details</button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="postDetailsTab" role="tabpanel" aria-labelledby="postDetails-tab">
+            <div id="postDetailsForSingleForPost"  class=""></div>
+        </div>
+    </div>
+    </div>
+
+    <div class="modal fade" id="postUrlForShare" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 800px" id="forShareingContent">
+                <div class="modal-header" style="background-color: #007bff;color: #fff">
+                    <h5 class="modal-title" id="staticBackdropLabel" style="font-size: 18px;font-weight: bold"><i class="fa-solid fa-share"></i>Share</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: flex" id="forPostShareDiv">
+                        <p><input id="postShareUrl" style="height: 50px; border-radius: 10px; width: 450px" readonly type="text" value="https://communityHub.com/posts/20c5acacf1-fe23-4b63-8cd7-bc50c643006c"></p>
+                        <button type="button" onclick="copyButton()" class="btn btn-primary" style="height: 50px"><i class="fa-solid fa-copy"></i> Copy</button>
+                        <div style="margin-left: 10px">
+                            <select name="status" id="statusForShare" class="form-select" style="height: 50px; width: 140px;">
+                                <option  value="">All Users</option>
+                                <option  value="true">Active</option>
+                                <option value="false">Removed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+   <div class="modal-dialog">
+       <div class="modal-content border rounded-1" style="width:300px; margin-left:100px;">
+
+           <div id="markBox" class="hidden">
+               <div class="check_mark">
+                   <div class="sa-icon sa-success animate">
+                       <span class="sa-line sa-tip animateSuccessTip"></span>
+                       <span class="sa-line sa-long animateSuccessLong"></span>
+                       <div class="sa-placeholder"></div>
+                       <div class="sa-fix"></div>
+                   </div>
+               </div>
+               <div>
+                   <button id="restart" style="background-color: #3192e0; border-radius: 10px; color:white; margin-left: 109px; margin-bottom: 20px;; " class="btn   " data-bs-dismiss="modal"
+                           onclick="setToNormal()">Continue
+                   </button>
+               </div>
+           </div>
+
+            
+               <div class="loader"></div> 
+            
+
+           <!-- <div id="catBox" class="">
+               <div class="box">
+                   <div class="cat">
+                       <div class="cat__body"></div>
+                       <div class="cat__body"></div>
+                       <div class="cat__tail"></div>
+                       <div class="cat__head"></div>
+                   </div>
+               </div>
+           </div> -->
+
+
+       </div>
+   </div>
+</div>
+
+
+    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+           
+                   <div class="modal-body" id="editModal">
+                       ...
+                   </div>  
+                       <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+                       data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                       </button>
+ 
+                
+           </div>
+       </div>
+
+</div>
+</main>
+<div th:replace="~{index::footer}"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</body>
+</html>

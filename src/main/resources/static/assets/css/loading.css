@@ -856,3 +856,199 @@ code {
     visibility: visible;
     opacity: 1; 
 }
+
+
+.group-pushable {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    outline-offset: 4px;
+    transition: filter 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  
+  .group-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: hsl(0deg 0% 0% / 0.25);
+    will-change: transform;
+    transform: translateY(2px);
+    transition:
+      transform
+      600ms
+      cubic-bezier(.3, .7, .4, 1);
+
+  }
+  
+  .group-edge {
+    
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(
+      to left,
+      hsl(192, 100%, 22%) 0%,
+      hsl(0, 2%, 67%) 8%,
+      hsl(0, 7%, 79%) 92%,
+      hsl(209, 100%, 24%) 100%
+    );
+  }
+  
+  .group-front {
+    display: block;
+    position: relative;
+    padding: 12px 27px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: rgb(44, 100, 202);
+    background: hsl(0, 0%, 100%);
+    will-change: transform;
+    transform: translateY(-4px);
+    transition:
+      transform
+      600ms
+      cubic-bezier(.3, .7, .4, 1);
+  }
+  
+  @media (min-width: 768px) {
+    .group-front {
+      font-size: 1.25rem;
+      padding: 12px 42px;
+    }
+  }
+  
+  .group-pushable:hover {
+    filter: brightness(110%);
+    -webkit-filter: brightness(110%);
+  }
+  
+  .group-pushable:hover .group-front {
+    transform: translateY(-6px);
+    transition:
+      transform
+      250ms
+      cubic-bezier(.3, .7, .4, 1.5);
+  }
+  
+  .group-pushable:active .group-front {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+  }
+  
+  .group-pushable:hover .group-shadow {
+    transform: translateY(4px);
+    transition:
+      transform
+      250ms
+      cubic-bezier(.3, .7, .4, 1.5);
+  }
+  
+  .group-pushable:active .group-shadow {
+    transform: translateY(1px);
+    transition: transform 34ms;
+  }
+  
+  .group-pushable:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .super{
+    display: inline-flex; /* Makes the container fit its content */
+    flex-wrap: wrap; /* Allows wrapping of images to new lines */
+    justify-content: center; /* Centers the images horizontally */
+    align-items: center; /* Centers the images vertically */ 
+    padding: 10px; /* Optional: to add some padding around the images */
+  }
+
+  .super img {
+    max-width: 100%; /* Ensures image can be at most 100% of its container's width */
+    max-height: 100%; /* Ensures image can be at most 100% of its container's height */
+    object-fit: contain; /* Ensures the image scales proportionally */
+    width: auto; /* Keeps the original width */
+    height: auto; /* Keeps the original height */
+    margin: 5px; /* Optional: adds some space between images */
+}
+
+.super video {
+    max-width: 100%; /* Ensures image can be at most 100% of its container's width */
+    max-height: 100%; /* Ensures image can be at most 100% of its container's height */
+    object-fit: contain; /* Ensures the image scales proportionally */
+    width: auto; /* Keeps the original width */
+    height: auto; /* Keeps the original height */
+    margin: 5px; /* Optional: adds some space between images */
+}
+
+.super-dialog {
+    max-width: 90vw; /* Ensure the modal dialog is responsive */
+    max-height: 90vh; /* Ensure the modal dialog is responsive */
+    margin: auto; /* Center the modal dialog */
+}
+
+/* .carousel-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto; /* Adjust height to fit content */
+    /* max-height: 80vh; Ensure it doesn't exceed viewport height */
+/* }
+
+.carousel-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+} */ */
+
+.superCarousel {
+    display: inline-flex; /* Makes the container fit its content */
+    flex-wrap: wrap; /* Allows wrapping of images to new lines */
+    justify-content: center; /* Centers the images horizontally */
+    align-items: center; /* Centers the images vertically */ 
+    padding: 10px; /* Optional: to add some padding around the images */
+}
+
+.superCarousel img,
+.superCarousel video {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin: 5px; /* Optional: adds some space between images */
+}
+
+
+.original-size {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+}
+
+
+.super-container {
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 15px;
+    margin: 3px;
+  }
+  
+  .super-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Maintain aspect ratio and fill container */
+  }
+  

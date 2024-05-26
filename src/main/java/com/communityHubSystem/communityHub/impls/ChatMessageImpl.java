@@ -23,8 +23,8 @@ public class ChatMessageImpl implements ChatMessageService {
 
    @Transactional
     @Override
-    public void save(ChatMessage chatMessage) {
-        chatMessageRepository.save(chatMessage);
+    public ChatMessage save(ChatMessage chatMessage) {
+      return  chatMessageRepository.save(chatMessage);
     }
 
     @Override
@@ -48,6 +48,28 @@ public class ChatMessageImpl implements ChatMessageService {
         }
     }
 
+    @Override
+    public ChatMessage saveWithAudio(MultipartFile file, Long id, String sender, String date) throws IOException {
+        String voiceUrl = uploadAudio(file);
+        ChatMessage chatMessage = ChatMessage.builder()
+                .chatRoom(ChatRoom.builder().id(id).build())
+                .date(new Date())
+                .sender(sender)
+                .voiceUrl(voiceUrl)
+                .build();
+       return chatMessageRepository.save(chatMessage);
+    }
+
+    @Override
+    public void deleteByDate(Long id,Long date) {
+       var chatMessage = chatMessageRepository.findChatMessagesByChatRoomIdAndDate(id,date);
+        chatMessageRepository.deleteById(chatMessage.getId());
+   }
+
+    @Override
+    public void deleteById(Long id) {
+        chatMessageRepository.deleteById(id);
+    }
 
     public String uploadPhoto(MultipartFile file) throws IOException {
         return cloudinary.uploader()
@@ -61,5 +83,11 @@ public class ChatMessageImpl implements ChatMessageService {
 
     public String getFileExtension(MultipartFile file){
         return file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.')).toLowerCase();
+    }
+
+    public String uploadAudio(MultipartFile file) throws IOException {
+        return cloudinary.uploader()
+                .upload(file.getBytes(), Map.of("resource_type", "auto", "public_id", UUID.randomUUID().toString()))
+                .get("url").toString();
     }
 }

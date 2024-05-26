@@ -128,13 +128,13 @@
             <tbody>
             <tr th:each="user : ${users}" th:unless="${user.staffId == '99-09999'}">
                 <td th:text="${user.id}"></td>
-                <td>
-                    <a th:href="@{/user/other-user-profile(id=${user.id})}">
+                <td  th:attr="data-user-id=${user.id}" onclick="goToUserDetail()">
+                    <a id="userProfileIdUrl" th:href="@{/user/other-user-profile(id=${user.id})}"></a><div >
                         <img th:if="${user.photo!= null}" th:src="@{ ${user.photo}}" alt="User Photo"
                              style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
                         <img th:unless="${user.photo!= null}" th:src="@{/assets/img/default-logo.png}" alt="Default Photo"
                              style=" width: 50px;  height: 50px; border-radius: 50%;  object-fit: cover;"/>
-                    </a>
+                </div>
                 </td>
                 <td th:text="${user.name}"></td>
                 <td th:text="${user.email}"></td>
@@ -556,12 +556,26 @@
             });
         });
     });
+    const  setUserDetailId = async () => {
+        const userId = event.currentTarget.getAttribute('data-user-id');  
+        console.log("User ID:", userId);
+        localStorage.setItem('userIdForDetailPage',userId)
+        window.location.href = '/user/other-user-profile?id=' + userId;
+    }
+
+    const  goToUserDetail = async () => {
+        await setUserDetailId()
+        
+    }
+
+   
+
     $(document).ready(function () {
         $('.single_advisor_profile').on('click', function() {
             const userId = $(this).data('userid');
+            console.log(userId)
             localStorage.setItem('userIdForDetailPage',userId)
             window.location.href = '/user/other-user-profile?id=' + userId;
-
         });
         const tableView = $('#tableView');
         const cardView = $('#cardView');

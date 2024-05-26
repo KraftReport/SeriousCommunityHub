@@ -47,5 +47,10 @@ public class User_GroupImpl implements User_GroupService {
         return communityRepository.findById(user_groupRepository.findCommunityIdByUserGroupIdAndUserId(userGroupId,userId)).orElseThrow(()->new CommunityHubException("community not found"));
     }
 
+    @Override
+    public User_Group findById(Long id) {
+        return user_groupRepository.findById(id).orElseThrow(() -> new CommunityHubException("Group Not found Exception!"));
+    }
+
 
 }

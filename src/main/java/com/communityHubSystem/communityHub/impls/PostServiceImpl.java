@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -70,7 +71,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Post createRawFilePost(PostDto postDto, MultipartFile[] files ) throws IOException, ExecutionException, InterruptedException {
         var post = createCaption(postDto);
-        post.setPostType(Post.PostType.RESOURCE);
+        post.setPostType(Post.PostType.RAW);
         for(int i = 0 ; i< files.length ; i++){
             var raw = new Resource();
             raw.setDescription(files[i].getOriginalFilename());
@@ -156,6 +157,24 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Post firstUpdateRaw(FirstUpdateDto firstUpdateDto, MultipartFile[] multipartFiles) throws IOException {
+        var found = postRepository.findById(Long.valueOf(firstUpdateDto.getPostId())).orElseThrow(()->new CommunityHubException("post not found"));
+        found.setDescription(firstUpdateDto.getUpdatePostText());
+      if(multipartFiles != null){
+          for (var multipartFile : multipartFiles) {
+              var raw = new Resource();
+              raw.setDescription(multipartFile.getOriginalFilename());
+              System.err.println(multipartFile.getOriginalFilename()+"]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]");
+              raw.setRaw(uploadRawFile(multipartFile));
+              raw.setDate(new Date());
+              raw.setPost(found);
+              resourceRepository.save(raw);
+          }
+      }
+        return postRepository.save(found);
+    }
+
+    @Override
     @Transactional
     public Post secondUpdate(List<SecondUpdateDto> secondUpdateDto) {
         var found = new Post();
@@ -175,6 +194,28 @@ public class PostServiceImpl implements PostService {
             }
         }
    //   var originalPost = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("Post not found Exception"));
+        return found;
+    }
+
+    @Override
+    public Post secondUpdateRaw(List<SecondUpdateDto> secondUpdateDtos) {
+        var found = new Post();
+//        Long postId = null;
+        for (var s : secondUpdateDtos) {
+            if (Objects.equals(s.getPostCaption(), "deleted")) {
+                var del = resourceRepository.findById(Long.valueOf(s.getResourceId())).orElseThrow(() -> new CommunityHubException("resource not found"));
+                resourceRepository.deleteWithId(Long.parseLong(s.getResourceId()));
+                Long   postId = del.getPost().getId();
+                var post = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("not found"));
+                postRepository.save(post);
+            } else {
+                var resource = resourceRepository.findById(Long.valueOf(s.getResourceId())).orElseThrow(() -> new CommunityHubException(("resource not found")));
+                resource.setDescription(s.getPostCaption());
+                resourceRepository.save(resource);
+                found = resource.getPost();
+            }
+        }
+        //   var originalPost = postRepository.findById(postId).orElseThrow(() -> new CommunityHubException("Post not found Exception"));
         return found;
     }
 
@@ -296,6 +337,29 @@ public class PostServiceImpl implements PostService {
         return postRepository.findAllByIsDeletedAndUserGroupIdJPQL(false,id);
     }
 
+    @Override
+    public Post findByUrl(String url) {
+        return postRepository.findByUrl(url);
+    }
+
+    @Override
+    public List<Post> findByYearAndMonth(int year, int month) {
+        return postRepository.findByYearAndMonth(year,month);
+    }
+
+    @Override
+    public List<Post> findByUserIdAndYearAndMonth(Long userId, int year, int month) {
+        return postRepository.findByUserIdAndYearAndMonth(userId,year,month);
+    }
+
+    @Override
+    public List<Post> getPostsByCurrentMonthAndYearAndUserId(Long userId) {
+        LocalDate currentDate = LocalDate.now();
+        int currentYear = currentDate.getYear();
+        int currentMonth = currentDate.getMonthValue();
+        return postRepository.findByUserIdAndYearAndMonth(userId,currentYear,currentMonth);
+    }
+
 
     public boolean isValidPhotoExtension(String extension) {
         return photoExtensions.contains(extension);
@@ -357,6 +421,8 @@ public class PostServiceImpl implements PostService {
         } else {
             post.setAccess(Access.PUBLIC);
         }
+        post = postRepository.save(post);
+        post.setUrl(generateUniqueUrl(post.getId()));
         return postRepository.save(post);
     }
 
@@ -433,6 +499,11 @@ public class PostServiceImpl implements PostService {
             }
             return criteriaBuilder.disjunction();
         };
+    }
+
+
+    public static String generateUniqueUrl(Long postId) {
+        return "https://communityHub.com/posts/" + postId  + UUID.randomUUID().toString();
     }
 
 }

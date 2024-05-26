@@ -544,6 +544,66 @@
     </div>
       <!-- event edit offcanvas end  -->
 
+      <!-- raw create offcanvas start  -->
+
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="rawMaker" aria-labelledby="rawMaker">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title font-monospace" id="offcanvasWithBothOptionsLabel">Share Files <i class="fa-solid fa-file "></i></h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+         <form id="rawForm">
+        
+           <div>
+            <label for="rawDescription" class="font-monospace m-2">Title <i class="fa-regular fa-clipboard"></i></label>
+           
+                <textarea style=" border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); height: 80px; width: 200px; "  class="font-monospace m-2" type="text" name="content" id="content"></textarea>
+           
+           </div>
+
+            <label id="labelForRawFile" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
+            <input style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "  type="file" name="raw" id="raw" multiple>
+
+
+            <div class="row mb-3">
+                <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
+                <div class="col-sm-10">
+                    <select class="form-select font-monospace" id="groupSelect4" name="groupId"
+                            aria-label="Default select example">
+
+                    </select>
+                </div>
+            </div>
+            <div id="raw-preview"></div>
+         </form>
+         <button style="margin-left: 200px; border-radius: 10px;" data-bs-dismiss="offcanvas" class="btn btn-primary" id="rawSend" onclick="createARawFilePost()">POST</button>
+        </div>
+      </div>
+
+      <!-- raw create offcanvas end  -->
+    <div class="modal fade" id="postUrlForShare" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 800px" id="forShareingContent">
+                <div class="modal-header" style="background-color: #007bff;color: #fff">
+                    <h5 class="modal-title" id="staticBackdropLabel" style="font-size: 18px;font-weight: bold"><i class="fa-solid fa-share"></i>Share</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: flex" id="forPostShareDiv">
+                        <p><input id="postShareUrl" style="height: 50px; border-radius: 10px; width: 450px" readonly type="text" value="https://communityHub.com/posts/20c5acacf1-fe23-4b63-8cd7-bc50c643006c"></p>
+                        <button type="button" onclick="copyButton()" class="btn btn-primary" style="height: 50px"><i class="fa-solid fa-copy"></i> Copy</button>
+                        <div style="margin-left: 10px">
+                            <select name="status" id="statusForShare" class="form-select" style="height: 50px; width: 140px;">
+                                <option  value="">All Users</option>
+                                <option  value="true">Active</option>
+                                <option value="false">Removed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </main>
 <div th:replace="~{index::footer}"></div>

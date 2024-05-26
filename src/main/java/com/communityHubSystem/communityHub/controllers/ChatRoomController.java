@@ -1,19 +1,20 @@
 package com.communityHubSystem.communityHub.controllers;
 
-        import com.communityHubSystem.communityHub.models.ChatRoom;
-        import com.communityHubSystem.communityHub.models.User;
-        import com.communityHubSystem.communityHub.models.User_ChatRoom;
-        import com.communityHubSystem.communityHub.models.User_Group;
-        import com.communityHubSystem.communityHub.services.*;
-        import lombok.RequiredArgsConstructor;
-        import org.springframework.http.HttpStatus;
-        import org.springframework.http.ResponseEntity;
-        import org.springframework.security.core.context.SecurityContextHolder;
-        import org.springframework.stereotype.Controller;
-        import org.springframework.web.bind.annotation.*;
+import com.communityHubSystem.communityHub.exception.CommunityHubException;
+import com.communityHubSystem.communityHub.models.ChatRoom;
+import com.communityHubSystem.communityHub.models.User;
+import com.communityHubSystem.communityHub.models.User_ChatRoom;
+import com.communityHubSystem.communityHub.models.User_Group;
+import com.communityHubSystem.communityHub.services.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-        import java.util.ArrayList;
-        import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,10 +36,10 @@ public class ChatRoomController {
         List<ChatRoom> chatRooms = new ArrayList<>();
         for (User_ChatRoom user_chatRoom : user_chatRooms) {
             ChatRoom chatRoom = chatRoomService.findById(user_chatRoom.getChatRoom().getId());
-             if(chatRoom.isDeleted()) {
-                 chatRooms.add(chatRoom);
-             }
-             }
+            if (chatRoom.isDeleted()) {
+                chatRooms.add(chatRoom);
+            }
+        }
         return ResponseEntity.status(HttpStatus.OK).body(chatRooms);
     }
 
@@ -59,9 +60,9 @@ public class ChatRoomController {
     public ResponseEntity<?> getChatRoomSize(@PathVariable("id") Long id) {
         var user_chat_room = user_chatRoomService.findByChatRoomId(id);
         List<User_ChatRoom> userChatRooms = new ArrayList<>();
-        for(User_ChatRoom user_chatRoom:user_chat_room){
+        for (User_ChatRoom user_chatRoom : user_chat_room) {
             var user = userService.findById(user_chatRoom.getUser().getId());
-            if(!user.getRole().equals(User.Role.ADMIN)){
+            if (!user.getRole().equals(User.Role.ADMIN)) {
                 userChatRooms.add(user_chatRoom);
             }
         }
@@ -82,7 +83,7 @@ public class ChatRoomController {
         for (User_Group user_group : user_groups) {
             if (!userList.contains(user_group.getUser().getId())) {
                 var user = userService.findById(user_group.getUser().getId());
-                if(!user.getRole().equals(User.Role.ADMIN)){
+                if (!user.getRole().equals(User.Role.ADMIN)) {
                     notMemberList.add(user);
                 }
             }
@@ -97,11 +98,37 @@ public class ChatRoomController {
         List<User> userList = new ArrayList<>();
         for (User_ChatRoom user_chatRoom : user_chatRooms) {
             var user = userService.findById(user_chatRoom.getUser().getId());
-            if(!user.getRole().equals(User.Role.ADMIN)){
+            if (!user.getRole().equals(User.Role.ADMIN)) {
                 userList.add(user);
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(userList);
     }
 
+    @GetMapping("/getCommunity-list-forShare")
+    @ResponseBody
+    public ResponseEntity<List<ChatRoom>> getChatRoomListForShare() {
+        var loginUser = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
+        var listOfChatRoom = getChatRoomListForShare(loginUser.getId());
+        System.out.println("SIZEOF CHATROOM" + listOfChatRoom.size());
+        return ResponseEntity.status(HttpStatus.OK).body(listOfChatRoom);
+
+    }
+
+    public List<User_ChatRoom> getUserChatRoomByLoginId(Long userId) {
+        return user_chatRoomService.findByUserId(userId);
+    }
+
+    public List<ChatRoom> getChatRoomListForShare(Long userId) {
+        var userChatRoomList = getUserChatRoomByLoginId(userId);
+        List<ChatRoom> chatRooms = new ArrayList<>();
+        for (User_ChatRoom user_chatRoom : userChatRoomList) {
+            var chatRoom = chatRoomService.findById(user_chatRoom.getChatRoom().getId());
+            if (chatRoom.isDeleted()) {
+                chatRooms.add(chatRoom);
+            }
+        }
+        return chatRooms;
+    }
 }

@@ -268,6 +268,36 @@
     background-color: #f0f0f0;
 }
 
+/* Add this CSS to your stylesheet */
+
+
+.delete-icon {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    display: none;
+    cursor: pointer;
+    color: red;
+    margin-bottom: -15px;
+}
+
+.message-content-container:hover .delete-icon {
+    display: block;
+}
+
+.message-content-container {
+    position: relative; /* Ensures the delete icon is positioned relative to the message content */
+    /*display: flex;*/
+    align-items: center; /* Center align items vertically */
+    justify-content: space-between; /* Space out content and delete icon */
+}
+
+.delete-icon {
+    cursor: pointer;
+    color: red;
+    margin-left: 10px; /* Space between content and delete icon */
+}
+
 #IsSelected .dropdown-menu li:last-child a {
     border-bottom: none;
 }

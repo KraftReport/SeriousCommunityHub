@@ -106,6 +106,85 @@ document.addEventListener('DOMContentLoaded', () => {
         findAndDisplayConnectedUsers().then();
     }
 
+    //for voice start
+
+    let mediaRecorder;
+    let recordedChunks = [];
+    let mediaStream;
+
+    document.getElementById('startRecordButton').addEventListener('click', startRecording);
+    document.getElementById('stopRecordButton').addEventListener('click', stopRecording);
+    document.getElementById('sendVoiceButton').addEventListener('click', sendVoiceMessage);
+    document.getElementById('dismissVoiceButton').addEventListener('click', cancelRecording);
+
+    async function startRecording() {
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(mediaStream);
+            recordedChunks = [];
+            mediaRecorder.ondataavailable = function(e) {
+                recordedChunks.push(e.data);
+            };
+            mediaRecorder.start();
+            document.getElementById('startRecordButton').style.display = 'none';
+            document.getElementById('stopRecordButton').style.display = 'inline-block';
+        } catch (err) {
+            console.log('Error recording audio: ' + err);
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+            mediaRecorder.onstop = function() {
+                const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(blob);
+                document.getElementById('audioPreview').src = audioUrl;
+                document.getElementById('sendVoiceButton').style.display = 'inline-block';
+                document.getElementById('audioPreview').style.display = 'inline-block';
+                document.getElementById('dismissVoiceButton').style.display = 'inline-block';
+                stopMediaStream();
+            };
+        }
+        document.getElementById('startRecordButton').style.display = 'none';
+        document.getElementById('stopRecordButton').style.display = 'none';
+    }
+
+    function cancelRecording() {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+            mediaRecorder.onstop = function() {
+                recordedChunks = [];
+                resetRecordingUI();
+                stopMediaStream();
+            };
+        } else {
+            resetRecordingUI();
+        }
+    }
+
+    function resetRecordingUI() {
+        recordedChunks = [];
+        document.getElementById('audioPreview').src = '';
+        document.getElementById('audioPreview').style.display = 'none';
+        document.getElementById('sendVoiceButton').style.display = 'none';
+        document.getElementById('startRecordButton').style.display = 'inline-block';
+        document.getElementById('stopRecordButton').style.display = 'none';
+        document.getElementById('dismissVoiceButton').style.display = 'none';
+        stopMediaStream();
+    }
+
+    function stopMediaStream() {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+    }
+
+
+
+    //for voice end
+
     async function findAndDisplayConnectedUsers() {
         const response = await fetch('/user/room-list');
         let connectedRooms = await response.json();
@@ -170,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isSelected = document.getElementById('IsSelected');
         const vdShow = document.getElementById('vd-icon');
         const barAboveMessages = document.getElementById('bar-above-messages');
-        // Use getElementById
         if (!selectedRoomId) {
             barAboveMessages.classList.add('hidden');
             isSelected.style.display = 'none';
@@ -178,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
             messageForm.classList.add('hidden');
         } else {
             console.log('mention user status active')
-            console.log(barAboveMessages); // Debugging line
             await mentionUser(selectedRoomId);
             barAboveMessages.classList.remove('hidden');
             barAboveMessages.style.padding = '20px';
@@ -218,17 +295,38 @@ document.addEventListener('DOMContentLoaded', () => {
         clickedUser.removeEventListener('click', userItemClick);
     }
 
-    async function displayMessageForChatRoom(senderId, content, photo,date) {
+    const searchPostWithUrl =async (url) => {
+        const fetchPost = await fetch(`/post/get-postWithUrl?url=${encodeURIComponent(url)}`);
+        if(fetchPost.ok){
+            const res = await fetchPost.json();
+            console.log("PostID",res.id);
+            localStorage.setItem('trendPostIdForSinglePost',res.id);
+            window.location.href = `/user-details-post`
+        }else{
+            const res = await fetchPost.text();
+            console.log("A sin pyae")
+            window.location.href = `/access-denied`
+        }
+    }
+
+    const displayMessageForChatRoom = async (id, senderId, content, photo, voiceData, date) => {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
+        messageContainer.id = id;
+
         const userImage = document.createElement('img');
-        const image = photo || '/static/assets/img/card.jpg';
+        const image = photo || '/static/assets/img/default-logo.png';
         userImage.src = `${image}`;
         userImage.alt = 'User Photo';
         userImage.classList.add('user-photo');
+
         let createdTime = await formattedDate(new Date(date));
         messageContainer.setAttribute('data-toggle', 'tooltip');
         messageContainer.setAttribute('title', `${createdTime}`);
+
+        const deleteIcon = document.createElement('i');
+        deleteIcon.classList.add('fa-solid', 'fa-trash', 'delete-icon');
+
         if (senderId === loginUserForChatRoom) {
             messageContainer.classList.add('sender');
         } else {
@@ -237,8 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
             messageContainer.style.marginTop = '-35px';
             messageContainer.style.borderBottomRightRadius = '10px';
         }
+
         const messageContentContainer = document.createElement('div');
         messageContentContainer.classList.add('message-content-container');
+
         const urlPattern = new RegExp('^(https?:\\/\\/)?' +
             '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' +
             '((\\d{1,3}\\.){3}\\d{1,3}))' +
@@ -255,12 +355,31 @@ document.addEventListener('DOMContentLoaded', () => {
             messageImage.style.height = '300px';
             messageImage.alt = 'Message Image';
             messageContentContainer.appendChild(messageImage);
+        } else if (voiceData) {
+            const audioElement = await createAudioElement(voiceData);
+            messageContentContainer.appendChild(audioElement);
+            messageContainer.style.backgroundColor = 'transparent';
         } else {
             const message = document.createElement('p');
-            const messageContentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            const messageContentWithLinks = content.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+                if (url.includes('communityHub.com/posts')) {
+                    messageContainer.style.width = '400px';
+                    messageContainer.style.backgroundColor = 'ghostwhite';
+                    return `<a href="${url}" class="post-link">${url}</a>`;
+                }
+                return `<a href="${url}" target="_blank">${url}</a>`;
+            });
             message.innerHTML = messageContentWithLinks;
             messageContentContainer.appendChild(message);
         }
+
+        // Append delete icon to messageContentContainer
+        if (loginUserForChatRoom === senderId) {
+            const span = document.createElement('span');
+            span.appendChild(deleteIcon);
+            messageContentContainer.appendChild(span);
+        }
+
         const spanEl = document.createElement('span');
         if (loginUserForChatRoom !== senderId) {
             spanEl.appendChild(userImage);
@@ -269,7 +388,49 @@ document.addEventListener('DOMContentLoaded', () => {
         chatAreaForChatRoom.appendChild(spanEl);
         chatAreaForChatRoom.appendChild(messageContainer);
         chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
+
+        const postLinks = document.querySelectorAll('.post-link');
+        postLinks.forEach(link => {
+            link.addEventListener('click', async (event) => {
+                event.preventDefault();
+                await searchPostWithUrl(link.href);
+            });
+        });
+
+        // Add event listener for delete icon
+        deleteIcon.addEventListener('click', async () => {
+            chatAreaForChatRoom.removeChild(messageContainer);
+            const chatId = messageContainer.id;
+            await deleteMessage(chatId);
+        });
+    };
+    const deleteMessage = async (chatId) => {
+        try {
+            // const isoDateString = new Date(messageDate).toISOString();
+            const response = await fetch(`/delete-message/${chatId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete message');
+            }
+        } catch (error) {
+            console.error('Error deleting message:', error);
+        }
+    };
+
+
+
+    async function createAudioElement(voiceUrl) {
+        const audioElement = document.createElement('audio');
+        audioElement.controls = true;
+        audioElement.src = voiceUrl;
+        return audioElement;
     }
+
 
     async function fetchAndDisplayUserChat() {
         const userChatResponse = await fetch(`/messages/${selectedRoomId}`);
@@ -285,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             console.log('Data', formattedTime);
             const chatUser = await fetchUserByLogInId(chat.sender);
-            await displayMessageForChatRoom(chat.sender, chat.content, chatUser.photo,chat.date);
+            await displayMessageForChatRoom(chat.id,chat.sender, chat.content, chatUser.photo,chat.voiceUrl,chat.date);
         }
         chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
     }
@@ -320,12 +481,46 @@ document.addEventListener('DOMContentLoaded', () => {
               id: selectedRoomId,
               sender: loginUserForChatRoom,
               content: res.content,
+              chatId:res.id,
               date: new Date()
           }
         stompClientForChatRoom.send("/app/chat-withPhoto", {}, JSON.stringify(chatMessage));
         const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
         const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
-        await displayMessageForChatRoom(loginUserForChatRoom,res.content,photo,new Date());
+        // await displayMessageForChatRoom(loginUserForChatRoom,res.content,photo,null,new Date());
+    }
+
+    async function sendVoiceMessage() {
+        const formData = new FormData();
+        formData.append('file', new Blob(recordedChunks, { type: 'audio/webm' }));
+        formData.append('id', selectedRoomId);
+        formData.append('sender', loginUserForChatRoom);
+        formData.append('date', new Date());
+
+        const response = await fetch('/upload-voice-message', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            console.log('Voice message sent successfully.');
+            const res = await response.json();
+            const chatMessage = {
+                id: selectedRoomId,
+                sender: loginUserForChatRoom,
+                voiceUrl: res.voiceUrl,
+                chatId:res.id,
+                date: new Date()
+            }
+            stompClientForChatRoom.send("/app/chat-withVoice", {}, JSON.stringify(chatMessage));
+            const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
+            const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
+            // await displayMessageForChatRoom(loginUserForChatRoom,null,photo,res.voiceUrl,new Date());
+        } else {
+            console.error('Failed to send voice message.');
+        }
+
+        resetRecordingUI();
     }
 
     async function sendMessage(event) {
@@ -340,8 +535,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            const photo = showedUserPhoto.photo || '/static/assets/img/card.jpg';
-            await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), photo,new Date());
+            const photo = showedUserPhoto.photo || '/static/assets/img/default-logo.png';
+            // await displayMessageForChatRoom(loginUserForChatRoom, messageInput.value.trim(), photo,null,Date.now());
             messageInput.value = '';
             document.querySelector('.emojionearea-editor').innerHTML = '';
         }
@@ -359,11 +554,16 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Type of message.id:', typeof message.id);
         console.log('Are they strictly equal?:', selectedRoomId === message.id.toString());
 
-        if (message.id && selectedRoomId === message.id.toString() && message.sender !== loginUserForChatRoom) {
+        if (message.id && selectedRoomId === message.id.toString()) {
             console.log('Message is for selected room and not sent by current user.');
             const receivedUser = await fetchUserByLogInId(message.sender);
             console.log('Received user:', receivedUser);
-            await displayMessageForChatRoom(message.sender, message.content, receivedUser.photo,new Date());
+     if(message.content){
+         await displayMessageForChatRoom(message.chatId,message.sender, message.content, receivedUser.photo,null,Date.now());
+     }else{
+         await displayMessageForChatRoom(message.chatId,message.sender, null, receivedUser.photo,message.voiceUrl,Date.now());
+     }
+
             chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
         }
 
@@ -399,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             stompClientForChatRoom.send("/app/chat", {}, JSON.stringify(chatMessage));
             const showedUserPhoto = await fetchUserByLogInId(loginUserForChatRoom);
-            await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo,new Date());
+            // await displayMessageForChatRoom(loginUserForChatRoom, vd_content, showedUserPhoto.photo,null,new Date());
         }
     };
 
@@ -448,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
             label.setAttribute('for', `checkbox-user-${user.id}`);
             label.textContent = user.name;
             const imgDiv = document.createElement('img');
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo || '/static/assets/img/default-logo.png';
             imgDiv.src = `${photo}`;
             imgDiv.style.width = '50px';
             imgDiv.style.height = '50px';
@@ -568,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
             label.setAttribute('for', `checkbox-user-${user.id}`);
             label.textContent = user.name;
             const imgDiv = document.createElement('img');
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo || '/static/assets/img/default-logo.png';
             imgDiv.src = `${photo}`;
             imgDiv.style.width = '50px';
             imgDiv.style.height = '50px';

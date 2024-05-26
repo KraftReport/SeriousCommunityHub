@@ -225,71 +225,111 @@
     </header><!-- End Header -->
 </div>
 <div th:replace="~{index::navbar}"></div>
-<main id="main" class="main" style="margin-left: 400px;">
+<main id="main" class="main">
+    <div class="middle-panel">
+<div class="container">
+    <div class="d-flex" style="margin-left: 150px;">
 
- <div class="d-flex">
+        <div class="card" style="width:500px; border-radius:20px; margin: 20px;">
+<div class="d-flex">
     <div>
-        <img id="userPhotoDiv" src="/static/assets/img/wowIt'sme.jpg" style="width: 120px; height: 100px; margin:20px; border-radius:10px;" alt="">
-    </div>
-    <div class="card" style="width:300px; border-radius:20px; margin: 20px;">
+        <div>
+            <img id="userPhotoDiv" src="/static/assets/img/eventImg.jpg" style="width: 120px; height: 100px; margin-left: 50px; margin-top:15px; border-radius:10px;" alt="">
+        </div>
         <div class="">
 
             
-            <div class="d-flex m-2" style="justify-content: center;">
-            <p class="font-monospace mx-2 ">  <div id="userNameDiv" class="font-monospace">Myo Set Paing</div></p>
+            <div class="d-flex m-2 fw-bold text-dark" style="justify-content: center;">
+            <p class="font-monospace mx-2 ">  <div id="userNameDiv" class="font-monospace"><i class="fa-solid fa-star text-warning"></i>  Myo Set Paing</div></p>
             </div>
 
-            <div class="d-flex m-2" style="justify-content: center;">      
+            <div class="d-flex m-2 text-secondary fw-bold" style="justify-content: center;">      
             <p class="font-monospace mx-2 d-flex">   <div id="userDepartmentDiv" class="font-monospace">Development Department</div></p>
             </div>
 
-            <div class="d-flex m-2" style="justify-content: center;">            
+            <div class="d-flex m-2 text-secondary fw-bold" style="justify-content: center;">            
             <p class="font-monospace mx-2 d-flex">  <div id="userEmailDiv" class="font-monospace">kraftreport04@gmail.com</div></p>
             </div>
 
         </div>
-      </div>
-      <div class="card" style="width:300px; border-radius:20px; margin:20px;">
-        <div class="">
+    </div>
 
-            
-             <p class="font-monospace m-2"><i class="fa-solid fa-lock text-danger"></i> <div id="accessDiv">PRIVATE</div></p>
 
-             
-             <p class="font-monospace m-2"><i class="fa-solid fa-users text-primary"></i> <div id="groupDiv">GROUP NAME</div></p>
+    <div class="" style="margin-left: 30px;">
 
-             
-             <p class="font-monospace m-2"><i class="fa-regular fa-clock text-primary"></i> <div id="timeDiv">CREATED DATE</div></p>
-
+        
+        <div>
+            <div id="lock" class="font-monospace m-2   d-flex" ><i id="fa-lock" class="fa-solid fa-lock text-danger"></i> <p id="privateAccessDiv" class="font-monospace fw-bold" style="margin-left: 15px;">PRIVATE</p></div>
+            <div id="nolock" class="font-monospace m-2   d-flex"><i id="fa-lock-open" class="fa-solid fa-lock-open text-success"></i> <p id="publicAccessDiv" class="font-monospace fw-bold" style="margin-left: 15px;">PUBLIC</p></div>
         </div>
-      </div>
+         
+         <div class="font-monospace m-2 d-flex"><i class="fa-solid fa-users text-primary"></i> <p id="groupDiv" class="font-monospace fw-bold" style="margin-left: 15px;">GROUP NAME</p></div>
 
- </div>
+         
+         <div class="font-monospace m-2 d-flex"><i class="fa-regular fa-clock text-primary"></i> <p id="timeDiv" class="font-monospace fw-bold" style="margin-left: 15px;">CREATED DATE</p></div>
 
-      <div class="card" style="width:500px; margin-top:20px; margin-left:100px;">
-        <div class="card-body">
-             <p class="font-monospace" style="margin-top: 15px;" id="descDiv">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Et voluptatibus similique, earum laborum voluptates fugiat nisi odit quisquam qui sed! Dignissimos, distinctio deserunt eum non quod qui veritatis voluptatum consectetur. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quaerat quibusdam illum rerum? Aperiam maiores sunt, doloremque dolore deleniti tempore accusamus mollitia exercitationem, veritatis voluptatum itaque fugiat voluptatem laudantium repellendus. Iure?
-             </p>
-        </div>
-      </div>
+         <div class="font-monospace m-2 d-flex"><i class="fa-solid fa-heart"></i> <p id="reactCount" class="font-monospace fw-bold" style="margin-left: 15px;">React Count</p></div>
 
+         <div class="font-monospace m-2 d-flex"><i class="fa-solid fa-comments"></i> <p id="commentCount" class="font-monospace fw-bold" style="margin-left: 15px;">Comment Count</p></div>
 
-
-      <div class="card">
-        <div class="card-body" id="parentDiv">
-          <!-- <div>
-            <div>
-                <p class="font-monospace m-2"><i class="fa-solid fa-pencil text-danger"></i> Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos blanditiis repellat quidem a sapiente eius dicta veritatis hic corrupti. Suscipit illo quas consectetur quam aliquid porro eaque hic ad minima.</p>
-            </div>
-            <div>
-                <img src="/static/assets/img/wowIt'sme.jpg" style="width:400px; margin-left:200px;"  alt="">
-            </div>
-          </div>   -->
-        </div>
-      </div>
+    </div>
+</div>
+          </div>
+    
  
+    
+     </div>
+    
+          <div class="card" style="width:500px; margin-top:20px; margin-left:175px;">
+            <div class="card-body">
+                 <p class="font-monospace" style="margin-top: 15px;" id="descDiv">
+                  </p>
+            </div>
+          </div>
+    
+    
+    
+          <div class="card">
+            <div class="card-body" id="parentDiv"> 
+            </div>
+          </div>
 
+    
+          <div class="card">
+            <div class="card-body" id="parentDivForRaw" style="margin-top: 20px;"> 
+            </div>
+          </div>
+
+      
+</div>
+    </div>
+
+    <div class="modal fade" id="staticBackdropForCommentView" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabelForCommentView"><i class="fa-solid fa-comments"></i>Comments</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="height: 400px; overflow-y: auto;">
+                    <div  class="mb-container" id="commentViewMessage"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+   
+   
+   
+    
+
+   
+        </div>
+      </div>
 
 
 </main>

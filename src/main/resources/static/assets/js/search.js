@@ -1,4 +1,61 @@
+
+const makeFileDownloadPost = async (resources) => {
+    console.log('d ko youk tl naw')
+    const parentDiv = document.createElement('div');
+    parentDiv.classList.add('card','shadow');
+    parentDiv.style.marginLeft = '70px'
+    parentDiv.style.width = '300px';
+
+
+
+    
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group', 'list-group-flush');
+
+    for (const r of resources) {
+        let name = r.description
+        console.log('loop pat nay b')
+        const li = document.createElement('li');
+        li.classList.add('list-group-item','d-flex');
+        li.style.maxWidth = '400px'
+        li.style.justifyContent = 'space-between' 
+
+        const mDiv = document.createElement('div')
+        mDiv.textContent = r.description
+        mDiv.classList.add('font-monospace')
+        
+
+        const downloadIcon = document.createElement('i')
+        downloadIcon.classList.add('fa-solid','fa-down-long','text-primary')
+ 
+
+        const a = document.createElement('a');
+        a.href = r.raw;
+        a.classList.add('font-monospace')  
+        a.onclick = (event) => downloadFile(event,r.raw,r.description)
+        console.log(name) 
+
+        
+        a.appendChild(downloadIcon)
+        li.appendChild(mDiv)
+        li.appendChild(a)
+        ul.appendChild(li)
+    }
+    parentDiv.appendChild(ul)
+    return parentDiv.outerHTML
+}
+
+
+
 window.onload =  createPostsForSearch
+
+const checkEventOwnerOrAdmin = async (id) => {
+    let data = await fetch(`/event/checkEventOwnerOrAdmin/${id}`)
+    let response = await data.json()
+    console.log(response[0])
+    return response[0]
+}
+
 
 
 async function searchMethod(){
@@ -364,7 +421,7 @@ const notifyMessageForReact = async (message, sender, photo, type) => {
     const pElement = document.createElement('p');
     const imgElement = document.createElement('img');
     const imgReactElement = document.createElement('img');
-    photo = photo || '/static/assets/img/card.jpg';
+    photo = photo ||  '/static/assets/img/default-logo.png';
     imgElement.src = `${photo}`;
     imgElement.width = 40;
     imgElement.height = 40;
@@ -461,7 +518,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
     const userImage = document.createElement('img');
-    photo = photo || '/static/assets/img/card.jpg';
+    photo = photo ||  '/static/assets/img/default-logo.png';
     userImage.src = `${photo}`;
     userImage.alt = 'User Photo';
     userImage.style.width = '60px';
@@ -798,7 +855,7 @@ const fetchAndDisplayLastReply = async (id) => {
         replyElement.setAttribute('title', `${createdTimeForReply}`);
         const user = await fetchUserDataByPostedUser(loginUser);
         const userRpImage = document.createElement('img');
-        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        const photo = reply.user.photo ||  '/static/assets/img/default-logo.png';
         userRpImage.src = `${photo}`;
         userRpImage.alt = 'User Photo';
         userRpImage.classList.add('user-photo');
@@ -1087,7 +1144,7 @@ const fetchAndDisplayReplies = async (id) => {
         const replyElement = document.createElement('div');
 
         const userRpImage = document.createElement('img');
-        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        const photo = reply.user.photo || '/static/assets/img/default-logo.png';
         userRpImage.src = `${photo}`;
         userRpImage.alt = 'User Photo';
         userRpImage.classList.add('user-photo');
@@ -1524,7 +1581,7 @@ const receivedMessageForComment = async (payload) => {
         await showNotiCount();
         console.log(message.photo, message.sender, message.content, message.postId);
         const msg = ' commented to your photo';
-        message.photo = message.photo || '/static/assets/img/card.jpg';
+        message.photo = message.photo ||  '/static/assets/img/default-logo.png';
         await notifyMessageForReact(msg, message.sender, message.photo, null);
     }
     const commentCountSize = await fetchCommentSizes(message.postId);
@@ -1533,7 +1590,7 @@ const receivedMessageForComment = async (payload) => {
     // await welcome();
     let mentionedUsers = extractMentionedUsersForComment(message.content);
     await sendMentionNotificationForComment(mentionedUsers,message.commentId);
-    message.photo = message.photo || '/static/assets/img/card.jpg';
+    message.photo = message.photo ||  '/static/assets/img/default-logo.png';
     const chatArea = document.querySelector('#commentMessageText');
     const localDateTime = new Date().toLocaleString();
     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
@@ -1549,7 +1606,7 @@ const receivedMessageForMention = async (payload) => {
             notificationCount += 1;
             await showNotiCount();
             const msg = 'mentioned you in a post';
-            message.photo = user.photo || '/static/assets/img/card.jpg';
+            message.photo = user.photo ||  '/static/assets/img/default-logo.png';
             await notifyMessageForReact(msg, user.name, user.photo, null);
         }
     } catch (error) {
@@ -1689,7 +1746,7 @@ const fetchNotificationPerPage = async () => {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
             const user = await fetchUserDataByPostedUser(reactType.user.staffId);
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo ||  '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -1728,7 +1785,7 @@ const fetchNotificationPerPage = async () => {
         if (noti.commentId && !noti.replyId && !noti.reactId) {
             const commentUser = await fetchCommetedUser(noti.commentId);
             console.log('Comment user', commentUser.user.name)
-            const photo = commentUser.user.photo || '/static/assets/img/card.jpg';
+            const photo = commentUser.user.photo ||  '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -1748,7 +1805,7 @@ const fetchNotificationPerPage = async () => {
             const replyUser = await fetchRepliedUserForData(noti.replyId);
             console.log('photo', replyUser.user.photo);
             console.log('photo', replyUser.user.staffId);
-            const photo = replyUser.user.photo || '/static/assets/img/card.jpg';
+            const photo = replyUser.user.photo ||  '/static/assets/img/default-logo.png';
             console.log('Reply user', replyUser.user.name);
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
@@ -1770,7 +1827,7 @@ const fetchNotificationPerPage = async () => {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
             const user = await fetchUserDataByPostedUser(reactType.user.staffId);
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo ||  '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -1810,7 +1867,7 @@ const fetchNotificationPerPage = async () => {
             const reactType = await fetchReactTypeForNotification(noti.reactId);
             console.log('React Type user', reactType.user.staffId)
             const user = await fetchUserDataByPostedUser(reactType.user.staffId);
-            const photo = user.photo || '/static/assets/img/card.jpg';
+            const photo = user.photo ||  '/static/assets/img/default-logo.png';
             let imgElement = document.createElement('img');
             imgElement.src = `${photo}`;
             imgElement.width = 40;
@@ -1852,7 +1909,7 @@ const fetchNotificationPerPage = async () => {
             console.log("SDFDSF555"+mention.post.id)
             if(!mention.comment) {
                 const getUser = await getMentionUser(mention.postedUserId);
-                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                const photo = getUser.photo ||  '/static/assets/img/default-logo.png';
                 console.log("MenitonUSer", getUser.name)
                 let imgElement = document.createElement('img');
                 imgElement.src = `${photo}`;
@@ -1869,7 +1926,7 @@ const fetchNotificationPerPage = async () => {
                 divElement.appendChild(pElement);
             }else{
                 const getUser = await getMentionUser(mention.postedUserId);
-                const photo = getUser.photo || '/static/assets/img/card.jpg';
+                const photo = getUser.photo ||  '/static/assets/img/default-logo.png';
                 console.log("MenitonUSer", getUser.name)
                 let imgElement = document.createElement('img');
                 imgElement.src = `${photo}`;
@@ -1970,6 +2027,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+async function removeReaction(id){
+    const cancelType = await fetch(`/remove-like-type/${id}`);
+    if (!cancelType.ok) {
+        alert('something wrong');
+    }
+    console.log('hehhe')
+};
+
+const downloadFile = async (event, url, fileName) => {
+    event.preventDefault();
+    try {
+        const response = await fetch(url, {
+            redirect: 'follow' // Follow redirects
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok in fetching download file');
+        }
+        const blob = await response.blob();
+        console.log(fileName+' ------> this is filename')
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = fileName; // Ensure the file name is set correctly
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(a);
+    } catch (error) {
+        alert('Failed to download the file');
+        console.error('There is a problem downloading the file:', error);
+    }
+};
 
 async function createPostsForSearch(){
     document.getElementById('searchInput').focus()
@@ -1991,6 +2081,15 @@ async function createPostsForSearch(){
         return
     }
     for (const p of response) {
+        let res = p.resources
+        let thisIsRawPost = false
+        let target = '' 
+        console.log(res)
+            let ug = p.userGroup !== null ? p.userGroup : null
+            let gp = ug !== null ? ug.community : null 
+            let gpName = gp !== null ? gp.name : null
+            let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
+            `
         let rows = ''
         let createdTime = await timeAgo(new Date(p.createdDate))
         const reactCount = await fetchSizes(p.id);
@@ -2033,322 +2132,366 @@ async function createPostsForSearch(){
         rows += `
 
         <div class="post" id="post-delete-section-${p.id}">
-        <div class="post-top">
-            <div class="dp">
-                <img src="${p.user.photo}" alt="">
+        <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+        
+        <div class="d-flex">
+       
+            <div>
+            <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
-            <div class="post-info">
-                <p class="name">${p.user.name}</p>
-                <span class="time">${createdTime}</span>
-            </div>`
+            <div class="post-info" style="width:100px;">
+
+            <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
+            ${CommunityName} 
+            <span class="time font-monospace">${createdTime}</span>
+           
+        </div>
+        </div>`
             let user = await checkPostOwnerOrAdmin(p.id)
             if(user === 'ADMIN' || user === 'OWNER'){
               rows += `<div class="dropdown offset-8">
-              <a class=" dropdown-toggle" onclick="getPostDetail(${p.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-ellipsis-h "></i>
-                    </a>
+                    </div>
             
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+              <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
   
               if(user=== 'OWNER'){
-                  rows+= `<li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas">Edit</a></li>`
+                  rows+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
               }
                 
-                 rows +=`<li><a class="dropdown-item" onclick="deletePost(${p.id})">Delete Post</a></li> 
+                 rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>
+                
+                 </li> 
               </ul>
-            </div>`
+            </div> 
+            
+            <!-- Modal -->
+<div class="modal fade" id="deletePostAsk${p.id}" tabindex="-1" aria-labelledby="deletePostAsk${p.id}" aria-hidden="true">
+<div class="modal-dialog">
+  <div class="modal-content"> 
+    <div class="modal-body font-monospace">
+    Are you sure do you want to delete this post ?
+    <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+    <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+    <button onclick="deletePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+    </div>
+    </div>
+
+  </div>
+</div>
+</div>
+`
             }
 
-
-        rows+=`</div> 
-        <div id="post-update-section-${p.id}">
-        <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target="#newsfeedPost${p.id}" >
+            for(file of res){
+              if(file.raw !== null){
+                  thisIsRawPost = true
+                   
+              }else{
+                  target =`#newsfeedPost${p.id}`
+              }
+          }
+                   
+          
+        rows+=`</div>
+       
+  <div id="post-update-section-${p.id}">
+  <div class="post-content-${p.id}" data-bs-toggle="modal" data-bs-target=${target} >
         ${formattedDescription}
         `
-        let oneTag = null
-        let oneCloseTag = null
-        let twoTag = null
-        let twoCloseTag = null
-        let threeTag = null
-        let threeCloseTag = null
-        let fourTag = null
-        let fourCloseTag = null
-        let fiveTag = null
-        let fiveCloseTag = null
-        let oneControlAttr = null
-        let twoControlAttr = null
-        let threeControlAttr = null
-        let fourControlAttr = null
-        let fiveControlAttr = null
-        let one = null
-        let two = null
-        let three = null
-        let four = null
-        let five = null
-        let six = null
+        for(file of res){
+          if(file.raw !== null){
+              thisIsRawPost = true
+              
+          console.log('we are here')
+          rows += await makeFileDownloadPost(p.resources)
+          break;
+          }
+      }
+      if(thisIsRawPost === false){
+          let oneTag = null
+          let oneCloseTag = null
+          let twoTag = null
+          let twoCloseTag = null
+          let threeTag = null
+          let threeCloseTag = null
+          let fourTag = null
+          let fourCloseTag = null
+          let fiveTag = null
+          let fiveCloseTag = null
+          let oneControlAttr = null
+          let twoControlAttr = null
+          let threeControlAttr = null
+          let fourControlAttr = null
+          let fiveControlAttr = null
+          let one = null
+          let two = null
+          let three = null
+          let four = null
+          let five = null
+          let six = null
 
-        if(p.resources.length === 1){
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if (one !== null  ) {
-                    rows+= `
-    <div class="d-flex" > 
-    <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:500px; border-radius : 5px; height:500px;  " alt="">${oneCloseTag}
-    </div>
-    `
-                }
-            })
-        }
-        if(p.resources.length === 2){
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if (one !== null && two !== null  ) {
-                    rows+= `
-    <div class="d-flex" > 
-    <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${oneCloseTag}
-    <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:400px; margin:2px" alt="">${twoCloseTag} 
-    </div> `
-                }
-            })
-        }
-        if(p.resources.length === 3){
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if(index === 2 && r.photo !== null){
-                    three = r.photo
-                    threeTag = 'img'
-                    threeCloseTag = ''
-                    threeControlAttr = ''
-                }else if(index === 2 && r.video !== null){
-                    three = r.video
-                    threeTag = 'video'
-                    threeCloseTag = '</video>'
-                    threeControlAttr = 'controls'
-                }
-                if (one !== null && two !== null && three !== null  ) {
-                    rows+= `
-    <div class="d-flex" > 
-    <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-    <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-    </div>
-    <div class="d-flex"> 
-    <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin-left:127px" alt="">${threeCloseTag} 
-    </div>`
-                }
-            })
-        }
-        if(p.resources.length === 4){
-            p.resources.forEach((r, index) => {
-                console.log(r)
+          if(p.resources.length === 1 ){
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if (one !== null  ) {
+                      rows+= `
+<div class="d-flex" style="margin-left:65px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:400px; border-radius : 15px; max-height:500px;   height: auto; width: auto;" alt="">${oneCloseTag}
+</div>
+`
+                  }
+              })
+          }
+          if(p.resources.length === 2){
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if (one !== null && two !== null  ) {
+                      rows+= `
+<div class="d-flex" style="margin-left:120px;" > 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px;  height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div> `
+                  }
+              })
+          }
+          if(p.resources.length === 3){
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if(index === 2 && r.photo !== null){
+                      three = r.photo
+                      threeTag = 'img'
+                      threeCloseTag = ''
+                      threeControlAttr = ''
+                  }else if(index === 2 && r.video !== null){
+                      three = r.video
+                      threeTag = 'video'
+                      threeCloseTag = '</video>'
+                      threeControlAttr = 'controls'
+                  }
+                  if (one !== null && two !== null && three !== null  ) {
+                      rows+= `
+<div class="d-flex" style="margin-left:10px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div>
+<div class="d-flex" style="margin-left:10px;"> 
+<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin-left:127px; height: auto; width: auto;" alt="">${threeCloseTag}
+</div>`
+                  }
+              })
+          }
+          if(p.resources.length === 4){
+              p.resources.forEach((r, index) => {
+                  console.log(r)
 
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if(index === 2 && r.photo !== null){
-                    three = r.photo
-                    threeTag = 'img'
-                    threeCloseTag = ''
-                    threeControlAttr = ''
-                }else if(index === 2 && r.video !== null){
-                    three = r.video
-                    threeTag = 'video'
-                    threeCloseTag = '</video>'
-                    threeControlAttr = 'controls'
-                }
-                if(index === 3 && r.photo !== null){
-                    four = r.photo
-                    fourTag = 'img'
-                    fourCloseTag = ''
-                    fourControlAttr = ''
-                }else if(index === 3 && r.video !== null){
-                    four = r.video
-                    fourTag = 'video'
-                    fourCloseTag = '</video>'
-                    fourControlAttr = 'controls'
-                }
-
-
-                if (one !== null && two !== null && three !== null && four !== null) {
-                    rows+= `
-        <div class="d-flex" > 
-        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-        <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-        </div>
-        <div class="d-flex"> 
-        <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-        <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px;  opacity: 20%" alt="">${fourCloseTag}
-        </div>`
-                }
-            })
-
-        }
-
-        if(p.resources.length > 4 ){
-            let text = p.resources.length -4
-            console.log(text)
-            p.resources.forEach((r, index) => {
-                if(index === 0 && r.photo !== null){
-                    console.log('two')
-                    one = r.photo
-                    oneTag = 'img'
-                    oneCloseTag = ''
-                    oneControlAttr = ''
-                }else if(index === 0 && r.video !== null){
-                    one = r.video
-                    oneTag = 'video'
-                    oneCloseTag = '</video>'
-                    oneControlAttr = 'controls'
-                }
-                if(index === 1 && r.photo !== null){
-                    two = r.photo
-                    twoTag = 'img'
-                    twoCloseTag = ''
-                    twoControlAttr = ''
-                }else if(index === 1 && r.video !== null){
-                    two = r.video
-                    twoTag = 'video'
-                    twoCloseTag = '</video>'
-                    twoControlAttr = 'controls'
-                }
-                if(index === 2 && r.photo !== null){
-                    three = r.photo
-                    threeTag = 'img'
-                    threeCloseTag = ''
-                    threeControlAttr = ''
-                }else if(index === 2 && r.video !== null){
-                    three = r.video
-                    threeTag = 'video'
-                    threeCloseTag = '</video>'
-                    threeControlAttr = 'controls'
-                }
-                if(index === 3 && r.photo !== null){
-                    four = r.photo
-                    fourTag = 'img'
-                    fourCloseTag = ''
-                    fourControlAttr = ''
-                }else if(index === 3 && r.video !== null){
-                    four = r.video
-                    fourTag = 'video'
-                    fourCloseTag = '</video>'
-                    fourControlAttr = 'controls'
-                }
-                if(index === 4 && r.photo !== null){
-                    five = r.photo
-                    fiveTag = 'img'
-                    fiveCloseTag = ''
-                    fiveControlAttr = ''
-                }else if(index === 4 && r.video !== null){
-                    five = r.video
-                    fiveTag = 'video'
-                    fiveCloseTag = '</video>'
-                    fiveControlAttr = 'controls'
-                }
-
-                if(index === 5 ){
-                    six = 'hello'
-                }
-
-                if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
-
-                    rows+= `
-        <div class="d-flex" > 
-        <${oneTag} ${oneControlAttr} src="${one}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${oneCloseTag}
-        <${twoTag} ${twoControlAttr} src="${two}" class="img-fluid " style="width:250px; border-radius : 5px; height:200px; margin:2px" alt="">${twoCloseTag} 
-        </div>
-        <div class="d-flex"> 
-        <${threeTag} ${threeControlAttr} src="${three}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${threeCloseTag}
-        <${fourTag} ${fourControlAttr} src="${four}" class="img-fluid " style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fourCloseTag}
-        <div style="position: relative; display: inline-block;">
-        <${fiveTag} ${fiveControlAttr} src="${five}" class="img-fluid" style="width:166px; border-radius : 5px; height:200px; margin:2px" alt="">${fiveCloseTag}
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
-        </div>
-        </div>`
-                }
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if(index === 2 && r.photo !== null){
+                      three = r.photo
+                      threeTag = 'img'
+                      threeCloseTag = ''
+                      threeControlAttr = ''
+                  }else if(index === 2 && r.video !== null){
+                      three = r.video
+                      threeTag = 'video'
+                      threeCloseTag = '</video>'
+                      threeControlAttr = 'controls'
+                  }
+                  if(index === 3 && r.photo !== null){
+                      four = r.photo
+                      fourTag = 'img'
+                      fourCloseTag = ''
+                      fourControlAttr = ''
+                  }else if(index === 3 && r.video !== null){
+                      four = r.video
+                      fourTag = 'video'
+                      fourCloseTag = '</video>'
+                      fourControlAttr = 'controls'
+                  }
 
 
+                  if (one !== null && two !== null && three !== null && four !== null) {
+                      rows+= `
+<div class="d-flex" style="margin-left:60px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div>
+<div class="d-flex" style="margin-left:60px;"> 
+<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${threeCloseTag}
+<${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:3px; height: auto; width: auto;" alt="">${fourCloseTag}
+</div>`
+                  }
+              })
 
+          }
 
-            })
+          if(p.resources.length > 4 ){
+              let text = p.resources.length === 5 ? '' : p.resources.length - 5
+              console.log(text)
+              p.resources.forEach((r, index) => {
+                  if(index === 0 && r.photo !== null){
+                      console.log('two')
+                      one = r.photo
+                      oneTag = 'img'
+                      oneCloseTag = ''
+                      oneControlAttr = ''
+                  }else if(index === 0 && r.video !== null){
+                      one = r.video
+                      oneTag = 'video'
+                      oneCloseTag = '</video>'
+                      oneControlAttr = 'controls'
+                  }
+                  if(index === 1 && r.photo !== null){
+                      two = r.photo
+                      twoTag = 'img'
+                      twoCloseTag = ''
+                      twoControlAttr = ''
+                  }else if(index === 1 && r.video !== null){
+                      two = r.video
+                      twoTag = 'video'
+                      twoCloseTag = '</video>'
+                      twoControlAttr = 'controls'
+                  }
+                  if(index === 2 && r.photo !== null){
+                      three = r.photo
+                      threeTag = 'img'
+                      threeCloseTag = ''
+                      threeControlAttr = ''
+                  }else if(index === 2 && r.video !== null){
+                      three = r.video
+                      threeTag = 'video'
+                      threeCloseTag = '</video>'
+                      threeControlAttr = 'controls'
+                  }
+                  if(index === 3 && r.photo !== null){
+                      four = r.photo
+                      fourTag = 'img'
+                      fourCloseTag = ''
+                      fourControlAttr = ''
+                  }else if(index === 3 && r.video !== null){
+                      four = r.video
+                      fourTag = 'video'
+                      fourCloseTag = '</video>'
+                      fourControlAttr = 'controls'
+                  }
+                  if(index === 4 && r.photo !== null){
+                      five = r.photo
+                      fiveTag = 'img'
+                      fiveCloseTag = ''
+                      fiveControlAttr = ''
+                  }else if(index === 4 && r.video !== null){
+                      five = r.video
+                      fiveTag = 'video'
+                      fiveCloseTag = '</video>'
+                      fiveControlAttr = 'controls'
+                  }
 
+                  if(index === 5 ){
+                      six = 'hello'
+                  }
 
+                  if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
 
+                      rows+= `
+<div class="d-flex" style="margin-left:10px;"> 
+<${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+<${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
+</div>
+<div class="d-flex" style="margin-left:10px;"> 
+<${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${threeCloseTag}
+<${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fourCloseTag}
+<div style="position: relative; display: inline-block;" >
+<${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fiveCloseTag}
+<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
+</div>
+</div>`
+                  }
 
-        }
+              })
+
+          }
+        
+      }
+         
 
 
         rows+= ` 
@@ -2388,10 +2531,7 @@ async function createPostsForSearch(){
             <div class="action">
                 <i class="fa-regular fa-comment"></i>
  <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox-${p.id}">Comment ${commentCountSize}</span>            </div>
-            <div class="action">
-                <i class="fa fa-share"></i>
-                <span>Share</span>
-            </div>
+
         </div>
     </div>
      
@@ -2548,8 +2688,127 @@ async function createPostsForSearch(){
     document.getElementById('searchInput').value = localStorage.getItem('searchInput')+''
 }
 
+async function getShareGroup(){
+    const data = await fetch(`/user/getCommunity-list-forShare`);
+    const res = await data.json();
+    console.log("hahahahah yaya");
+    const selectBox = document.getElementById('statusForShare');
+    const postShareDiv = document.getElementById('forPostShareDiv');
+    selectBox.innerHTML = '';
 
- 
+    const allUsersOption = document.createElement('option');
+    allUsersOption.value = '';
+    allUsersOption.text = 'Select a group';
+    selectBox.appendChild(allUsersOption);
+
+    res.forEach((item) => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.text = item.name;
+        selectBox.appendChild(option);
+    });
+
+    const postShareButton = document.createElement('button');
+    postShareButton.type = 'button';
+    postShareButton.id = 'forSharingButton';
+    postShareButton.classList.add('btn','btn-outline-primary');
+    postShareButton.style.height = '50px';
+    postShareButton.innerHTML = '<i class="fa-solid fa-share"></i> Share';
+    postShareButton.style.display = 'none';
+
+    selectBox.addEventListener('change', newChild => {
+        if (selectBox.value) {
+            postShareButton.style.display = 'block';
+            const divEL = document.getElementById('forSharingButton');
+            document.getElementById('forShareingContent').style.width = '850px';
+            if(!divEL) {
+                postShareDiv.appendChild(postShareButton);
+            }
+            postShareButton.addEventListener('click',async () => {
+                const postURl = document.getElementById('postShareUrl').value;
+                console.log("PostURl",postURl)
+                await postShareToGroup(selectBox.value,loginUser,postURl);
+            });
+        } else {
+            document.getElementById('forShareingContent').style.width = '800px';
+            postShareButton.style.display = 'none';
+        }
+    });
+}
+
+async function postShareToGroup(id,staffId,content){
+    const chatMessage = {
+        roomId: id,
+        sender: staffId,
+        content: content,
+    };
+    const getData = await fetch(`/share-toChatRoom`,{
+        method:'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:JSON.stringify(chatMessage)
+    })
+    if(!getData){
+        alert("Something wrong please try again!");
+    }
+    const res = await getData.text();
+    if(res){
+        let alertMessage =  `${res}`;
+        let alertStyle = `
+            background-color: white;
+            color: green;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+
+
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function() {
+            styledAlert.style.display = 'none';
+        }, 3000);
+    }
+}
+
+async function showPhotoUrl(url){
+    let previousUrlValue =  document.getElementById('postShareUrl');
+    document.getElementById('forShareingContent').style.width = '800px';
+    const divEl = document.getElementById('forSharingButton');
+    if(divEl){
+        divEl.remove();
+    }
+    await getShareGroup();
+    console.log("URL",previousUrlValue)
+    console.log("Original",url)
+    previousUrlValue.value = '';
+    previousUrlValue.value = url;
+}
+
+const copyButton = async () => {
+    let copyText = document.getElementById("postShareUrl");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+}
+
+//for share group start
+
+
 
 const removeCat = async () =>{ 
     lodader.classList.add('hidden')
@@ -3254,8 +3513,15 @@ async function showSearchEvents(input){
         return
     }
     console.log(response)
-    let row = ''
+
+    
+    let rows = ''
     for (const r of response) {
+        let ug = r.user_group !== null ? r.user_group : null
+        let gp = ug !== null ? ug.community : null 
+        let gpName = gp !== null ? gp.name : null
+        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
+        `
         const reactCountForEvent = await fetchReactCountForEvent(r.id);
         console.log('length',reactCountForEvent.length);
         let createdTime = await timeAgo(new Date(r.created_date))
@@ -3322,27 +3588,58 @@ async function showSearchEvents(input){
         let endMinutes = endDate.getMinutes()
         let formattedStartDate = `${startDay} / ${startMonth} / ${startYear}  `;
         let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `
-        let rows =''
-        rows += `
+        let row =''
+        row += `
         <div class="post" id="delete-event-section-${r.id}">
-            <div class="post-top">
-                <div class="dp">
-                    <img src="${r.user.photo}" alt="">
-                </div>
-                <div class="post-info">
-                    <p class="name">${r.user.name}</p>
-                    <span class="time">${createdTime}</span>
-                </div>
-                <div class="dropdown offset-8">
-                    <a class=" dropdown-toggle" onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-ellipsis-h "></i>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#eventEditOffcanvas">Edit</a></li>
-                        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li>
-                    </ul>
-                </div>
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
+        <div class="d-flex">
+
+            <div>
+            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
+            <div class="post-info" style="width:100px;">
+
+            <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
+            ${CommunityName}
+            <span class="time font-monospace">${createdTime}</span>
+
+        </div>
+        </div>`
+        let user = await checkEventOwnerOrAdmin(r.id)
+        console.log(user)
+        if(user === 'ADMIN' || user === 'OWNER'){
+               row+= `<div class="dropdown ">
+                    <div class="  " onclick="getEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h "></i>
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+                      if(user === 'OWNER'){  row+=`<li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#eventEditOffcanvas">Edit</a></li>`}
+                      row+=  `<li><a class="dropdown-item" data-bs-toggle="modal"   data-bs-target="#deleteEventAsk${r.id}" >Delete Post</a></li>
+                    </ul>
+                </div>`}
+
+            row+=`</div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteEventAsk${r.id}" tabindex="-1" aria-labelledby="deleteEventAsk${r.id}" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-body font-monospace fw-normal">
+                  Are you sure do you want to delete this post ?
+                  <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+                  <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+                  <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+                  </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+
+
             <div id="event-update-section-${r.id}">
             <div class=" post-content-${r.id}" data-bs-toggle="modal" data-bs-target="#searchPost" >
                 <div class="card" style="width: 30rem;  margin-left:12px ;">
@@ -3372,7 +3669,9 @@ async function showSearchEvents(input){
                                         <div class="mt-2 ml-5 d-flex"><div class="text-secondary"> END </div> <i class="fa-solid fa-play text-danger mx-1"></i><br></div><div class="fst-italic"> ${formattedEndDate}</div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2"><img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
+                                <div class="tab-pane fade show active" id="v-${r.id}-photo" role="tabpanel" aria-labelledby="v-${r.id}-photo-tab"><b class="p-2">
+                                ${expired}
+                                <img src="${r.photo}" style="width:250px; height:200px; border-radius:20px"></div>
                             </div>
                         </div>
                     </div>
@@ -3412,10 +3711,9 @@ async function showSearchEvents(input){
 </div>
 
         </div>`;
-
-        row += rows
+    rows += row;
     }
-    document.getElementById('pills-event-search').innerHTML = row
+    document.getElementById('pills-event-search').innerHTML = rows
     const likeButtons = document.querySelectorAll(".like_button1");
     likeButtons.forEach(likeButton => {
         likeButton.addEventListener('click', async (event) => {
@@ -4426,6 +4724,11 @@ async function goToPollTab(){
     }
     let rows = ''
     for (let r of response) {
+        let ug = r.user_group !== null ? r.user_group : null
+        let gp = ug !== null ? ug.community : null 
+        let gpName = gp !== null ? gp.name : null
+        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>
+        `
         let expired = ''
         if(new Date()>new Date(r.end_date)){
             expired=`
@@ -4449,25 +4752,53 @@ POLL IS EXPIRED
 
         row += `
         <div class="post" id="pollPostDiv-${r.id}">
-        <div class="post-top">
-            <div class="dp">
-                <img src="${r.user.photo}" alt="">
+        <div class="post-top" style="max-width:500px; justify-content:space-between;">
+
+        <div class="d-flex">
+
+            <div>
+            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
-            <div class="post-info">
-                <p class="name">${r.user.name}</p>
-                <span class="time">${createdTime}</span>
+            <div class="post-info" style="width:100px;">
+
+            <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
+            ${CommunityName}
+            <span class="time font-monospace">${createdTime}</span>
+
+        </div>
+
+        </div>`
+
+
+        let user = await checkEventOwnerOrAdmin(r.id)
+        if(user === 'ADMIN' || user === 'OWNER'){
+                row+=`<div class="dropdown ">
+                    <div class="  " onclick="getPollEventDetail(${r.id})" href="#" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-ellipsis-h "></i>
+                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">`
+                       if(user === 'OWNER'){ row+=`  <li><a class="dropdown-item"  data-bs-toggle="offcanvas" data-bs-target="#pollEditOffcanvas">Edit</a></li>`}
+                        row+=`<li><a class="dropdown-item" data-bs-toggle="modal"   data-bs-target="#deletePollAsk${r.id}" >Delete Post</a></li>
+                    </ul>
+                </div>`}
+            row+=`</div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deletePollAsk${r.id}" tabindex="-1" aria-labelledby="deletePollAsk${r.id}" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-body font-monospace fw-normal">
+                  Are you sure do you want to delete this post ?
+                  <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+                  <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+                  <button onclick="deleteEvent(${r.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+                  </div>
+                  </div>
+
+                </div>
+              </div>
             </div>
-                        <div class="dropdown offset-8">
-      <a class=" dropdown-toggle" onclick="getPollEventDetail(${r.id})" href="#"   id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-h "></i>
-            </a>
-    
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <li><a class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#pollEditOffcanvas">Edit</a></li>
-        <li><a class="dropdown-item" onclick="deleteEvent(${r.id})">Delete Post</a></li> 
-      </ul>
-    </div>
-        </div> 
+
         <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
           <button class="nav-link active" id="nav-about-tab-${r.id}" data-bs-toggle="tab" data-bs-target="#nav-about-${r.id}" type="button" role="tab" aria-controls="nav-about-${r.id}" aria-selected="true"> <i class="fa-solid fa-info"></i>  About</button>

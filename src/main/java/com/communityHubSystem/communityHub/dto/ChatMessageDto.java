@@ -1,19 +1,17 @@
 package com.communityHubSystem.communityHub.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class NotificationDtoForChatRoom {
+@Setter
+@Getter
+public class ChatMessageDto {
 
-    private Long chatId;
-    private Long id;
+    private Long roomId;
     private String sender;
     private String content;
-
 }

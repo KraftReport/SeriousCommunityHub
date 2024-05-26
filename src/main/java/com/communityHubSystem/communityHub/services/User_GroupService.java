@@ -16,4 +16,6 @@ public interface User_GroupService  {
     void save(User_Group groupUser);
 
     Community getCommunityByUserGroupIdAndUserId(Long userGroupId, Long userId);
+
+    public User_Group findById(Long id);
 }

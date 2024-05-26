@@ -34,7 +34,7 @@
 <div th:replace="~{index::header}"></div>
 <div th:replace="~{index::navbar}"></div>
 <main id="main" class="main">
-
+    <script src="/static/assets/js/profile.js"></script>
     <section class="h-100 gradient-custom-2">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
@@ -167,14 +167,14 @@
                 <form id="profile-form">
 
                     <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
+                        <label for="phone" class="form-label" style="font-weight: bold">Phone</label>
                         <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone"
                                th:value="${user.phone}">
                     </div>
                     <div th:if="${user.hobby}">
                         <div id="hobbyChangeForm">
                             <div class="mb-3">
-                                <label class="form-label">Hobby</label>
+                                <label class="form-label" style="font-weight: bold">Hobby</label>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-check">
@@ -362,7 +362,7 @@
                         <div id="hobbyChangeForm">
                             <div class="mb-3">
                                 <div class="mb-3">
-                                    <label class="form-label">Hobby</label>
+                                    <label class="form-label" style="font-weight: bold">Hobby</label>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-check">
@@ -547,7 +547,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="gender" class="form-label">Gender</label>
+                        <label for="gender" class="form-label" style="font-weight: bold">Gender</label>
                         <select id="gender" name="gender" class="form-control">
                             <option value="male" th:selected="${user.gender == 'male'}">Male</option>
                             <option value="female" th:selected="${user.gender == 'female'}">Female</option>
@@ -555,21 +555,20 @@
                             </option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Skills</label>
-                        <div id="skillsDropdown">
+                    <div class="mb-3" id="forSkillAddButton">
+                        <label class="form-label" style="font-weight: bold">Skills</label>
+                        <div class="d-flex align-items-start">
+                            <div id="skillsDropdown" class="flex-grow-1"></div>
 
                         </div>
-                        <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
                         <div id="newSkillInput" style="display: none;">
-                            <input type="text" class="form-control mt-2" placeholder="Enter new skill"
-                                   id="newSkillNameInput">
-                            <input type="text" class="form-control mt-2" placeholder="Experience"
-                                   id="newSkillExperienceInput">
+                            <input type="text" class="form-control mt-2" placeholder="Enter new skill" id="newSkillNameInput">
+                            <input type="number" class="form-control mt-2" placeholder="Experience" id="newSkillExperienceInput">
                         </div>
-                        <script src="/assets/js/skill.js"></script>
+                        <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
+                        <script src="/static/assets/js/skill.js" defer></script>
                     </div>
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="updateBtn">Update</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="updateBtn" style="margin-left: 680px;">Update</button>
                 </form>
             </div>
         </div>
@@ -701,7 +700,29 @@
 </div>
 
 <!-- Modal -->
-
+<div class="modal fade" id="postUrlForShare" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 800px" id="forShareingContent">
+            <div class="modal-header" style="background-color: #007bff;color: #fff">
+                <h5 class="modal-title" id="staticBackdropLabel" style="font-size: 18px;font-weight: bold"><i class="fa-solid fa-share"></i>Share</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex" id="forPostShareDiv">
+                    <p><input id="postShareUrl" style="height: 50px; border-radius: 10px; width: 450px" readonly type="text" value="https://communityHub.com/posts/20c5acacf1-fe23-4b63-8cd7-bc50c643006c"></p>
+                    <button type="button" onclick="copyButton()" class="btn btn-primary" style="height: 50px"><i class="fa-solid fa-copy"></i> Copy</button>
+                    <div style="margin-left: 10px">
+                        <select name="status" id="statusForShare" class="form-select" style="height: 50px; width: 140px;">
+                            <option  value="">All Users</option>
+                            <option  value="true">Active</option>
+                            <option value="false">Removed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="staticBackdropLabel" aria-hidden="true">

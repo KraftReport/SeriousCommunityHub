@@ -161,10 +161,20 @@
             max-width: calc(100% - 20px);
         }
 
+
         @media (min-width: 576px) {
             #invitationStaticBox .modal-dialog {
                 max-width: 450px;
             }
+        }
+
+        #postUrlForShare .modal-dialog {
+            position: absolute;
+          left: 30%;
+            margin-right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: calc(100% - 20px);
         }
 
         .mentionSuggestion {
@@ -222,6 +232,14 @@
 
         #userAccessLogStaticBox .modal-body::-webkit-scrollbar {
             display: none;
+        }
+
+        #memberKickModal #memberListForKick::-webkit-scrollbar {
+            display: none; /* Hide the scrollbar */
+        }
+
+        #memberAddModal #memberList::-webkit-scrollbar {
+            display: none; /* Hide the scrollbar */
         }
 
     </style>
@@ -371,7 +389,7 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" th:href="@{/logout}">
+                            <a class="dropdown-item d-flex align-items-center" href="#" onclick="logOutFunction()">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Log Out</span>
                             </a>
@@ -443,15 +461,44 @@
             </li><!-- End Record Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed" th:href="@{/logout}">
                     <i class="bi bi-dash-circle"></i>
-                    <span>Log Out</span>
-                </a>
+                    <span onclick="logOutFunction()">Log Out</span>
+                <!-- </a> -->
             </li>
         </ul>
-    </aside>
+
+        <!-- logout modal box start  -->
+
+
+
+
+  <!-- Modal -->
+
+
+
+        <!-- logout modal box end  -->
+
+    </aside><!-- End Sidebar-->
 </div>
 <main id="main" class="main">
+
+    <div class="modal fade" id="logOutModalBox" tabindex="-1" aria-labelledby="logOutModalBox" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body font-monospace">
+              Are you sure to logout from current account ?
+           <div class="d-flex">
+            <button class="btn btn-success" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+              <a class="nav-link collapsed" style="text-decoration: none;" onclick="clearLocalStorage()" th:href="@{/logout}"><button class="btn btn-danger"><i class="fa-solid fa-check"></i></button></a>
+           </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+ 
+
+
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="rawMaker" aria-labelledby="rawMaker">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title font-monospace" id="offcanvasWithBothOptionsLabel">Share Files <i class="fa-solid fa-file "></i></h5>
@@ -467,7 +514,7 @@
 
            </div>
 
-            <label id="labelForRawFile" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
+            <label id="labelForRawFile" onclick="clickRawFileIcon()" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
             <input style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "  type="file" name="raw" id="raw" multiple>
 
 
@@ -642,9 +689,20 @@
                        ...
                    </div>
                        <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+
+
+                    <div id="update-raw-old"></div>
+
+                    <div id="update-raw-preview"></div>
+
+                   </div>
+                       <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
                        data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
                        </button>
-
+ 
+                       <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
+                       data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                       </button>
 
            </div>
        </div>
@@ -868,6 +926,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Button trigger modal -->
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="postUrlForShare" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 800px" id="forShareingContent">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel"><i class="fa-solid fa-share"></i>Share</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: flex" id="forPostShareDiv">
+                        <p><input id="postShareUrl" style="height: 50px; border-radius: 10px; width: 450px" readonly type="text" value="https://communityHub.com/posts/20c5acacf1-fe23-4b63-8cd7-bc50c643006c"></p>
+                        <button type="button" onclick="copyButton()" class="btn btn-primary" style="height: 50px"><i class="fa-solid fa-copy"></i> Copy</button>
+                <div style="margin-left: 10px">
+                    <select name="status" id="statusForShare" class="form-select" style="height: 50px; width: 140px;">
+                        <option  value="">All Users</option>
+                        <option  value="true">Active</option>
+                        <option value="false">Removed</option>
+                    </select>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="modal fade" id="penIcon" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">

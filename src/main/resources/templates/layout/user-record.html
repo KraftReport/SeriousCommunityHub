@@ -4,22 +4,6 @@
         <meta charset="UTF-8">
         <title>Title</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <style>
-            .piechart-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: calc(100% / 3);
-                height: calc(100vh / 3);
-                margin-bottom: 80px;
-            }
-
-            .piechart {
-                width: 300px;
-                height: 300px;
-                border-radius: 50%;
-            }
-        </style>
     </head>
     <body>
         <div th:replace="~{index::header}"></div>
@@ -40,8 +24,19 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="total-tab" sec:authorize="hasAnyAuthority('ADMIN')" data-bs-toggle="tab" data-bs-target="#totalTab"
+                    <button class="nav-link" id="total-tab" data-bs-toggle="tab" data-bs-target="#totalTab"
                             type="button" role="tab" aria-controls="totalTab" aria-selected="false">TrendyTotalsList
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="total-tabPerMonth" data-bs-toggle="tab" data-bs-target="#totalTabPerMonth"
+                            type="button" role="tab" aria-controls="totalTabPerMonth" aria-selected="false" sec:authorize="hasAnyAuthority('ADMIN')">TrendyTotalsListPerMonth
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="total-postPerMonth" data-bs-toggle="tab" data-bs-target="#totalPostPerMonth" onclick="showPostsPerMonth()"
+                            type="button" role="tab" aria-controls="totalPostPerMonth" aria-selected="false" sec:authorize="hasAnyAuthority('ADMIN')">User Progress
                     </button>
                 </li>
             </ul>
@@ -114,10 +109,10 @@
                                 <div class="content content_1">
                                     <div class="title" id="trendyGroupName">İstanbul</div>
                                     <div class="text">
-                                <span id="trendyGroupDescription"></span>
-                                  <span id="trendyGroupMembers"></span>
+                                        <span id="trendyGroupDescription"></span>
+                                        <span id="trendyGroupMembers"></span>
                                     </div>
-                                    <button class="groupCommunityTrendy">Click to see</button>
+                                    <button class="groupCommunityTrendy" onclick="clickSeeMore()">Click to see</button>
                                 </div>
                             </div>
 
@@ -128,9 +123,9 @@
                                 <div class="content content_2">
                                     <div class="title">Posts List Within A Month</div>
                                     <div class="text">
-                                    <span id="totalPostsForOneMonth"></span>
-                                    <span id="totalReactsForOneMonth"></span>
-                                    <span id="totalCommentsForOneMonth"></span>
+                                        <span id="totalPostsForOneMonth"></span>
+                                        <span id="totalReactsForOneMonth"></span>
+                                        <span id="totalCommentsForOneMonth"></span>
                                     </div>
                                     <button class="groupCommunityTrendy">Click to see</button>
                                 </div>
@@ -157,122 +152,135 @@
                 <div class="tab-pane fade" id="totalTab" role="tabpanel" aria-labelledby="polls-tab">
                     <div id="trendyTotalList" class=" ">
                         <div>
-                            <input type="text" class="form-control" id="userSearch" placeholder="Search users" style="margin-right: 329px; width: 150px; height: 40px;"><br><br>
+                            <input type="text" class="form-control" id="userSearch"  sec:authorize="hasAnyAuthority('ADMIN')" placeholder="Search users" style="margin-right: 329px; width: 150px; height: 40px;"><br><br>
                             <div id="pieChartContainer" style="display: flex; flex-wrap: wrap;"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header" style="background-color: #007bff; color: white;">
-                            <h5 class="modal-title" id="uploadExcelModalLabel">Upload Excel File</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="uploadForm">
-                                <div class="mb-3">
-                                    <label for="fileInput" class="form-label">Select Excel file</label>
-                                    <input class="form-control" type="file" id="fileInput" name="file" accept=".xlsx, .xls">
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="uploadButton">Upload</button>
-                        </div>
-                    </div>
-                    <script src="/static/assets/js/excelUpload.js"></script>
-                </div>
-            </div>
-            <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="uploadModalLabel">Success</h5>
-                        </div>
-                        <div class="modal-body">
-                            <p>Data upload into the database successfully.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="changePasswordModal" class="modal fade" tabindex="-1">
-                <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/modals.css}">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Change Password</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="currentPassword">Current Password:</label>
-                                <div class="input-group">
-                                    <input type="password" id="currentPassword" name="currentPassword" required class="form-control">
-                                    <button id="checkPasswordBtn" class="btn btn-primary">Check</button>
-                                </div>
+                <div class="tab-pane fade" id="totalTabPerMonth" role="tabpanel" aria-labelledby="total-tabPerMonth" >
+                    <div id="trendyPostPerMonth" class="">
+                        <div style="display: flex">
+                            <div>
+                                <select name="status" id="searchWithYear" class="form-select" style="width: 100px">
+                                    <option value="2024">2024</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                </select>
                             </div>
-                            <div id="changePasswordFields">
-                                <div class="form-group">
-                                    <label for="changePassword">New Password:</label>
-                                    <input type="password" id="changePassword" name="changePassword" required class="form-control">
-                                    <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.</div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="confirmChangePassword">Confirm Password:</label>
-                                    <input type="password" id="confirmChangePassword" name="confirmChangePassword" required class="form-control">
-                                    <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not match.</div>
-                                </div>
-                                <div class="button-group">
-                                    <button id="restartBtn" class="btn btn-secondary">Restart</button>
-                                    <button id="saveBtn" class="btn btn-primary">Save</button>
-                                </div>
+                            <div style="margin-left: 20px">
+                                <select name="status" id="searchWithMonth" class="form-select" style="width: 100px">
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                            <div style="margin-left: 650px;">
+                                <input type="text" class="form-control" id="userSearchForPost" placeholder="Search users">
                             </div>
                         </div>
+                        <br><br>
+                        <div id="pieChartContainerForEach" style="display: flex; flex-wrap: wrap;"></div>
                     </div>
                 </div>
-            </div>
-            <script src="/static/assets/js/changePassword.js" defer></script>
-            <div class="modal fade" id="calendarModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                 aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="staticBackdropLabel1">Calendar...</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div id="calendar">
+
+                <div class="tab-pane fade" id="totalPostPerMonth" role="tabpanel" aria-labelledby="total-postPerMonth" >
+                    <div id="postPerMonth" class="">
+                        <div style="display: flex">
+                            <div>
+                                <select name="status" id="searchYear" class="form-select" style="width: 100px">
+                                    <option value="2024">2024</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                </select>
+                            </div>
+                            <div style="margin-left: 650px;">
+                                <input type="text" class="form-control" id="userSearchForPostMonth" placeholder="Search users">
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
+                        <br><br>
+                        <div id="lineChartContainerForEachMonth" style="display: flex; flex-wrap: wrap;"></div>
                     </div>
                 </div>
             </div>
         </main>
 
         <div th:replace="~{index::footer}"></div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-                crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.js"
                 integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <style>
+            #pieChartContainer {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px; /* Adjust this value to increase or decrease the space between charts */
+            }
 
+            .piechart-container {
+                flex: 1 1 200px; /* Allows each chart container to grow and shrink, set minimum width to 200px */
+                margin: 10px; /* Additional margin around each chart */
+                padding: 20px; /* Padding inside each chart container */
+                border: 1px solid #ccc; /* Optional: Add a border around each chart container */
+                border-radius: 10px; /* Optional: Rounded corners for each chart container */
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for better visual separation */
+                background-color: #f9f9f9; /* Optional: Background color for each chart container */
+            }
+
+            .piechart {
+                width: 300px;
+                height: 300px;
+                border-radius: 50%;
+            }
+            .chart{
+                width: 600px;
+                height: 600px;
+            }
+
+            .piechart-containerForPost {
+                margin: 10px; /* Adjust the margin to create space between charts */
+                padding: 10px; /* Optional: add padding if needed */
+                border: 1px solid #ddd; /* Optional: add a border for better visual separation */
+                border-radius: 5px; /* Optional: add border radius for rounded corners */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for better separation */
+                background-color: #f9f9f9; /* Optional: add a background color */
+            }
+
+            #pieChartContainerForEach {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .chart-container {
+                flex: 1 1 200px; /* Allows each chart container to grow and shrink, set minimum width to 200px */
+                margin: 10px; /* Additional margin around each chart */
+                padding: 20px; /* Padding inside each chart container */
+                border: 1px solid #ccc; /* Optional: Add a border around each chart container */
+                border-radius: 10px; /* Optional: Rounded corners for each chart container */
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for better visual separation */
+                background-color: #f9f9f9; /* Optional: Background color for each chart container */
+            }
+
+            .linechart-containerForPost {
+                margin: 10px; /* Adjust the margin to create space between charts */
+                padding: 10px; /* Optional: add padding if needed */
+                border: 1px solid #ddd; /* Optional: add a border for better visual separation */
+                border-radius: 5px; /* Optional: add border radius for rounded corners */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for better separation */
+                background-color: #f9f9f9; /* Optional: add a background color */
+            }
+
+            #lineChartContainerForEachMonth {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+        </style>
     </body>
 </html>

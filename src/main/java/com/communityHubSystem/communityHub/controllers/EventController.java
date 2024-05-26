@@ -223,4 +223,10 @@ public class EventController {
         return ResponseEntity.ok(eventService.checkBirthdayOfEmployees());
     }
 
+    @GetMapping("/checkEventOwnerOrAdmin/{id}")
+    @ResponseBody
+    public ResponseEntity<List<Object>> checkEventOwnerOrAdmin(@PathVariable("id")String id){
+        return ResponseEntity.ok(eventService.checkEventOwnerOrAdmin(Long.valueOf(id)));
+    }
+
 }
