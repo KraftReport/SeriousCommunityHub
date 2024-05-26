@@ -371,9 +371,9 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#">
+                            <a class="dropdown-item d-flex align-items-center" th:href="@{/logout}">
                                 <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
+                                <span>Log Out</span>
                             </a>
                         </li>
                     </ul>
@@ -452,11 +452,6 @@
     </aside>
 </div>
 <main id="main" class="main">
-<a href="http://res.cloudinary.com/dws6icl91/raw/upload/v1716214659/2d8b53c6-ffaf-476e-8e50-1efc954746c9.xlsx" onclick="downloadFile(event,this.href,'green.xlsx')">download excel</a>
-<a href="https://res.cloudinary.com/dws6icl91/raw/upload/v1716275788/25172a28-2645-47d6-b3e7-f7b2f018cc93.zip" onclick="downloadFile(event,this.href,'sample.js')">Download js</a>
-
-
-
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="rawMaker" aria-labelledby="rawMaker">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title font-monospace" id="offcanvasWithBothOptionsLabel">Share Files <i class="fa-solid fa-file "></i></h5>
@@ -654,13 +649,6 @@
            </div>
        </div>
 
-
-
-
-
-
-        </div>
-      </div>
 
 
 
@@ -2075,9 +2063,9 @@ function renderCalendar(events) {
     <!-- Template Main JS File -->
     <script src="/static/assets/js/main.js"></script>
     <script src="https://kit.fontawesome.com/e2397b357b.js" crossorigin="anonymous"></script>
-   
+    <script src="/static/assets/js/post.js"></script>
 </div>
-<script src="/static/assets/js/post.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>

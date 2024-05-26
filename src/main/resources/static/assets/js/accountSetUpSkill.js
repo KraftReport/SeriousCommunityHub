@@ -99,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function () {
             addbtn.addEventListener('click', function () {
                 suggestionsSkills.innerHTML = '';
             });
-            // Append the skill box to the container
             skillBoxContainer.appendChild(skillBox);
         });
 

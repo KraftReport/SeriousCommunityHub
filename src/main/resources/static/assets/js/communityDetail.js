@@ -5144,9 +5144,9 @@ async function startUp(){
     let community = await fetch(`/api/community/getCommunity/${communityId}`)
     let data = await community.json()
     console.log(data)
-    document.getElementById('communityImage').src = data.image
-    document.getElementById('communityName').textContent = data.name
-    document.getElementById('communityMembers').textContent = 10
+    document.getElementById('communityImage').src = data.community.image;
+    document.getElementById('communityName').textContent = data.community.name;
+    document.getElementById('communityMembers').textContent = `Members: ${data.memberCount} participants`;
         console.log("HI Group",communityId)
         await checkGroupForLoginUser(communityId);
          await checkGroupForMessagingSystem(communityId);

@@ -212,10 +212,14 @@ public class GroupController {
     }
 
     @GetMapping("getCommunity/{communityId}")
-    public ResponseEntity<Community> getCommunityById(@PathVariable Long communityId) {
+    public ResponseEntity<Map<String, Object>> getCommunityById(@PathVariable Long communityId) {
         Community community = communityService.getCommunityById(communityId);
         if (community != null) {
-            return ResponseEntity.ok(community);
+            int memberCount = community.getUser_groups().size();
+            Map<String, Object> response = new HashMap<>();
+            response.put("community", community);
+            response.put("memberCount", memberCount);
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.notFound().build();
         }

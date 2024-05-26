@@ -59,7 +59,7 @@ async function goToCommunityTab(){
             }
         let num = await getNumberOfMembers(r.id)
         let amount = parseInt(num) > 1 ? 'members' : 'member' 
-        let photo = r.image === null ?  '/static/assets/img/profile-img.jpg'   : r.image
+        let photo = r.image === null ?  '/static/assets/img/default-logo.png'   : r.image
         let rows = ''
         rows+= `
         
@@ -80,7 +80,6 @@ async function goToCommunityTab(){
   </div>
 </div>
 
- 
 
         `
 
