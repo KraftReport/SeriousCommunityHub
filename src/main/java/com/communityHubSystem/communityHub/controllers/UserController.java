@@ -323,6 +323,7 @@ public class UserController {
         }
     }
 
+
     @PostMapping("/acceptRejected")
     public ResponseEntity<Map<String, Object>> acceptReject(@RequestBody Map<String, Long> requestBody) {
         Long userId = requestBody.get("userId");
