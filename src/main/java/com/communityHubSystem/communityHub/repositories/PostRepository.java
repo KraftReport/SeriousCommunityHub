@@ -53,4 +53,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
     @Query("SELECT p FROM Post p WHERE p.user.id = :userId AND YEAR(p.createdDate) = :year AND MONTH(p.createdDate) = :month")
     List<Post> findByUserIdAndYearAndMonth(@Param("userId") Long userId, @Param("year") int year, @Param("month") int month);
 
+    @Query(value = "select * from post where user_group_id = :id",nativeQuery = true)
+    List<Post> findAllByUserGroupIdOrderByCreatedDateDesc(Long id);
 }

@@ -121,8 +121,11 @@ public class PostController {
     @ResponseBody
     public ResponseEntity<List<Post>> getPostsForUserDetailPage(@PathVariable("id") String id,
                                                                 @PathVariable("page") String page) {
+        System.err.println(postService.returnPostForUserDetailPage(Long.valueOf(id), page).getContent());
         return ResponseEntity.ok(postService.returnPostForUserDetailPage(Long.valueOf(id), page).getContent());
     }
+
+
 
     @GetMapping("/fetch-post/{id}")
     @ResponseBody

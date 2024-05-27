@@ -277,11 +277,18 @@ public class PostServiceImpl implements PostService {
         var notDeletedPosts = publicPosts.stream().filter(p -> !p.isDeleted()).toList();
         List<Post> postList = new ArrayList<>(notDeletedPosts);
         List<User_Group> userGroupList = user_groupRepository.findByUserId(loginUser.getId());
-        for (User_Group user_group : userGroupList) {
-            List<Post> userGroupPosts = postRepository.findAllByUserIdAndUserGroupIdByCreatedDate(loginUser.getId(), user_group.getId());
+        System.out.println("SIZEOFUSERGROUP"+userGroupList.size());
+        List<User_Group> user_groups = new ArrayList<>();
+        for(User_Group user_group:userGroupList){
+            List<User_Group> groups = user_groupRepository.findByCommunityId(user_group.getCommunity().getId());
+            user_groups.addAll(groups);
+        }
+        for (User_Group user_group : user_groups) {
+            List<Post> userGroupPosts = postRepository.findAllByUserGroupIdOrderByCreatedDateDesc(user_group.getId());
             var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted()).toList();
             System.err.println("WOWOOWOWOWO"+user_group.getId());
-            postList.addAll(userGroupPosts);
+            System.err.println("WOWOOWOWOWO"+filteredList.size());
+            postList.addAll(filteredList);
         }
         postList.sort(Comparator.comparing(Post::getCreatedDate).reversed());
 
@@ -316,6 +323,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<Post> returnPostForUserDetailPage(Long id,String page) {
         var posts = new ArrayList<>(postRepository.findPostsByUserId(id).stream().filter(p -> !p.isDeleted()).toList());
+        System.err.println(posts);
         posts.sort(Comparator.comparing(Post::getCreatedDate).reversed());
         Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
         int start = Math.toIntExact(pageable.getOffset());

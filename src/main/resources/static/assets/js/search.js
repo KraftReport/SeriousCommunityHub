@@ -7,6 +7,8 @@ const makeFileDownloadPost = async (resources) => {
     parentDiv.style.width = '300px';
 
 
+    
+
 
     
     const ul = document.createElement('ul');
@@ -45,6 +47,113 @@ const makeFileDownloadPost = async (resources) => {
     return parentDiv.outerHTML
 }
 
+
+const deleteRawFileResource = (id) => {
+    let element = document.getElementById('old-raw-file-'+id)
+    element.classList.add('deleted-raw-file')
+    console.log(element)
+}
+
+const removePreviewForRawFile = () => {
+    let parent = document.getElementById('editModal') 
+    parent.innerHTML = '' 
+ 
+}
+
+const removePreviewForPostUpdate = () => {
+    let parent = document.getElementById('editModal') 
+    parent.innerHTML = '' 
+}
+
+const getUpdateDataForRaw = async () => { 
+    let updateResourcesDtos = []
+    const value = document.querySelectorAll('#oldRawFileId')
+    console.log(value)
+    value.forEach(v => console.log(v.value))
+    value.forEach(v => {
+        const cap = document.getElementById(`old-raw-file-caption-${v.value}`)
+        let caption = cap.value
+        console.log(caption)
+        const url = document.getElementById(`old-raw-file-url-${v.value}`)
+        let resourceUrl = document.getElementById(`old-raw-file-${v.value}`)
+        console.log(resourceUrl )
+        if (resourceUrl.classList.contains('deleted-raw-file')) {
+            let dto = {
+                resourceId: v.value,
+                postCaption: 'deleted',
+                postUrl: 'deleted'
+            }
+            console.log(dto)
+            updateResourcesDtos.push(dto)
+        } else {
+            let dto = {
+                resourceId: v.value,
+                postCaption: caption,
+                postUrl: url
+            }
+            updateResourcesDtos.push(dto)
+
+        }
+        console.log(updateResourcesDtos)
+    })
+    console.log(updateResourcesDtos)
+    let data = new FormData(document.getElementById('updateRawForm'))
+    let newFiles = document.getElementById('updateRawAddedFiles').files 
+    for (let i = 0; i < newFiles.length; i++) {
+        data.append('files', newFiles[i])  
+    }
+    console.log(Object.fromEntries(data.entries()).postId+'---------------------')
+    let firstResponse = await fetch('/post/firstUpdateRaw', {
+        method: 'POST',
+        body: data
+    })
+    let firstResult = await firstResponse.json()
+    console.log("Kyi Kya mal", firstResult.postId)
+    console.log(firstResult)
+    let secondResponse = await fetch('/post/secondUpdateRaw', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateResourcesDtos)
+    })
+    let secondResult = await secondResponse.json()
+    console.log(secondResult)
+    if(secondResult){
+        await removeCat()
+    }
+    if (secondResult) {
+        await removeCat()
+        // while (newsfeed.firstChild) {
+        //     newsfeed.removeChild(newsfeed.firstChild)
+        // }
+        const p = await fetchPostById(Object.fromEntries(data.entries()).postId);
+        const ParentDetailModal = document.getElementById('detail-modal-'+p.id)
+        const childModalBox  = document.getElementById('newsfeedPost'+p.id)
+        console.log('8888888888888888888888888888888888888'+p)
+            const contentSection = document.getElementById(`post-update-section-${p.id}`);
+                const postId = p.id;
+                console.log("Want to know",postId);
+                const postContent = document.querySelector(`.post-content-${postId}`);
+                if (postContent && childModalBox) {
+                    console.log('Remove Successfully')
+                    postContent.remove();
+                    childModalBox.remove()
+                }
+                let updatedPost = await fetch('/post/getPost/'+postId)
+                let r = await updatedPost.json()
+                let post = ''
+                post += `<p>${r.description}</p>`
+                post += await makeFileDownloadPost(r.resources)
+ 
+       
+
+       
+        contentSection.innerHTML = post
+         removePreviewForRawFile()
+
+    }
+}
 
 
 window.onload =  createPostsForSearch
@@ -2149,7 +2258,7 @@ async function createPostsForSearch(){
         </div>
         </div>`
             let user = await checkPostOwnerOrAdmin(p.id)
-            if(user === 'ADMIN' || user === 'OWNER'){
+     
               rows += `<div class="dropdown offset-8">
               <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="fas fa-ellipsis-h "></i>
@@ -2157,15 +2266,16 @@ async function createPostsForSearch(){
             
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
               <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
-  
+              if(user === 'ADMIN' || user === 'OWNER'){
               if(user=== 'OWNER'){
                   rows+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
               }
                 
                  rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>
                 
-                 </li> 
-              </ul>
+                 </li> `}
+
+              rows+=`</ul>
             </div> 
             
             <!-- Modal -->
@@ -2184,7 +2294,7 @@ async function createPostsForSearch(){
 </div>
 </div>
 `
-            }
+            // }
 
             for(file of res){
               if(file.raw !== null){
@@ -2928,6 +3038,8 @@ async function restoreResource(id){
 }
 
 async function getPostDetail(id) {
+    let rawButton = document.getElementById('rawUpdateButton')
+    let resourceButton = document.getElementById('resourceUpdateButton')
     let data = await fetch('/post/getPost/' + id, {
         method: 'GET'
     })
@@ -2935,6 +3047,168 @@ async function getPostDetail(id) {
     console.log(response)
     let div = document.getElementById('editModal')
     console.log(div)
+    if(response.postType === 'RAW'){
+
+        let preview = document.createElement('div');
+        preview.setAttribute('id','update-raw-preview')
+        div.appendChild(preview)
+
+
+        resourceButton.style.display = 'none'
+        rawButton.style.display = 'block'
+
+          let form = document.createElement('form')
+          form.setAttribute('id','updateRawForm')
+
+          const oldRawFile = document.createElement('div')
+          oldRawFile.setAttribute('id','update-raw-old')
+
+          let newFile = document.createElement('input')
+          newFile.setAttribute('type','file')
+          newFile.setAttribute('id','updateRawAddedFiles')
+          newFile.multiple = true
+          newFile.classList.add('form-control','font-monospace','m-2','super-edit-style')
+
+
+          let id = document.createElement('input')
+          id.setAttribute('type','hidden')
+          id.setAttribute('name','postId')
+          id.setAttribute('id','updatePostIdForRaw')
+          id.setAttribute('value',response.id)
+
+          let textArea = document.createElement('textarea')
+          textArea.setAttribute('name','updatePostText')
+          textArea.setAttribute('value',response.description)
+          textArea.classList.add('form-control','font-monospace','m-2','super-edit-style')
+          textArea.textContent = response.description
+
+          const formDiv = document.createElement('div')
+          formDiv.setAttribute('id','rawNewPhotoUploadForm')
+
+          form.appendChild(newFile)
+          form.appendChild(id)
+          form.appendChild(textArea)
+          formDiv.appendChild(form)
+          div.appendChild(formDiv)
+
+          for(r of response.resources){ 
+            const fileName = r.description;
+    
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            previewItem.setAttribute('id','old-raw-file-'+r.id)
+            previewItem.classList.add('card')
+            previewItem.classList.add('shadow') 
+            previewItem.classList.add('d-flex')
+            previewItem.style.width = '300px'
+    
+            const icon = document.createElement('i')
+            icon.classList.add('fa-solid')
+            icon.classList.add('fa-box-archive')
+            icon.classList.add('text-success')
+            icon.classList.add('mx-2')
+    
+            // Display file name
+            const fileNamePara = document.createElement('input');
+            fileNamePara.setAttribute('value',fileName)
+            fileNamePara.setAttribute('id','old-raw-file-caption-'+r.id)
+            fileNamePara.classList.add('font-monospace')
+            fileNamePara.setAttribute('hidden','hidden')
+
+            const nameDiv = document.createElement('div')
+            nameDiv.textContent = fileName
+
+
+            const oldRawFileId  = document.createElement('input')
+            oldRawFileId.setAttribute('id','oldRawFileId')
+            oldRawFileId.setAttribute('value',r.id)
+            oldRawFileId.style.display = 'none'
+
+            const oldRawFileUrl = document.createElement('input')
+            oldRawFileUrl.setAttribute('value',r.raw)
+            oldRawFileUrl.setAttribute('id','old-raw-file-url-'+r.id)
+
+            const trash = document.createElement('i')
+            trash.classList.add('fa-solid','fa-trash')
+
+            const deleteBtn = document.createElement('btn') 
+            deleteBtn.setAttribute('onclick',`deleteRawFileResource(${r.id})`) 
+            deleteBtn.classList.add('btn','btn-danger','font-monospace')
+            deleteBtn.appendChild(trash)
+
+    
+            const mDiv = document.createElement('div')
+            mDiv.classList.add('d-flex')
+            mDiv.style.alignContent = 'center'
+            mDiv.style.alignItems = 'center' 
+    
+            mDiv.appendChild(icon)
+            mDiv.appendChild(nameDiv)
+            mDiv.appendChild(fileNamePara)
+            mDiv.appendChild(oldRawFileId) 
+    
+            previewItem.appendChild(mDiv) 
+            previewItem.appendChild(deleteBtn)
+            oldRawFile.appendChild(previewItem)
+            div.appendChild(previewItem)
+
+            deleteBtn.addEventListener('click',()=>{
+                icon.style.display = 'none'
+                fileNamePara.style.display = 'none'
+                nameDiv.style.display = 'none'
+                deleteBtn.style.display = 'none'
+            })
+
+            newFile.addEventListener('change', function () {
+                console.log('wowowowow')
+
+                preview.innerHTML = '';
+                console.log(preview)
+            
+                const files = document.getElementById('updateRawAddedFiles').files
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const fileName = file.name.toLowerCase();
+            
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.classList.add('card')
+                    previewItem.classList.add('shadow') 
+                    previewItem.classList.add('d-flex')
+                    previewItem.style.width = '300px'
+            
+                    const icon = document.createElement('i')
+                    icon.classList.add('fa-solid')
+                    icon.classList.add('fa-box-archive')
+                    icon.classList.add('text-success')
+                    icon.classList.add('mx-2')
+            
+                    // Display file name
+                    const fileNamePara = document.createElement('p');
+                    fileNamePara.textContent = fileName;
+                    fileNamePara.classList.add('font-monospace')
+            
+                    const mDiv = document.createElement('div')
+                    mDiv.classList.add('d-flex')
+                    mDiv.style.alignContent = 'center'
+                    mDiv.style.alignItems = 'center'
+            
+                    mDiv.appendChild(icon)
+                    mDiv.appendChild(fileNamePara)
+            
+                    previewItem.appendChild(mDiv) 
+            
+            
+            
+                    preview.appendChild(previewItem); 
+                }
+            });
+
+          }
+
+    }else{
+        rawButton.style.display = 'none'
+        resourceButton.style.display = 'block'
     let row = ''
     row += `
   
@@ -2956,27 +3230,29 @@ async function getPostDetail(id) {
    `
     response.resources.forEach((r, index) => {
         row += `
+    <div  class="d-block" class="deletedResource-id" id="deletedResource-${r.id}">
     <div class="d-flex">
     <input type="hidden" id="resourceId" value="${r.id}">
-    <textarea style="border: none; height:50px; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" id="${r.id}-caption" class="form-control font-monospace m-2" name="captionOfResource">${r.description}</textarea>`
+    <textarea style="border: none; width:150px; height:70px; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);"id="${r.id}-caption" class="form-control font-monospace m-2" name="captionOfResource">${r.description}</textarea>`
         if (r.video === null) {
             row += `
-        <img  style="width:100px; border-radius:20px; height:100px;" alt="deleted"  id="${r.id}-url" value="${r.photo}" src ="${r.photo}">
-        <button class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button>
-        <button class="btn btn-success font-monospace m-2 hidden" onclick = "restoreResource(${r.id})">Restore</button>
+        <img  style="width:100px; border-radius:10px; height:100px; height:100px;" alt="deleted"  id="${r.id}-url" value="${r.photo}" src ="${r.photo}">
+        <button style="width:60px; height:30px; border-radius:10px; font-size:11px;" class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button> 
         `
         }
         if (r.photo === null) {
             row += `
-        <video style="width:100px; border-radius:20px;  height:100px;" alt="deleted" id="${r.id}-url" value="${r.video}" controls src="${r.video}"></video>
-        <button class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button>
+        <video style="width:100px; border-radius:10px; height:100px; height:100px;" alt="deleted" id="${r.id}-url" value="${r.video}" controls src="${r.video}"></video>
+        <button style="width:60px; height:30px; border-radius:10px; font-size:11px;" class="btn btn-danger font-monospace m-2"  onclick="deleteResource(${r.id})">Delete</button> 
         `
         }
 
-
+        row+=`</div>
+        </div>`
     })
 
     row += `
+    
     </div>
      
     `
@@ -2987,6 +3263,7 @@ async function getPostDetail(id) {
     updateFiles.addEventListener('change', async function () {
         console.log('here here')
         const preview = document.getElementById('updatePreview');
+        preview.classList.add('d-block') 
         preview.innerHTML = '';
         const files = document.getElementById('updateAddedFiles').files;
         for (let i = 0; i < files.length; i++) {
@@ -3006,6 +3283,8 @@ async function getPostDetail(id) {
                         img.src = event.target.result;
                         img.style.maxWidth = '100px';
                         img.style.maxHeight = '100px';
+                        img.style.borderRadius = '10px'
+                        img.style.marginRight = '5px'
                         previewItem.appendChild(img);
                         preview.classList.add('form-control')
                     };
@@ -3015,20 +3294,30 @@ async function getPostDetail(id) {
                     video.src = URL.createObjectURL(file);
                     video.style.maxWidth = '100px';
                     video.style.maxHeight = '100px';
+                    video.style.borderRadius = '10px'
+                    video.style.marginRight = '5px'
                     video.controls = true;
                     previewItem.appendChild(video);
                     preview.classList.add('form-control')
                 }
 
                 // Create caption input
-                const captionInput = document.createElement('input');
+                const captionInput = document.createElement('textarea');
                 captionInput.classList.add('form-control')
                 captionInput.type = 'text';
+                captionInput.style.width = '200px'
+                captionInput.style.height = '70px'
                 captionInput.placeholder = 'Enter caption';
-                captionInput.name = `updateCaption-${i}`;
+                captionInput.setAttribute('id',`updateCaption-${i}`)
 
-                preview.appendChild(previewItem);
-                preview.appendChild(captionInput);
+                const pDiv = document.createElement('div')
+                pDiv.classList.add('d-flex')
+                pDiv.style.marginLeft = '20px'
+                pDiv.style.marginBottom = '10px'
+                pDiv.appendChild(previewItem)
+                pDiv.appendChild(captionInput)
+
+                preview.appendChild(pDiv); 
             } else {
                 alert('Invalid file type. Please select a JPG, JPEG or PNG file.');
                 document.getElementById('updateAddedFiles').value = '';
@@ -3037,7 +3326,52 @@ async function getPostDetail(id) {
 
         }
     })
+
 }
+}
+
+document.getElementById('raw').addEventListener('change', function () {
+    const preview = document.getElementById('raw-preview');
+    preview.innerHTML = '';
+
+    const files = this.files;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileName = file.name.toLowerCase();
+
+        const previewItem = document.createElement('div');
+        previewItem.className = 'preview-item';
+        previewItem.classList.add('card')
+        previewItem.classList.add('shadow') 
+        previewItem.classList.add('d-flex')
+        previewItem.style.width = '300px'
+
+        const icon = document.createElement('i')
+        icon.classList.add('fa-solid')
+        icon.classList.add('fa-box-archive')
+        icon.classList.add('text-success')
+        icon.classList.add('mx-2')
+
+        // Display file name
+        const fileNamePara = document.createElement('p');
+        fileNamePara.textContent = fileName;
+        fileNamePara.classList.add('font-monospace')
+
+        const mDiv = document.createElement('div')
+        mDiv.classList.add('d-flex')
+        mDiv.style.alignContent = 'center'
+        mDiv.style.alignItems = 'center'
+
+        mDiv.appendChild(icon)
+        mDiv.appendChild(fileNamePara)
+
+        previewItem.appendChild(mDiv) 
+
+
+
+        preview.appendChild(previewItem);
+    }
+});
 
 async function getUpdateData() { 
     let updateResourcesDtos = []
@@ -3074,7 +3408,7 @@ async function getUpdateData() {
     let captions = []
     for (let i = 0; i < newFiles.length; i++) {
         data.append('files', newFiles[i])
-        const captionInput = document.querySelector(`input[name="updateCaption-${i}"]`);
+        const captionInput = document.getElementById(`updateCaption-${i}`)
         if (captionInput) {
             captions.push(captionInput.value + '');
         } else {

@@ -13,6 +13,62 @@ let logOutModalBox = new bootstrap.Modal(document.getElementById('logOutModalBox
 
 window.onload = welcome;
 
+ 
+
+document.getElementById('pollMultipartFile').addEventListener('change', function(event) {
+    console.log('wow this is changing')
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewContainer = document.getElementById('previewContainerForPollPhoto');
+            while(previewContainer.firstChild){
+                previewContainer.removeChild(previewContainer.firstChild)
+            }
+            const div = document.createElement('div')
+            div.classList.add('super-container')
+
+            const image = document.createElement('img')
+            image.classList.add('super-image-video')
+
+            div.appendChild(image)
+            
+            image.src = e.target.result
+
+            previewContainer.appendChild(div)
+            // previewContainer.innerHTML = `<img src="${e.target.result}" alt="Image Preview" class="super-image-video">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('eventPhotoFile').addEventListener('change', function(event) {
+    console.log('wow this is changing')
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewContainer = document.getElementById('previewContainerForEventPhoto');
+            while(previewContainer.firstChild){
+                previewContainer.removeChild(previewContainer.firstChild)
+            }
+            const div = document.createElement('div')
+            div.classList.add('super-container')
+
+            const image = document.createElement('img')
+            image.classList.add('super-image-video')
+
+            div.appendChild(image)
+            
+            image.src = e.target.result
+
+            previewContainer.appendChild(div)
+            // previewContainer.innerHTML = `<img src="${e.target.result}" alt="Image Preview" class="super-image-video">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
 const deleteRawFileResource = (id) => {
     let element = document.getElementById('old-raw-file-'+id)
     element.classList.add('deleted-raw-file')
@@ -20,19 +76,14 @@ const deleteRawFileResource = (id) => {
 }
 
 const removePreviewForRawFile = () => {
-    let parent = document.getElementById('update-raw-old')
-    let preview = document.getElementById('update-raw-preview')
-    let div = document.getElementById('rawNewPhotoUploadForm')
-    while(parent.firstChild){
-        parent.removeChild(parent.firstChild)
-    }
-    while(preview.firstChild){
-        preview.removeChild(preview.firstChild)
-    }
-    while(div.firstChild){
-        div.removeChild(div.firstChild)
-    }
+    let parent = document.getElementById('editModal') 
+    parent.innerHTML = '' 
  
+}
+
+const removePreviewForPostUpdate = () => {
+    let parent = document.getElementById('editModal') 
+    parent.innerHTML = '' 
 }
 
 const getUpdateDataForRaw = async () => { 
@@ -954,7 +1005,7 @@ async function welcome() {
           </div>
           </div>`
               let user = await checkPostOwnerOrAdmin(p.id)
-              if(user === 'ADMIN' || user === 'OWNER'){
+            //   if(user === 'ADMIN' || user === 'OWNER'){
                 post += `<div class="dropdown offset-8">
                 <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                       <i class="fas fa-ellipsis-h "></i>
@@ -962,14 +1013,14 @@ async function welcome() {
               
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                 <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
-    
+                if(user === 'ADMIN' || user === 'OWNER'){
                 if(user=== 'OWNER'){
                     post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
                 }
                   
-                   post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>
-                  
-                   </li> 
+                   post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>`
+            }
+                   post+=`</li> 
                 </ul>
               </div> 
               
@@ -989,7 +1040,7 @@ async function welcome() {
   </div>
 </div>
 `
-              }
+            //   }
 
               for(file of res){
                 if(file.raw !== null){
@@ -1748,18 +1799,26 @@ async function getPostDetail(id) {
     console.log(div)
     if(response.postType === 'RAW'){
 
+        let preview = document.createElement('div');
+        preview.setAttribute('id','update-raw-preview')
+        div.appendChild(preview)
+
 
         resourceButton.style.display = 'none'
+        rawButton.style.display = 'block'
 
           let form = document.createElement('form')
           form.setAttribute('id','updateRawForm')
 
-          const oldRawFile = document.getElementById('update-raw-old')
+          const oldRawFile = document.createElement('div')
+          oldRawFile.setAttribute('id','update-raw-old')
 
           let newFile = document.createElement('input')
           newFile.setAttribute('type','file')
           newFile.setAttribute('id','updateRawAddedFiles')
           newFile.multiple = true
+          newFile.classList.add('form-control','font-monospace','m-2','super-edit-style')
+
 
           let id = document.createElement('input')
           id.setAttribute('type','hidden')
@@ -1770,6 +1829,7 @@ async function getPostDetail(id) {
           let textArea = document.createElement('textarea')
           textArea.setAttribute('name','updatePostText')
           textArea.setAttribute('value',response.description)
+          textArea.classList.add('form-control','font-monospace','m-2','super-edit-style')
           textArea.textContent = response.description
 
           const formDiv = document.createElement('div')
@@ -1818,9 +1878,13 @@ async function getPostDetail(id) {
             oldRawFileUrl.setAttribute('value',r.raw)
             oldRawFileUrl.setAttribute('id','old-raw-file-url-'+r.id)
 
-            const deleteBtn = document.createElement('btn')
-            deleteBtn.textContent = 'delete'
+            const trash = document.createElement('i')
+            trash.classList.add('fa-solid','fa-trash')
+
+            const deleteBtn = document.createElement('btn') 
             deleteBtn.setAttribute('onclick',`deleteRawFileResource(${r.id})`) 
+            deleteBtn.classList.add('btn','btn-danger','font-monospace')
+            deleteBtn.appendChild(trash)
 
     
             const mDiv = document.createElement('div')
@@ -1831,21 +1895,23 @@ async function getPostDetail(id) {
             mDiv.appendChild(icon)
             mDiv.appendChild(nameDiv)
             mDiv.appendChild(fileNamePara)
-            mDiv.appendChild(oldRawFileId)
-            mDiv.appendChild(deleteBtn)
+            mDiv.appendChild(oldRawFileId) 
     
             previewItem.appendChild(mDiv) 
+            previewItem.appendChild(deleteBtn)
             oldRawFile.appendChild(previewItem)
+            div.appendChild(previewItem)
 
             deleteBtn.addEventListener('click',()=>{
                 icon.style.display = 'none'
                 fileNamePara.style.display = 'none'
-                
+                nameDiv.style.display = 'none'
+                deleteBtn.style.display = 'none'
             })
 
             newFile.addEventListener('change', function () {
                 console.log('wowowowow')
-                const preview = document.getElementById('update-raw-preview');
+
                 preview.innerHTML = '';
                 console.log(preview)
             
@@ -1884,7 +1950,7 @@ async function getPostDetail(id) {
             
             
             
-                    preview.appendChild(previewItem);
+                    preview.appendChild(previewItem); 
                 }
             });
 
@@ -1892,6 +1958,7 @@ async function getPostDetail(id) {
 
     }else{
         rawButton.style.display = 'none'
+        resourceButton.style.display = 'block'
     let row = ''
     row += `
   
@@ -1913,7 +1980,7 @@ async function getPostDetail(id) {
    `
     response.resources.forEach((r, index) => {
         row += `
-    <div  class="d-block" id="deletedResource-${r.id}">
+    <div  class="d-block" class="deletedResource-id" id="deletedResource-${r.id}">
     <div class="d-flex">
     <input type="hidden" id="resourceId" value="${r.id}">
     <textarea style="border: none; width:150px; height:70px; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);"id="${r.id}-caption" class="form-control font-monospace m-2" name="captionOfResource">${r.description}</textarea>`
@@ -1991,7 +2058,7 @@ async function getPostDetail(id) {
                 captionInput.style.width = '200px'
                 captionInput.style.height = '70px'
                 captionInput.placeholder = 'Enter caption';
-                captionInput.name = `updateCaption-${i}`;
+                captionInput.setAttribute('id',`updateCaption-${i}`)
 
                 const pDiv = document.createElement('div')
                 pDiv.classList.add('d-flex')
@@ -2056,7 +2123,8 @@ async function getUpdateData() {
     let captions = []
     for (let i = 0; i < newFiles.length; i++) {
         data.append('files', newFiles[i])
-        const captionInput = document.querySelector(`input[name="updateCaption-${i}"]`);
+        const captionInput = document.getElementById(`updateCaption-${i}`)
+        console.log(captionInput)
         if (captionInput) {
             captions.push(captionInput.value + '');
         } else {
@@ -2064,6 +2132,7 @@ async function getUpdateData() {
         }
     }
     data.append('captions', captions);
+    console.log(captions)
     console.log(Object.fromEntries(data.entries()).postId+'---------------------')
     let firstResponse = await fetch('/post/firstUpdate', {
         method: 'POST',
@@ -2150,7 +2219,7 @@ async function getUpdateData() {
                         }
                         if (one !== null  ) {
                             post+= `
-    <div class="d-flex" style="margin-left:65px;"> 
+    <div class="d-flex" style="margin-left:120px;"> 
     <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:400px; border-radius : 15px; max-height:500px;   height: auto; width: auto;" alt="">${oneCloseTag}
     </div>
     `
@@ -2184,7 +2253,7 @@ async function getUpdateData() {
                         }
                         if (one !== null && two !== null  ) {
                             post+= `
-    <div class="d-flex" style="margin-left:120px;" > 
+    <div class="d-flex" style="margin-left:60px;" > 
     <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px;  height: auto; width: auto;" alt="">${oneCloseTag}
     <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:200px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
     </div> `
@@ -2229,12 +2298,12 @@ async function getUpdateData() {
                         }
                         if (one !== null && two !== null && three !== null  ) {
                             post+= `
-    <div class="d-flex" style="margin-left:10px;"> 
-    <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
-    <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
+    <div class="d-flex" style="margin-left:60px;"> 
+    <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
+    <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
     </div>
-    <div class="d-flex" style="margin-left:10px;"> 
-    <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:250px; border-radius : 12px; max-height:200px; margin-left:127px; height: auto; width: auto;" alt="">${threeCloseTag}
+    <div class="d-flex" style="margin-left:50px;"> 
+    <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin-left:127px; height: auto; width: auto;" alt="">${threeCloseTag}
     </div>`
                         }
                     })
@@ -2373,15 +2442,15 @@ async function getUpdateData() {
                         if (one !== null && two !== null && three !== null && four !== null && five !== null && six === null) {
     
                             post+= `
-      <div class="d-flex" style="margin-left:10px;"> 
+      <div class="d-flex" style="margin-left:60px;"> 
       <${oneTag} id="myVideo" ${oneControlAttr} src="${one}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${oneCloseTag}
       <${twoTag} id="myVideo" ${twoControlAttr} src="${two}" class="img-fluid " style="max-width:250px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${twoCloseTag}
       </div>
-      <div class="d-flex" style="margin-left:10px;"> 
-      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${threeCloseTag}
-      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fourCloseTag}
+      <div class="d-flex" style="margin-left:65px;"> 
+      <${threeTag} id="myVideo" ${threeControlAttr} src="${three}" class="img-fluid " style="max-width:130px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${threeCloseTag}
+      <${fourTag} id="myVideo" ${fourControlAttr} src="${four}" class="img-fluid " style="max-width:130px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fourCloseTag}
       <div style="position: relative; display: inline-block;" >
-      <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="max-width:166px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fiveCloseTag}
+      <${fiveTag} id="myVideo" ${fiveControlAttr} src="${five}" class="img-fluid" style="max-width:130px; border-radius : 15px; max-height:200px; margin:2px; height: auto; width: auto;" alt="">${fiveCloseTag}
       <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${text}</div>
       </div>
       </div>`
@@ -2453,6 +2522,7 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
 
         ParentDetailModal.innerHTML = mod
         contentSection.innerHTML = post
+        removePreviewForPostUpdate()
 
     }
 }
@@ -6630,6 +6700,7 @@ const getCommunityFromUserGroup = async (userGroupId,userId) => {
 }
 
 
+ 
 
 
 
@@ -6644,4 +6715,4 @@ document.getElementById('rawSend').addEventListener('click',createARawFilePost()
 
 
 
- 
+
