@@ -127,7 +127,6 @@ const getUpdateDataForRaw = async () => {
 
 
 
-
 const clockRawFileIcon = async () => {
     document.getElementById('raw').click()
 }

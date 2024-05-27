@@ -587,8 +587,8 @@
 <div class="modal fade" id="backgroundModal" tabindex="-1" aria-labelledby="backgroundModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="backgroundModalLabel">Choose a background</h5>
+            <div class="modal-header" style="background-color: #007bff">
+                <h5 class="modal-title" id="backgroundModalLabel" style="color: white">Choose a background</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -724,15 +724,15 @@
     }
 
     // Call the function to set the background image when the page is loaded with userId
-    window.onload = function () {
-        const userIdInput = document.getElementById('userId1');
-        if (userIdInput) {
-            const userId = userIdInput.value;
-            setBackgroundImageFromLocalStorage(userId);
-        } else {
-            console.error('User id not found');
-        }
-    };
+    // window.onload = function () {
+    //     const userIdInput = document.getElementById('userId1');
+    //     if (userIdInput) {
+    //         const userId = userIdInput.value;
+    //         setBackgroundImageFromLocalStorage(userId);
+    //     } else {
+    //         console.error('User id not found');
+    //     }
+    // };
 
     document.getElementById('seeMoreBtn').addEventListener('click', function () {
         const moreUserInfo = document.getElementById('moreUserInfo');
@@ -816,6 +816,7 @@
                     console.error('User id not found');
                 }
                 $('#backgroundModal').modal('hide');
+                document.getElementById('backgroundForm').reset();
             } else {
                 console.error('Failed to upload image:', response.statusText);
                 document.getElementById('fileError').innerText = 'Failed to upload image';

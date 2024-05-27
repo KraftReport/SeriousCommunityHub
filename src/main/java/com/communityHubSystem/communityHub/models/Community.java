@@ -27,11 +27,18 @@ public class Community implements Serializable {
     private Date date;
     private String ownerName;
     private String description;
+    @Enumerated(EnumType.STRING)
+    private GroupAccess groupAccess;
+
 //    @Lob
 //    @Column(name="image",columnDefinition = "LONGBLOB")
     private String image;
     @Transient
     private MultipartFile file;
+
+    public enum GroupAccess{
+        PRIVATE,PUBLIC;
+    }
 
     @Transient
     private ArrayList<Long> user;

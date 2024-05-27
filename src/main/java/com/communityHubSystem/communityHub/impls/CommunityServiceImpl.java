@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.impls;
 
+import com.communityHubSystem.communityHub.dto.GroupAccessChangeDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.*;
@@ -61,6 +62,7 @@ public class CommunityServiceImpl implements CommunityService {
         Community com = communityRepository.save(community);
         User_Group user_group = new User_Group();
         user_group.setUser(user);
+        user_group.setDate(new Date());
         user_group.setCommunity(com);
         user_groupRepository.save(user_group);
 
@@ -150,7 +152,14 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public List<String> getOwnerNamesByCommunityId(Long communityId) {
         List<User_Group> userGroups = user_groupRepository.findByCommunityId(communityId);
-        return userGroups.stream().map(userGroup -> userGroup.getUser().getName()).collect(Collectors.toList());
+        List<User> users = new ArrayList<>();
+        for(User_Group user_group:userGroups){
+            var user = userRepository.findById(user_group.getUser().getId()).orElseThrow(() -> new CommunityHubException("User not found exception!"));
+            if(!user.getRole().equals(User.Role.ADMIN)){
+                users.add(user);
+            }
+        }
+        return users.stream().map(User::getName).collect(Collectors.toList());
     }
 
     @Transactional
@@ -161,6 +170,7 @@ public class CommunityServiceImpl implements CommunityService {
                 var user = userRepository.findById(u_id).orElseThrow(() -> new CommunityHubException("User  not found exception!"));
                 var isExisted = communityRepository.findByIdAndOwnerName(community.getId(),user.getName().trim());
                 if(isExisted != null){
+                    System.out.println("A SIN PYAE TAL");
                     isExisted.setOwnerName("ANONYMOUS");
                     communityRepository.save(isExisted);
                 }
@@ -253,6 +263,38 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public Community findByIdAndOwnerName(Long id, String name) {
         return communityRepository.findByIdAndOwnerName(id,name);
+    }
+
+    @Transactional
+    @Override
+    public void svgOwner(Long communityId, Long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new CommunityHubException("User not found!"));
+
+        var community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new CommunityHubException("Community not found!"));
+
+        community.setOwnerName(user.getName());
+        communityRepository.save(community);
+    }
+
+    @Transactional
+    @Override
+    public void changeAccess(GroupAccessChangeDto groupAccessChangeDto) {
+        communityRepository.findById(groupAccessChangeDto.getCommunityId()).ifPresentOrElse(community -> {
+            Community.GroupAccess newAccess = groupAccessChangeDto.getGroupAccess() == Community.GroupAccess.PUBLIC
+                    ? Community.GroupAccess.PRIVATE
+                    : Community.GroupAccess.PUBLIC;
+            community.setGroupAccess(newAccess);
+            communityRepository.save(community);
+        }, () -> {
+            throw new CommunityHubException("Community not found with id: " + groupAccessChangeDto.getCommunityId());
+        });
+    }
+
+    @Override
+    public Community findById(Long id) {
+        return communityRepository.findById(id).orElseThrow(() -> new CommunityHubException("Community not found exception!"));
     }
 
 

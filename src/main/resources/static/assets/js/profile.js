@@ -27,7 +27,14 @@ window.addEventListener('scroll', async () => {
 
 window.onload = async () => {
     console.log('wow this js file is working :-P')
-    await getPosts()
+    await getPosts();
+    const userIdInput = document.getElementById('userId1');
+    if (userIdInput) {
+        const userId = userIdInput.value;
+        setBackgroundImageFromLocalStorage(userId);
+    } else {
+        console.error('User id not found');
+    }
 }
 
 const downloadFile = async (event, url, fileName) => {

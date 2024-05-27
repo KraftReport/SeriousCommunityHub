@@ -3,11 +3,12 @@
 <head th:replace="~{index::head}">
     <title>Create Community</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
 </head>
 <body>
 <div th:replace="~{index::header}"></div>
 <div th:replace="~{index::navbar}"></div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 <main id="main" class="main">
     <div class="container mt-5">
         <span id="message"></span>
@@ -43,6 +44,15 @@
                                 <input type="text" class="form-control" id="description" name="description">
                                 <span id="descriptionError" class="text-danger"></span>
                             </div>
+
+                            <div class="form-group">
+                                <label for="description">Access:<i class="fa-solid fa-lock"></i></label>
+                                <select name="groupAccess" id="groupAccessForCommunity" class="form-select">
+                                    <option  value="PUBLIC" selected>PUBLIC</option>
+                                    <option value="PRIVATE">PRIVATE</option>
+                                </select>
+                            </div>
+
                             <div class="form-group">
                                 <label for="file">Image:</label>
                                 <input type="file" class="form-control" accept="image/**" id="file" name="file"
@@ -115,11 +125,10 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-
                     <div class="modal-body">
                         <form id="kickForm">
                             <div class="row mb-4">
-                                <label>Member's List:</label><br>
+                                <label style="font-weight: bold;font-family: bootstrap-icons;font-size: 20px">Member's List:</label><br>
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" id="userSearchForKick" placeholder="Search users.." style="margin-left: 329px">
                                     <div id="userList"></div>
@@ -137,9 +146,74 @@
         </div>
     </div>
 </main>
+
+
+<div class="modal fade" id="staticBackdropForChangeAccess" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"  style="background-color: #007bff">
+                <h5 class="modal-title" id="staticBackdropLabelForChangeAccess" style="color: white">Change Access:</h5>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="groupId" name="communityId">
+              <input type="hidden" id="changeAccess" name="groupAccess">
+                <div id="changeAccessWords"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="changeAccessCloseBtn">Close</button>
+                <button type="button" class="btn btn-outline-success" id="changeAccessSubmitBtn">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Button trigger modal -->
+
+<!-- Delete Community Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Group</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this group?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete" onclick="deleteConfirmed()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdropForAddOwner" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabelAddOwner"><i class="fa-solid fa-user-tie"></i>Choose a group admin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="idForCommunity">
+                <input type="text" placeholder="search..." class="form-control" id="searchForAddGroupOwner" style="width: 150px;margin: 10px 10px 10px 315px;">
+                <select name="status" id="statusForAddOwner" class="form-select">
+
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="addOwnerCloseBtn" >Close</button>
+                <button type="button" class="btn btn-primary" id="addOwnerSubmitBtn">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!--<div th:replace="~{index::footer}"></div>-->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://kit.fontawesome.com/e2397b357b.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -288,13 +362,20 @@ const insertGroup = async () => {
         const communityCardsContainer = document.getElementById('communityCards');
         let cardsHtml = '';
         const currentUser = await getCurrentUser();
-
         for (let i = 0; i < communities.length; i++) {
             const community = communities[i];
             let photo = '';
             if (community.image) {
                 photo = `<img src="${community.image}" alt="Group's Photo" width="100" height="100">`;
             }
+            let lockButton = document.createElement('i');
+            if (community.groupAccess === 'PUBLIC') {
+                lockButton.classList.add('fa-solid', 'fa-lock-open');
+            } else {
+                lockButton.classList.add('fa-solid', 'fa-lock');
+            }
+            const lockButtonHtml = lockButton.outerHTML;
+            const isAnonymous = community.ownerName === 'ANONYMOUS';
             const ownerNames = await fetchOwnerNames(community.id);
             const isNotCurrentUserOwner = currentUser.name !== community.ownerName && currentUser.role === 'USER';
             const isNotAdmin= currentUser.role !== 'ADMIN';
@@ -322,11 +403,14 @@ const insertGroup = async () => {
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="dropdown-item" onclick="goToCommunityDetail(${community.id})">View Detail</a>
                         <a class="dropdown-item" href="#" ${isNotCurrentUserOwner ? 'hidden' : ''} onclick="populateKickGroupForm(${community.id})">Kick a Member</a>
-                        <a class="dropdown-item" href="#" ${isNotAdmin ? 'hidden' : ''} onclick="deleteCommunity(${community.id})">Delete the Group</a>
+<a class="dropdown-item" href="#" ${isNotAdmin ? 'hidden' : ''}  onclick="showConfirmationModal(${community.id})">Delete the Group</a>
+                        <a class="dropdown-item" href="#" ${isAnonymous && !isNotAdmin ? '' : 'hidden'} onclick="showAddGroupOwner(${community.id})">Add Group Admin</a>
+                        <a class="dropdown-item" href="#" ${isNotCurrentUserOwner ? 'hidden' : ''}  onclick="changeStatusForGroup('${community.id}','${community.groupAccess}')">${lockButtonHtml}Change Access</a>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary chat-button" onclick="goToChatRoom(${community.id})"><i class="fa fa-comments"></i></button>
-               <button type="button" class="btn btn-success add-button" ${isNotCurrentUserOwner ? 'hidden' : ''} onclick="populateCreateGroupForm(${community.id}, \'${community.name}\', \'${community.ownerName}\', \'${community.description}\', \'${community.image}\')"><i class="fa fa-factory"></i></button>
+
+                                <button type="button" class="btn btn-primary chat-button" onclick="goToChatRoom(${community.id})"><i class="fa fa-comments"></i></button>
+               <button type="button" class="btn btn-success add-button" ${isNotCurrentUserOwner ? 'hidden' : ''}  onclick="populateCreateGroupForm(${community.id}, \'${community.name}\', \'${community.ownerName}\', \'${community.description}\', \'${community.image}\')"><i class="fa fa-factory"></i></button>
             </div>
         </div>
     `;
@@ -345,9 +429,161 @@ const insertGroup = async () => {
         }
     };
 
+    const getUserListWithoutAdmin = async () => {
+        const data = await fetch(`/api/community/getActiveUsersForAdd`);
+        const res = await data.json();
+        return res;
+    }
+
+const showAddGroupOwner = async (id) => {
+    const users = await getUserListWithoutAdmin();
+    const selectElement = document.getElementById('statusForAddOwner');
+    const searchInput = document.getElementById('searchForAddGroupOwner');
+    document.getElementById('idForCommunity').value = id;
+
+    const populateSelect = (users) => {
+        selectElement.innerHTML = '';
+        users.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.text = user.name;
+            selectElement.add(option);
+        });
+    };
+    populateSelect(users);
+    searchInput.addEventListener('input', () => {
+        const searchQuery = searchInput.value.toLowerCase();
+        const filteredUsers = users.filter(user => user.name.toLowerCase().includes(searchQuery));
+        populateSelect(filteredUsers);
+    });
+
+    $('#staticBackdropForAddOwner').modal('show');
+}
+
+document.getElementById('addOwnerSubmitBtn').addEventListener('click', async () => {
+    const communityValue = document.getElementById('idForCommunity').value;
+    const selectedUser = document.getElementById('statusForAddOwner').value;
+    const myObj = {
+        communityId:communityValue,
+        userId:selectedUser
+    }
+
+    const data = await fetch(`/api/community/add-groupAdmin`,{
+        method:'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body:JSON.stringify(myObj)
+    });
+    if(!data.ok){
+        alert("something wrong please try again!");
+    }else{
+        const res = await data.json();
+        let alertMessage = `${res.message}`;
+        let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
 
 
-    const getUsersByCommunityId = async (id) => {
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function () {
+            styledAlert.style.display = 'none';
+        }, 3000);
+        await fetchCommunities();
+        $('#staticBackdropForAddOwner').modal('hide');
+    }
+});
+
+const changeStatusForGroup = async (id,access) => {
+ document.getElementById('groupId').value = id;
+ document.getElementById('changeAccess').value = access;
+ const pElement = document.getElementById('changeAccessWords');
+ pElement.style.fontSize = '20px';
+ pElement.style.fontWeight = 'bold';
+  let isPrivate;
+  if(access === 'PUBLIC'){
+      isPrivate = 'PRIVATE';
+  }else{
+      isPrivate = 'PUBLIC';
+  }
+  pElement.innerHTML = `Are you sure want to change this group to <span><strong style="font-style: italic;color: red">${isPrivate}</strong></span> group...`;
+  $('#staticBackdropForChangeAccess').modal('show');
+}
+
+document.getElementById('changeAccessSubmitBtn').addEventListener('click', async () => {
+   const cmtId =  document.getElementById('groupId').value;
+    const access = document.getElementById('changeAccess').value;
+    const myObj = {
+       communityId:cmtId,
+       groupAccess:access
+   };
+   const data =  await fetch(`/api/community/change-access-group`,{
+       method:'POST',
+       headers: {
+           'Content-Type': 'application/json',
+       },
+       body:JSON.stringify(myObj)
+   });
+   if(!data.ok){
+       alert('something wrong please try again!');
+   }else{
+       const res = await data.json();
+       let alertMessage = `${res.message}`;
+       let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+       let styledAlert = document.createElement('div');
+       styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+       styledAlert.innerHTML = alertMessage;
+
+
+       document.body.appendChild(styledAlert);
+
+
+       styledAlert.style.display = 'block';
+
+       setTimeout(function () {
+           styledAlert.style.display = 'none';
+       }, 3000);
+       await fetchCommunities();
+       $('#staticBackdropForChangeAccess').modal('hide');
+   }
+});
+
+const getUsersByCommunityId = async (id) => {
         const url = `/api/community/user/${id}`;
         const data = await fetch(url);
         if (data.ok) {
@@ -431,6 +667,12 @@ const insertGroup = async () => {
             nameSpan.classList.add('user-list-span')
             nameSpan.textContent = user.name;
 
+            const br = document.createElement('br');
+
+            const deptSpan = document.createElement('span');
+            deptSpan.classList.add('user-list-span')
+            deptSpan.textContent = `(${user.dept})`;
+
             const checkboxInput = document.createElement('input');
             checkboxInput.type = "checkbox";
             checkboxInput.id = `_checkbox${user.id}`;
@@ -450,10 +692,10 @@ const insertGroup = async () => {
             tickMarkDiv.className = `tick_mark`;
 
             checkboxLabel.appendChild(tickMarkDiv);
-            userContainer.appendChild(photoSpan);
             container.appendChild(photoSpan);
-            userContainer.appendChild(nameSpan);
             container.appendChild(nameSpan);
+            container.appendChild(br);
+            container.appendChild(deptSpan);
             userContainer.appendChild(container);
             userContainer.appendChild(checkboxInput);
             userContainer.appendChild(checkboxLabel);
@@ -560,19 +802,61 @@ const insertGroup = async () => {
     });
 
 
-    const deleteCommunity = async (communityId) => {
-        const url = `/api/community/delete/${communityId}`;
-        const cancelUser = await fetch(url, {
-            method: 'DELETE'
-        });
+let communityIdToDelete;
 
-        if (!cancelUser.ok) {
-            alert('DELETE error');
-        }
-        await fetchCommunities();
+const showConfirmationModal = (communityId) => {
+    communityIdToDelete = communityId;
+    $('#confirmationModal').modal('show');
+}
 
+const deleteConfirmed = async () => {
+    if (communityIdToDelete) {
+        await deleteCommunity(communityIdToDelete);
+        $('#confirmationModal').modal('hide');
     }
+}
 
+const deleteCommunity = async (communityId) => {
+    const url = `/api/community/delete/${communityId}`;
+    const cancelUser = await fetch(url, {
+        method: 'DELETE'
+    });
+
+    if (!cancelUser.ok) {
+        alert('DELETE error');
+    }
+    let alertMessage = `Delete successful!`;
+    let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+    let styledAlert = document.createElement('div');
+    styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+    styledAlert.innerHTML = alertMessage;
+
+
+    document.body.appendChild(styledAlert);
+
+
+    styledAlert.style.display = 'block';
+
+    setTimeout(function () {
+        styledAlert.style.display = 'none';
+    }, 3000);
+    await fetchCommunities();
+}
     let currentCommunityID;
 
     document.getElementById('userSearchForKick').addEventListener('input', function() {
@@ -619,8 +903,13 @@ const insertGroup = async () => {
 
                 const photoSpan = document.createElement('span');
                 const nameSpan = document.createElement('span');
+                const deptSpan = document.createElement('span');
                 nameSpan.classList.add('kick-user-list-member');
                 nameSpan.textContent = user.name;
+
+                const br = document.createElement('br');
+                deptSpan.classList.add('kick-user-list-member');
+                deptSpan.textContent = `(${user.dept})`;
 
                 if (user.photo) {
                     const photoImg = document.createElement('img');
@@ -650,8 +939,9 @@ const insertGroup = async () => {
 
                 nestedDiv.appendChild(photoSpan);
                 nestedDiv.appendChild(nameSpan);
+                nestedDiv.appendChild(br);
+                nestedDiv.appendChild(deptSpan);
                 label.appendChild(tickMarkDiv);
-
                 userDiv.appendChild(nestedDiv);
                 userDiv.appendChild(checkbox);
                 userDiv.appendChild(label);
@@ -672,7 +962,10 @@ const insertGroup = async () => {
 
                 const photoSpan = document.createElement('span');
                 const nameSpan = document.createElement('span');
+                const deptSpan = document.createElement('span');
                 nameSpan.textContent = user.name;
+                const br = document.createElement('br');
+                deptSpan.textContent = `(${user.dept})`;
 
                 if (user.photo) {
                     const photoImg = document.createElement('img');
@@ -706,8 +999,9 @@ const insertGroup = async () => {
 
                 nestedDiv.appendChild(photoSpan);
                 nestedDiv.appendChild(nameSpan);
+                nestedDiv.appendChild(br);
+                nestedDiv.appendChild(deptSpan);
                 label.appendChild(tickMarkDiv);
-
                 userDiv.appendChild(nestedDiv);
                 userDiv.appendChild(checkbox);
                 userDiv.appendChild(label);
@@ -805,6 +1099,14 @@ const insertGroup = async () => {
     document.getElementById('kickModalCloseBtn').addEventListener('click', function() {
         $('#kickModal').modal('hide');
     });
+
+document.getElementById('addOwnerCloseBtn').addEventListener('click', function() {
+    $('#staticBackdropForAddOwner').modal('hide');
+});
+
+document.getElementById('changeAccessCloseBtn').addEventListener('click', function() {
+    $('#staticBackdropForChangeAccess').modal('hide');
+});
 
     const goToChatRoom = (id) => {
         localStorage.setItem('chatRoomIdForGroup', id);
