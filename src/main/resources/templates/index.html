@@ -389,7 +389,7 @@
                         </li>
 
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="#" onclick="logOutFunction()">
+                            <a class="dropdown-item d-flex align-items-center" onclick="logOutFunction()">
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Log Out</span>
                             </a>
@@ -461,9 +461,10 @@
             </li><!-- End Record Page Nav -->
 
             <li class="nav-item">
+                <a class="nav-link collapsed">
                     <i class="bi bi-dash-circle"></i>
                     <span onclick="logOutFunction()">Log Out</span>
-                <!-- </a> -->
+                </a>
             </li>
         </ul>
 
@@ -514,7 +515,7 @@
 
            </div>
 
-            <label id="labelForRawFile" onclick="clickRawFileIcon()" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
+            <label id="labelForRawFile" onclick="clockRawFileIcon()" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
             <input style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "  type="file" name="raw" id="raw" multiple>
 
 

@@ -34,7 +34,6 @@
 <div th:replace="~{index::header}"></div>
 <div th:replace="~{index::navbar}"></div>
 <main id="main" class="main">
-    <script src="/static/assets/js/profile.js"></script>
     <section class="h-100 gradient-custom-2">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
@@ -568,7 +567,7 @@
                         <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
                         <script src="/static/assets/js/skill.js" defer></script>
                     </div>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="updateBtn" style="margin-left: 680px;">Update</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="updateBtn" style="margin-left: 680px;">Update</button>
                 </form>
             </div>
         </div>
@@ -788,7 +787,19 @@
         </div>
     </div>
 </div>
-<script src="/static/assets/js/profile.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
 <script>
     // Function to save the selected image URL to local storage with userId
     function saveSelectedImageToLocalStorage(userId, imageUrl) {
@@ -1087,6 +1098,7 @@
         const updateBtn = document.getElementById('updateBtn');
 
         updateBtn.addEventListener('click', function () {
+            console.log("upadte button clicked")
             const phoneNumber = $('#phone').val();
             const gender = $('#gender').val();
 
@@ -1226,22 +1238,9 @@
         });
         return html;
     }
-
-
 </script>
-
+<script src="/static/assets/js/profile.js"></script>
 <div th:replace="~{index::footer}"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
 </body>
 </html>
 
