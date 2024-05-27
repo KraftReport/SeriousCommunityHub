@@ -238,7 +238,7 @@ const deleteAllAccessLog = async () =>{
         alert("Something wrong,Please try again later!")
     }else{
         let userTableForAccessLog = document.querySelector('#userAccessLogTable tbody');
-         userTableForAccessLog.innerHTML = '';
+        userTableForAccessLog.innerHTML = '';
         console.log("HEllo a sin pyae tr pot");
     }
 

@@ -187,4 +187,23 @@ public class PageController {
     public String goToRecordListPage(){
         return "/layout/user-record";
     }
+
+    @GetMapping("/validateEmail")
+    @ResponseBody
+    public Map<String, Object> validateEmail(@RequestParam String staffId, @RequestParam String email) {
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        Map<String, Object> response = new HashMap<>();
+        boolean exists = optionalUser.isPresent();
+        response.put("exists", exists);
+
+        if (exists) {
+            User user = optionalUser.get();
+            boolean emailMatches = email.equals(user.getEmail());
+            response.put("emailMatches", emailMatches);
+            if (!emailMatches) {
+                response.put("errorMessage", "The provided email doesn't exist in the system.");
+            }
+        }
+        return response;
+    }
 }

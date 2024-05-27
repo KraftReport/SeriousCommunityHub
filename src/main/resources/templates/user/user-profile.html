@@ -34,7 +34,6 @@
 <div th:replace="~{index::header}"></div>
 <div th:replace="~{index::navbar}"></div>
 <main id="main" class="main">
-    <script src="/static/assets/js/profile.js"></script>
     <section class="h-100 gradient-custom-2">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
@@ -48,7 +47,7 @@
                             <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px;">
                                 <img id="profile-photo" src="/assets/img/default-logo.png" alt="Profile"
                                      class="img-fluid img-thumbnail mt-4 mb-2 profile-photo"
-                                     style="width: 150px; z-index: 1; border-radius: 20px;"
+                                     style="width: 150px; z-index: 1; border-radius: 20px;min-height: 160px;"
                                      th:if="${user.photo == null}" onclick="chooseFile()"/>
                                 <form id="photoForm">
                                     <input class="form-control" type="file" name="file" id="file-input"
@@ -56,11 +55,10 @@
                                 </form>
                                 <img id="profile-photo-exist" th:unless="${user.photo == null}" th:src="${user.photo}"
                                      alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2 profile-photo"
-                                     style="width: 150px; z-index: 1; border-radius: 20px;" onclick="chooseFile()"/>
+                                     style="width: 150px; z-index: 1; border-radius: 20px; min-height: 160px;" onclick="chooseFile()"/>
                                 <button id="edit-photo-btn" type="button" class="btn btn-outline-dark edit-button"
-                                        data-mdb-ripple-color="dark" style="z-index: 1;">Edit Profile
+                                        data-mdb-ripple-color="dark" style="z-index: 1">Edit Profile
                                 </button>
-                                Edit profile
                             </div>
                             <div class="ms-3" style="margin-top: 130px;">
                                 <h5 th:text="${user.name}">Name</h5>
@@ -70,25 +68,13 @@
                         <div class="p-4 text-black" style="background-color: #f8f9fa;">
                             <div class="d-flex justify-content-end text-center py-1">
                                 <div>
-                                    <p class="mb-1 h5" th:text="${user.posts.size()}">253</p>
-                                    <p class="small text-muted mb-0">Posts</p>
-                                </div>
-                                <div class="px-3">
-                                    <p class="mb-1 h5">1026</p>
-                                    <p class="small text-muted mb-0">Images</p>
-                                </div>
-                                <div>
-                                    <p class="mb-1 h5">478</p>
-                                    <p class="small text-muted mb-0">Videos</p>
-                                </div>
-                                <div>
                                     <p class="mb-1 h5"><i class="fa-solid fa-circle-info" data-bs-toggle="modal" data-bs-target="#userAccessLogStaticBox" onclick="getAccessLogData()"></i></p>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body p-4 text-black">
                             <div class="mb-5">
-                                <p class="lead fw-normal mb-1">About</p>
+                                <p class="lead fw-normal mb-1" style="margin-top: 60px;">About</p>
                                 <div class="p-4" style="background-color: #f8f9fa;">
                                     <p class="font-italic mb-1">
                                         <strong>Date of Birth:</strong> <span
@@ -103,7 +89,8 @@
                                     <p class="font-italic mb-1">
                                         <strong>Gender:</strong> <span th:text="${user.gender}?: 'Not provided'"></span>
                                     </p>
-                                    <button id="seeMoreBtn" class="btn btn-link">See more...</button>
+                                    <button id="seeMoreBtn" class="btn btn-link" style="margin-left: -18px; text-decoration: none; color: black;">See more...</button>
+                                    <br>
                                     <div id="moreUserInfo" style="display: none;">
                                         <p class="font-italic mb-1">
                                             <strong>Department:</strong> <span
@@ -119,8 +106,18 @@
                                         <p class="font-italic mb-1">
                                             <strong>Role:</strong> <span th:text="${user.role}?: 'Not provided'"></span>
                                         </p>
+                                        <p class="font-italic mb-1" >
+                                            <strong>Skills:</strong>
+                                            <div th:each="userSkill : ${userSkills}">
+                                                <span th:text="${userSkill.skill.name}">Skill Name</span>
+                                                <span th:text="${userSkill.experience}" style="margin-left: 100px" >Experience</span><span> years</span>
+                                            </div>
+                                        </p>
+                                        <strong>Hobbies:</strong>
+                                        <div id="hobbiesContainer"></div>
                                     </div>
                                 </div>
+                                <div id="parentLoginUserProfileDiv" ></div>
                             </div>
                         </div>
                     </div>
@@ -128,12 +125,6 @@
             </div>
         </div>
 
-        <div>
-            <div id="parentLoginUserProfileDiv" style="margin-left: 100px;">
-    
-    
-            </div>
-        </div>
     </section>
 
 
@@ -164,7 +155,7 @@
 <!-- edit offcanvas end  -->
 
 
-<div class="modal fade" id="editModalForProfile" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -179,7 +170,6 @@
                         <input type="text" id="phone" name="phone" class="form-control" placeholder="Phone"
                                th:value="${user.phone}">
                     </div>
-
                     <div th:if="${user.hobby}">
                         <div id="hobbyChangeForm">
                             <div class="mb-3">
@@ -577,13 +567,106 @@
                         <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill</button>
                         <script src="/static/assets/js/skill.js" defer></script>
                     </div>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="updateBtn" style="margin-left: 680px;">Update</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="updateBtn" style="margin-left: 680px;">Update</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #007bff; color: white;">
+                <h5 class="modal-title" id="uploadExcelModalLabel">Upload Excel File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm">
+                    <div class="mb-3">
+                        <label for="fileInput" class="form-label">Select Excel file</label>
+                        <input class="form-control" type="file" id="fileInput" name="file" accept=".xlsx, .xls">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="uploadButton">Upload</button>
+            </div>
+        </div>
+        <script src="/static/assets/js/excelUpload.js"></script>
+    </div>
+</div>
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">Success</h5>
+            </div>
+            <div class="modal-body">
+                <p>Data upload into the database successfully.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="changePasswordModal" class="modal fade" tabindex="-1">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/modals.css}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password:</label>
+                    <div class="input-group">
+                        <input type="password" id="currentPassword" name="currentPassword" required class="form-control">
+                        <button id="checkPasswordBtn" class="btn btn-primary">Check</button>
+                    </div>
+                </div>
+                <div id="changePasswordFields">
+                    <div class="form-group">
+                        <label for="changePassword">New Password:</label>
+                        <input type="password" id="changePassword" name="changePassword" required class="form-control">
+                        <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmChangePassword">Confirm Password:</label>
+                        <input type="password" id="confirmChangePassword" name="confirmChangePassword" required class="form-control">
+                        <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not match.</div>
+                    </div>
+                    <div class="button-group">
+                        <button id="restartBtn" class="btn btn-secondary">Restart</button>
+                        <button id="saveBtn" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/assets/js/changePassword.js" defer></script>
+<div class="modal fade" id="calendarModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel1">Calendar...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="calendar">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="backgroundModal" tabindex="-1" aria-labelledby="backgroundModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -699,17 +782,25 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
-<!--  accessLogModal box end-->
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
-<div th:replace="~{index::footer}"></div>
 <script>
-
     // Function to save the selected image URL to local storage with userId
     function saveSelectedImageToLocalStorage(userId, imageUrl) {
         localStorage.setItem('selectedImage' + userId, imageUrl);
@@ -750,7 +841,7 @@
     });
     // Add a click event listener to the edit photo button to show the modal
     const editPhotoBtn = document.getElementById('edit-photo-btn');
-    const profileForm = document.getElementById('editModalForProfile');
+    const profileForm = document.getElementById('editProfileModal');
     if (editPhotoBtn && profileForm) {
         editPhotoBtn.addEventListener('click', function (event) {
             event.stopPropagation(); // Prevent click event from propagating to parent elements
@@ -1008,6 +1099,7 @@
         const updateBtn = document.getElementById('updateBtn');
 
         updateBtn.addEventListener('click', function () {
+            console.log("upadte button clicked")
             const phoneNumber = $('#phone').val();
             const gender = $('#gender').val();
 
@@ -1093,10 +1185,63 @@
             $('#editModal').modal('hide');
         });
     });
+    const hobbyIcons = {
+        "Reading": "<i class='fas fa-book' style='color: #4a86e8;'></i>",
+        "Hiking": "<i class='fas fa-hiking' style='color: #f6b26b;'></i>",
+        "Cooking": "<i class='fas fa-utensils' style='color: #e55039;'></i>",
+        "Gardening": "<i class='fas fa-seedling' style='color: #8bc34a;'></i>",
+        "Writing": "<i class='fas fa-pen' style='color: #673ab7;'></i>",
+        "Photography": "<i class='fas fa-camera' style='color: #9e9e9e;'></i>",
+        "Coding": "<i class='fas fa-laptop-code' style='color: #607d8b;'></i>",
+        "Drawing": "<i class='fas fa-draw-polygon' style='color: #ff9800;'></i>",
+        "Swimming": "<i class='fas fa-swimmer' style='color: #00bcd4;'></i>",
+        "Gaming": "<i class='fas fa-gamepad' style='color: #4caf50;'></i>",
+        "Painting": "<i class='fas fa-paint-brush' style='color: #9c27b0;'></i>",
+        "Traveling": "<i class='fas fa-globe-americas' style='color: #795548;'></i>",
+        "Cycling": "<i class='fas fa-bicycle' style='color: #607d8b;'></i>",
+        "Camping": "<i class='fas fa-campground' style='color: #ff9800;'></i>",
+        "Fishing": "<i class='fas fa-fish' style='color: #00bcd4;'></i>",
+        "Birdwatching": "<i class='fas fa-binoculars' style='color: #4caf50;'></i>",
+        "Meditation": "<i class='fas fa-meditate' style='color: #9c27b0;'></i>",
+        "Music": "<i class='fas fa-music' style='color: #795548;'></i>",
+        "Jogging": "<i class='fas fa-running' style='color: #4a86e8;'></i>",
+        "Sports": "<i class='fas fa-futbol' style='color: #f6b26b;'></i>",
+        "Crafts": "<i class='fas fa-craft' style='color: #e55039;'></i>",
+        "Sewing": "<i class='fas fa-scissors' style='color: #8bc34a;'></i>",
+        "Crochet": "<i class='fas fa-crop' style='color: #673ab7;'></i>",
+        "Acting": "<i class='fas fa-theater-masks' style='color: #9e9e9e;'></i>"
+    };
 
+    fetch('/user/getHobbies')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch user hobbies');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const hobbies = data.hobbies;
+            const hobbiesContainer = document.getElementById("hobbiesContainer");
+            hobbiesContainer.innerHTML = displayHobbiesWithIcons(hobbies);
+        })
+        .catch(error => {
+            console.error('Error fetching user hobbies:', error);
+        });
+    function displayHobbiesWithIcons(hobbiesString) {
+        const hobbies = hobbiesString.split(',');
+        console.log(hobbies+"reach here.")
+        let html = "";
+        hobbies.forEach(hobby => {
+            const icon = hobbyIcons[hobby];
+            if (icon) {
+                html += `<div>${icon} ${hobby}</div>`;
+            }
+        });
+        return html;
+    }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="/static/assets/js/profile.js"></script>
+<div th:replace="~{index::footer}"></div>
 </body>
 </html>
 

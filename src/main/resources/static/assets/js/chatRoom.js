@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const connectingElement = document.querySelector('.connecting');
     const chatAreaForChatRoom = document.querySelector('#chat-messages');
     chatAreaForChatRoom.innerHTML =`<div id="defaultMessage-for-chatRoom" style="margin-top: 50px">
-                           <i class="fa-solid fa-message" style="font-size: 100px; margin-left: 180px;"></i><br>
-                                      <span style="font-size: 50px;">Please select a room you want to chat!</span>
+                           <img src="/static/assets/img/chatroom-bg.gif" alt="login image" class="login__img" 
+                           style="    width: 854px;height: 680px;margin-top: -48px;">
                      </div>`;
     const mentionSuggestions = document.getElementById('mentionSuggestions');
 
@@ -262,8 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
             vdShow.style.display = 'block';
             isSelected.style.display = 'block';
             const inputLine = document.querySelector('.emojionearea.emojionearea-inline ');
-            inputLine.style.height = '40px';
-            inputLine.style.borderRadius = '10px';
+            inputLine.style.height = '50px';
+            inputLine.style.borderRadius = '20px';
             const roomPhoto = await fetchRoomPhoto(selectedRoomId);
             const getSize = await fetchRoomSize(selectedRoomId);
             const photo = roomPhoto.photo || '/static/assets/img/card.jpg';
@@ -351,8 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (urlPattern.test(content) && imageExtensions.test(content)) {
             const messageImage = document.createElement('img');
             messageImage.src = content;
-            messageImage.style.width = '150px';
-            messageImage.style.height = '150px';
+            messageImage.style.width = '400px';
+            messageImage.style.height = '300px';
             messageImage.alt = 'Message Image';
             messageContentContainer.appendChild(messageImage);
         } else if (voiceData) {

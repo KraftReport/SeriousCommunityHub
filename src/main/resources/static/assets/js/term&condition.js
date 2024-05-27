@@ -42,7 +42,7 @@ finishedButton.addEventListener('click', function () {
     const phoneNumber = localStorage.getItem('phoneNumber');
     const dob = localStorage.getItem('dob');
     const gender = localStorage.getItem('gender');
-    const skills = localStorage.getItem('selectedSkills');
+    const skills = localStorage.getItem('Skills');
     const experience = localStorage.getItem('Experience');
 
 
@@ -64,7 +64,6 @@ finishedButton.addEventListener('click', function () {
             console.error('Error saving image:', error);
         });
 
-    // Clear the local storage
     function saveOtherDataAndClearLocalStorage() {
         // Send requests to save password and skills
         Promise.all([
@@ -87,7 +86,8 @@ finishedButton.addEventListener('click', function () {
             .then(data => {
                 console.log('Password saved:', data[0]);
                 console.log('Skills saved:', data[1]);
-               
+
+
             })
             .catch(error => {
                 console.error('Error saving password or skills:', error);
@@ -98,13 +98,14 @@ finishedButton.addEventListener('click', function () {
     });
     finishedModal.show();
     function clearLocalStorage() {
+        console.log("it reach here.")
         localStorage.removeItem('savedPassword');
         localStorage.removeItem('phoneNumber');
         localStorage.removeItem('rawImage');
         localStorage.removeItem('Hobbies');
         localStorage.removeItem('dob');
         localStorage.removeItem('gender');
-        localStorage.removeItem('selectedSkills');
+        localStorage.removeItem('Skills');
         localStorage.removeItem('Experience');
     }
 });

@@ -1,171 +1,143 @@
-const modal = document.getElementById("changePasswordModal");
-const btn = document.getElementById("changePasswordBtn");
-const span = document.getElementsByClassName("close")[0];
-const restartBtn = document.getElementById("restartBtn");
-const saveBtn = document.getElementById("saveBtn");
-const checkPasswordBtn = document.getElementById("checkPasswordBtn");
-const confirmPasswordMessage = document.getElementById('confirmChangePasswordMessage');
-const confirmPasswordInput = document.getElementById('confirmChangePassword');
-const newPasswordInput = document.getElementById('changePassword');
-const newPasswordMessage = document.getElementById('changePasswordMessage');
-document.getElementById("changePasswordFields").style.display ="none";
-document.getElementById("currentPassword").classList.remove('is-invalid');
-document.getElementById("currentPassword").classList.remove('is-valid');
+$(document).ready(function() {
+    const $modal = $("#changePasswordModal");
+    const $btn = $("#changePasswordBtn");
+    const $restartBtn = $("#restartBtn");
+    const $saveBtn = $("#saveBtn");
+    const $checkPasswordBtn = $("#checkPasswordBtn");
+    const $confirmPasswordMessage = $('#confirmChangePasswordMessage');
+    const $confirmPasswordInput = $('#confirmChangePassword');
+    const $newPasswordInput = $('#changePassword');
+    const $newPasswordMessage = $('#changePasswordMessage');
+    const $changePasswordFields = $("#changePasswordFields");
+    const $currentPassword = $("#currentPassword");
 
+    $changePasswordFields.hide();
+    $currentPassword.removeClass('is-invalid is-valid');
 
-btn.onclick = function() {
-    modal.style.display = "block";
-}
+    $btn.on("click", function() {
+        $modal.modal('show');
+    });
 
-span.onclick = function() {
-    modal.style.display = "none";
-    document.getElementById("currentPassword").value = "";
-    document.getElementById("changePassword").value = "";
-    document.getElementById("confirmChangePassword").value = "";
-    document.getElementById("changePasswordFields").style.display ="none";
-    document.getElementById("currentPassword").classList.remove('is-invalid');
-    document.getElementById("currentPassword").classList.remove('is-valid');
-    newPasswordInput.classList.remove('is-invalid');
-    newPasswordInput.classList.remove('is-valid');
-    confirmPasswordInput.classList.remove('is-invalid');
-    confirmPasswordInput.classList.remove('is-valid');
-}
+    $modal.on('hidden.bs.modal', function () {
+        $currentPassword.val('');
+        $newPasswordInput.val('');
+        $confirmPasswordInput.val('');
+        $changePasswordFields.hide();
+        $currentPassword.removeClass('is-invalid is-valid');
+        $newPasswordInput.removeClass('is-invalid is-valid');
+        $confirmPasswordInput.removeClass('is-invalid is-valid');
+    });
 
-restartBtn.onclick = function() {
-    document.getElementById("currentPassword").value = "";
-    document.getElementById("changePassword").value = "";
-    document.getElementById("confirmChangePassword").value = "";
-    document.getElementById("changePasswordFields").style.display ="none";
-    document.getElementById("currentPassword").classList.remove('is-invalid');
-    document.getElementById("currentPassword").classList.remove('is-valid');
-    newPasswordInput.classList.remove('is-invalid');
-    newPasswordInput.classList.remove('is-valid');
-    confirmPasswordInput.classList.remove('is-invalid');
-    confirmPasswordInput.classList.remove('is-valid');
-}
-checkPasswordBtn.onclick = function() {
-    const currentPassword = document.getElementById("currentPassword").value;
-    fetch('/user/checkPassword', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: currentPassword
-    })
-        .then(response => {
-            if (response.ok) {
-                document.getElementById("changePasswordFields").style.display ="block";
-                document.getElementById("currentPassword").classList.remove('is-invalid');
-                document.getElementById("currentPassword").classList.add('is-valid');
-            } else {
-                alert("Incorrect current password. Please try again.");
-                document.getElementById("currentPassword").classList.remove('is-valid');
-                document.getElementById("currentPassword").classList.add('is-invalid');
-            }
+    $restartBtn.on("click", function () {
+        $currentPassword.val('');
+        $newPasswordInput.val('');
+        $confirmPasswordInput.val('');
+        $changePasswordFields.hide();
+        $currentPassword.removeClass('is-invalid is-valid');
+        $newPasswordInput.removeClass('is-invalid is-valid');
+        $confirmPasswordInput.removeClass('is-invalid is-valid');
+    });
+
+    $checkPasswordBtn.on("click", function () {
+        const currentPassword = $currentPassword.val();
+        fetch('/user/checkPassword', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password: currentPassword })
         })
-        .catch(error => {
-            console.error('Error verifying password:', error);
-        });
+            .then(response => {
+                if (response.ok) {
+                    $changePasswordFields.show();
+                    $currentPassword.removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    alert("Incorrect current password. Please try again.");
+                    $currentPassword.removeClass('is-valid').addClass('is-invalid');
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying password:', error);
+            });
+    });
 
     function validatingPassword() {
-        const password = newPasswordInput.value;
-        const HasLowerCase = /[a-z]/.test(password);
-        const HasUpperCase = /[A-Z]/.test(password);
-        const HasNumber = /\d/.test(password);
-        const HasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        const HasEightCharacters = password.length >= 8;
+        const password = $newPasswordInput.val();
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const hasEightCharacters = password.length >= 8;
 
-        if (HasLowerCase && HasUpperCase && HasNumber && HasSpecialChar && HasEightCharacters) {
-            newPasswordInput.classList.remove('is-invalid');
-            newPasswordInput.classList.add('is-valid');
-            newPasswordMessage.style.display = 'none';
+        if (hasLowerCase && hasUpperCase && hasNumber && hasSpecialChar && hasEightCharacters) {
+            $newPasswordInput.removeClass('is-invalid').addClass('is-valid');
+            $newPasswordMessage.hide();
         } else {
-            newPasswordInput.classList.remove('is-valid');
-            newPasswordInput.classList.add('is-invalid');
-            newPasswordMessage.style.display = 'block';
+            $newPasswordInput.removeClass('is-valid').addClass('is-invalid');
+            $newPasswordMessage.show();
         }
 
         // Display password strength message
-        if (HasLowerCase && HasUpperCase && HasNumber && HasEightCharacters) {
-            if (HasSpecialChar) {
-                newPasswordMessage.textContent = 'Your password is strong.';
-                newPasswordMessage.classList.remove('text-danger');
-                newPasswordMessage.classList.add('text-success');
+        if (hasLowerCase && hasUpperCase && hasNumber && hasEightCharacters) {
+            if (hasSpecialChar) {
+                $newPasswordMessage.text('Your password is strong.')
+                    .removeClass('text-danger')
+                    .addClass('text-success');
             } else {
-                newPasswordMessage.textContent = 'Your password is normal.';
-                newPasswordMessage.classList.remove('text-danger');
-                newPasswordMessage.classList.add('text-warning');
+                $newPasswordMessage.text('Your password is normal.')
+                    .removeClass('text-danger')
+                    .addClass('text-warning');
             }
         } else {
-            newPasswordMessage.textContent = 'Your password is weak.';
-            newPasswordMessage.classList.remove('text-success');
-            newPasswordMessage.classList.add('text-danger');
+            $newPasswordMessage.text('Your password is weak.')
+                .removeClass('text-success')
+                .addClass('text-danger');
         }
     }
 
+    function checkPasswordsMatch() {
+        const newPassword = $newPasswordInput.val();
+        const confirmPassword = $confirmPasswordInput.val();
 
-    newPasswordInput.addEventListener('focus', function() {
-        document.getElementById('newPasswordMessage').style.display = 'block';
+        if (newPassword === confirmPassword && newPassword.length > 0) {
+            $confirmPasswordInput.removeClass('is-invalid').addClass('is-valid');
+            $confirmPasswordMessage.hide();
+        } else {
+            $confirmPasswordInput.removeClass('is-valid').addClass('is-invalid');
+            $confirmPasswordMessage.show();
+        }
+    }
+
+    $newPasswordInput.on('focus blur input', function () {
         validatingPassword();
     });
 
-
-    newPasswordInput.addEventListener('blur', function() {
-        validatingPassword();
-    });
-
-
-    newPasswordInput.addEventListener('input', function() {
-        validatingPassword();
-    });
-
-    confirmPasswordInput.addEventListener('input', function() {
+    $confirmPasswordInput.on('input', function () {
         checkPasswordsMatch();
     });
 
-
-    function checkPasswordsMatch() {
-        const newPassword = newPasswordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-
-        if (newPassword === confirmPassword && newPassword.length > 0) {
-            confirmPasswordInput.classList.remove('is-invalid');
-            confirmPasswordInput.classList.add('is-valid');
-            confirmPasswordMessage.style.display = 'none';
-
-        } else {
-            confirmPasswordInput.classList.remove('is-valid');
-            confirmPasswordInput.classList.add('is-invalid');
-            confirmPasswordMessage.style.display = 'block';
-
-        }
-    }
-
-    saveBtn.addEventListener('click', function() {
-        const staffId = localStorage.getItem('staffId');
-        const newPassword = newPasswordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-
-        if (staffId && newPassword && confirmPassword && newPassword === confirmPassword) {
-            fetch('/saveNewPassword', {
+    $saveBtn.on("click", function () {
+        const newPassword = $newPasswordInput.val();
+        const confirmPassword = $confirmPasswordInput.val();
+        console.log("skill is saving.....")
+        if (newPassword && confirmPassword && newPassword === confirmPassword) {
+            fetch('/user/saveNewPassword', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ staffId: staffId, password: newPassword })
+                body: JSON.stringify({ password: newPassword })
             })
                 .then(response => {
                     if (response.ok) {
-                        modal.style.display = "none";
+                        $modal.modal('hide');
                     } else {
-
+                        console.error('Failed to save new password.');
                     }
                 })
                 .catch(error => {
                     console.error('Error saving new password:', error);
                 });
-        } else {
-
         }
     });
-}
+})
