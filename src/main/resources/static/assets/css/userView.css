@@ -69,6 +69,7 @@ body{margin-top:20px;
     transition-duration: 500ms;
     border-radius: 0 0 15px 15px;
     background-color: #ffffff;
+    min-height: 150px;
 }
 .single_advisor_profile .single_advisor_details_info::after {
     -webkit-transition-duration: 500ms;

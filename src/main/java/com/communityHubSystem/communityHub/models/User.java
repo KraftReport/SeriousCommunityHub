@@ -41,10 +41,10 @@ public class User implements Serializable {
     private boolean done;
     private boolean isRemoved;
     private boolean isRejected;
+    private boolean isDeleted;
     private String RemovedReason;
     private String RejectReason;
     private String BannedReason;
-    private boolean isDeleted;
     @Enumerated(EnumType.STRING)
     private Role role;
 

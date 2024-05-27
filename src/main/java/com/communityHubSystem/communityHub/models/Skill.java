@@ -20,8 +20,6 @@ public class Skill implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-
-
     @OneToMany(mappedBy = "skill",cascade = {CascadeType.MERGE,CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<User_Skill> user_skills;

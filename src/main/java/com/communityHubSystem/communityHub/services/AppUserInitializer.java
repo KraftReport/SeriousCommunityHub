@@ -33,6 +33,8 @@ public class AppUserInitializer {
             user.setDone(true);
             user.setDeleted(false);
             user.setStaffId("99-09999");
+            user.setDone(true);
+            user.setDeleted(false);
             userRepository.save(user);
         }
     }

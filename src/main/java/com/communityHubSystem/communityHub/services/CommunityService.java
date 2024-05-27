@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.services;
 
+import com.communityHubSystem.communityHub.dto.GroupAccessChangeDto;
 import com.communityHubSystem.communityHub.models.Community;
 import com.communityHubSystem.communityHub.models.Event;
 import com.communityHubSystem.communityHub.models.Post;
@@ -45,4 +46,10 @@ public interface CommunityService {
 
 
    public Community findByIdAndOwnerName(Long id, String trim);
+
+   public void svgOwner(Long communityId, Long userId);
+
+   public void changeAccess(GroupAccessChangeDto groupAccessChangeDto);
+
+    public Community findById(Long id);
 }

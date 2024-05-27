@@ -10,7 +10,7 @@
     <meta content="" name="keywords">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css"  />
     <link th:href="@{/static/assets/css/policy_modal.css}" type="text/css" rel="stylesheet">
     <!-- Favicons -->
     <link href="/static/assets/img/team-logo.png" rel="icon">
@@ -20,8 +20,8 @@
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
           rel="stylesheet">
-
     <!-- Vendor CSS Files -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -204,7 +204,26 @@
             transform: translateY(-50%);
             max-width: calc(100% - 20px);
         }
+        .skill-box-container {
+            display: flex;
+            flex-wrap: wrap;
+            max-height: 200px; /* Adjust height as needed */
+            overflow-y: auto;
+        }
 
+        .skill-box {
+            flex: 0 0 calc(33.33% - 8px); /* Three skills in a row with some spacing */
+            padding: 8px;
+            margin: 4px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            box-sizing: border-box; /* Ensure padding and border are included in the width */
+        }
+
+        .skill-box:hover {
+            background-color: #f0f0f0;
+        }
         @media (min-width: 576px) {
             #userAccessLogStaticBox .modal-dialog {
                 max-width: 450px;
@@ -236,7 +255,9 @@
         <div class="d-flex align-items-center justify-content-between">
             <a th:href="@{/index}" class="logo d-flex align-items-center">
                 <img src="/static/assets/img/DAT-logo.png" alt="">
-                <span class="d-none d-lg-block">System-Admin</span>
+                <span class="d-none d-lg-block"  sec:authorize="hasAnyAuthority('ADMIN')">System-Admin</span>
+                <span class="d-none d-lg-block"  sec:authorize="hasAnyAuthority('USER')">Community-Hub</span>
+                <span class="d-none d-lg-block"  sec:authorize="hasAnyAuthority('DEFAULT_USER')">Community-Hub</span>
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->
@@ -264,47 +285,19 @@
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown"
+                    <a class="nav-link nav-icon" href="#" data-bs-toggle="modal" data-bs-target="#uploadExcelModal"
                        sec:authorize="hasAnyAuthority('ADMIN')">
                         <i class="bi bi-file-earmark-spreadsheet"></i>
                     </a><!-- End Excel Icon -->
 
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-                        <li class="dropdown-header">
-                            Import Excel File
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
 
-                        <li class="message-item">
-                            <a href="#">
-                                <div>
-                                    <form id="uploadForm" enctype="multipart/form-data">
-                                        <input type="file" id="fileInput" accept=".xlsx, .xls">
-                                        <br><br>
-                                        <button type="button" id="uploadButton">Upload</button>
-                                    </form>
-                                    <script src="/static/assets/js/excelUpload.js"></script>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li class="dropdown-footer">
-                            <a href="#">Close</a>
-                        </li>
-
-                    </ul><!-- End Messages Dropdown Items -->
                 </li>
                 <li class="nav-item dropdown">
 
                     <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" id="notiCountDecrease">
                         <i class="bi bi-bell"></i>
                         <span class="badge bg-primary badge-number" id="notiCount"></span>
-                    </a><!-- End Notification Icon -->
+                    </a>
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
                         <li class="dropdown-header">
@@ -317,11 +310,7 @@
                         </li>
 
                         <li class="notification-item">
-                            <!--                            <i class="bi bi-exclamation-circle text-warning"></i>-->
                             <div id="notifyMessage">
-                                <!--                            <h4>Lorem Ipsum</h4>-->
-                                <!--                            <p>Quae dolorem earum veritatis oditseno</p>-->
-                                <!--                            <p>30 min. ago</p>-->
                             </div>
                         </li>
 
@@ -351,9 +340,9 @@
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                        <img id="session-user-photo" src="/static/assets/img/default-logo.png" alt="Profile" class="rounded-circle"
+                        <img id="session-user-photo" src="/static/assets/img/default-logo.png" alt="Profile"
                              th:unless="${session.user.photo}"/>
-                        <img id="session-user-photo-exist" th:src="${session.user.photo}" th:if="${session.user.photo}" alt="Profile" class="rounded-circle"/>
+                        <img id="session-user-photo-exist" th:src="${session.user.photo}" th:if="${session.user.photo}" alt="Profile"/>
                         <!--                        <img th:unless="${session.user.photo == null}" th:src="${session.user.photo}" alt="Profile" class="rounded-circle" />-->
                         <span class="d-none d-md-block dropdown-toggle ps-2" th:text="${session.user.name}">Name</span>
                     </a><!-- End Profile Iamge Icon -->
@@ -367,7 +356,7 @@
                             <hr class="dropdown-divider">
                         </li>
 
-                        <li  >
+                        <li>
                             <a class="dropdown-item d-flex align-items-center" th:href="@{/user/profile}">
                                 <i class="bi bi-person"></i>
                                 <span>My Profile</span>
@@ -376,9 +365,8 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-
                         <li>
-                            <a class="dropdown-item d-flex align-items-center" href="/user/profile">
+                            <a class="dropdown-item d-flex align-items-center" id="changePasswordBtn">
                                 <i class="bi bi-gear"></i>
                                 <span>Change Password</span>
                             </a>
@@ -388,7 +376,7 @@
                         </li>
 
                         <li sec:authorize="hasAnyAuthority('ADMIN')">
-                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton">
+                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton" data-bs-toggle="modal" data-bs-target="#addPolicyModal">
                                 <i class="bi bi-body-text"></i>
                                 <span>Add Policy</span>
                             </a>
@@ -396,25 +384,17 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="pages-faq.html">
-                                <i class="bi bi-question-circle"></i>
-                                <span>Need Help?</span>
-                            </a>
-                        </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
 
                         <li>
-                            <div class="dropdown-item d-flex align-items-center" onclick="logOutFunction()">
+                            <a class="dropdown-item d-flex align-items-center" onclick="logOutFunction()">
                                 <i class="bi bi-box-arrow-right"></i>
-                                <span>Sign Out</span>
-                            </div>
+                                <span>Log Out</span>
+                            </a>
                         </li>
-
-                    </ul><!-- End Profile Dropdown Items -->
+                    </ul>
                 </li><!-- End Profile Nav -->
 
             </ul>
@@ -426,130 +406,15 @@
 <div th:fragment="navbar">
     <!-- ======= Sidebar ======= -->
     <aside id="sidebar" class="sidebar">
-
         <ul class="sidebar-nav" id="sidebar-nav">
 
             <li class="nav-item">
-                <a class="nav-link " th:href="@{/index}">
+                <a class="nav-link" th:href="@{/index}">
                     <i class="bi bi-grid"></i>
                     <span>Dashboard</span>
                 </a>
             </li><!-- End Dashboard Nav -->
 
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-menu-button-wide"></i><span>Data</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a th:href="@{/user/View-all-users}">
-                            <i class="bi bi-circle"></i><span>Employee</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a th:href="@{/api/community/group}">
-                            <i class="bi bi-circle"></i><span>Group</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a th:href="@{/user/chat-room}">
-                            <i class="bi bi-circle"></i><span>Chat</span>
-                        </a>
-                    </li>
-                </ul>
-            </li><!-- End Components Nav -->
-
-            <!--<li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-journal-text"></i><span>Forms</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="forms-elements.html">
-                            <i class="bi bi-circle"></i><span>Form Elements</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="forms-layouts.html">
-                            <i class="bi bi-circle"></i><span>Form Layouts</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="forms-editors.html">
-                            <i class="bi bi-circle"></i><span>Form Editors</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="forms-validation.html">
-                            <i class="bi bi-circle"></i><span>Form Validation</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>&lt;!&ndash; End Forms Nav &ndash;&gt;-->
-
-            <!--<li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-layout-text-window-reverse"></i><span>Tables</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="tables-general.html">
-                            <i class="bi bi-circle"></i><span>General Tables</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="tables-data.html">
-                            <i class="bi bi-circle"></i><span>Data Tables</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>&lt;!&ndash; End Tables Nav &ndash;&gt;-->
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-bar-chart"></i><span>Charts</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a th:href="@{/record-list}">
-                            <i class="bi bi-circle"></i><span>record</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="charts-apexcharts.html">
-                            <i class="bi bi-circle"></i><span>ApexCharts</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="charts-echarts.html">
-                            <i class="bi bi-circle"></i><span>ECharts</span>
-                        </a>
-                    </li>
-                </ul>
-            </li><!-- End Charts Nav -->
-
-            <!--<li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-gem"></i><span>Icons</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="icons-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a href="icons-bootstrap.html">
-                            <i class="bi bi-circle"></i><span>Bootstrap Icons</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="icons-remix.html">
-                            <i class="bi bi-circle"></i><span>Remix Icons</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="icons-boxicons.html">
-                            <i class="bi bi-circle"></i><span>Boxicons</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>&lt;!&ndash; End Icons Nav &ndash;&gt;-->
 
             <li class="nav-heading">Pages</li>
 
@@ -561,32 +426,53 @@
             </li><!-- End Profile Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed" href="pages-faq.html">
-                    <i class="bi bi-question-circle"></i>
-                    <span>F.A.Q</span>
-                </a>
-            </li><!-- End F.A.Q Page Nav -->
-
-            <li class="nav-item">
                 <a class="nav-link collapsed" th:href="@{/user/policy}">
                     <i class="bi bi-question-circle"></i>
-                    <span>Term&Condition</span>
+                    <span>Term & Condition</span>
                 </a>
             </li><!-- End Contact Page Nav -->
+
             <li class="nav-item">
+                <a class="nav-link collapsed" th:href="@{/user/View-all-users}">
+                    <i class="bi bi-people"></i>
+                    <span>Employee</span>
+                </a>
+            </li><!-- End Employee Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" th:href="@{/api/community/group}">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Group</span>
+                </a>
+            </li><!-- End Group Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" th:href="@{/user/chat-room}">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Chat</span>
+                </a>
+            </li><!-- End Chat Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" th:href="@{/record-list}">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Record</span>
+                </a>
+            </li><!-- End Record Page Nav -->
+
+            <li class="nav-item">
+                <a class="nav-link collapsed">
                     <i class="bi bi-dash-circle"></i>
                     <span onclick="logOutFunction()">Log Out</span>
-                <!-- </a> -->
+                </a>
             </li>
-
-
         </ul>
-        
+
         <!-- logout modal box start  -->
 
 
- 
-  
+
+
   <!-- Modal -->
 
 
@@ -599,7 +485,7 @@
 
     <div class="modal fade" id="logOutModalBox" tabindex="-1" aria-labelledby="logOutModalBox" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content"> 
+          <div class="modal-content">
             <div class="modal-body font-monospace">
               Are you sure to logout from current account ?
            <div class="d-flex">
@@ -607,7 +493,7 @@
               <a class="nav-link collapsed" style="text-decoration: none;" onclick="clearLocalStorage()" th:href="@{/logout}"><button class="btn btn-danger"><i class="fa-solid fa-check"></i></button></a>
            </div>
             </div>
-           
+
           </div>
         </div>
       </div>
@@ -621,15 +507,15 @@
         </div>
         <div class="offcanvas-body">
          <form id="rawForm">
-        
+
            <div>
             <label for="rawDescription" class="font-monospace m-2">Title <i class="fa-regular fa-clipboard"></i></label>
-           
+
                 <textarea style=" border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); height: 80px; width: 200px; "  class="font-monospace m-2" type="text" name="content" id="content"></textarea>
-           
+
            </div>
 
-            <label id="labelForRawFile" onclick="clickRawFileIcon()" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
+            <label id="labelForRawFile" onclick="clockRawFileIcon()" for="rawFile" class="font-monospace m-2">File <i class="fa-solid fa-file-import"></i></label>
             <input style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "  type="file" name="raw" id="raw" multiple>
 
 
@@ -653,7 +539,7 @@
 
 
 
-<!-- 
+<!--
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Backdroped with scrolling</h5>
@@ -667,7 +553,7 @@
 
       <!-- <div class="button-container">
         <button id="mainButton" onclick="MainButtonClick()">Click Me</button>
-       
+
     </div> -->
 
 
@@ -688,14 +574,14 @@
         outline: none;"   class="btn btn-secondary dropdown-toggle font-monospace" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
          <i class="fa-regular fa-square-plus"></i> Create 
         </button>
-        
+
 
     </div> -->
-      
 
 
 
-<!-- 
+
+<!--
 <div style="left:400px;" id="createBoxDropDown" class="dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     <div id="action-btn"  style="   left:300px; width:400px; height:100px; background-color: #62bdf1;
     border:none;
@@ -711,7 +597,7 @@
     border-radius: 20px; /* Adjust as needed */
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3); /* Adjust as needed */
     outline: none;" >
-        <div id="hammer-icon"><i class="fa-regular fa-square-plus"></i> Create </div> 
+        <div id="hammer-icon"><i class="fa-regular fa-square-plus"></i> Create </div>
     <div class="d-flex my-2 ">
 
     </div>
@@ -723,63 +609,13 @@
     <li></li>
     <li></li>
 </ul> -->
-  
+
     <button id="mainButton" class="createIcon offset-10 m-1"  onclick="mainButtonClick()" >
         <i id="pen" class="fa-solid fa-marker text-white"></i>
         <div id="divForCreation" class="popup-buttons">
- 
+
         </div>
     </button>
-
-
-
-    <!-- <div class="modal fade" id="eventCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Event</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="eventForm">
-                        <label for="title">Enter Event Title</label>
-                        <input type="text" class="form-control" name="title" id="title">
-                        <label for="description">Enter Event Description</label>
-                        <textarea class="form-control quill-editor-default" style="height: 100px" name="description" id="description" ></textarea>
-                        <label for="start_date">Enter start date</label>
-                        <input type="date" class="form-control" name="start_date" id="start_date">
-                        <label for="end_date">Enter end date</label>
-                        <input type="date" class="form-control" name="end_date" id="end_date">
-                        <input type="text" name="eventType" id="eventType" value="EVENT" hidden>
-                        <label for="event_location" >Enter event location</label>
-                        <input type="text" class="form-control" name="location" id="location" >
-                        <label for="multipartFile">Enter Event Photo</label>
-                        <input type="file" name="multipartFile" class="form-control" id="multipartFile" >
-
-                        <div class="row mb-3">
-                            <label class="col-sm-2 col-form-label">Select</label>
-                            <div class="col-sm-10" >
-                                <select class="form-select" id="groupSelect2" name="groupId" aria-label="Default select example">
-
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="modal" data-bs-toggle="modal"    >POST</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
-
- 
-
-
-    <!-- post create offcanvas start  -->
-
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="postMaker" aria-labelledby="postMaker">
 
 
@@ -849,15 +685,18 @@
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" onclick="removePreviewForPostUpdate()" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-           
+
                    <div class="modal-body" id="editModal">
-                       
+                       ...
+                   </div>
+                       <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+
 
                     <div id="update-raw-old"></div>
 
                     <div id="update-raw-preview"></div>
 
-                   </div>  
+                   </div>
                        <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
                        data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
                        </button>
@@ -865,17 +704,10 @@
                        <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
                        data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
                        </button>
-                
+
            </div>
        </div>
-   
-   
-   
-    
 
-   
-        </div>
-      </div>
 
 
 
@@ -890,7 +722,7 @@
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
- 
+
                             <form id="eventForm" class="font-monospace">
                                 <label for="title" class="font-monospace m-2">Title <i class="fa-solid fa-sign-hanging"></i></label>
                                 <input type="text" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control m-2 font-monospace" name="title" id="eventtitle">
@@ -911,22 +743,23 @@
 
                                 <label id="labelForEventPhoto" for="multipartFile" class="font-monospace m-2">Photo <i class="fa-solid fa-camera"></i></label>
                                 <input type="file" style="display: none;" name="multipartFile" class="form-control" id="eventPhotoFile" >
-        
+
                                 <div class="row mb-3">
                                     <label class=" font-monospace">Commuinty <i class="fa-solid fa-users"></i></label>
                                     <div class="col-sm-10" >
                                         <select class="form-select font-monospace" id="groupSelect2" name="groupId" aria-label="Default select example">
-        
+
                                         </select>
                                     </div>
                                 </div>
 
+
                                 <div id="previewContainerForEventPhoto"></div>
-                                
+
                                     <button id="eventCreateBtn" style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="offcanvas"  aria-label="Close" >POST</button>
-                                
+
                             </form>
-                  
+
         </div>
       </div>
 
@@ -945,14 +778,14 @@
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            
+
                         <div class="modal-body" id="eventEditModal">
-        
+
                         </div>
-        
-                    
-               
-          
+
+
+
+
         </div>
       </div>
 
@@ -967,7 +800,7 @@
           <h5 class="offcanvas-title" id="pollMaker">Create Poll</h5>
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body"> 
+        <div class="offcanvas-body">
                     <form id="pollForm">
                         <label for="title" class="font-monospace m-2">Title <i class="fa-solid fa-sign-hanging"></i></label>
                         <input type="text" style="border: none; border-radius: 10px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5);" class="form-control m-2 font-monospace" name="title" id="pollTitle">
@@ -1001,10 +834,10 @@
 
                                 </select>
                             </div>
-                        </div>  
+                        </div>
                         <div id="previewContainerForPollPhoto"></div>
                             <button type="button" style="margin-left: 200px; border-radius: 10px;" class="btn btn-primary" id="pollCreateBtn"  onclick="createAPollPost()"  data-bs-dismiss="offcanvas"  aria-label="Close"  >POST</button>
-                    </form> 
+                    </form>
         </div>
       </div>
 
@@ -1021,84 +854,42 @@
           <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Edit Poll</h5>
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body"> 
+        <div class="offcanvas-body">
                         <div class="modal-body" id="pollEventEditModal">
-        
+
                         </div>
-        
-                   
-                
-            
+
+
+
+
         </div>
       </div>
-
-
-      <!-- poll edit offcanvas end  -->
-
-
-    <!-- <button id="App" class="createIcon offset-10 m-1" data-bs-toggle="modal" data-bs-target="#penIcon">
-        <i id="pen" class="fa-solid fa-marker"></i>
-    </button> -->
-
-
-    <!--    <section class="section dashboard">-->
-    <!--        <div class="row">-->
-
-    <!--            &lt;!&ndash; Left side columns &ndash;&gt;-->
-    <!--            <div class="col-lg-8">-->
-    <!--        <div class="row">-->
-    <!--            <div class="middle-panel">-->
-
-    <!--                <ul class="nav nav-tabs" id="myTab" role="tablist">-->
-    <!--                    <li class="nav-item" role="presentation">-->
-    <!--                        <button class="nav-link active" onclick="welcome(0)" id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#newsfeedTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true">Newsfeed</button>-->
-    <!--                    </li>-->
-    <!--                    <li class="nav-item" role="presentation">-->
-    <!--                        <button class="nav-link" onclick="getAllEventsForPost()" id="events-tab" data-bs-toggle="tab" data-bs-target="#eventsTab" type="button" role="tab" aria-controls="Events" aria-selected="false">Events</button>-->
-    <!--                    </li>-->
-    <!--                    <li class="nav-item" role="presentation">-->
-    <!--                        <button class="nav-link" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>-->
-    <!--                    </li>-->
-    <!--                </ul>-->
-    <!--                <div class="tab-content" id="myTabContent">-->
-    <!--                    <div class="tab-pane fade show active" id="newsfeedTab" role="tabpanel" aria-labelledby="newsfeed-tab">-->
-    <!--                        <div id="newsfeed"  class=""></div>-->
-    <!--                    </div>-->
-    <!--                    <div class="tab-pane fade" id="eventsTab" role="tabpanel" aria-labelledby="events-tab">-->
-    <!--                        <div id="events"  class=""></div>-->
-    <!--                    </div>-->
-    <!--                    <div class="tab-pane fade" id="pollsTab" role="tabpanel" aria-labelledby="polls-tab">-->
-    <!--                        <div id="polls" class="hidden"></div>-->
-    <!--                    </div>-->
-    <!--                </div>-->
-    <!--            </div>-->
-    <!--        </div>-->
-    <!--            </div>-->
-
-
-    <!--            <div class="col-lg-4">-->
-    <!--                <div class="card">-->
-    <!--                    <div class="card-body">-->
-    <!--                        <h5 class="card-title">Recent Activity <span>| Today</span></h5>-->
-
-    <!--                        <div class="activity">-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--      <span>sfdsfdsfdsfdfdsf</span>-->
-    <!--                        </div>-->
-    <!--                    </div>-->
-    <!--                </div>-->
-    <!--            </div>-->
-
-    <!--        </div>-->
-    <!--    </section>-->
     <div class="middle-panel">
 
+
+        <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: #007bff; color: white;">
+                        <h5 class="modal-title" id="uploadExcelModalLabel">Upload Excel File</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="uploadForm">
+                            <div class="mb-3">
+                                <label for="fileInput" class="form-label">Select Excel file</label>
+                                <input class="form-control" type="file" id="fileInput" name="file" accept=".xlsx, .xls">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="uploadButton">Upload</button>
+                    </div>
+                </div>
+                <script src="/static/assets/js/excelUpload.js"></script>
+            </div>
+        </div>
 
         <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel"
              aria-hidden="true">
@@ -1106,9 +897,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="uploadModalLabel">Success</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>
                     <div class="modal-body">
                         <p>Data upload into the database successfully.</p>
@@ -1143,15 +931,6 @@
             </div>
         </div>
     </div>
-    <!--
-        <nav style="--bs-breadcrumb-divider: '>';">
-
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#calendarModalBox" onclick="seeEvents()">See Events</button>
-            <button type="button" class="btn btn-outline-primary" onclick="seePolls()">See Polls</button>
-        </nav> -->
-
-
-    <!-- icon modal box start  -->
 
     <!-- Button trigger modal -->
 
@@ -1186,17 +965,17 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body ">
-                    <button type="button" class="btn btn-primary d-block m-1" 
+                    <button type="button" class="btn btn-primary d-block m-1"
                             data-bs-toggle="modal" data-bs-target="#modalDialogScrollable">
-                        <i class="fa-solid fa-keyboard"></i> Create a post !
+                        <i class="fa-solid fa-keyboard"> Create a post !</i>
                     </button>
                     <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
                              data-bs-target="#eventCreateModal">
-                        <i class="fa-solid fa-calendar"></i> Create a event !
+                        <i class="fa-solid fa-calendar">Create a event !</i>
                     </button>
                     <button type="button" class="btn btn-primary d-block m-1" data-bs-toggle="modal"
                             onclick="getAllUserGroup('3')" data-bs-target="#pollCreateModal">
-                        <i class="fa-solid fa-square-poll-vertical"></i> Create a poll !
+                        <i class="fa-solid fa-square-poll-vertical">Create a poll !</i>
                     </button>
                 </div>
             </div>
@@ -1233,9 +1012,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="removeRoleModalLabel">Removed Admin Role</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
 
@@ -1275,9 +1051,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="successModalLabel">Congratulations!</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <div class="text-center">
@@ -1317,37 +1090,37 @@
             </div>
         </div>
     </div>
-
-
-    <div id="changePasswordModal" class="modal">
-        <link href="/static/assets/css/changePassword.css" rel="stylesheet">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Change Password</h2>
-            <div class="form-group">
-                <label for="currentPassword">Current Password:</label>
-                <div class="input-group">
-                    <input type="password" id="currentPassword" name="currentPassword" required>
-                    <button id="checkPasswordBtn" class="check-btn">Check</button>
+    <div id="changePasswordModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-            <div id="changePasswordFields">
-                <div class="form-group">
-                    <label for="changePassword">New Password:</label>
-                    <input type="password" id="changePassword" name="changePassword" required>
-                    <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password:</label>
+                        <div class="input-group">
+                            <input type="password" id="currentPassword" name="currentPassword" required class="form-control">
+                            <button id="checkPasswordBtn" class="btn btn-primary">Check</button>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="confirmChangePassword">Confirm Password:</label>
-                    <input type="password" id="confirmChangePassword" name="confirmChangePassword" required>
-                    <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not
-                        match.
+                    <div id="changePasswordFields">
+                        <div class="form-group">
+                            <label for="changePassword">New Password:</label>
+                            <input type="password" id="changePassword" name="changePassword" required class="form-control">
+                            <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmChangePassword">Confirm Password:</label>
+                            <input type="password" id="confirmChangePassword" name="confirmChangePassword" required class="form-control">
+                            <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not match.</div>
+                        </div>
+                        <div class="button-group">
+                            <button id="restartBtn" class="btn btn-secondary">Restart</button>
+                            <button id="saveBtn" class="btn btn-primary">Save</button>
+                        </div>
                     </div>
-                </div>
-                <div class="button-group">
-                    <button id="restartBtn">Restart</button>
-                    <button id="saveBtn">Save</button>
                 </div>
             </div>
         </div>
@@ -1378,7 +1151,7 @@
         </div>
     </div> -->
 
-<!-- 
+<!--
     <div class="modal fade" id="pollEventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1397,7 +1170,7 @@
     <!-- end edit modal box  -->
 
     <!-- event edit moddal box start  -->
-<!-- 
+<!--
     <div class="modal fade" id="eventEditModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1445,9 +1218,9 @@
                     </div>
                 </div>
 
-                 
-                    <div class="loader"></div> 
-                 
+
+                    <div class="loader"></div>
+
 
                 <!-- <div id="catBox" class="">
                     <div class="box">
@@ -1473,7 +1246,7 @@
 
 
     
-  
+
     <!-- <div class="modal fade" id="modalDialogScrollable" tabindex="-1" data-bs-backdrop="false">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -1484,7 +1257,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="postForm">
-                        Quill Editor Default  
+                        Quill Editor Default
                         <div class="row mb-3">
                             <label for="inputPassword" class="col-sm-2 col-form-label ">Title</label>
                             <div class="col-sm-10">
@@ -1515,8 +1288,8 @@
                         </div>
                         <div id="preview"></div>
 
-                    </form>  End General Form Elements 
-                      End Quill Editor Default  
+                    </form>  End General Form Elements
+                      End Quill Editor Default
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="removePreview()">
@@ -1561,14 +1334,14 @@
 
     <!-- event create modal box start  -->
 
-   
+
 
 
     <!-- event create modal box end  -->
 
 
     <!-- poll create modal box start -->
-<!-- 
+<!--
     <div class="modal fade" id="pollCreateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1646,17 +1419,6 @@
                             <button type="button" class="btn btn-primary next" style="display: none">Next</button>
                             <script src="/static/assets/js/password.js"></script>
                         </form>
-                    </div>
-                    <div id="photoChangeForm" style="display: none">
-                        <h2>Change Photo</h2>
-                        <form>
-                            <input type="file" id="inputImage" accept="image/*">
-                            <div id="croppedImagePreview" style="display: none;">
-                                <img id="defaultImage" src="/assets/img/default-logo.png" alt="Default image">
-                            </div>
-                            <button type="button" class="btn btn-primary next">Skip</button>
-                        </form>
-                        <script src="/static/assets/js/photoEdit.js"></script>
                     </div>
                     <div id="phoneChangeForm" style="display: none">
                         <h2>Enter your information</h2>
@@ -1865,22 +1627,20 @@
                     </div>
                     <div id="skillChangeForm">
                         <h2>Enter your skills</h2>
+                        <script src="/static/assets/js/accountSetUpSkill.js" defer></script>
                         <form id="skillForm">
-                            <div id="skillsDropdown">
-                                <!-- Skills checkboxes will be rendered here -->
-                            </div>
-                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add New Skill
-                            </button>
+                            <div id="skills" class="mb-3"></div>
+                            <div id="suggestionsSkills" class="suggestion-box"></div>
                             <div id="newSkillInput" style="display: none;">
-                                <input type="text" class="form-control mt-2" placeholder="Enter new skill"
-                                       id="newSkillNameInput">
-                                <input type="text" class="form-control mt-2" placeholder="Experience"
-                                       id="newSkillExperienceInput">
+                                <input type="text" class="form-control mt-2" placeholder="Enter new skill" id="newSkillNameInput">
+                                <input type="text" class="form-control mt-2" placeholder="Experience" id="newSkillExperienceInput">
+                                <button type="button" class="btn btn-primary mt-2" id="addbtn">ADD</button>
                             </div>
-                            <button type="button" class="btn btn-primary next">Next</button>
+                            <button type="button" class="btn btn-primary mt-2" id="addNewSkillBtn">Add Skill</button>
+                            <button type="button" class="btn btn-primary mt-2 next" id="nextBtn">Next</button>
                         </form>
                     </div>
-                    <script src="/assets/js/skill.js" defer></script>
+
                     <div id="term&condition" style="display: none">
                         <h2>Our terms and conditions</h2>
                         <div id="termsContainer" style="overflow-y: scroll; height: 200px;">
@@ -1957,8 +1717,6 @@
             </div>
         </div>
     </div>
-
-
     <div class="modal fade" id="invitationStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
          aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -1997,30 +1755,19 @@
         <script src="/assets/js/congratulation.js"></script>
     </div>
 
-    <div class="custom-modal" id="addPolicyModal">
-        <div class="custom-modal-dialog">
-            <div class="custom-modal-content">
-                <div class="custom-modal-header">
-                    <h5 class="custom-modal-title">Add Policy</h5>
-                    <button type="button" class="custom-modal-close" aria-label="Close">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.7071 1.70711L11.2929 0.292893L7 5.58579L2.70711 0.292893L1.29289 1.70711L5.58579 7L1.29289 12.2929L2.70711 13.7071L7 8.41421L11.2929 13.7071L12.7071 12.2929L8.41421 7L12.7071 1.70711Z"
-                                  fill="#337AB7"></path>
-                        </svg>
-                    </button>
+    <div class="modal fade" id="addPolicyModal" tabindex="-1" aria-labelledby="addPolicyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPolicyModalLabel">Add Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="custom-modal-body">
-                    <!-- Text editor -->
+                <div class="modal-body">
                     <div id="editor"></div>
-                    <!-- Other form elements go here -->
                 </div>
-                <div class="custom-modal-footer">
-                    <button type="button" id="closePolicyBtn" data-dismiss="modal"
-                            class="custom-modal-btn custom-modal-btn-secondary">Close
-                    </button>
-                    <button type="button" id="savePolicyBtn" data-dismiss="modal"
-                            class="custom-modal-btn custom-modal-btn-primary">Add Policy
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="savePolicyBtn" class="btn btn-primary" data-bs-dismiss="modal">Add Policy</button>
                 </div>
             </div>
         </div>
@@ -2112,7 +1859,6 @@
                             });
                             const welcomeContent = document.getElementById('welcome-content');
                             const passwordForm = document.getElementById('passwordChangeForm');
-                            const photoForm = document.getElementById('photoChangeForm');
                             const phoneForm = document.getElementById('phoneChangeForm');
                             const hobbyForm = document.getElementById('hobbyChangeForm');
                             const skillForm = document.getElementById('skillChangeForm');
@@ -2123,7 +1869,6 @@
                             // Function to hide all forms
                             function hideForms() {
                                 passwordForm.style.display = 'none';
-                                photoForm.style.display = 'none';
                                 phoneForm.style.display = 'none';
                                 hobbyForm.style.display = 'none';
                                 skillForm.style.display = 'none';
@@ -2143,17 +1888,14 @@
                                     currentIndex++; // Move to the next form
                                     if (currentIndex === 1) {
                                         hideForms(passwordForm);
-                                        showForm(photoForm);
-                                    } else if (currentIndex === 2) {
-                                        hideForms(photoForm);
                                         showForm(phoneForm);
-                                    } else if (currentIndex === 3) {
+                                    } else if (currentIndex === 2) {
                                         hideForms(phoneForm);
                                         showForm(hobbyForm);
-                                    } else if (currentIndex === 4) {
+                                    } else if (currentIndex === 3) {
                                         hideForms(hobbyForm);
                                         showForm(skillForm);
-                                    } else if (currentIndex === 5) {
+                                    } else if (currentIndex === 4) {
                                         hideForms(skillForm);
                                         showForm(conditionForm);
                                     } else {
@@ -2183,17 +1925,13 @@
                 theme: 'snow'
             });
 
-            const closeBtn = document.getElementById('closePolicyBtn');
             const saveBtn = document.getElementById('savePolicyBtn');
-
-            // Event listener for closing the modal
-            closeBtn.addEventListener('click', function () {
-                hideModal();
-            });
 
             // Event listener for saving policy
             saveBtn.addEventListener('click', function () {
                 const policyContent = quill.root.innerHTML;
+
+                console.log('Saving policy content:', policyContent); // Debug log
 
                 fetch('/user/save-policy', {
                     method: 'POST',
@@ -2204,32 +1942,28 @@
                         policyContent: policyContent
                     })
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Response:', response); // Debug log
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.success) {
+                            console.log('Policy saved successfully'); // Debug log
                             hideModal();
                         } else {
-                            console.error('Failed to save policy');
+                            console.error('Failed to save policy', data); // Debug log
                         }
                     })
                     .catch(error => console.error('Error:', error));
             });
 
-            // Function to hide the modal
+            // Function to hide the modal using Bootstrap's modal method
             function hideModal() {
-                const modal = document.getElementById('addPolicyModal');
-                modal.style.display = 'none';
-
-                // Remove any existing modal backdrop
-                const modalBackdrop = document.querySelector('.custom-modal-backdrop');
-                if (modalBackdrop) {
-                    modalBackdrop.parentNode.removeChild(modalBackdrop);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addPolicyModal'));
+                if (modal) {
+                    modal.hide();
                 }
             }
-
-
-            // const modal = document.getElementById('addPolicyModal');
-            // modal.style.display = 'block';
 
         });
 
@@ -2298,7 +2032,7 @@
         console.log(allEvents)
 
         let events = allEvents
-            
+
             .map(event => ({
                 id: event.id,
                 title: event.description,
@@ -2399,11 +2133,16 @@ function renderCalendar(events) {
         //     const modal = document.getElementById('addPolicyModal');
         //     modal.style.display = 'block';
         // });
-    </script>
- 
 
+
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/static/assets/vendor/apexcharts/apexcharts.min.js"></script>
     <script src="/static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/static/assets/vendor/chart.js/chart.umd.js"></script>
@@ -2413,14 +2152,14 @@ function renderCalendar(events) {
     <script src="/static/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="/static/assets/vendor/php-email-form/validate.js"></script>
 
-
     <!-- Template Main JS File -->
     <script src="/static/assets/js/main.js"></script>
     <script src="https://kit.fontawesome.com/e2397b357b.js" crossorigin="anonymous"></script>
-   
+    <script src="/static/assets/js/post.js"></script>
 </div>
-<script src="/static/assets/js/post.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 

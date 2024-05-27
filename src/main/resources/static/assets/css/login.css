@@ -4,8 +4,8 @@
 :root {
     /*========== Colors ==========*/
     /*Color mode HSL(hue, saturation, lightness)*/
-    --white-color: hsl(0, 0%, 100%);
-    --black-color: hsl(0, 0%, 0%);
+    --white-color: hsl(0, 0%, 5%);
+    --black-color: hsl(0, 100%, 100%);
     /*========== Font and typography ==========*/
     /*.5rem = 8px | 1rem = 16px ...*/
     --body-font: "Poppins", sans-serif;
@@ -73,7 +73,7 @@ img {
     backdrop-filter: blur(8px);
 }
 .login__title {
-    color: white;
+    color: #000000;
     text-align: center;
     font-size: var(--h1-font-size);
     font-weight: var(--font-medium);
@@ -107,7 +107,7 @@ img {
     position: relative;
 }
 .login__label {
-    color: white;
+    color: #000000;
     position: absolute;
     left: 0;
     top: 13px;
@@ -153,10 +153,12 @@ img {
     padding: 1rem;
     border-radius: 0.5rem;
     background-color: var(--white-color);
+    color: var(--black-color);
     font-weight: var(--font-medium);
     cursor: pointer;
     margin-bottom: 2rem;
 }
+
 .login__register {
     text-align: center;
 }
@@ -180,8 +182,6 @@ img {
     font-size: var(--small-font-size);
 }
 
-/*=============== BREAKPOINTS ===============*/
-/* For medium devices */
 @media screen and (min-width: 576px) {
     .login {
         justify-content: center;
@@ -192,7 +192,7 @@ img {
         border-radius: 1.5rem;
     }
     .login__title {
-        color: white;
+        color: #000000;
         font-size: 2rem;
     }
 }

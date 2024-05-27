@@ -1,5 +1,7 @@
 package com.communityHubSystem.communityHub.controllers;
 
+import com.communityHubSystem.communityHub.dto.GroupAccessChangeDto;
+import com.communityHubSystem.communityHub.dto.GroupOwnerDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.ChatRoomRepository;
@@ -39,8 +41,18 @@ public class GroupController {
 
     @GetMapping("/group")
     public String group(Model model) {
-        List<User> users = communityService.getAll();
-        model.addAttribute("users", users);
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> user = userService.findByStaffId(staffId.trim());
+
+        if (user.isPresent()) {
+            if (User.Role.ADMIN.equals(user.get().getRole())) {
+                List<User> users = userService.getAllUser().stream()
+                        .filter(u -> !User.Role.ADMIN.equals(u.getRole()))
+                        .collect(Collectors.toList());
+                model.addAttribute("users",users);
+            }
+        }
         return "user/user-group";
     }
 
@@ -107,6 +119,7 @@ public class GroupController {
         response.put("message", "Created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
     @GetMapping("viewcommunity")
     public String views() {
         return "user/community-view";
@@ -160,7 +173,7 @@ public class GroupController {
     public ResponseEntity<?> getOwnerNames(@PathVariable Long communityId) {
         try {
             List<String> ownerNames = communityService.getOwnerNamesByCommunityId(communityId);
-            return ResponseEntity.ok(ownerNames);
+            return ResponseEntity.status(HttpStatus.OK).body(ownerNames);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching owner names");
         }
@@ -214,10 +227,14 @@ public class GroupController {
     }
 
     @GetMapping("getCommunity/{communityId}")
-    public ResponseEntity<Community> getCommunityById(@PathVariable Long communityId) {
+    public ResponseEntity<Map<String, Object>> getCommunityById(@PathVariable Long communityId) {
         Community community = communityService.getCommunityById(communityId);
         if (community != null) {
-            return ResponseEntity.ok(community);
+            int memberCount = community.getUser_groups().size();
+            Map<String, Object> response = new HashMap<>();
+            response.put("community", community);
+            response.put("memberCount", memberCount);
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -332,4 +349,33 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.OK).body(userList);
     }
 
+    @GetMapping("/getActiveUsersForAdd")
+    public ResponseEntity<List<User>> getUsersForAdd() {
+        List<User> userList = userService.getAllActiveUser();
+        List<User> users = userList.stream()
+                .filter(user -> !user.getRole().equals(User.Role.ADMIN))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
+    @PostMapping("/add-groupAdmin")
+    @ResponseBody
+    public ResponseEntity<Map<String,String>> svgGroupOwner(@RequestBody GroupOwnerDto groupOwnerDto){
+          Map<String,String> res = new HashMap<>();
+        communityService.svgOwner(groupOwnerDto.getCommunityId(),groupOwnerDto.getUserId());
+        res.put("message","Successfully added");
+          return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PostMapping("/change-access-group")
+    @ResponseBody
+    public ResponseEntity<Map<String,String>> changeAccessGroup(@RequestBody GroupAccessChangeDto groupAccessChangeDto){
+        Map<String,String> res = new HashMap<>();
+        communityService.changeAccess(groupAccessChangeDto);
+        System.out.println("AFDSFD"+groupAccessChangeDto.getCommunityId());
+        System.out.println("AFDSFD"+groupAccessChangeDto.getGroupAccess());
+        res.put("message","Successfully added");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
 }

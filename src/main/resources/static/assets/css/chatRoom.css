@@ -1,8 +1,8 @@
 .chat-container {
     display: flex;
     max-width: 800px;
-    min-width: 800px;
-    min-height: 600px;
+    min-width: 1180px;
+    min-height: 680px;
     max-height: 600px;
     margin: 20px;
     border: 1px solid #ccc;
@@ -40,7 +40,7 @@
 .users-list ul {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin-top: 10px;
 }
 
 .user-item {
@@ -57,14 +57,16 @@
 }
 
 .user-item img {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     margin-right: 10px;
 }
 
 .user-item span {
     font-weight: bold;
+    font-size: larger;
+    margin-left: 40px;
 }
 
 .separator {
@@ -101,6 +103,7 @@
     padding: 0 12px;
     border-radius: 15px;
     word-wrap: break-word;
+    margin-top: 10px;
 }
 
 .user-item span.nbr-msg {
@@ -117,12 +120,14 @@
     background-color: cornflowerblue;
     color: #fff;
     align-self: flex-end;
+    margin-top: 5px;
 }
 
 .receiver {
     background-color: #ecf0f1;
-    color: #333;
+    color: #000000;
     align-self: flex-start;
+    margin-top: 5px;
 }
 
 /* Message Input */
@@ -142,10 +147,11 @@
 .message-input button {
     padding: 10px;
     border: none;
-    background-color: blue;
-    color: #fff;
+    background-color: white;
+    color: #0d6efd;
     border-radius: 5px;
     cursor: pointer;
+    width: 50px;
 }
 
 /* User Form */
@@ -216,6 +222,7 @@
     display: flex;
     align-items: center;
     width: 100%;
+    margin-top: 10px
 }
 
 .room-photo {
@@ -237,6 +244,28 @@
     display: block;
     margin-top: 5px;
     font-size: 15px;
+}
+#IsSelected .dropdown-menu {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 0;
+}
+
+#IsSelected .dropdown-menu li {
+    list-style: none;
+}
+
+#IsSelected .dropdown-menu li a {
+    color: black;
+    padding: 10px 20px;
+    display: block;
+    text-decoration: none;
+    border-bottom: 1px solid #ddd;
+}
+
+#IsSelected .dropdown-menu li a:hover {
+    background-color: #f0f0f0;
 }
 
 /* Add this CSS to your stylesheet */
@@ -269,4 +298,11 @@
     margin-left: 10px; /* Space between content and delete icon */
 }
 
+#IsSelected .dropdown-menu li:last-child a {
+    border-bottom: none;
+}
+
+.custom-dropdown-toggle {
+    cursor: pointer;
+}
 
