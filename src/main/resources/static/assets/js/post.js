@@ -6798,7 +6798,12 @@ const logOutFunction  = async () => {
 }
 
 const clearLocalStorage = async () => {
+    const userId = document.getElementById('userId1').value;
+    const selectImageValue = localStorage.getItem('selectedImage' + userId);
     localStorage.clear()
+    if (selectImageValue) {
+        localStorage.setItem('selectedImage' + userId, selectImageValue);
+    }
 }
 
 

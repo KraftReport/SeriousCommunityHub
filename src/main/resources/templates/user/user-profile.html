@@ -3,6 +3,7 @@
 <head th:replace="~{index::head}">
     <meta charset="UTF-8">
     <title>User Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
     <style>
         .gradient-custom-2 {
             /* fallback for old browsers */
@@ -57,7 +58,7 @@
                                      alt="Profile" class="img-fluid img-thumbnail mt-4 mb-2 profile-photo"
                                      style="width: 150px; z-index: 1; border-radius: 20px; min-height: 160px;" onclick="chooseFile()"/>
                                 <button id="edit-photo-btn" type="button" class="btn btn-outline-dark edit-button"
-                                        data-mdb-ripple-color="dark" style="z-index: 1">Edit Profile
+                                        data-mdb-ripple-color="dark" style="z-index: 1" >Edit Profile
                                 </button>
                             </div>
                             <div class="ms-3" style="margin-top: 130px;">
@@ -74,59 +75,125 @@
                         </div>
                         <div class="card-body p-4 text-black">
                             <div class="mb-5">
-                                <p class="lead fw-normal mb-1" style="margin-top: 60px;">About</p>
                                 <div class="p-4" style="background-color: #f8f9fa;">
-                                    <p class="font-italic mb-1">
-                                        <strong>Date of Birth:</strong> <span
-                                            th:text="${user.dob}?: 'Not provided'"></span>
-                                    </p>
-                                    <p class="font-italic mb-1">
-                                        <strong>Email:</strong> <span th:text="${user.email}?: 'Not provided'"></span>
-                                    </p>
-                                    <p class="font-italic mb-1">
-                                        <strong>Phone:</strong> <span th:text="${user.phone}?: 'Not provided'"></span>
-                                    </p>
-                                    <p class="font-italic mb-1">
-                                        <strong>Gender:</strong> <span th:text="${user.gender}?: 'Not provided'"></span>
-                                    </p>
-                                    <button id="seeMoreBtn" class="btn btn-link" style="margin-left: -18px; text-decoration: none; color: black;">See more...</button>
-                                    <br>
-                                    <div id="moreUserInfo" style="display: none;">
-                                        <p class="font-italic mb-1">
-                                            <strong>Department:</strong> <span
-                                                th:text="${user.dept}?: 'Not provided'"></span>
-                                        </p>
-                                        <p class="font-italic mb-1">
-                                            <strong>Division:</strong> <span
-                                                th:text="${user.division}?: 'Not provided'"></span>
-                                        </p>
-                                        <p class="font-italic mb-1">
-                                            <strong>Team:</strong> <span th:text="${user.team}?: 'Not provided'"></span>
-                                        </p>
-                                        <p class="font-italic mb-1">
-                                            <strong>Role:</strong> <span th:text="${user.role}?: 'Not provided'"></span>
-                                        </p>
-                                        <p class="font-italic mb-1" >
-                                            <strong>Skills:</strong>
+                                <ul class="nav nav-tabs my-3" id="myTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active"  id="newsfeed-tab"  data-bs-toggle="tab" data-bs-target="#birthdayTab" type="button" role="tab" aria-controls="Newsfeed" aria-selected="true"><i class="fas fa-birthday-cake" style="color: #ff7f50;"></i></button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#emailTab" type="button" role="tab" aria-controls="Events" aria-selected="false"><i class="far fa-envelope" style="color: #4682b4;"></i></button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="polls-tab" data-bs-toggle="tab" data-bs-target="#phoneTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-phone" style="color: #20b2aa;"></i></button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="gender-tab" data-bs-toggle="tab" data-bs-target="#genderTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-venus-mars" style="color: #800080;"></i></button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="department-tab" data-bs-toggle="tab" data-bs-target="#departmentTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-building" style="color: #2e8b57;"></i> </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="division-tab" data-bs-toggle="tab" data-bs-target="#divisionTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-users" style="color: #ff6347;"></i></button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="team-tab" data-bs-toggle="tab" data-bs-target="#teamTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-users-cog" style="color: #4169e1;"></i> </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="role-tab" data-bs-toggle="tab" data-bs-target="#roleTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-user-tag" style="color: #f08080;"></i></button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="skill-tab" data-bs-toggle="tab" data-bs-target="#skillTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-award" style="color: #ffd700;"></i></button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="hobbies-tab" data-bs-toggle="tab" data-bs-target="#hobbiesTab" type="button" role="tab" aria-controls="Polls" aria-selected="false"><i class="fas fa-heart" style="color: #ff1493;"></i></button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="myTabContent">
+                                    <div class="tab-pane fade show active" id="birthdayTab" role="tabpanel" aria-labelledby="newsfeed-tab">
+                                        <div id="birthday"  class="">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="fas fa-birthday-cake" style="color: #ff7f50;"></i> Date of Birth:</strong> <span th:text="${user.dob}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="emailTab" role="tabpanel" aria-labelledby="events-tab">
+                                        <div id="events"  class="">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="far fa-envelope" style="color: #4682b4;"></i> Email:</strong> <span th:text="${user.email}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="phoneTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="polls" class=" ">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="fas fa-phone" style="color: #20b2aa;"></i> Phone:</strong> <span th:text="${user.phone}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="genderTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="genders" class=" ">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="fas fa-venus-mars" style="color: #800080;"></i> Gender:</strong> <span th:text="${user.gender}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="departmentTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="departments" class=" ">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="fas fa-building" style="color: #2e8b57;"></i> Department:</strong> <span th:text="${user.dept}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="divisionTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="division" class=" ">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="fas fa-users" style="color: #ff6347;"></i> Division:</strong> <span th:text="${user.division}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="teamTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="team" class=" ">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="fas fa-users-cog" style="color: #4169e1;"></i> Team:</strong> <span th:text="${user.team}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="roleTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="role" class=" ">
+                                            <p class="font-italic mb-1">
+                                                <strong><i class="fas fa-user-tag" style="color: #f08080;"></i> Role:</strong> <span th:text="${user.role}?: 'Not provided'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="skillTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="skill" class=" ">
+                                            <p class="font-italic mb-1" >
+                                                <strong><i class="fas fa-award" style="color: #ffd700;"></i> Skills:</strong>
                                             <div th:each="userSkill : ${userSkills}">
                                                 <span th:text="${userSkill.skill.name}">Skill Name</span>
                                                 <span th:text="${userSkill.experience}" style="margin-left: 100px" >Experience</span><span> years</span>
                                             </div>
-                                        </p>
-                                        <strong>Hobbies:</strong>
-                                        <div id="hobbiesContainer"></div>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="hobbiesTab" role="tabpanel" aria-labelledby="polls-tab">
+                                        <div id="hobbies" class=" ">
+
+                                                <strong><i class="fas fa-heart" style="color: #ff1493;"></i> Hobbies:</strong>
+                                            <div id="hobbiesContainer"></div>
+
+                                        </div>
                                     </div>
                                 </div>
-                                <div id="parentLoginUserProfileDiv" ></div>
+                                    </div>
+                                    <div id="parentLoginUserProfileDiv" ></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
     </section>
-
 
 </main>
 
@@ -573,6 +640,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -814,31 +882,7 @@
         }
     }
 
-    // Call the function to set the background image when the page is loaded with userId
-    window.onload = function () {
-        const userIdInput = document.getElementById('userId1');
-        if (userIdInput) {
-            const userId = userIdInput.value;
-            setBackgroundImageFromLocalStorage(userId);
-        } else {
-            console.error('User id not found');
-        }
-    };
 
-    document.getElementById('seeMoreBtn').addEventListener('click', function () {
-        const moreUserInfo = document.getElementById('moreUserInfo');
-        const seeMoreBtn = document.getElementById('seeMoreBtn');
-
-        if (moreUserInfo.style.display === 'none') {
-            // Show more user information
-            moreUserInfo.style.display = 'block';
-            seeMoreBtn.textContent = 'See less';
-        } else {
-            // Hide more user information
-            moreUserInfo.style.display = 'none';
-            seeMoreBtn.textContent = 'See more...';
-        }
-    });
     // Add a click event listener to the edit photo button to show the modal
     const editPhotoBtn = document.getElementById('edit-photo-btn');
     const profileForm = document.getElementById('editProfileModal');

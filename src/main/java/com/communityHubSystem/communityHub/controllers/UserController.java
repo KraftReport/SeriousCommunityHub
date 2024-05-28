@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.controllers;
 
 import com.communityHubSystem.communityHub.dto.SkillDto;
+import com.communityHubSystem.communityHub.dto.SkillDtoForShow;
 import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Policy;
@@ -45,6 +46,7 @@ public class UserController {
     private final ExcelUploadService excelUploadService;
     private final User_SkillService user_skillService;
     private final SkillService skillService;
+    private final PolicyService policyService;
 
     @GetMapping("/getAllSkills")
     public ResponseEntity<List<String>> getAllSkills() {
@@ -115,27 +117,26 @@ public class UserController {
 
     @GetMapping("/getSkills")
     @ResponseBody
-    public ResponseEntity<List<Skill>> getSkills() {
+    public ResponseEntity<List<SkillDtoForShow>> getSkills() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
         if (optionalUser.isPresent()) {
             List<User_Skill> user_skills = userSkillRepository.findByUserId(optionalUser.get().getId());
-            List<Skill> skills = new ArrayList<>();
+            List<SkillDtoForShow> skillsWithExperience = new ArrayList<>();
 
             for (User_Skill user_skill : user_skills) {
-                System.out.println(user_skill.getSkill().getName());
-                var skill = skillRepository.findById(user_skill.getId()).orElseThrow(() -> new CommunityHubException("Skill not found exception!"));
+                var skill = user_skill.getSkill();
                 if (skill != null) {
-                    skills.add(skill);
+                    SkillDtoForShow dto = new SkillDtoForShow(skill.getId(), skill.getName(), user_skill.getExperience());
+                    skillsWithExperience.add(dto);
                 }
             }
-            return ResponseEntity.status(HttpStatus.OK).body(skills);
+            return ResponseEntity.status(HttpStatus.OK).body(skillsWithExperience);
         }
-        // If user not found or no skills associated, return all skills
-        return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
+        // If user not found or no skills associated, return an empty list
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.emptyList());
     }
-
     @PostMapping("/savePassword")
     public ResponseEntity<Map<String, String>> savePassword(@RequestBody Map<String, String> requestBody) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -679,6 +680,18 @@ public class UserController {
         response.put("message", "Update Successful");
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/policyExists")
+    public ResponseEntity<Boolean> policyExists() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isPresent()) {
+        boolean exists = policyService.policyExistsForUser(optionalUser.get().getId());
+        return ResponseEntity.ok(exists);
+        }
+        return ResponseEntity.ok(false);
     }
 }
 

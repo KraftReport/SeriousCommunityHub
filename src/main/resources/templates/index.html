@@ -351,6 +351,7 @@
                         <li class="dropdown-header">
                             <h6 th:text="${session.user.name}">Name</h6>
                             <span th:text="${session.user.role}">Role</span>
+                            <input type="hidden" id="userId1" name="userId" th:value="${session.user.id}">
                         </li>
                         <li>
                             <hr class="dropdown-divider">
@@ -376,7 +377,7 @@
                         </li>
 
                         <li sec:authorize="hasAnyAuthority('ADMIN')">
-                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton" data-bs-toggle="modal" data-bs-target="#addPolicyModal">
+                            <a class="dropdown-item d-flex align-items-center" id="addPolicyButton" data-bs-toggle="modal" data-bs-target="#addPolicyModal" aria-disabled="false">
                                 <i class="bi bi-body-text"></i>
                                 <span>Add Policy</span>
                             </a>
@@ -1960,7 +1961,16 @@
                     modal.hide();
                 }
             }
-
+            fetch('/user/policyExists')
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        console.log(data+"is here")
+                        document.getElementById("addPolicyButton").classList.add("disabled");
+                        document.getElementById("addPolicyButton").setAttribute("aria-disabled", "true");
+                    }
+                })
+                .catch(error => console.error('Error fetching policy data:', error));
         });
 
 
