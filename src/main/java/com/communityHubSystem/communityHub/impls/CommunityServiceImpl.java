@@ -227,7 +227,7 @@ public class CommunityServiceImpl implements CommunityService {
         for (var s : specification) {
             communitySpecification = communitySpecification.or(s);
         }
-        return communityRepository.findAll(communitySpecification);
+        return communityRepository.findAll(communitySpecification).stream().filter(c->c.getGroupAccess().equals(Community.GroupAccess.PUBLIC)).toList();
     }
 
     @Override
