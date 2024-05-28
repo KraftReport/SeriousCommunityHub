@@ -427,4 +427,16 @@ public class GroupController {
         res.put("message", "leaved successfully!");
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
+
+    @GetMapping("/getMembersOfTheCommunity/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<User>> getMembersOfTheCommunity(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getMembersOfACommunity(Long.valueOf(communityId)));
+    }
+
+    @GetMapping("/getOwnerOfTheCommunity/{communityId}")
+    @ResponseBody
+    public ResponseEntity<User> getOwnerOfTheCommunity(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getOwnerOfTheCommunity(Long.valueOf(communityId)));
+    }
 }

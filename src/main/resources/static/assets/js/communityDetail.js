@@ -135,10 +135,118 @@ const createBtns = async () => {
 }
 
 
-document.getElementById('labelForPollPhoto').addEventListener('click',()=>{
-    document.getElementById('pollMultipartFile').click()
+// document.getElementById('labelForPollPhoto').addEventListener('click',()=>{
+//     document.getElementById('pollMultipartFile').click()
+// })
+
+
+document.getElementById('infoOfTheCommunity').addEventListener('click',async function(){
+    console.log('wowowowow')
+    await getDetailOfTheCommunity()
 })
 
+const deleteDetailBoxes = async () => {
+    document.getElementById('community-detail-box').innerHTML = ''
+    document.getElementById('user-detail-box').innerHTML = ''
+}
+
+const getDetailOfTheCommunity = async () => {
+    let data = await fetch(`/api/community/getCommunity/${communityId}`)
+    let response = await data.json()
+    console.log(response)
+
+    let users = await fetch(`/api/community/getMembersOfTheCommunity/${communityId}`)
+    let userList = await users.json()
+    console.log(userList)
+
+    let owner = await fetch(`/api/community/getOwnerOfTheCommunity/${communityId}`)
+    let communityOwner = await owner.json()
+    console.log(communityOwner)
+
+    let detailDiv = document.getElementById('community-detail-box')
+    let usersDiv = document.getElementById('user-detail-box')
+
+    detailDiv.style.backgroundColor = 'black'
+    detailDiv.style.borderEndStartRadius = '50px'
+    detailDiv.style.borderEndEndRadius = '50px'
+
+    console.log(detailDiv)
+
+    const GroupNameDiv = document.createElement('div')
+    const GpName = document.createElement('h5')
+    const about = document.createElement('p')
+
+    about.textContent = response.community.description
+    about.classList.add('text-white','font-monospace')
+    GpName.textContent = response.community.name
+    GpName.classList.add('text-white','font-monospace')
+
+    GroupNameDiv.appendChild(GpName)
+    GroupNameDiv.appendChild(about)
+
+
+    const ownerDiv = document.createElement('div')
+    const imgOfOwner = document.createElement('img')
+    const nameOfOwner = document.createElement('p')
+    const emailOfTheOwner = document.createElement('p')
+
+    imgOfOwner.src = communityOwner.photo
+    imgOfOwner.style.width = '100px'
+    imgOfOwner.style.height = '100px'
+    imgOfOwner.style.borderRadius = '10px'
+
+    nameOfOwner.textContent = communityOwner.name
+    nameOfOwner.classList.add('font-monospace','text-white')
+
+    emailOfTheOwner.textContent = communityOwner.email
+    emailOfTheOwner.classList.add('font-monosapce','text-white')
+
+    ownerDiv.appendChild(imgOfOwner)
+    ownerDiv.appendChild(nameOfOwner)
+    ownerDiv.appendChild(emailOfTheOwner)
+
+
+
+    
+
+    const memberListDiv = document.createElement('div')
+
+    for(u of userList){
+        const memberDiv = document.createElement('div')
+        const memberImg = document.createElement('img')
+        const memberName  = document.createElement('p')
+
+        memberImg.src = u.photo
+        memberName.textContent = u.name
+
+        memberImg.style.width = '100px'
+        memberImg.style.height = '100px'
+        memberImg.borderRadius = '50px'
+
+
+        memberDiv.appendChild(memberImg)
+        memberDiv.appendChild(memberName)
+
+        memberListDiv.appendChild(memberDiv)
+
+    }
+
+
+    detailDiv.appendChild(GroupNameDiv)
+    detailDiv.append(ownerDiv)
+    usersDiv.appendChild(memberListDiv)
+
+
+    console.log(usersDiv)
+}
+
+
+let videoIcon = document.getElementById('video-icon')
+videoIcon.addEventListener('click',function(){
+  console.log('video icon is clicked')
+  console.log(document.getElementById('file'))
+  document.getElementById('file').click()
+})
 
 document.getElementById('pollMultipartFile').addEventListener('change', function(event) {
     console.log('wow this is changing')
@@ -476,6 +584,7 @@ window.onload = async function(){
     console.log('wow wow here')
 
     await startUp()
+    await getDetailOfTheCommunity()
     await createBtns()
     await getPosts()
 }
@@ -690,7 +799,7 @@ const highlightMentions = async (description) => {
 
 async function createPost() {
     loadingModalBox.show()
-    let postText = document.getElementById('content').value
+    let postText = document.getElementById('post-content').value
     let postFile = document.getElementById('file').files[0]
 
 
@@ -5324,7 +5433,7 @@ async function getEvents(){
             let formattedEndDate = `${endDay} / ${endMonth} / ${endYear}  `
             let rows =   `
         
-            <div class="post" id="delete-event-section-${r.id}">
+           
             <div class="post" id="delete-event-section-${r.id}">
             <div class="post-top" style="max-width:500px; justify-content:space-between;">
 
@@ -5440,7 +5549,7 @@ async function getEvents(){
           </div>
 
             </div>
-        </div>
+        </div> 
         `;
 
             row+= rows
@@ -6070,5 +6179,4 @@ document.getElementById('poll_end_date').addEventListener('change', pollValidate
 
 let startDate = document.getElementById('start_date')
 let endDate = document.getElementById('end_date')
-
 

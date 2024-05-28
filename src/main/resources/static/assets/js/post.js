@@ -196,13 +196,7 @@ const checkEventOwnerOrAdmin = async (id) => {
     return response[0]
 }
 
-const logOutFunction  = async () => {
-    logOutModalBox.show()
-}
 
-const clearLocalStorage = async () => {
-    localStorage.clear()
-}
 
 
 const mainButtonClick = async () => {
@@ -989,7 +983,7 @@ async function welcome() {
                     post += `
     
           <div class="post" id="post-delete-section-${p.id}">
-          <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+          <div class="post-top" style="max-width:650px; justify-content:space-between;"> 
           
           <div class="d-flex">
          
@@ -1070,7 +1064,7 @@ async function welcome() {
         if (thisIsRawPost === false) {
 
             const createMediaElement = (tag, src, controlAttr, closeTag, extraStyle = '', id = '') => {
-                return `<${tag} ${controlAttr} src="${src}" id="${id}" class="img-fluid" style="border-radius: 15px; max-height: 200px; margin: 2px; height: auto; width: 100%; ${extraStyle}" alt="">${closeTag}`;
+                return `<${tag} ${controlAttr} src="${src}" id="${id}" class="img-fluid" style="border-radius: 15px; margin: 2px; height: 200px; width: 100%; ${extraStyle}" alt="">${closeTag}`;
             };
         
             const createGridContainer = (elements, columns) => {

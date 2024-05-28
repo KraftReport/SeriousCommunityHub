@@ -303,6 +303,22 @@ public class CommunityServiceImpl implements CommunityService {
         return communityRepository.findById(id).orElseThrow(() -> new CommunityHubException("Community not found exception!"));
     }
 
+    @Override
+    public List<User> getMembersOfACommunity(Long communityId) {
+        var userIds = user_groupRepository.findUserIdByCommunityId(communityId);
+        return userIds.stream()
+                .map(s->userRepository
+                        .findById(s)
+                        .orElseThrow(()->new CommunityHubException("user not found")))
+                .toList();
+    }
+
+    @Override
+    public User getOwnerOfTheCommunity(Long communityId) {
+        var community = communityRepository.findById(communityId).orElseThrow(()->new CommunityHubException("community not found"));
+        return userRepository.findByName(community.getOwnerName());
+    }
+
     @Transactional
     @Override
     public void modifyStatus(Long id) {

@@ -46,6 +46,7 @@ public class UserController {
     private final ExcelUploadService excelUploadService;
     private final User_SkillService user_skillService;
     private final SkillService skillService;
+    private final PolicyService policyService;
 
     @GetMapping("/getAllSkills")
     public ResponseEntity<List<String>> getAllSkills() {
@@ -701,6 +702,18 @@ public class UserController {
             errorResponse.put("message", "User not found.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
+    }
+
+    @GetMapping("/policyExists")
+    public ResponseEntity<Boolean> policyExists() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
+        if (optionalUser.isPresent()) {
+        boolean exists = policyService.policyExistsForUser(optionalUser.get().getId());
+        return ResponseEntity.ok(exists);
+        }
+        return ResponseEntity.ok(false);
     }
 }
 

@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Skills loaded', res);
         const skillsDropdown = document.getElementById('skillsDropdown');
         for (const skill of res) {
-            console.log(skill.experience);
+            console.log("experiences are "+skill.experience);
             await addSkillToDropdown(skill.id, skill.name, skill.experience);
         }
     };

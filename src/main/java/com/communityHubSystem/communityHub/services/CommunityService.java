@@ -56,4 +56,8 @@ public interface CommunityService {
     void modifyStatus(Long id);
 
     void leaveFromGroup(Long id);
+
+    public List<User> getMembersOfACommunity(Long communityId);
+
+    public User getOwnerOfTheCommunity(Long communityId);
 }
