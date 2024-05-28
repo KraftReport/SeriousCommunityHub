@@ -6188,7 +6188,7 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
  });
 
 
- const distinguishMembers = async (id) => {
+ async function distinguishMembers(id){
     let data = await fetch(`/user/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/${id}`)
     let response = await data.json()
     if(response[0] === 'ADMIN'){

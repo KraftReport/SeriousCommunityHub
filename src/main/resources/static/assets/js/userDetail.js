@@ -8,7 +8,7 @@ let postsDiv = document.getElementById('user-post-div')
 
  
 
-let currentPageForPost = -1;
+let currentPageForPost = 0;
 let isFetchingForPost = false;
 let hasMoreForPost = true;
 

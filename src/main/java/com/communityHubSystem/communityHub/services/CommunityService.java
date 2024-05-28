@@ -52,4 +52,8 @@ public interface CommunityService {
    public void changeAccess(GroupAccessChangeDto groupAccessChangeDto);
 
     public Community findById(Long id);
+
+    void modifyStatus(Long id);
+
+    void leaveFromGroup(Long id);
 }

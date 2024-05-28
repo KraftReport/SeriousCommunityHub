@@ -9,6 +9,7 @@ import com.communityHubSystem.communityHub.repositories.CommunityRepository;
 import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.repositories.User_GroupRepository;
 import com.communityHubSystem.communityHub.services.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class GroupController {
                 List<User> users = userService.getAllUser().stream()
                         .filter(u -> !User.Role.ADMIN.equals(u.getRole()))
                         .collect(Collectors.toList());
-                model.addAttribute("users",users);
+                model.addAttribute("users", users);
             }
         }
         return "user/user-group";
@@ -154,6 +155,18 @@ public class GroupController {
         }
     }
 
+    @GetMapping("/inactive-community-view")
+    @ResponseBody
+    public ResponseEntity<List<Community>> getInactiveCommunity() {
+        var user = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("User name not found exception!"));
+        List<Community> inactiveCommunities = communityService.findAll()
+                .stream()
+                .filter(community -> !community.isActive())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(inactiveCommunities);
+    }
+
 
     @PostMapping("/createGroup")
     public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user, @RequestParam("file") MultipartFile file) {
@@ -211,7 +224,7 @@ public class GroupController {
         List<User> users = new ArrayList<>();
         for (User_Group user_group : user_groups) {
             User user = userService.findById(user_group.getUser().getId());
-            if(!user.getRole().equals(User.Role.ADMIN)){
+            if (!user.getRole().equals(User.Role.ADMIN)) {
                 users.add(user);
             }
         }
@@ -319,7 +332,7 @@ public class GroupController {
     @GetMapping("/get-groupOwner-check/{loginUser}/{id}")
     @ResponseBody
     public ResponseEntity<Community> getOwnerForCommunityToCheck(@PathVariable("loginUser") String loginUser,
-                                                              @PathVariable("id") Long id) {
+                                                                 @PathVariable("id") Long id) {
         var user = userService.findByStaffId(loginUser).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
         var community = communityService.findByIdAndOwnerName(id, user.getName().trim());
         if (community == null) {
@@ -337,12 +350,12 @@ public class GroupController {
 
     @GetMapping("/get-groupMembers-check/{id}")
     @ResponseBody
-    public ResponseEntity<List<User>> getAllUsersForCheck(@PathVariable("id")Long id){
+    public ResponseEntity<List<User>> getAllUsersForCheck(@PathVariable("id") Long id) {
         List<User_Group> user_groups = user_groupService.findByCommunityId(id);
         List<User> userList = new ArrayList<>();
-        for(User_Group user_group:user_groups){
+        for (User_Group user_group : user_groups) {
             var user = userService.findById(user_group.getUser().getId());
-            if(!user.getRole().equals(User.Role.ADMIN)){
+            if (!user.getRole().equals(User.Role.ADMIN)) {
                 userList.add(user);
             }
         }
@@ -361,21 +374,39 @@ public class GroupController {
 
     @PostMapping("/add-groupAdmin")
     @ResponseBody
-    public ResponseEntity<Map<String,String>> svgGroupOwner(@RequestBody GroupOwnerDto groupOwnerDto){
-          Map<String,String> res = new HashMap<>();
-        communityService.svgOwner(groupOwnerDto.getCommunityId(),groupOwnerDto.getUserId());
-        res.put("message","Successfully added");
-          return ResponseEntity.status(HttpStatus.OK).body(res);
+    public ResponseEntity<Map<String, String>> svgGroupOwner(@RequestBody GroupOwnerDto groupOwnerDto) {
+        Map<String, String> res = new HashMap<>();
+        communityService.svgOwner(groupOwnerDto.getCommunityId(), groupOwnerDto.getUserId());
+        res.put("message", "Successfully added");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
     @PostMapping("/change-access-group")
     @ResponseBody
-    public ResponseEntity<Map<String,String>> changeAccessGroup(@RequestBody GroupAccessChangeDto groupAccessChangeDto){
-        Map<String,String> res = new HashMap<>();
+    public ResponseEntity<Map<String, String>> changeAccessGroup(@RequestBody GroupAccessChangeDto groupAccessChangeDto) {
+        Map<String, String> res = new HashMap<>();
         communityService.changeAccess(groupAccessChangeDto);
-        System.out.println("AFDSFD"+groupAccessChangeDto.getCommunityId());
-        System.out.println("AFDSFD"+groupAccessChangeDto.getGroupAccess());
-        res.put("message","Successfully added");
+        System.out.println("AFDSFD" + groupAccessChangeDto.getCommunityId());
+        System.out.println("AFDSFD" + groupAccessChangeDto.getGroupAccess());
+        res.put("message", "Successfully added");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PostMapping("/isActive-modify/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String,String>> changeIsActiveForGroup(@PathVariable("id")Long id){
+        Map<String, String> res = new HashMap<>();
+        communityService.modifyStatus(id);
+        res.put("message", "changed successfully from inactive to active group");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PostMapping("/leave-group/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String,String>> leaveTheGroup(@PathVariable("id")Long id){
+        Map<String, String> res = new HashMap<>();
+        communityService.leaveFromGroup(id);
+        res.put("message", "leaved successfully!");
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 }
