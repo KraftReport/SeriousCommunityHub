@@ -108,18 +108,27 @@
         <div th:replace="~{index::navbar}"></div>
         <main id="main" class="main">
             <span id="invitationMessage"></span>
-            <div class="container py-5 h-100">
+            <div class="   h-100">
                 <div class="row d-flex justify-content-center align-items-center h-100">
-                    <img id="communityImage" src="/assets/img/pf-bg1.gif" width="300" height="300">
-                    <h1 id="communityName" style="font-weight: bold">Spider Man</h1>
-                    <p id="communityMembers" ><i class="fa-solid fa-earth-americas"></i>Public group 10members</p>
-                    <div class="button-group">
-                        <button type="button" class="btn btn-secondary btn-lg" id="chatMessageIconForGroup" value="Message" style="display: none"><i class="fa-solid fa-message"></i>Message</button>
-                        <button type="button" class="btn btn-primary btn-lg" value="Invite" id="inviteBtn" onclick="populateCreateGroupFormForInvitation()" style="display: none"><i class="fa-solid fa-user-plus"></i>Invite</button>
+                    <img id="communityImage" style="border-radius: 20px; margin-bottom: -3px;" src="/assets/img/pf-bg1.gif" width="300" height="300">
+                    <div style="background-color: #9ec5ee; border-radius: 20px;">
+                        <h1 id="communityName" class="text-white" style="font-weight: bold">Spider Man</h1>
 
+                        <div>
+                            <div class="d-flex">
+                                <p id="communityMembers" class="font-monospace" ><i class="fa-solid fa-earth-americas"></i>Public group 10members</p>
+                                <i id="infoOfTheCommunity" class="fa-solid fa-circle-info " data-bs-toggle="offcanvas" data-bs-target="#communityDetailShower" aria-controls="communityDetailShower"></i>
+                            </div>
+                        </div>
+                       <div style="display: flex; justify-content: flex-end;">
+                        <div class="button-group d-flex"  >
+                            <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace" id="chatMessageIconForGroup" value="Message" style="display: none"><i class="fa-solid fa-message"></i> Message</button>
+                            <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace"  value="Invite" id="inviteBtn" onclick="populateCreateGroupFormForInvitation()" style="display: none"><i class="fa-solid fa-user-plus"></i> Invite</button>
+                        </div>
+                       </div>
                     </div>
 
-                    <div id="createBtns">
+                    <div id="createBtns" style="margin-bottom: 10px;">
 
                     </div>
 
@@ -150,31 +159,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="container">
+                    <div class="">
                         <div class="middle-panel">
 
-                            <div class="post create">
-                                <div class="post-top">
-                                    <div class="dp">
-                                        <img src="/assets/img/pf-bg1.gif" alt="">
-                                    </div>
-                                    <input type="text" placeholder="What's on your mind?">
-                                </div>
-                                <div class="post-bottom">
-                                    <div class="action">
-                                        <i class="fa fa-video"></i>
-                                        <span>Live Video</span>
-                                    </div>
-                                    <div class="action">
-                                        <i class="fa fa-photo"></i>
-                                        <span>Photo/Video</span>
-                                    </div>
-                                    <div class="action">
-                                        <i class="fa-solid fa-face-smile"></i>
-                                        <span>Feeling/Activity</span>
-                                    </div>
-                                </div>
-                            </div>
+                          
+                  
+              
 
 
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -204,6 +194,21 @@
                 </div>
             </div>
 
+
+            <!-- community detail offcanvas start  -->
+
+            <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="communityDetailShower" aria-labelledby="communityDetailShower">
+                <div class="offcanvas-header">
+                  <h5 class="offcanvas-title" id="communityDetailShower">Colored with scrolling</h5>
+                  <button type="button" class="btn-close text-reset" onclick="deleteDetailBoxes()" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                  <div id="community-detail-box"></div>
+                  <div id="user-detail-box"></div>
+                </div>
+              </div>
+
+            <!-- community detail offcanvas end  -->
 
 
             <!-- post create offcanvas start  -->
@@ -409,6 +414,45 @@
 
 
             <!-- loading modal box end  -->
+
+            <!-- post edit offcanvas  -->
+
+
+            <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+                <div class="offcanvas-header">
+                  <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" onclick="removePreviewForPostUpdate()" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+        
+                           <div class="modal-body" id="editModal">
+                              
+                           
+        
+        
+                            <div id="update-raw-old"></div>
+        
+                            <div id="update-raw-preview"></div>
+        
+        
+        
+                           </div>
+        
+                           <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
+                           data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                           </button>
+        
+                           <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
+                           data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                           </button>
+        
+        
+                   </div>
+               </div>
+        
+
+
+            <!-- post edit offcanvas end  -->
 
             <!-- edit modal box  -->
 

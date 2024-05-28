@@ -52,4 +52,8 @@ public interface CommunityService {
    public void changeAccess(GroupAccessChangeDto groupAccessChangeDto);
 
     public Community findById(Long id);
+
+    public List<User> getMembersOfACommunity(Long communityId);
+
+    public User getOwnerOfTheCommunity(Long communityId);
 }
