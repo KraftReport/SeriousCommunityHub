@@ -217,18 +217,36 @@ public class GroupController {
     }
 
     @GetMapping("/user/{communityId}")
-    public ResponseEntity<List<User>> getAllUsersByCommunity(@PathVariable("communityId") Long communityId, Model model) {
-        var community = communityService.getCommunityBy(communityId);
-        System.out.println("IDDIDI" + community.getId());
-        List<User_Group> user_groups = user_groupService.findByCommunityId(communityId);
-        List<User> users = new ArrayList<>();
-        for (User_Group user_group : user_groups) {
-            User user = userService.findById(user_group.getUser().getId());
-            if (!user.getRole().equals(User.Role.ADMIN)) {
-                users.add(user);
+    public ResponseEntity<List<User>> getAllUsersByCommunity(@PathVariable("communityId") Long communityId) {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId.trim());
+
+        if (optionalUser.isPresent()) {
+            User currentUser = optionalUser.get();
+            User.Role currentUserRole = currentUser.getRole();
+
+            var community = communityService.getCommunityBy(communityId);
+            List<User_Group> userGroups = user_groupService.findByCommunityId(communityId);
+            List<User> users = new ArrayList<>();
+
+            for (User_Group userGroup : userGroups) {
+                User user = userService.findById(userGroup.getUser().getId());
+
+                if (User.Role.ADMIN.equals(currentUserRole)) {
+                    if (!User.Role.ADMIN.equals(user.getRole())) {
+                        users.add(user);
+                    }
+                } else {
+                    if (!User.Role.ADMIN.equals(user.getRole()) && !community.getOwnerName().equals(user.getName())) {
+                        users.add(user);
+                    }
+                }
             }
+
+            return ResponseEntity.status(HttpStatus.OK).body(users);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PostMapping("/kick")

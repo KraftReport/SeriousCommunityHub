@@ -1,6 +1,7 @@
 package com.communityHubSystem.communityHub.controllers;
 
 import com.communityHubSystem.communityHub.dto.SkillDto;
+import com.communityHubSystem.communityHub.dto.SkillDtoForShow;
 import com.communityHubSystem.communityHub.dto.UserDTO;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Policy;
@@ -115,27 +116,26 @@ public class UserController {
 
     @GetMapping("/getSkills")
     @ResponseBody
-    public ResponseEntity<List<Skill>> getSkills() {
+    public ResponseEntity<List<SkillDtoForShow>> getSkills() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         String staffId = auth.getName();
         Optional<User> optionalUser = userService.findByStaffId(staffId);
         if (optionalUser.isPresent()) {
             List<User_Skill> user_skills = userSkillRepository.findByUserId(optionalUser.get().getId());
-            List<Skill> skills = new ArrayList<>();
+            List<SkillDtoForShow> skillsWithExperience = new ArrayList<>();
 
             for (User_Skill user_skill : user_skills) {
-                System.out.println(user_skill.getSkill().getName());
-                var skill = skillRepository.findById(user_skill.getId()).orElseThrow(() -> new CommunityHubException("Skill not found exception!"));
+                var skill = user_skill.getSkill();
                 if (skill != null) {
-                    skills.add(skill);
+                    SkillDtoForShow dto = new SkillDtoForShow(skill.getId(), skill.getName(), user_skill.getExperience());
+                    skillsWithExperience.add(dto);
                 }
             }
-            return ResponseEntity.status(HttpStatus.OK).body(skills);
+            return ResponseEntity.status(HttpStatus.OK).body(skillsWithExperience);
         }
-        // If user not found or no skills associated, return all skills
-        return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
+        // If user not found or no skills associated, return an empty list
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.emptyList());
     }
-
     @PostMapping("/savePassword")
     public ResponseEntity<Map<String, String>> savePassword(@RequestBody Map<String, String> requestBody) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -655,30 +655,52 @@ public class UserController {
             @PathVariable("id") Long id,
             @RequestBody SkillDto skillDto) {
 
-        System.out.println("hjkl" + id);
-        User_Skill userSkill = userSkillRepository.findById(id).orElseThrow(() -> new RuntimeException("Skill not found"));
-        Skill skill = userSkill.getSkill();
+        System.out.println("nnn" + id);
+        String staffId = SecurityContextHolder.getContext().getAuthentication().getName().trim();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
 
-        String newName = skillDto.getName();
-        String newExperience = skillDto.getExperience();
+        if (optionalUser.isPresent()) {
+            try {
+                User user = optionalUser.get();
+                Optional<User_Skill> optionalUserSkill = userSkillRepository.findBySkillIdAndUserId(id,user.getId());
 
-        if (newName != null && !newName.isEmpty()) {
-            skill.setName(newName);
+                if (optionalUserSkill.isPresent()) {
+                    User_Skill userSkill = optionalUserSkill.get();
+                    Skill skill = userSkill.getSkill();
+
+                    String newName = skillDto.getName();
+                    String newExperience = skillDto.getExperience();
+
+                    if (newName != null && !newName.isEmpty()) {
+                        skill.setName(newName);
+                    }
+                    if (newExperience != null && !newExperience.isEmpty()) {
+                        userSkill.setExperience(newExperience);
+                    }
+
+                    skillRepository.save(skill);
+                    userSkillRepository.save(userSkill);
+
+                    Map<String, String> response = new HashMap<>();
+                    response.put("id", id.toString());
+                    response.put("name", skill.getName());
+                    response.put("experience", userSkill.getExperience());
+                    response.put("message", "Update Successful");
+
+                    return ResponseEntity.status(HttpStatus.OK).body(response);
+                } else {
+                    throw new RuntimeException("Skill not found for user.");
+                }
+            } catch (Exception e) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "An error occurred while updating the skill: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            }
+        } else {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "User not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
-        if (newExperience != null && !newExperience.isEmpty()) {
-            userSkill.setExperience(newExperience);
-        }
-
-        skillRepository.save(skill);
-        userSkillRepository.save(userSkill);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("id", id.toString());
-        response.put("name", skill.getName());
-        response.put("experience", userSkill.getExperience());
-        response.put("message", "Update Successful");
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
 

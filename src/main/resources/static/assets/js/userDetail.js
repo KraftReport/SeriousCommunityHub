@@ -5,14 +5,19 @@ console.log(localStorage.getItem('userIdForDetailPage') + "---------------------
 let  userId = localStorage.getItem('userIdForDetailPage')
 let postsDiv = document.getElementById('user-post-div')
 
+document.addEventListener('DOMContentLoaded', async () => {
+    await getPosts();
+    loginUser = localStorage.getItem('staff_id');
+    connect();
+    notifyMessage().then();
+});
 
- 
 
 let currentPageForPost = 0;
 let isFetchingForPost = false;
 let hasMoreForPost = true;
 
-const makeFileDownloadPost = async (resources) => {
+async function makeFileDownloadPost(resources){
     console.log('d ko youk tl naw')
     const parentDiv = document.createElement('div');
     parentDiv.classList.add('card','shadow');
@@ -58,7 +63,7 @@ const makeFileDownloadPost = async (resources) => {
 }
 
 
-const displayNoPostMessage = () => {
+async function displayNoPostMessage() {
     let footerDiv = document.querySelector('.copyright');
     footerDiv.innerHTML = '';
     const divEl = document.createElement('div');
@@ -78,7 +83,7 @@ document.getElementById('communityName').textContent = data.name
 document.getElementById('communityMembers').textContent = 10
 }
 
-const downloadFile = async (event, url, fileName) => {
+async function downloadFile(event, url, fileName) {
     event.preventDefault();
     try {
         const response = await fetch(url, {
@@ -104,24 +109,24 @@ const downloadFile = async (event, url, fileName) => {
     }
 };
 
-const deleteRawFileResource = (id) => {
+async function deleteRawFileResource(id){
     let element = document.getElementById('old-raw-file-'+id)
     element.classList.add('deleted-raw-file')
     console.log(element)
 }
 
-const removePreviewForRawFile = () => {
+async function removePreviewForRawFile(){
     let parent = document.getElementById('editModal') 
     parent.innerHTML = '' 
  
 }
 
-const removePreviewForPostUpdate = () => {
+async function removePreviewForPostUpdate(){
     let parent = document.getElementById('editModal') 
     parent.innerHTML = '' 
 }
 
-const getUpdateDataForRaw = async () => { 
+async function getUpdateDataForRaw(){
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -211,11 +216,15 @@ const getUpdateDataForRaw = async () => {
     }
 }
 
+let loginUser = null;
+let stompClient = null;
+let notificationCount = 0;
+
 const getPosts = async () => {
     console.log('66666666666666666666666666666666666666666666666666666666')
     isFetchingForPost = true
     let data = await fetch(`/post/getPostsForUserDetailPage/${userId}/${currentPageForPost}`)
-    console.log(currentPageForPost)
+    console.log('dddd=======>'+currentPageForPost)
     console.log(userId)
     let response = await data.json()
     isFetchingForPost = false
@@ -724,14 +733,14 @@ window.addEventListener('scroll', async () => {
 });
 
 
-const checkEventOwnerOrAdmin = async (id) => {
+async function checkEventOwnerOrAdmin(id){
     let data = await fetch(`/event/checkEventOwnerOrAdmin/${id}`)
     let response = await data.json()
     console.log(response[0])
     return response[0]
 }
 
-const getGroupOrPublicMentionUsers =async (id) => {
+async function getGroupOrPublicMentionUsers(id) {
     const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
     const data = await getUsers.json();
     return data;
@@ -782,20 +791,20 @@ const mentionPostForComment = (id) => {
     });
 };
 
-const extractMentionedUsersForComment = (postText) => {
+async function extractMentionedUsersForComment (postText) {
     const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
     return mentions.map(mention => mention.id);
 }
 
 
 
-const fetchCommentSizes = async (id) => {
+async function fetchCommentSizes(id) {
     const commentSize = await fetch(`/comment-size/${id}`);
     const commentCount = await commentSize.json();
     return commentCount;
 };
 
-const fetchCommetedUser = async (id) => {
+async function fetchCommetedUser (id) {
     const commentUser = await fetch(`/user/comment-user-data/${id}`);
     if (!commentUser.ok) {
         alert('something wrong');
@@ -804,13 +813,13 @@ const fetchCommetedUser = async (id) => {
     return commentUserData;
 }
 
-const fetchSizes = async (id) => {
+async function fetchSizes(id){
     const reactSize = await fetch(`/like-size/${id}`);
     const reactCount = await reactSize.json();
     return reactCount;
 };
 
-const fetchReactType = async (id) => {
+async function fetchReactType(id) {
     try {
         const response = await fetch(`/like-type/${id}`);
         if (!response.ok) {
@@ -825,13 +834,13 @@ const fetchReactType = async (id) => {
     }
 };
 
-const fetchReactTypeForNotification = async (id) => {
+async function fetchReactTypeForNotification (id) {
     const reactType = await fetch(`/user/like-noti-type/${id}`);
     const reactDataType = await reactType.json();
     return reactDataType;
 }
 
-const removeReaction = async (id) => {
+async function removeReaction(id) {
     const cancelType = await fetch(`/remove-like-type/${id}`);
     if (!cancelType.ok) {
         alert('something wrong');
@@ -845,7 +854,7 @@ let mark = document.getElementById('markBox')
 let eventDiv = document.getElementById('events')
 const mentionSuggestions = document.getElementById('mentionSuggestions');
 
-const mentionCommunityMember = () => {
+ function mentionCommunityMember() {
     const messageInput = document.getElementById('post-content');
     messageInput.addEventListener('input', async (event) => {
         const inputValue = event.target.value;
@@ -887,20 +896,20 @@ const mentionCommunityMember = () => {
     });
 };
 
-const getAllMembersWithoutLoginUser = async () => {
+async function getAllMembersWithoutLoginUser() {
     const getAllData = await fetch('/get-activeUser-forMention');
     const response = await getAllData.json();
     return response;
 };
 
 
-const getAllMember = async () => {
+async function getAllMember() {
     const getAllData = await fetch('/get-all-active-user');
     const response = await getAllData.json();
     return response;
 };
 
-const highlightMentions = async (description) => {
+async function highlightMentions(description){
 
     const allMembers = await getAllMember();
     const sanitizedMemberNames = allMembers.map(member => member.name.replace(/\s+/g, ''));
@@ -1803,7 +1812,7 @@ async function getAllEventsForPost() {
 }
 
 
-const removeCat = async () =>{
+async function removeCat(){
     cat.classList.add('hidden')
     mark.classList.remove('hidden')
    }
@@ -1875,18 +1884,9 @@ async function getAllUserGroup(num) {
 }
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    loginUser = localStorage.getItem('staff_id');
-    connect();
-    notifyMessage().then();
 
-});
 
-let loginUser = null;
-let stompClient = null;
-let notificationCount = 0;
-
-const connect = () => {
+function connect() {
     let socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, () => {
@@ -1904,7 +1904,7 @@ document.getElementById('notiCountDecrease').addEventListener('click', () => {
     showNotiCount().then();
 });
 
-const showNotiCount = async () => {
+async function showNotiCount() {
     const notiShow = document.getElementById('notiCount');
     notiShow.innerText = notificationCount;
     if (notificationCount === 0) {
@@ -1912,7 +1912,7 @@ const showNotiCount = async () => {
     }
 };
 
-const notifyMessage = async () => {
+async function notifyMessage(){
     const showMessage = document.getElementById('notifyMessage');
     const pElement = document.createElement('p');
     if (notificationCount === 0) {
@@ -1924,7 +1924,7 @@ const notifyMessage = async () => {
     showMessage.appendChild(pElement);
 };
 
-const notifyMessageForReact = async (message, sender, photo, type) => {
+async function notifyMessageForReact(message, sender, photo, type) {
     const spanElement = document.getElementById('notiId');
     spanElement.innerText = `You have ${notificationCount} new notifications`;
     const showMessage = document.getElementById('notifyMessage');
@@ -1976,7 +1976,7 @@ const notifyMessageForReact = async (message, sender, photo, type) => {
 };
 
 
-const receivedMessageForReact = async (payload) => {
+async function receivedMessageForReact(payload) {
     console.log("Message Received");
     const message = await JSON.parse(payload.body);
     // await welcome();
@@ -1987,7 +1987,7 @@ const receivedMessageForReact = async (payload) => {
     }
 };
 
-const pressedLike = async (id, type) => {
+async function pressedLike(id, type) {
     console.log('PostId', id);
     const myObj = {
         postId: id,
@@ -1999,7 +1999,7 @@ const pressedLike = async (id, type) => {
 };
 
 
-const getAllComments = async (id) => {
+async function getAllComments(id) {
 const fetchComments = await fetch(`/getComment/${id}`);
 if (!fetchComments.ok) {
     alert('There is something wrong in the comment section,Please try again!');
@@ -2014,7 +2014,7 @@ for (const c of getData) {
 }
 };
 
-const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
+async function displayMessage(sender, content, photo, id, postId,localDateTime,chatArea){
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
@@ -2343,7 +2343,7 @@ const onSuccess =async (id) => {
     await document.querySelector(`.replies-container-${id}`).appendChild(reply);
 }
 
-const fetchAndDisplayLastReply = async (id) => {
+async function fetchAndDisplayLastReply(id){
     const fetchReplies = await fetch(`/getAll-comment/${id}`);
     const fetchDataForReplies = await fetchReplies.json();
     const replyElement = document.createElement('div');
@@ -2634,7 +2634,7 @@ const fetchAndDisplayLastReply = async (id) => {
 };
 
 
-const fetchAndDisplayReplies = async (id) => {
+async function fetchAndDisplayReplies(id){
     const fetchReplies = await fetch(`/getAll-comment/${id}`);
     const fetchDataForReplies = await fetchReplies.json();
 
@@ -2929,19 +2929,19 @@ const fetchAndDisplayReplies = async (id) => {
 };
 
 
-const replyReactType = async (commentId, userId, replyId) => {
+async function replyReactType(commentId, userId, replyId) {
 const fetchTypeForReply = await fetch(`/reply-type-react/${commentId}/${userId}/${replyId}`);
 const response = await fetchTypeForReply.json();
 return response;
 }
 
-const commentReactType = async (id, userId, postId) => {
+async function commentReactType(id, userId, postId){
 const fetchType = await fetch(`/comment-type-react/${id}/${userId}/${postId}`);
 const response = await fetchType.json();
 return response;
 }
 
-const deleteComment = async (id) => {
+async function deleteComment(id) {
 const getData = await fetch(`/delete-comment/${id}`, {
     method: 'DELETE'
 });
@@ -2963,7 +2963,7 @@ userItem.remove();
 // await getAllComments(postId);
 };
 
-const deleteReply = async (id) => {
+async function deleteReply(id) {
 const getData = await fetch(`/delete-reply/${id}`, {
     method: 'DELETE'
 });
@@ -2985,7 +2985,7 @@ replyItem.remove();
 // await getAllComments(postId);
 };
 
-const updateContentForReply = async (id, content) => {
+async function updateContentForReply(id, content){
 const myObj = {
     id: id,
     content: content
@@ -3017,7 +3017,7 @@ divEl.appendChild(newSpElement);
 // await getAllComments(postId);
 };
 
-const updateContent = async (id, content) => {
+async function updateContent(id, content){
 const myObj = {
     id: id,
     content: content
@@ -3050,7 +3050,7 @@ cmtDiv.appendChild(newSpanElement);
 // await getAllComments(postId);
 };
 
-const receivedMessageForComment = async (payload) => {
+async function receivedMessageForComment(payload){
 console.log('Message Received');
 const message = await JSON.parse(payload.body);
 // const user = await fetchUserDataByPostedUser(loginUser);
@@ -3076,7 +3076,7 @@ const localDateTime = new Date().toLocaleString();
 await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
 };
 
-const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
+async function sendMentionNotificationForComment(mentionedUsers, id){
     if (mentionedUsers.length > 0) {
         console.log("get", mentionedUsers);
         const myObj = {
@@ -3088,7 +3088,7 @@ const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
     }
 }
 
-const receivedMessageForMention = async (payload) => {
+async function receivedMessageForMention(payload){
     try {
         console.log('Message Received');
         const message = JSON.parse(payload.body);
@@ -3106,7 +3106,7 @@ const receivedMessageForMention = async (payload) => {
     }
 };
 
-const receivedMessageForCommentReply = async (payload) => {
+async function receivedMessageForCommentReply(payload) {
 console.log('Message Received');
 const message = await JSON.parse(payload.body);
 console.log('staffid', message.staffId);
@@ -3132,7 +3132,7 @@ if(message.commentId != null){
 // await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId, chatArea);
 };
 
-const pressedComment = async (id) => {
+async function pressedComment(id){
 console.log('comment', id);
 await getAllComments(id);
 await mentionPostForComment(id)
@@ -3157,7 +3157,7 @@ document.getElementById('sendCommentButton').addEventListener('click', async () 
 });
 };
 
-const resetModalContent = () => {
+ function resetModalContent(){
 const sendCommentButton = document.getElementById('sendCommentButton');
 const newSendCommentButton = sendCommentButton.cloneNode(true);
 sendCommentButton.parentNode.replaceChild(newSendCommentButton, sendCommentButton);
@@ -3180,7 +3180,7 @@ console.log('Hello ya p hayy');
 resetModalContent();
 });
 
-const fetchUserDataByPostedUser = async (id) => {
+async function fetchUserDataByPostedUser(id){
     const fetchUserData = await fetch(`/get-userData/${id}`);
     if (!fetchUserData.ok) {
         alert('Invalid user');
@@ -3189,7 +3189,7 @@ const fetchUserDataByPostedUser = async (id) => {
     return userDataForAll;
 };
 
-const fetchUserPostById = async (id) => {
+async function fetchUserPostById(id){
     const fetchUserDataForPost = await fetch(`/get-userPostsData/${id}`);
     if (!fetchUserDataForPost.ok) {
         alert('Invalid user');
@@ -3198,7 +3198,7 @@ const fetchUserPostById = async (id) => {
     return userDataPost;
 };
 
-const fetchRepliedUserForData = async (id) => {
+async function fetchRepliedUserForData (id){
     const fetchDataForUser = await fetch(`/user/reply-user-data/${id}`);
     const userDataForReply = await fetchDataForUser.json();
     return userDataForReply;
@@ -3208,7 +3208,7 @@ let currentPage = '0';
 let isFetching = false;
 let hasMore = true;
 
-const fetchNotificationPerPage = async () => {
+async function fetchNotificationPerPage(){
     isFetching = true;
     let response = await fetch(`/user/get-all-noti/${currentPage}`, {
         method: 'GET'
@@ -3455,19 +3455,19 @@ const fetchNotificationPerPage = async () => {
     }
 };
 
-const getMentionUser = async (id) => {
+async function getMentionUser(id){
     const data = await fetch(`/getData-mention/${id}`);
     const res = await data.json();
     return res;
 }
 
-const getMentionById = async (id) => {
+async function getMentionById(id){
     const data = await fetch(`/get-mentionUser/${id}`);
     const res = await data.json();
     return res;
 }
 
-const deleteAllNotifications =async  () => {
+async function deleteAllNotifications(){
     const deleteAllNoti = await fetch(`/delete-all-noti`,{
         method:'DELETE'
     });
@@ -3481,7 +3481,7 @@ const deleteAllNotifications =async  () => {
     }
 }
 
-const deletedNotification = async (id) =>{
+async function deletedNotification(id){
     const deleteNoti = await fetch(`/delete-noti/${id}`,{
         method:'DELETE'
     });
@@ -3498,7 +3498,7 @@ const deletedNotification = async (id) =>{
     }
 }
 
-const attachNotificationEventListeners = () => {
+async function attachNotificationEventListeners(){
     const notificationElements = document.querySelectorAll('.notificationForNoti');
     notificationElements.forEach(notificationElement => {
         notificationElement.addEventListener('click', async function() {
@@ -3876,6 +3876,9 @@ async function timeAgo(createdDate) {
         return `${days} days${days > 1 ? '' : ''} ago`;
     }
 }
+let currentPageForPoll = '0';
+let isFetchingForPoll = false;
+let hasMoreForPoll = true;
 
 async function getAllPollPost() {
     isFetchingForPoll = true
@@ -4510,7 +4513,7 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
 
 
 
-const fetchPostById = async (id) => {
+async function fetchPostById(id) {
     const postData = await fetch(`/post/fetch-post/${id}`);
     const postRes = await postData.json();
     return postRes;

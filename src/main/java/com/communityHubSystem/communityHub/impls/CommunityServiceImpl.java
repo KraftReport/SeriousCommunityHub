@@ -310,6 +310,11 @@ public class CommunityServiceImpl implements CommunityService {
             c.setActive(true);
             communityRepository.save(c);
         });
+       var chatRoom = chatRoomService.findByCommunityId(id);
+       if(chatRoom != null){
+           chatRoom.setDeleted(true);
+       }
+       chatRoomService.saveChatRoom(chatRoom);
     }
 
     @Transactional
