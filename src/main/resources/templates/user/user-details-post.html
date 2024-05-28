@@ -88,23 +88,31 @@
 </div>
 
 
-    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-           
-                   <div class="modal-body" id="editModal">
-                       ...
-                   </div>  
-                       <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
-                       data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
-                       </button>
- 
-                
-           </div>
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" onclick="removePreviewForPostUpdate()" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+       
+               <div class="modal-body" id="editModal">
+                   
+
+                <div id="update-raw-old"></div>
+
+                <div id="update-raw-preview"></div>
+
+               </div>  
+                   <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
+
+                   <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
+            
        </div>
+   </div>
 
 </div>
 </main>

@@ -656,30 +656,52 @@ public class UserController {
             @PathVariable("id") Long id,
             @RequestBody SkillDto skillDto) {
 
-        System.out.println("hjkl" + id);
-        User_Skill userSkill = userSkillRepository.findById(id).orElseThrow(() -> new RuntimeException("Skill not found"));
-        Skill skill = userSkill.getSkill();
+        System.out.println("nnn" + id);
+        String staffId = SecurityContextHolder.getContext().getAuthentication().getName().trim();
+        Optional<User> optionalUser = userService.findByStaffId(staffId);
 
-        String newName = skillDto.getName();
-        String newExperience = skillDto.getExperience();
+        if (optionalUser.isPresent()) {
+            try {
+                User user = optionalUser.get();
+                Optional<User_Skill> optionalUserSkill = userSkillRepository.findBySkillIdAndUserId(id,user.getId());
 
-        if (newName != null && !newName.isEmpty()) {
-            skill.setName(newName);
+                if (optionalUserSkill.isPresent()) {
+                    User_Skill userSkill = optionalUserSkill.get();
+                    Skill skill = userSkill.getSkill();
+
+                    String newName = skillDto.getName();
+                    String newExperience = skillDto.getExperience();
+
+                    if (newName != null && !newName.isEmpty()) {
+                        skill.setName(newName);
+                    }
+                    if (newExperience != null && !newExperience.isEmpty()) {
+                        userSkill.setExperience(newExperience);
+                    }
+
+                    skillRepository.save(skill);
+                    userSkillRepository.save(userSkill);
+
+                    Map<String, String> response = new HashMap<>();
+                    response.put("id", id.toString());
+                    response.put("name", skill.getName());
+                    response.put("experience", userSkill.getExperience());
+                    response.put("message", "Update Successful");
+
+                    return ResponseEntity.status(HttpStatus.OK).body(response);
+                } else {
+                    throw new RuntimeException("Skill not found for user.");
+                }
+            } catch (Exception e) {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "An error occurred while updating the skill: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            }
+        } else {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "User not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
-        if (newExperience != null && !newExperience.isEmpty()) {
-            userSkill.setExperience(newExperience);
-        }
-
-        skillRepository.save(skill);
-        userSkillRepository.save(userSkill);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("id", id.toString());
-        response.put("name", skill.getName());
-        response.put("experience", userSkill.getExperience());
-        response.put("message", "Update Successful");
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/policyExists")

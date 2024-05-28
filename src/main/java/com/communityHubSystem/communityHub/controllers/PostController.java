@@ -10,6 +10,7 @@ import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.PostRepository;
 import com.communityHubSystem.communityHub.repositories.ResourceRepository;
+import com.communityHubSystem.communityHub.services.CommunityService;
 import com.communityHubSystem.communityHub.services.PostService;
 import com.communityHubSystem.communityHub.services.UserService;
 import com.communityHubSystem.communityHub.services.User_GroupService;
@@ -38,6 +39,7 @@ public class PostController {
     private final Cloudinary cloudinary;
     private final UserService userService;
     private final User_GroupService user_groupService;
+    private final CommunityService communityService;
 
     @PostMapping("/createPublicPost")
     public ResponseEntity<?> createPublicPost(@ModelAttribute PostDto publicPostDto,
@@ -121,8 +123,11 @@ public class PostController {
     @ResponseBody
     public ResponseEntity<List<Post>> getPostsForUserDetailPage(@PathVariable("id") String id,
                                                                 @PathVariable("page") String page) {
+        System.err.println(postService.returnPostForUserDetailPage(Long.valueOf(id), page).getContent());
         return ResponseEntity.ok(postService.returnPostForUserDetailPage(Long.valueOf(id), page).getContent());
     }
+
+
 
     @GetMapping("/fetch-post/{id}")
     @ResponseBody
@@ -147,6 +152,13 @@ public class PostController {
         }
 
         var userGroup = user_groupService.findById(post.getUserGroup().getId());
+
+        var community = communityService.findById(userGroup.getCommunity().getId());
+
+        if(community.getGroupAccess().equals(Community.GroupAccess.PUBLIC)){
+            return ResponseEntity.status(HttpStatus.OK).body(post);
+        }
+
         List<User_Group> userGroups = user_groupService.findByCommunityId(userGroup.getCommunity().getId());
 
         List<String> userList = userGroups.stream()

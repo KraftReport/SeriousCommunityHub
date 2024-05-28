@@ -1,5 +1,7 @@
 package com.communityHubSystem.communityHub.controllers;
 
+import com.communityHubSystem.communityHub.dto.GroupAccessChangeDto;
+import com.communityHubSystem.communityHub.dto.GroupOwnerDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.ChatRoomRepository;
@@ -7,6 +9,7 @@ import com.communityHubSystem.communityHub.repositories.CommunityRepository;
 import com.communityHubSystem.communityHub.repositories.UserRepository;
 import com.communityHubSystem.communityHub.repositories.User_GroupRepository;
 import com.communityHubSystem.communityHub.services.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +42,18 @@ public class GroupController {
 
     @GetMapping("/group")
     public String group(Model model) {
-        List<User> users = communityService.getAll();
-        model.addAttribute("users", users);
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        String staffId = auth.getName();
+        Optional<User> user = userService.findByStaffId(staffId.trim());
+
+        if (user.isPresent()) {
+            if (User.Role.ADMIN.equals(user.get().getRole())) {
+                List<User> users = userService.getAllUser().stream()
+                        .filter(u -> !User.Role.ADMIN.equals(u.getRole()))
+                        .collect(Collectors.toList());
+                model.addAttribute("users", users);
+            }
+        }
         return "user/user-group";
     }
 
@@ -107,6 +120,7 @@ public class GroupController {
         response.put("message", "Created successfully");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
     @GetMapping("viewcommunity")
     public String views() {
         return "user/community-view";
@@ -141,6 +155,18 @@ public class GroupController {
         }
     }
 
+    @GetMapping("/inactive-community-view")
+    @ResponseBody
+    public ResponseEntity<List<Community>> getInactiveCommunity() {
+        var user = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("User name not found exception!"));
+        List<Community> inactiveCommunities = communityService.findAll()
+                .stream()
+                .filter(community -> !community.isActive())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(inactiveCommunities);
+    }
+
 
     @PostMapping("/createGroup")
     public ResponseEntity<Map<String, String>> createCommunity(@ModelAttribute Community community, @RequestParam(required = false) Long[] user, @RequestParam("file") MultipartFile file) {
@@ -160,7 +186,7 @@ public class GroupController {
     public ResponseEntity<?> getOwnerNames(@PathVariable Long communityId) {
         try {
             List<String> ownerNames = communityService.getOwnerNamesByCommunityId(communityId);
-            return ResponseEntity.ok(ownerNames);
+            return ResponseEntity.status(HttpStatus.OK).body(ownerNames);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching owner names");
         }
@@ -191,18 +217,36 @@ public class GroupController {
     }
 
     @GetMapping("/user/{communityId}")
-    public ResponseEntity<List<User>> getAllUsersByCommunity(@PathVariable("communityId") Long communityId, Model model) {
-        var community = communityService.getCommunityBy(communityId);
-        System.out.println("IDDIDI" + community.getId());
-        List<User_Group> user_groups = user_groupService.findByCommunityId(communityId);
-        List<User> users = new ArrayList<>();
-        for (User_Group user_group : user_groups) {
-            User user = userService.findById(user_group.getUser().getId());
-            if(!user.getRole().equals(User.Role.ADMIN)){
-                users.add(user);
+    public ResponseEntity<List<User>> getAllUsersByCommunity(@PathVariable("communityId") Long communityId) {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId.trim());
+
+        if (optionalUser.isPresent()) {
+            User currentUser = optionalUser.get();
+            User.Role currentUserRole = currentUser.getRole();
+
+            var community = communityService.getCommunityBy(communityId);
+            List<User_Group> userGroups = user_groupService.findByCommunityId(communityId);
+            List<User> users = new ArrayList<>();
+
+            for (User_Group userGroup : userGroups) {
+                User user = userService.findById(userGroup.getUser().getId());
+
+                if (User.Role.ADMIN.equals(currentUserRole)) {
+                    if (!User.Role.ADMIN.equals(user.getRole())) {
+                        users.add(user);
+                    }
+                } else {
+                    if (!User.Role.ADMIN.equals(user.getRole()) && !community.getOwnerName().equals(user.getName())) {
+                        users.add(user);
+                    }
+                }
             }
+
+            return ResponseEntity.status(HttpStatus.OK).body(users);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PostMapping("/kick")
@@ -306,7 +350,7 @@ public class GroupController {
     @GetMapping("/get-groupOwner-check/{loginUser}/{id}")
     @ResponseBody
     public ResponseEntity<Community> getOwnerForCommunityToCheck(@PathVariable("loginUser") String loginUser,
-                                                              @PathVariable("id") Long id) {
+                                                                 @PathVariable("id") Long id) {
         var user = userService.findByStaffId(loginUser).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception!"));
         var community = communityService.findByIdAndOwnerName(id, user.getName().trim());
         if (community == null) {
@@ -324,16 +368,75 @@ public class GroupController {
 
     @GetMapping("/get-groupMembers-check/{id}")
     @ResponseBody
-    public ResponseEntity<List<User>> getAllUsersForCheck(@PathVariable("id")Long id){
+    public ResponseEntity<List<User>> getAllUsersForCheck(@PathVariable("id") Long id) {
         List<User_Group> user_groups = user_groupService.findByCommunityId(id);
         List<User> userList = new ArrayList<>();
-        for(User_Group user_group:user_groups){
+        for (User_Group user_group : user_groups) {
             var user = userService.findById(user_group.getUser().getId());
-            if(!user.getRole().equals(User.Role.ADMIN)){
+            if (!user.getRole().equals(User.Role.ADMIN)) {
                 userList.add(user);
             }
         }
         return ResponseEntity.status(HttpStatus.OK).body(userList);
     }
 
+    @GetMapping("/getActiveUsersForAdd")
+    public ResponseEntity<List<User>> getUsersForAdd() {
+        List<User> userList = userService.getAllActiveUser();
+        List<User> users = userList.stream()
+                .filter(user -> !user.getRole().equals(User.Role.ADMIN))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
+    @PostMapping("/add-groupAdmin")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> svgGroupOwner(@RequestBody GroupOwnerDto groupOwnerDto) {
+        Map<String, String> res = new HashMap<>();
+        communityService.svgOwner(groupOwnerDto.getCommunityId(), groupOwnerDto.getUserId());
+        res.put("message", "Successfully added");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PostMapping("/change-access-group")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> changeAccessGroup(@RequestBody GroupAccessChangeDto groupAccessChangeDto) {
+        Map<String, String> res = new HashMap<>();
+        communityService.changeAccess(groupAccessChangeDto);
+        System.out.println("AFDSFD" + groupAccessChangeDto.getCommunityId());
+        System.out.println("AFDSFD" + groupAccessChangeDto.getGroupAccess());
+        res.put("message", "Successfully added");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PostMapping("/isActive-modify/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String,String>> changeIsActiveForGroup(@PathVariable("id")Long id){
+        Map<String, String> res = new HashMap<>();
+        communityService.modifyStatus(id);
+        res.put("message", "changed successfully from inactive to active group");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @PostMapping("/leave-group/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String,String>> leaveTheGroup(@PathVariable("id")Long id){
+        Map<String, String> res = new HashMap<>();
+        communityService.leaveFromGroup(id);
+        res.put("message", "leaved successfully!");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @GetMapping("/getMembersOfTheCommunity/{communityId}")
+    @ResponseBody
+    public ResponseEntity<List<User>> getMembersOfTheCommunity(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getMembersOfACommunity(Long.valueOf(communityId)));
+    }
+
+    @GetMapping("/getOwnerOfTheCommunity/{communityId}")
+    @ResponseBody
+    public ResponseEntity<User> getOwnerOfTheCommunity(@PathVariable("communityId")String communityId){
+        return ResponseEntity.ok(communityService.getOwnerOfTheCommunity(Long.valueOf(communityId)));
+    }
 }

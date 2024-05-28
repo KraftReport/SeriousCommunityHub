@@ -683,28 +683,31 @@
       <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
           <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
-          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" onclick="removePreviewForPostUpdate()" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
 
                    <div class="modal-body" id="editModal">
-                       ...
-                   </div>
-                       <button type="button" onclick="getUpdateData()"   class="btn btn-primary"
+                      
+                   
 
 
                     <div id="update-raw-old"></div>
 
                     <div id="update-raw-preview"></div>
 
+
+
                    </div>
-                       <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
-                       data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
-                       </button>
- 
-                       <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
-                       data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
-                       </button>
+
+                   <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
+
+                   <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
+
 
            </div>
        </div>
@@ -753,6 +756,9 @@
                                         </select>
                                     </div>
                                 </div>
+
+
+                                <div id="previewContainerForEventPhoto"></div>
 
                                     <button id="eventCreateBtn" style="margin-left: 200px; border-radius: 10px;" type="button" class="btn btn-primary" onclick="createEventPost()" data-bs-dismiss="offcanvas"  aria-label="Close" >POST</button>
 
@@ -833,6 +839,7 @@
                                 </select>
                             </div>
                         </div>
+                        <div id="previewContainerForPollPhoto"></div>
                             <button type="button" style="margin-left: 200px; border-radius: 10px;" class="btn btn-primary" id="pollCreateBtn"  onclick="createAPollPost()"  data-bs-dismiss="offcanvas"  aria-label="Close"  >POST</button>
                     </form>
         </div>
@@ -2161,8 +2168,9 @@ function renderCalendar(events) {
     <!-- Template Main JS File -->
     <script src="/static/assets/js/main.js"></script>
     <script src="https://kit.fontawesome.com/e2397b357b.js" crossorigin="anonymous"></script>
-    <script src="/static/assets/js/post.js"></script>
+    
 </div>
+<script src="/static/assets/js/post.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>

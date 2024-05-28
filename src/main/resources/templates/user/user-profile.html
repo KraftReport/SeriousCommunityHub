@@ -200,25 +200,31 @@
 
 <!-- edit offcanvas start  -->
 
-<div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas"
-     aria-labelledby="offcanvasWithBothOptionsLabel">
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="postEditOffcanvas" aria-labelledby="offcanvasWithBothOptionsLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <h5 class="offcanvas-title font-monospace m-2" id="offcanvasWithBothOptionsLabel">Edit Post</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" onclick="removePreviewForPostUpdate()" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
 
-        <div class="modal-body" id="editModal">
-            ...
-        </div>
-        <button type="button" onclick="getUpdateData()" class="btn btn-primary"
-                data-bs-dismiss="offcanvas" aria-label="Close">Update
-        </button>
+               <div class="modal-body" id="editModal">
 
 
-    </div>
-</div>
+                <div id="update-raw-old"></div>
 
+                <div id="update-raw-preview"></div>
+
+               </div>
+                   <button id="resourceUpdateButton" type="button" onclick="getUpdateData()"    class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
+
+                   <button id="rawUpdateButton" type="button" onclick="getUpdateDataForRaw()"    class="btn btn-primary"
+                   data-bs-dismiss="offcanvas"  aria-label="Close"  >Update
+                   </button>
+
+       </div>
+   </div>
 <!-- edit offcanvas end  -->
 
 
@@ -738,8 +744,8 @@
 <div class="modal fade" id="backgroundModal" tabindex="-1" aria-labelledby="backgroundModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="backgroundModalLabel">Choose a background</h5>
+            <div class="modal-header" style="background-color: #007bff">
+                <h5 class="modal-title" id="backgroundModalLabel" style="color: white">Choose a background</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -861,9 +867,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
@@ -882,6 +885,16 @@
         }
     }
 
+    // Call the function to set the background image when the page is loaded with userId
+    // window.onload = function () {
+    //     const userIdInput = document.getElementById('userId1');
+    //     if (userIdInput) {
+    //         const userId = userIdInput.value;
+    //         setBackgroundImageFromLocalStorage(userId);
+    //     } else {
+    //         console.error('User id not found');
+    //     }
+    // };
 
     // Add a click event listener to the edit photo button to show the modal
     const editPhotoBtn = document.getElementById('edit-photo-btn');
@@ -951,6 +964,7 @@
                     console.error('User id not found');
                 }
                 $('#backgroundModal').modal('hide');
+                document.getElementById('backgroundForm').reset();
             } else {
                 console.error('Failed to upload image:', response.statusText);
                 document.getElementById('fileError').innerText = 'Failed to upload image';

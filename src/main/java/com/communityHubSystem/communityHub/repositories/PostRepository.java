@@ -30,6 +30,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
     @Query(value = "SELECT * FROM post WHERE user_id = :userId AND user_group_id = :userGroupId ORDER BY created_date DESC", nativeQuery = true)
     List<Post> findAllByUserIdAndUserGroupIdByCreatedDate(Long userId, Long userGroupId);
 
+    @Query(value = "SELECT * FROM post WHERE user_group_id = :userGroupId ORDER BY created_date DESC", nativeQuery = true)
+    List<Post> findAllByUserGroupIdOrderByCreatedDateDesc(@Param("userGroupId") Long userGroupId);
+
 
     @Query(value = "select * from post where user_group_id = :id order by created_date desc", nativeQuery = true)
     List<Post> findAllByUserGroupId(Long id);
@@ -52,5 +55,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
 
     @Query("SELECT p FROM Post p WHERE p.user.id = :userId AND YEAR(p.createdDate) = :year AND MONTH(p.createdDate) = :month")
     List<Post> findByUserIdAndYearAndMonth(@Param("userId") Long userId, @Param("year") int year, @Param("month") int month);
+
 
 }
