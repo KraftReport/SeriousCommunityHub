@@ -275,7 +275,13 @@ public class CommunityServiceImpl implements CommunityService {
                 .orElseThrow(() -> new CommunityHubException("Community not found!"));
 
         community.setOwnerName(user.getName());
+        var userGroup = User_Group.builder()
+                .date(new Date())
+                .user(user)
+                .community(community)
+                .build();
         communityRepository.save(community);
+        user_groupRepository.save(userGroup);
     }
 
     @Transactional
@@ -311,6 +317,39 @@ public class CommunityServiceImpl implements CommunityService {
     public User getOwnerOfTheCommunity(Long communityId) {
         var community = communityRepository.findById(communityId).orElseThrow(()->new CommunityHubException("community not found"));
         return userRepository.findByName(community.getOwnerName());
+    }
+
+    @Transactional
+    @Override
+    public void modifyStatus(Long id) {
+        communityRepository.findById(id).ifPresent(c -> {
+            c.setActive(true);
+            communityRepository.save(c);
+        });
+       var chatRoom = chatRoomService.findByCommunityId(id);
+       if(chatRoom != null){
+           chatRoom.setDeleted(true);
+       }
+       chatRoomService.saveChatRoom(chatRoom);
+    }
+
+    @Transactional
+    @Override
+    public void leaveFromGroup(Long id) {
+        var user = userRepository.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("User name not found exception!"));
+        User_Group userGroup = user_groupRepository.findByUserIdAndCommunityId(user.getId(),id);
+        if(userGroup != null){
+            System.out.println("SUCCESS==>");
+            System.out.println("SDFDSFDSF==>" + userGroup.getCommunity().getName());
+            System.out.println("SDFDSFDSF==>" + userGroup.getUser().getName());
+            try {
+                user_groupRepository.deleteByCommunityIdAndUserId(id, user.getId());
+                System.out.println("Deletion successful");
+            } catch (Exception e) {
+                System.out.println("Error during deletion: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
 

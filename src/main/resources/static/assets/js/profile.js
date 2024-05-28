@@ -1,6 +1,4 @@
-let currentPageForPost = -1;
-let isFetchingForPost = false;
-let hasMoreForPost = true;
+
 function deleteResource(id) {
     document.getElementById(id + '-url').src = 'deleted'
     document.getElementById(id + '-caption').value = ''
@@ -9,24 +7,34 @@ function deleteResource(id) {
     // document.getElementById('deletedResource-'+id).remove()
 }
 
-const deleteRawFileResource = (id) => {
+async function deleteRawFileResource(id) {
     let element = document.getElementById('old-raw-file-'+id)
     element.classList.add('deleted-raw-file')
     console.log(element)
 }
 
-const removePreviewForRawFile = () => {
+document.addEventListener('DOMContentLoaded', () => {
+    loginUser = localStorage.getItem('staff_id');
+    connect();
+    notifyMessage().then();
+
+});
+
+let loginUser = null;
+let stompClient = null;
+let notificationCount = 0;
+ function removePreviewForRawFile(){
     let parent = document.getElementById('editModal') 
     parent.innerHTML = '' 
  
 }
 
-const removePreviewForPostUpdate = () => {
+ function removePreviewForPostUpdate(){
     let parent = document.getElementById('editModal') 
     parent.innerHTML = '' 
 }
 
-const getUpdateDataForRaw = async () => { 
+async function getUpdateDataForRaw(){
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -116,6 +124,23 @@ const getUpdateDataForRaw = async () => {
     }
 }
 
+
+let currentPageForPost = 0;
+let isFetchingForPost = false;
+let hasMoreForPost = true;
+
+window.onload = async () => {
+    console.log('wow this js file is working :-P')
+    const userIdInput = document.getElementById('userId1');
+    if (userIdInput) {
+        const userId = userIdInput.value;
+        setBackgroundImageFromLocalStorage(userId);
+    } else {
+        console.error('User id not found');
+    }
+    await getPosts();
+}
+
 window.addEventListener('scroll', async () => {
     if (isFetchingForPost || !hasMoreForPost) {
         console.log('here two')
@@ -131,20 +156,7 @@ window.addEventListener('scroll', async () => {
     }
 });
 
-
-window.onload = async () => {
-    console.log('wow this js file is working :-P')
-    await getPosts();
-    const userIdInput = document.getElementById('userId1');
-    if (userIdInput) {
-        const userId = userIdInput.value;
-        setBackgroundImageFromLocalStorage(userId);
-    } else {
-        console.error('User id not found');
-    }
-}
-
-const downloadFile = async (event, url, fileName) => {
+async function downloadFile(event, url, fileName){
     event.preventDefault();
     try {
         const response = await fetch(url, {
@@ -175,7 +187,7 @@ let currentPageForAccessLog = '0';
 let isFetchingForAccessLog = false;
 let hasMoreForAccessLog = true;
 
-const getAccessLogData =async () => {
+async function getAccessLogData(){
     isFetchingForAccessLog = true;
     const data = await fetch(`/user/get-accessLogForLoginUser/${currentPageForAccessLog}`,{
         method:'GET'
@@ -250,13 +262,13 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
     await videoObserver()
 });
 
-const getGroupOrPublicMentionUsers =async (id) => {
+async function getGroupOrPublicMentionUsers(id){
     const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
     const data = await getUsers.json();
     return data;
 }
 
-const fetchUserDataByPostedUser = async (id) => {
+async function fetchUserDataByPostedUser(id){
     const fetchUserData = await fetch(`/get-userData/${id}`);
     if (!fetchUserData.ok) {
         alert('Invalid user');
@@ -265,7 +277,7 @@ const fetchUserDataByPostedUser = async (id) => {
     return userDataForAll;
 };
 
-const mentionPostForComment = (id) => {
+ function mentionPostForComment (id){
     const messageInput = document.getElementById('commentText');
     const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
     mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
@@ -310,18 +322,18 @@ const mentionPostForComment = (id) => {
     });
 };
 
-const extractMentionedUsersForComment = (postText) => {
+ function extractMentionedUsersForComment  (postText){
     const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
     return mentions.map(mention => mention.id);
 }
 
-const getAllMember = async () => {
+async function getAllMember(){
     const getAllData = await fetch('/get-all-active-user');
     const response = await getAllData.json();
     return response;
 };
 
-const highlightMentions = async (description) => {
+async function highlightMentions(description){
 
     const allMembers = await getAllMember();
     const sanitizedMemberNames = allMembers.map(member => member.name.replace(/\s+/g, ''));
@@ -337,7 +349,7 @@ const highlightMentions = async (description) => {
     });
 };
 
-const deleteAllAccessLog = async () =>{
+async function deleteAllAccessLog(){
     const deleteAll = await fetch(`/user/delete-all-accessLog`,{
         method:'DELETE'
     });
@@ -351,7 +363,7 @@ const deleteAllAccessLog = async () =>{
 
 }
 
-const displayNoPostMessage = () => {
+async function displayNoPostMessage(){
     let footerDiv = document.querySelector('.copyright');
     footerDiv.innerHTML = '';
     const divEl = document.createElement('div');
@@ -390,13 +402,13 @@ async function checkPostOwnerOrAdmin(id) {
 }
 
 
-const fetchSizes = async (id) => {
+async function fetchSizes(id){
     const reactSize = await fetch(`/like-size/${id}`);
     const reactCount = await reactSize.json();
     return reactCount;
 };
 
-const fetchReactType = async (id) => {
+async function fetchReactType(id){
     try {
         const response = await fetch(`/like-type/${id}`);
         if (!response.ok) {
@@ -411,14 +423,14 @@ const fetchReactType = async (id) => {
     }
 };
 
-const fetchCommentSizes = async (id) => {
+async function fetchCommentSizes(id){
     const commentSize = await fetch(`/comment-size/${id}`);
     const commentCount = await commentSize.json();
     return commentCount;
 };
 
 
-const makeFileDownloadPost = async (resources) => {
+async function makeFileDownloadPost(resources){
     console.log('d ko youk tl naw')
     const parentDiv = document.createElement('div');
     parentDiv.classList.add('card','shadow');
@@ -463,7 +475,7 @@ const makeFileDownloadPost = async (resources) => {
     return parentDiv.outerHTML
 }
 
-const showPhotoUrl =async (url) => {
+async function showPhotoUrl(url){
     let previousUrlValue =  document.getElementById('postShareUrl');
     document.getElementById('forShareingContent').style.width = '800px';
     const divEl = document.getElementById('forSharingButton');
@@ -477,7 +489,7 @@ const showPhotoUrl =async (url) => {
     previousUrlValue.value = url;
 }
 
-const copyButton = async () => {
+async function copyButton(){
     let copyText = document.getElementById("postShareUrl");
     copyText.select();
     copyText.setSelectionRange(0, 99999);
@@ -486,7 +498,7 @@ const copyButton = async () => {
 
 //for share group start
 
-const getShareGroup = async () => {
+async function getShareGroup(){
     const data = await fetch(`/user/getCommunity-list-forShare`);
     const res = await data.json();
     console.log("hahahahah yaya");
@@ -534,7 +546,7 @@ const getShareGroup = async () => {
     });
 }
 
-const postShareToGroup =async (id,staffId,content) => {
+async function postShareToGroup(id,staffId,content){
     const chatMessage = {
         roomId: id,
         sender: staffId,
@@ -587,6 +599,7 @@ const postShareToGroup =async (id,staffId,content) => {
 const getPosts = async () => {
     let userId = await getLoginUserId()
     console.log(userId + 'wow wow wow')
+    console.log('for currnet page',currentPageForPost)
     let postsDiv = document.getElementById('parentLoginUserProfileDiv')
     isFetchingForPost = true
     let data = await fetch(`/post/getPostsForUserDetailPage/${userId}/${currentPageForPost}`)
@@ -597,7 +610,7 @@ const getPosts = async () => {
     let posts = ''
     if (response.length === 0) {
         hasMoreForPost = false;
-        displayNoPostMessage();
+        await displayNoPostMessage();
     }
     // localStorage.setItem('currentPage', response);
     for (const p of response) {
@@ -1141,6 +1154,7 @@ const getPosts = async () => {
 //     });
 // });
 
+
 async function videoObserver() {
     const videos = document.querySelectorAll('#myVideo');
 
@@ -1325,14 +1339,15 @@ async function checkPostOwnerOrAdmin(id) {
 //     return commentCount;
 // };
 
-const removeReaction = async (id) => {
+async function removeReaction(id){
     const cancelType = await fetch(`/remove-like-type/${id}`);
     if (!cancelType.ok) {
         alert('something wrong');
     }
     console.log('hehhe')
 };
-const getLoginUserId = async () => {
+
+async function getLoginUserId() {
     let data = await fetch(`/user/getCurrentLoginUser`)
     let response = await data.json()
     console.log(response)
@@ -1990,17 +2005,7 @@ async function getUpdateData() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    loginUser = localStorage.getItem('staff_id');
-    connect();
-    notifyMessage().then();
-
-});
-
-let loginUser = null;
-let stompClient = null;
-let notificationCount = 0;
-const connect = () => {
+ function connect(){
     let socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, () => {
@@ -2018,7 +2023,7 @@ document.getElementById('notiCountDecrease').addEventListener('click', () => {
     showNotiCount().then();
 });
 
-const sendMentionNotification = async (mentionedUsers, id) => {
+async function sendMentionNotification(mentionedUsers, id){
     if (mentionedUsers.length > 0) {
         console.log("get", mentionedUsers);
         const myObj = {
@@ -2030,7 +2035,7 @@ const sendMentionNotification = async (mentionedUsers, id) => {
     }
 };
 
-const showNotiCount = async () => {
+async function showNotiCount(){
     const notiShow = document.getElementById('notiCount');
     notiShow.innerText = notificationCount;
     if (notificationCount === 0) {
@@ -2038,7 +2043,7 @@ const showNotiCount = async () => {
     }
 };
 
-const notifyMessage = async () => {
+async function notifyMessage(){
     const showMessage = document.getElementById('notifyMessage');
     const pElement = document.createElement('p');
     pElement.classList.add('noti-p-element');
@@ -2052,7 +2057,7 @@ const notifyMessage = async () => {
     showMessage.appendChild(pElement);
 };
 
-const notifyMessageForReact = async (message, sender, photo, type) => {
+async function notifyMessageForReact(message, sender, photo, type){
     const spanElement = document.getElementById('notiId');
     spanElement.innerText = `You have ${notificationCount} new notifications`;
     const showMessage = document.getElementById('notifyMessage');
@@ -2104,7 +2109,7 @@ const notifyMessageForReact = async (message, sender, photo, type) => {
 };
 
 
-const receivedMessageForReact = async (payload) => {
+async function receivedMessageForReact(payload){
     console.log("Message Received");
     const message = await JSON.parse(payload.body);
     // await welcome();
@@ -2116,7 +2121,7 @@ const receivedMessageForReact = async (payload) => {
 };
 
 
-const pressedLikeForEvent = async (id, type) => {
+async function pressedLikeForEvent(id, type){
     console.log('PostId', id);
     const myObj = {
         postId: id,
@@ -2127,7 +2132,7 @@ const pressedLikeForEvent = async (id, type) => {
     stompClient.send('/app/react-event-message', {}, JSON.stringify(myObj));
 };
 
-const pressedLike = async (id, type) => {
+async function pressedLike(id, type){
     console.log('PostId', id);
     const myObj = {
         postId: id,
@@ -2139,7 +2144,7 @@ const pressedLike = async (id, type) => {
 };
 
 
-const getAllComments = async (id) => {
+async function getAllComments(id){
     const fetchComments = await fetch(`/getComment/${id}`);
     if (!fetchComments.ok) {
         alert('There is something wrong in the comment section,Please try again!');
@@ -2154,7 +2159,7 @@ const getAllComments = async (id) => {
     }
 };
 
-const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
+async function displayMessage(sender, content, photo, id, postId,localDateTime,chatArea){
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
@@ -2483,7 +2488,7 @@ const onSuccess =async (id) => {
     await document.querySelector(`.replies-container-${id}`).appendChild(reply);
 }
 
-const fetchAndDisplayLastReply = async (id) => {
+async function fetchAndDisplayLastReply(id){
     const fetchReplies = await fetch(`/getAll-comment/${id}`);
     const fetchDataForReplies = await fetchReplies.json();
     const replyElement = document.createElement('div');
@@ -2774,7 +2779,7 @@ const fetchAndDisplayLastReply = async (id) => {
 };
 
 
-const fetchAndDisplayReplies = async (id) => {
+async function fetchAndDisplayReplies(id){
     const fetchReplies = await fetch(`/getAll-comment/${id}`);
     const fetchDataForReplies = await fetchReplies.json();
 
@@ -3068,7 +3073,7 @@ const fetchAndDisplayReplies = async (id) => {
     return replies;
 };
 
-const fetchCommetedUser = async (id) => {
+async function fetchCommetedUser(id){
     const commentUser = await fetch(`/user/comment-user-data/${id}`);
     if (!commentUser.ok) {
         alert('something wrong');
@@ -3076,19 +3081,20 @@ const fetchCommetedUser = async (id) => {
     const commentUserData = await commentUser.json();
     return commentUserData;
 }
-const replyReactType = async (commentId, userId, replyId) => {
+
+async function replyReactType(commentId, userId, replyId){
     const fetchTypeForReply = await fetch(`/reply-type-react/${commentId}/${userId}/${replyId}`);
     const response = await fetchTypeForReply.json();
     return response;
 }
 
-const commentReactType = async (id, userId, postId) => {
+async function commentReactType(id, userId, postId){
     const fetchType = await fetch(`/comment-type-react/${id}/${userId}/${postId}`);
     const response = await fetchType.json();
     return response;
 }
 
-const deleteComment = async (id) => {
+async function deleteComment(id){
     const getData = await fetch(`/delete-comment/${id}`, {
         method: 'DELETE'
     });
@@ -3110,7 +3116,7 @@ const deleteComment = async (id) => {
     // await getAllComments(postId);
 };
 
-const deleteReply = async (id) => {
+async function deleteReply(id){
     const getData = await fetch(`/delete-reply/${id}`, {
         method: 'DELETE'
     });
@@ -3132,7 +3138,7 @@ const deleteReply = async (id) => {
     // await getAllComments(postId);
 };
 
-const updateContentForReply = async (id, content) => {
+async function updateContentForReply(id, content){
     const myObj = {
         id: id,
         content: content
@@ -3164,7 +3170,7 @@ const updateContentForReply = async (id, content) => {
     // await getAllComments(postId);
 };
 
-const updateContent = async (id, content) => {
+async function updateContent(id, content){
     const myObj = {
         id: id,
         content: content
@@ -3197,7 +3203,7 @@ const updateContent = async (id, content) => {
     // await getAllComments(postId);
 };
 
-const receivedMessageForComment = async (payload) => {
+async function receivedMessageForComment(payload){
     console.log('Message Received');
     const message = await JSON.parse(payload.body);
     // const user = await fetchUserDataByPostedUser(loginUser);
@@ -3223,7 +3229,7 @@ const receivedMessageForComment = async (payload) => {
     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId, localDateTime, chatArea);
 };
 
-const receivedMessageForMention = async (payload) => {
+async function receivedMessageForMention(payload){
     try {
         console.log('Message Received');
         const message = JSON.parse(payload.body);
@@ -3241,7 +3247,7 @@ const receivedMessageForMention = async (payload) => {
     }
 };
 
-const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
+async function sendMentionNotificationForComment(mentionedUsers, id){
     if (mentionedUsers.length > 0) {
         console.log("get", mentionedUsers);
         const myObj = {
@@ -3253,7 +3259,7 @@ const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
     }
 }
 
-const receivedMessageForCommentReply = async (payload) => {
+async function receivedMessageForCommentReply(payload){
     console.log('Message Received');
     const message = await JSON.parse(payload.body);
     console.log('staffid', message.staffId);
@@ -3279,7 +3285,7 @@ const receivedMessageForCommentReply = async (payload) => {
     // await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId, chatArea);
 };
 
-const pressedComment = async (id) => {
+async function pressedComment(id){
     console.log('comment', id);
     await getAllComments(id);
     await mentionPostForComment(id)
@@ -3304,7 +3310,7 @@ const pressedComment = async (id) => {
     });
 };
 
-const resetModalContent = () => {
+async function resetModalContent(){
     const sendCommentButton = document.getElementById('sendCommentButton');
     const newSendCommentButton = sendCommentButton.cloneNode(true);
     sendCommentButton.parentNode.replaceChild(newSendCommentButton, sendCommentButton);
@@ -3331,7 +3337,7 @@ let lodader = document.querySelector('.loader')
 let mark = document.getElementById('markBox')
 let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
 
-const removeCat = async () => {
+async function removeCat(){
     lodader.classList.add('hidden')
     mark.classList.remove('hidden')
 }
@@ -3353,14 +3359,14 @@ async function deletePost(id) {
 
 }
 
-const fetchPostedUser = async (id) => {
+async function fetchPostedUser(id){
     const postedUser = await fetch(`/posted-user/${id}`);
     const userData = await postedUser.json();
     return userData;
 };
 
 
-const fetchUserPostById = async (id) => {
+async function fetchUserPostById(id){
     const fetchUserDataForPost = await fetch(`/get-userPostsData/${id}`);
     if (!fetchUserDataForPost.ok) {
         alert('Invalid user');
@@ -3369,19 +3375,19 @@ const fetchUserPostById = async (id) => {
     return userDataPost;
 };
 
-const fetchReactTypeForNotification = async (id) => {
+async function fetchReactTypeForNotification(id){
     const reactType = await fetch(`/user/like-noti-type/${id}`);
     const reactDataType = await reactType.json();
     return reactDataType;
 }
 
-const fetchRepliedUserForData = async (id) => {
+async function fetchRepliedUserForData(id){
     const fetchDataForUser = await fetch(`/user/reply-user-data/${id}`);
     const userDataForReply = await fetchDataForUser.json();
     return userDataForReply;
 };
 
-const fetchPostById = async (id) => {
+async function fetchPostById(id){
     const postData = await fetch(`/post/fetch-post/${id}`);
     const postRes = await postData.json();
     return postRes;
@@ -3390,7 +3396,7 @@ let currentPage = '0';
 let isFetching = false;
 let hasMore = true;
 
-const fetchNotificationPerPage = async () => {
+async function fetchNotificationPerPage(){
     isFetching = true;
     let response = await fetch(`/user/get-all-noti/${currentPage}`, {
         method: 'GET'
@@ -3637,19 +3643,19 @@ const fetchNotificationPerPage = async () => {
     }
 };
 
-const getMentionUser = async (id) => {
+async function getMentionUser(id){
     const data = await fetch(`/getData-mention/${id}`);
     const res = await data.json();
     return res;
 }
 
-const getMentionById = async (id) => {
+async function getMentionById(id){
     const data = await fetch(`/get-mentionUser/${id}`);
     const res = await data.json();
     return res;
 }
 
-const deleteAllNotifications =async  () => {
+async function deleteAllNotifications(){
     const deleteAllNoti = await fetch(`/delete-all-noti`,{
         method:'DELETE'
     });
@@ -3663,7 +3669,7 @@ const deleteAllNotifications =async  () => {
     }
 }
 
-const deletedNotification = async (id) =>{
+async function deletedNotification(id){
     const deleteNoti = await fetch(`/delete-noti/${id}`,{
         method:'DELETE'
     });
@@ -3680,7 +3686,7 @@ const deletedNotification = async (id) =>{
     }
 }
 
-const attachNotificationEventListeners = () => {
+async function attachNotificationEventListeners(){
     const notificationElements = document.querySelectorAll('.notificationForNoti');
     notificationElements.forEach(notificationElement => {
         notificationElement.addEventListener('click', async function() {
@@ -3711,4 +3717,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
-

@@ -12,106 +12,67 @@
 <main id="main" class="main">
     <div class="container mt-5">
         <span id="message"></span>
-<!--        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCommunityModal" sec:authorize="hasAnyAuthority('ADMIN')">-->
-<!--            Create Community-->
-<!--        </button>-->
-        <br><br>
+        <button type="button" class="btn btn-primary" id="changeInactiveGroup" sec:authorize="hasAnyAuthority('ADMIN')">
+            Active Group
+        </button>
 
         <!-- Create Community Modal -->
-        <div class="modal fade" id="createCommunityModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header" style="background-color: #007bff">
-                        <h5 class="modal-title" id="createCommunityModalLabel" style="color:white;">Create Community</h5>
-                    </div>
-                    <div class="modal-body">
-                        <form id="createCommunityForm">
-                            <div class="form-group">
-                                <label for="name">Name:</label>
-                                <input type="text" class="form-control" id="name" name="name">
-                                <span id="nameError" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label for="ownerId">Choose Owner Name:</label>
-                                <select class="form-control" id="ownerId" name="ownerId" >
-                                    <option value="">Select Owner</option>
-                                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.name}"></option>
-                                </select>
-                                <span id="ownerIdError" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label for="description">Description:</label>
-                                <input type="text" class="form-control" id="description" name="description">
-                                <span id="descriptionError" class="text-danger"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="description">Access:<i class="fa-solid fa-lock"></i></label>
-                                <select name="groupAccess" id="groupAccessForCommunity" class="form-select">
-                                    <option  value="PUBLIC" selected>PUBLIC</option>
-                                    <option value="PRIVATE">PRIVATE</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="file">Image:</label>
-                                <input type="file" class="form-control" accept="image/**" id="file" name="file"
-                                       multiple="multiple"/>
-                                <span id="fileError" class="text-danger"></span>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="createCommunityBtn">Create</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="container">
         <link rel="stylesheet" href="/assets/css/group-card.css">
-        <div class="row" id="communityCards"></div>
+        <div id="communityCards"></div>
+        <div id="inactiveCommunityCards" style="display: none;"></div>
     </div>
-    <button style="background-color: transparent;border-radius: 50px;border: 1px solid dodgerblue" id="App" class="createIcon offset-10 m-1" data-toggle="modal" data-target="#createCommunityModal" sec:authorize="hasAnyAuthority('ADMIN')">
+    <button style="background-color: transparent;border-radius: 50px;border: 1px solid dodgerblue" id="App"
+            class="createIcon offset-10 m-1" data-toggle="modal" data-target="#createCommunityModal"
+            sec:authorize="hasAnyAuthority('ADMIN')">
         <i class="fa-solid fa-user-pen"></i>
     </button>
     <!-- Add Community Modal -->
     <div class="container">
-        <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
+        <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createCommunityModalLabel"
+             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header" style="background-color: #007bff">
-                        <h5 class="modal-title" id="createGroupModalLabel" style="color: white">Add User in Community</h5>
+                        <h5 class="modal-title" id="createGroupModalLabel" style="color: white">Add User in
+                            Community</h5>
                     </div>
                     <div class="modal-body">
                         <form id="createGroupForm">
                             <div class="form-group">
                                 <label for="name1">Name:</label>
                                 <input type="text" class="form-control" id="name1" name="name">
-                            </div><br>
+                            </div>
+                            <br>
                             <input type="hidden" id="communityId1" name="id">
                             <div class="row mb-4">
                                 <label>Choose Member's List:</label><br>
                                 <div class="col-md-4">
-                                    <input type="text" class="form-control" id="userSearch" placeholder="Search users.." style="margin-left: 329px">
+                                    <input type="text" class="form-control" id="userSearch" placeholder="Search users.."
+                                           style="margin-left: 329px">
                                     <div id="usersList"></div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="description1">Description:</label>
                                 <input type="text" class="form-control" id="description1" name="description">
-                            </div><br>
+                            </div>
+                            <br>
                             <div class="form-group">
                                 <label for="image1">Image:</label>
-                                <input type="file" class="form-control" accept="image/**" id="image1" name="file" style="border-right: 15px;" multiple="multiple"/>
+                                <input type="file" class="form-control" accept="image/**" id="image1" name="file"
+                                       style="border-right: 15px;" multiple="multiple"/>
                             </div>
                             <span id="photo"></span>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="createGroupModalCloseBtn">Close</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="createGroupBtn">Update</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                id="createGroupModalCloseBtn">Close
+                        </button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="createGroupBtn">Update
+                        </button>
                     </div>
                 </div>
             </div>
@@ -128,9 +89,11 @@
                     <div class="modal-body">
                         <form id="kickForm">
                             <div class="row mb-4">
-                                <label style="font-weight: bold;font-family: bootstrap-icons;font-size: 20px">Member's List:</label><br>
+                                <label style="font-weight: bold;font-family: bootstrap-icons;font-size: 20px">Member's
+                                    List:</label><br>
                                 <div class="col-md-4">
-                                    <input type="text" class="form-control" id="userSearchForKick" placeholder="Search users.." style="margin-left: 329px">
+                                    <input type="text" class="form-control" id="userSearchForKick"
+                                           placeholder="Search users.." style="margin-left: 329px">
                                     <div id="userList"></div>
                                 </div>
                             </div>
@@ -138,14 +101,18 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="kickModalCloseBtn">Close</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="kickGroupBtn">Kick</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="kickModalCloseBtn">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="kickGroupBtn">Kick
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel"
+         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header" style="background-color: #007bff; color: white;">
@@ -162,7 +129,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="uploadButton">Upload</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="uploadButton">Upload
+                    </button>
                 </div>
             </div>
             <script src="/static/assets/js/excelUpload.js"></script>
@@ -196,20 +164,27 @@
                     <div class="form-group">
                         <label for="currentPassword">Current Password:</label>
                         <div class="input-group">
-                            <input type="password" id="currentPassword" name="currentPassword" required class="form-control">
+                            <input type="password" id="currentPassword" name="currentPassword" required
+                                   class="form-control">
                             <button id="checkPasswordBtn" class="btn btn-primary">Check</button>
                         </div>
                     </div>
                     <div id="changePasswordFields">
                         <div class="form-group">
                             <label for="changePassword">New Password:</label>
-                            <input type="password" id="changePassword" name="changePassword" required class="form-control">
-                            <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is weak.</div>
+                            <input type="password" id="changePassword" name="changePassword" required
+                                   class="form-control">
+                            <div id="changePasswordMessage" class="text-danger" style="display: none">Your password is
+                                weak.
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="confirmChangePassword">Confirm Password:</label>
-                            <input type="password" id="confirmChangePassword" name="confirmChangePassword" required class="form-control">
-                            <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords do not match.</div>
+                            <input type="password" id="confirmChangePassword" name="confirmChangePassword" required
+                                   class="form-control">
+                            <div id="confirmChangePasswordMessage" class="text-danger" style="display: none">Passwords
+                                do not match.
+                            </div>
                         </div>
                         <div class="button-group">
                             <button id="restartBtn" class="btn btn-secondary">Restart</button>
@@ -242,25 +217,72 @@
 </main>
 
 
-<div class="modal fade" id="staticBackdropForChangeAccess" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="staticBackdropForChangeAccess" data-bs-backdrop="static" data-bs-keyboard="false"
+     tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header"  style="background-color: #007bff">
+            <div class="modal-header" style="background-color: #007bff">
                 <h5 class="modal-title" id="staticBackdropLabelForChangeAccess" style="color: white">Change Access:</h5>
             </div>
             <div class="modal-body">
-              <input type="hidden" id="groupId" name="communityId">
-              <input type="hidden" id="changeAccess" name="groupAccess">
+                <input type="hidden" id="groupId" name="communityId">
+                <input type="hidden" id="changeAccess" name="groupAccess">
                 <div id="changeAccessWords"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="changeAccessCloseBtn">Close</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                        id="changeAccessCloseBtn">Close
+                </button>
                 <button type="button" class="btn btn-outline-success" id="changeAccessSubmitBtn">Change</button>
             </div>
         </div>
     </div>
 </div>
 
+
+<div class="modal fade" id="staticBackdropForRebuildGroup" data-bs-backdrop="static" data-bs-keyboard="false"
+     tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #007bff">
+                <h5 class="modal-title" id="staticBackdropLabelForRebuildGroup" style="color: white"><i class="fa-solid fa-recycle"></i>Reusable
+                    group:</h5>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="groupIdForRebuild" name="communityId">
+                <div id="RebuildGroupWords"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                        id="rebuildGroupCloseBtn">Close
+                </button>
+                <button type="button" class="btn btn-outline-success" id="rebuildGroupSubmitBtn">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="staticBackdropForLeaveGroup" data-bs-backdrop="static" data-bs-keyboard="false"
+     tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #007bff">
+                <h5 class="modal-title" id="staticBackdropLabelForLeaveGroup" style="color: white"><i class="fa-solid fa-person-walking-arrow-right"></i>Leave the group:</h5>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="groupIdForLeave" name="communityId">
+                <div id="leaveGroupWords"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" id="leaveGroupCloseBtn">
+                    Close
+                </button>
+                <button type="button" class="btn btn-outline-success" id="leaveGroupSubmitBtn">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Button trigger modal -->
 
 <!-- Delete Community Modal -->
@@ -275,59 +297,115 @@
                 <p>Are you sure you want to delete this group?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete" onclick="deleteConfirmed()">Delete</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="confimationModelCloseBtn">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDelete" onclick="deleteConfirmed()">Delete
+                </button>
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="createCommunityModal" tabindex="-1" aria-labelledby="createCommunityModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #007bff">
+                <h5 class="modal-title" id="createCommunityModalLabel" style="color:white;">Create
+                    Community</h5>
+            </div>
+            <div class="modal-body">
+                <form id="createCommunityForm">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                        <span id="nameError" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="ownerId">Choose Owner Name:</label>
+                        <select class="form-control" id="ownerId" name="ownerId">
+                            <option value="">Select Owner</option>
+                            <option th:each="user : ${users}" th:value="${user.id}"
+                                    th:text="${user.name}"></option>
+                        </select>
+                        <span id="ownerIdError" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type="text" class="form-control" id="description" name="description">
+                        <span id="descriptionError" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Access:<i class="fa-solid fa-lock"></i></label>
+                        <select name="groupAccess" id="groupAccessForCommunity" class="form-select">
+                            <option value="PUBLIC" selected>PUBLIC</option>
+                            <option value="PRIVATE">PRIVATE</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file">Image:</label>
+                        <input type="file" class="form-control" accept="image/**" id="file" name="file"
+                               multiple="multiple"/>
+                        <span id="fileError" class="text-danger"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="createCommunityBtn">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Modal -->
-<div class="modal fade" id="staticBackdropForAddOwner" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="staticBackdropForAddOwner" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabelAddOwner"><i class="fa-solid fa-user-tie"></i>Choose a group admin</h5>
+                <h5 class="modal-title" id="staticBackdropLabelAddOwner"><i class="fa-solid fa-user-tie"></i>Choose a
+                    group admin</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" class="form-control" id="idForCommunity">
-                <input type="text" placeholder="search..." class="form-control" id="searchForAddGroupOwner" style="width: 150px;margin: 10px 10px 10px 315px;">
+                <input type="text" placeholder="search..." class="form-control" id="searchForAddGroupOwner"
+                       style="width: 150px;margin: 10px 10px 10px 315px;">
                 <select name="status" id="statusForAddOwner" class="form-select">
 
                 </select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="addOwnerCloseBtn" >Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="addOwnerCloseBtn">Close
+                </button>
                 <button type="button" class="btn btn-primary" id="addOwnerSubmitBtn">Add</button>
             </div>
         </div>
     </div>
 </div>
-<!--<div th:replace="~{index::footer}"></div>-->
 <div th:replace="~{index::footer}"></div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
 <script src="https://kit.fontawesome.com/e2397b357b.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 <script>
 
-async function goToCommunityDetail(id){
-    localStorage.setItem('communityIdForDetailPage',id)
-    window.location.href = '/api/community/goToCommunityDetail'
-}
+    async function goToCommunityDetail(id) {
+        localStorage.setItem('communityIdForDetailPage', id)
+        window.location.href = '/api/community/goToCommunityDetail'
+    }
 
     document.getElementById('createCommunityBtn').addEventListener('click', async (e) => {
         e.preventDefault();
@@ -359,35 +437,34 @@ async function goToCommunityDetail(id){
         }
 
 
-        if(!isValid){
+        if (!isValid) {
             e.preventDefault();
-        }else{
-            $('#createCommunityModal').modal('hide');
-           await insertGroup();
+        } else {
+            await insertGroup();
         }
 
     });
-const insertGroup = async () => {
-    const formData = new FormData(document.getElementById('createCommunityForm'));
-    const url = "/api/community/createCommunity";
-    const data = await fetch(url, {
-        method: 'POST',
-        body: formData
-    });
-    if (data.ok) {
-        const result = await data.json();
-        await fetchCommunities();
-        const messageElement = document.getElementById('message');
-        document.getElementById('createCommunityForm').reset();
-        let alertMessage = result.message;
-        let alertStyle = `
+    const insertGroup = async () => {
+        const formData = new FormData(document.getElementById('createCommunityForm'));
+        const url = "/api/community/createCommunity";
+        const data = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        if (data.ok) {
+            const result = await data.json();
+            await fetchCommunities();
+            const messageElement = document.getElementById('message');
+            document.getElementById('createCommunityForm').reset();
+            let alertMessage = result.message;
+            let alertStyle = `
             background-color: blue;
             color: white;
             border: 1px solid #cc0000;
              border-radius: 15px;
         `;
-        let styledAlert = document.createElement('div');
-        styledAlert.style.cssText = `
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
             ${alertStyle}
             position: fixed;
             top: 25%;
@@ -398,29 +475,28 @@ const insertGroup = async () => {
             z-index: 10000;
             display: none;
         `;
-        styledAlert.innerHTML = alertMessage;
+            styledAlert.innerHTML = alertMessage;
 
 
-        document.body.appendChild(styledAlert);
+            document.body.appendChild(styledAlert);
 
+            $('#createCommunityModal').modal('hide');
+            styledAlert.style.display = 'block';
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        } else {
+            const content = 'Error creating community';
 
-        styledAlert.style.display = 'block';
-
-        setTimeout(function () {
-            styledAlert.style.display = 'none';
-        }, 3000);
-    } else {
-        const content = 'Error creating community';
-
-        let alertMessage = content;
-        let alertStyle = `
+            let alertMessage = content;
+            let alertStyle = `
             background-color: red;
             color: white;
             border: 1px solid #cc0000;
              border-radius: 15px;
         `;
-        let styledAlert = document.createElement('div');
-        styledAlert.style.cssText = `
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
             ${alertStyle}
             position: fixed;
             top: 25%;
@@ -431,42 +507,82 @@ const insertGroup = async () => {
             z-index: 10000;
             display: none;
         `;
-        styledAlert.innerHTML = alertMessage;
+            styledAlert.innerHTML = alertMessage;
 
 
-        document.body.appendChild(styledAlert);
+            document.body.appendChild(styledAlert);
 
 
-        styledAlert.style.display = 'block';
+            styledAlert.style.display = 'block';
 
-        setTimeout(function () {
-            styledAlert.style.display = 'none';
-        }, 3000);
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        }
     }
-}
-    document.addEventListener("DOMContentLoaded", function () {
-        fetchCommunities();
+    document.addEventListener("DOMContentLoaded",async function () {
+        await fetchCommunities();
+        const loginUser = await getCurrentUser();
+        if(loginUser.role === 'ADMIN'){
+            await  toggleForStatus();
+        }
+
     });
 
     async function fetchCommunities() {
-        fetch('/api/community/communityview')
-            .then(response => response.json())
-            .then(data => {
-                populateCommunityCards(data);
-            })
-            .catch(error => {
-                console.error('Error fetching communities:', error);
-            });
+        try {
+            const response = await fetch('/api/community/communityview');
+            const data = await response.json();
+            await populateCommunityCards(data, 'communityCards');
+        } catch (error) {
+            console.error('Error fetching communities:', error);
+        }
     }
+
+    async function fetchInactiveCommunities() {
+        try {
+            const response = await fetch('/api/community/inactive-community-view');
+            if (!response.ok) {
+                alert('Something went wrong, please try again!');
+            } else {
+                const data = await response.json();
+                await populateCommunityCards(data, 'inactiveCommunityCards');
+            }
+        } catch (error) {
+            console.error('Error fetching inactive communities:', error);
+        }
+    }
+
+  const toggleForStatus = async () => {
+      let showActive = true;
+
+      document.getElementById('changeInactiveGroup').addEventListener('click', async () => {
+          if (showActive) {
+              await fetchInactiveCommunities();
+              document.getElementById('inactiveCommunityCards').style.display = 'block';
+              document.getElementById('communityCards').style.display = 'none';
+              document.getElementById('changeInactiveGroup').innerText = 'Inactive Group';
+          } else {
+              await fetchCommunities();
+              document.getElementById('inactiveCommunityCards').style.display = 'none';
+              document.getElementById('communityCards').style.display = 'block';
+              document.getElementById('changeInactiveGroup').innerText = 'Active Group';
+          }
+          showActive = !showActive;
+      });
+  }
+
     async function fetchOwnerNames(communityId) {
         const response = await fetch(`/api/community/ownerNames/${communityId}`);
         const data = await response.json();
         return data;
     }
-    async function populateCommunityCards(communities) {
-        const communityCardsContainer = document.getElementById('communityCards');
+
+    async function populateCommunityCards(communities, containerId) {
+        const communityCardsContainer = document.getElementById(containerId);
         let cardsHtml = '';
         const currentUser = await getCurrentUser();
+
         for (let i = 0; i < communities.length; i++) {
             const community = communities[i];
             let photo = '';
@@ -479,46 +595,52 @@ const insertGroup = async () => {
             } else {
                 lockButton.classList.add('fa-solid', 'fa-lock');
             }
+            let groupIcon = document.createElement('i');
+            groupIcon.classList.add('fa-solid', 'fa-people-group');
+            const isActive = community.active;
+            console.log("ISAVTIBE", isActive)
             const lockButtonHtml = lockButton.outerHTML;
+            const groupIconButton = groupIcon.outerHTML;
             const isAnonymous = community.ownerName === 'ANONYMOUS';
             const ownerNames = await fetchOwnerNames(community.id);
             const isNotCurrentUserOwner = currentUser.name !== community.ownerName && currentUser.role === 'USER';
-            const isNotAdmin= currentUser.role !== 'ADMIN';
+            const isNotAdmin = currentUser.role !== 'ADMIN';
             const memberNames = ownerNames.length > 1 ? ownerNames.slice(1, 4).join(', ') : '';
             const moreMembersCount = ownerNames.length - 3;
             const moreMembersText = moreMembersCount > 0 ? `+${moreMembersCount} more` : '';
 
             cardsHtml += `
-        <div class="card community-card">
-            ${photo}
-            <div class="card-body">
-                <h5 class="card-title">${community.name}</h5>
-                <p class="card-text">${community.description}</p>
-                <p class="card-text">Owner: ${community.ownerName}</p>
-                <div class="member-list">
-                    <span class="member-name">${memberNames}</span>
-                    ${moreMembersText ? `<span class="member-name">${moreMembersText}</span>` : ''}
-                </div>
-            </div>
-            <div class="card-footer">
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        ...
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" onclick="goToCommunityDetail(${community.id})">View Detail</a>
-                        <a class="dropdown-item" href="#" ${isNotCurrentUserOwner ? 'hidden' : ''} onclick="populateKickGroupForm(${community.id})">Kick a Member</a>
-<a class="dropdown-item" href="#" ${isNotAdmin ? 'hidden' : ''}  onclick="showConfirmationModal(${community.id})">Delete the Group</a>
-                        <a class="dropdown-item" href="#" ${isAnonymous && !isNotAdmin ? '' : 'hidden'} onclick="showAddGroupOwner(${community.id})">Add Group Admin</a>
-                        <a class="dropdown-item" href="#" ${isNotCurrentUserOwner ? 'hidden' : ''}  onclick="changeStatusForGroup('${community.id}','${community.groupAccess}')">${lockButtonHtml}Change Access</a>
+                    <div class="card community-card">
+                        ${photo}
+                        <div class="card-body">
+                            <h5 class="card-title">${community.name}</h5>
+                            <p class="card-text">${community.description}</p>
+                            <p class="card-text">Owner: ${community.ownerName}</p>
+                            <div class="member-list">
+                                <span class="member-name">${memberNames}</span>
+                                ${moreMembersText ? `<span class="member-name">${moreMembersText}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    ...
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" style="cursor: pointer" ${!isActive ? 'hidden' : ''} onclick="goToCommunityDetail(${community.id})">View Detail</a>
+                                    <a class="dropdown-item" style="cursor: pointer" href="#" ${isNotCurrentUserOwner || !isActive ? 'hidden' : ''} onclick="populateKickGroupForm(${community.id})">Kick a Member</a>
+                                    <a class="dropdown-item" style="cursor: pointer" href="#" ${isNotAdmin || !isActive ? 'hidden' : ''} onclick="showConfirmationModal(${community.id})">Delete the Group</a>
+                                    <a class="dropdown-item" style="cursor: pointer" href="#" ${isAnonymous && !isNotAdmin && isActive ? '' : 'hidden'} onclick="showAddGroupOwner(${community.id})">Add Group Admin</a>
+                                    <a class="dropdown-item" style="cursor: pointer" href="#" ${isNotCurrentUserOwner || !isActive ? 'hidden' : ''} onclick="changeStatusForGroup('${community.id}','${community.groupAccess}')">${lockButtonHtml}Change Access</a>
+                                    <a class="dropdown-item" style="cursor: pointer" href="#" ${isActive ? 'hidden' : ''} onclick="changeIsActiveForGroup('${community.id}')">${groupIconButton}Rebuild</a>
+                                    <a class="dropdown-item" style="cursor: pointer" href="#" ${!isNotCurrentUserOwner ? 'hidden' : ''}  onclick="leaveGroup('${community.id}')">Leave the group</a>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary chat-button" ${!isActive ? 'hidden' : ''} onclick="goToChatRoom(${community.id})"><i class="fa fa-comments"></i></button>
+                            <button type="button" class="btn btn-success add-button" ${isNotCurrentUserOwner || !isActive ? 'hidden' : ''} onclick="populateCreateGroupForm(${community.id}, '${community.name}', '${community.ownerName}', '${community.description}', '${community.image}')"><i class="fa fa-factory"></i></button>
+                        </div>
                     </div>
-                </div>
-
-                                <button type="button" class="btn btn-primary chat-button" onclick="goToChatRoom(${community.id})"><i class="fa fa-comments"></i></button>
-               <button type="button" class="btn btn-success add-button" ${isNotCurrentUserOwner ? 'hidden' : ''}  onclick="populateCreateGroupForm(${community.id}, \'${community.name}\', \'${community.ownerName}\', \'${community.description}\', \'${community.image}\')"><i class="fa fa-factory"></i></button>
-            </div>
-        </div>
-    `;
+                `;
         }
 
         communityCardsContainer.innerHTML = cardsHtml;
@@ -540,59 +662,59 @@ const insertGroup = async () => {
         return res;
     }
 
-const showAddGroupOwner = async (id) => {
-    const users = await getUserListWithoutAdmin();
-    const selectElement = document.getElementById('statusForAddOwner');
-    const searchInput = document.getElementById('searchForAddGroupOwner');
-    document.getElementById('idForCommunity').value = id;
+    const showAddGroupOwner = async (id) => {
+        const users = await getUserListWithoutAdmin();
+        const selectElement = document.getElementById('statusForAddOwner');
+        const searchInput = document.getElementById('searchForAddGroupOwner');
+        document.getElementById('idForCommunity').value = id;
 
-    const populateSelect = (users) => {
-        selectElement.innerHTML = '';
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id;
-            option.text = user.name;
-            selectElement.add(option);
+        const populateSelect = (users) => {
+            selectElement.innerHTML = '';
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.text = user.name;
+                selectElement.add(option);
+            });
+        };
+        populateSelect(users);
+        searchInput.addEventListener('input', () => {
+            const searchQuery = searchInput.value.toLowerCase();
+            const filteredUsers = users.filter(user => user.name.toLowerCase().includes(searchQuery));
+            populateSelect(filteredUsers);
         });
-    };
-    populateSelect(users);
-    searchInput.addEventListener('input', () => {
-        const searchQuery = searchInput.value.toLowerCase();
-        const filteredUsers = users.filter(user => user.name.toLowerCase().includes(searchQuery));
-        populateSelect(filteredUsers);
-    });
 
-    $('#staticBackdropForAddOwner').modal('show');
-}
-
-document.getElementById('addOwnerSubmitBtn').addEventListener('click', async () => {
-    const communityValue = document.getElementById('idForCommunity').value;
-    const selectedUser = document.getElementById('statusForAddOwner').value;
-    const myObj = {
-        communityId:communityValue,
-        userId:selectedUser
+        $('#staticBackdropForAddOwner').modal('show');
     }
 
-    const data = await fetch(`/api/community/add-groupAdmin`,{
-        method:'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body:JSON.stringify(myObj)
-    });
-    if(!data.ok){
-        alert("something wrong please try again!");
-    }else{
-        const res = await data.json();
-        let alertMessage = `${res.message}`;
-        let alertStyle = `
+    document.getElementById('addOwnerSubmitBtn').addEventListener('click', async () => {
+        const communityValue = document.getElementById('idForCommunity').value;
+        const selectedUser = document.getElementById('statusForAddOwner').value;
+        const myObj = {
+            communityId: communityValue,
+            userId: selectedUser
+        }
+
+        const data = await fetch(`/api/community/add-groupAdmin`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(myObj)
+        });
+        if (!data.ok) {
+            alert("something wrong please try again!");
+        } else {
+            const res = await data.json();
+            let alertMessage = `${res.message}`;
+            let alertStyle = `
             background-color: green;
             color: white;
             border: 1px solid #cc0000;
              border-radius: 15px;
         `;
-        let styledAlert = document.createElement('div');
-        styledAlert.style.cssText = `
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
             ${alertStyle}
             position: fixed;
             top: 25%;
@@ -603,65 +725,50 @@ document.getElementById('addOwnerSubmitBtn').addEventListener('click', async () 
             z-index: 10000;
             display: none;
         `;
-        styledAlert.innerHTML = alertMessage;
+            styledAlert.innerHTML = alertMessage;
 
 
-        document.body.appendChild(styledAlert);
+            document.body.appendChild(styledAlert);
 
 
-        styledAlert.style.display = 'block';
+            styledAlert.style.display = 'block';
 
-        setTimeout(function () {
-            styledAlert.style.display = 'none';
-        }, 3000);
-        await fetchCommunities();
-        $('#staticBackdropForAddOwner').modal('hide');
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+            await fetchCommunities();
+            $('#staticBackdropForAddOwner').modal('hide');
+        }
+    });
+
+    async function leaveGroup(id) {
+        document.getElementById('groupIdForLeave').value = id;
+        const pElement = document.getElementById('leaveGroupWords');
+        pElement.style.fontSize = '20px';
+        pElement.style.fontWeight = 'bold';
+        pElement.innerHTML = `Are you sure want to leave from group ...`;
+        $('#staticBackdropForLeaveGroup').modal('show');
     }
-});
 
-const changeStatusForGroup = async (id,access) => {
- document.getElementById('groupId').value = id;
- document.getElementById('changeAccess').value = access;
- const pElement = document.getElementById('changeAccessWords');
- pElement.style.fontSize = '20px';
- pElement.style.fontWeight = 'bold';
-  let isPrivate;
-  if(access === 'PUBLIC'){
-      isPrivate = 'PRIVATE';
-  }else{
-      isPrivate = 'PUBLIC';
-  }
-  pElement.innerHTML = `Are you sure want to change this group to <span><strong style="font-style: italic;color: red">${isPrivate}</strong></span> group...`;
-  $('#staticBackdropForChangeAccess').modal('show');
-}
-
-document.getElementById('changeAccessSubmitBtn').addEventListener('click', async () => {
-   const cmtId =  document.getElementById('groupId').value;
-    const access = document.getElementById('changeAccess').value;
-    const myObj = {
-       communityId:cmtId,
-       groupAccess:access
-   };
-   const data =  await fetch(`/api/community/change-access-group`,{
-       method:'POST',
-       headers: {
-           'Content-Type': 'application/json',
-       },
-       body:JSON.stringify(myObj)
-   });
-   if(!data.ok){
-       alert('something wrong please try again!');
-   }else{
-       const res = await data.json();
-       let alertMessage = `${res.message}`;
-       let alertStyle = `
+    document.getElementById('leaveGroupSubmitBtn').addEventListener('click', async () => {
+        const id = document.getElementById('groupIdForLeave').value;
+        console.log('CLICKED');
+        const data = await fetch(`/api/community/leave-group/${id}`, {
+            method: 'POST'
+        });
+        if (!data.ok) {
+            alert('Something wrong please try again!');
+        } else {
+            const res = await data.json();
+            let alertMessage = `${res.message}`;
+            let alertStyle = `
             background-color: green;
             color: white;
             border: 1px solid #cc0000;
              border-radius: 15px;
         `;
-       let styledAlert = document.createElement('div');
-       styledAlert.style.cssText = `
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
             ${alertStyle}
             position: fixed;
             top: 25%;
@@ -672,23 +779,134 @@ document.getElementById('changeAccessSubmitBtn').addEventListener('click', async
             z-index: 10000;
             display: none;
         `;
-       styledAlert.innerHTML = alertMessage;
+            styledAlert.innerHTML = alertMessage;
+            document.body.appendChild(styledAlert);
+            styledAlert.style.display = 'block';
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+            await fetchCommunities();
+            $('#staticBackdropForLeaveGroup').modal('hide');
+        }
+    });
+
+    const changeIsActiveForGroup = async (id) => {
+        document.getElementById('groupIdForRebuild').value = id;
+        const pElement = document.getElementById('RebuildGroupWords');
+        pElement.style.fontSize = '20px';
+        pElement.style.fontWeight = 'bold';
+        pElement.innerHTML = `Are you sure want to use this group back ...`;
+        $('#staticBackdropForRebuildGroup').modal('show');
+    }
+    document.getElementById('rebuildGroupSubmitBtn').addEventListener('click', async () => {
+        const id = document.getElementById('groupIdForRebuild').value;
+        const data = await fetch(`/api/community/isActive-modify/${id}`, {
+            method: 'POST'
+        });
+        if (!data.ok) {
+            alert('Something wrong please try again!');
+        } else {
+            const res = await data.json();
+            let alertMessage = `${res.message}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+            document.body.appendChild(styledAlert);
+            styledAlert.style.display = 'block';
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+            await fetchInactiveCommunities();
+            $('#staticBackdropForRebuildGroup').modal('hide');
+        }
+    });
+
+    const changeStatusForGroup = async (id, access) => {
+        document.getElementById('groupId').value = id;
+        document.getElementById('changeAccess').value = access;
+        const pElement = document.getElementById('changeAccessWords');
+        pElement.style.fontSize = '20px';
+        pElement.style.fontWeight = 'bold';
+        let isPrivate;
+        if (access === 'PUBLIC') {
+            isPrivate = 'PRIVATE';
+        } else {
+            isPrivate = 'PUBLIC';
+        }
+        pElement.innerHTML = `Are you sure want to change this group to <span><strong style="font-style: italic;color: red">${isPrivate}</strong></span> group...`;
+        $('#staticBackdropForChangeAccess').modal('show');
+    }
+
+    document.getElementById('changeAccessSubmitBtn').addEventListener('click', async () => {
+        const cmtId = document.getElementById('groupId').value;
+        const access = document.getElementById('changeAccess').value;
+        const myObj = {
+            communityId: cmtId,
+            groupAccess: access
+        };
+        const data = await fetch(`/api/community/change-access-group`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(myObj)
+        });
+        if (!data.ok) {
+            alert('something wrong please try again!');
+        } else {
+            const res = await data.json();
+            let alertMessage = `${res.message}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
 
 
-       document.body.appendChild(styledAlert);
+            document.body.appendChild(styledAlert);
 
 
-       styledAlert.style.display = 'block';
+            styledAlert.style.display = 'block';
 
-       setTimeout(function () {
-           styledAlert.style.display = 'none';
-       }, 3000);
-       await fetchCommunities();
-       $('#staticBackdropForChangeAccess').modal('hide');
-   }
-});
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+            await fetchCommunities();
+            $('#staticBackdropForChangeAccess').modal('hide');
+        }
+    });
 
-const getUsersByCommunityId = async (id) => {
+    const getUsersByCommunityId = async (id) => {
         const url = `/api/community/user/${id}`;
         const data = await fetch(url);
         if (data.ok) {
@@ -697,17 +915,20 @@ const getUsersByCommunityId = async (id) => {
             return dataResponse;
         }
     };
+
     async function getCommunityById(id) {
         const response = await fetch(`/api/community/getCommunity/${id}`);
         const data = await response.json();
         return data;
     }
+
     async function getCurrentUser() {
         const response = await fetch('/api/community/user/current');
         const data = await response.json();
         return data;
     }
-    document.getElementById('userSearch').addEventListener('input', function() {
+
+    document.getElementById('userSearch').addEventListener('input', function () {
         const searchValue = this.value.toLowerCase();
         const usersList = document.getElementById('usersList');
         const allUsers = document.querySelectorAll('#usersList #container');
@@ -751,9 +972,9 @@ const getUsersByCommunityId = async (id) => {
             userContainer.style.borderRadius = '10px';
             userContainer.style.marginLeft = "280px";
 
-            const container=document.createElement('div');
-            container.id="container1";
-            container.style.marginBottom="80px";
+            const container = document.createElement('div');
+            container.id = "container1";
+            container.style.marginBottom = "80px";
 
             const photoSpan = document.createElement('span');
             if (user.photo) {
@@ -824,7 +1045,6 @@ const getUsersByCommunityId = async (id) => {
     }
 
 
-
     document.getElementById('createGroupBtn').addEventListener('click', async (e) => {
         e.preventDefault();
 
@@ -839,7 +1059,7 @@ const getUsersByCommunityId = async (id) => {
             const result = await data.json();
             await fetchCommunities();
             $('#createGroupModal').modal('hide');
-            let alertMessage =   result.message;
+            let alertMessage = result.message;
             let alertStyle = `
             background-color: blue;
             color: white;
@@ -866,13 +1086,13 @@ const getUsersByCommunityId = async (id) => {
 
             styledAlert.style.display = 'block';
 
-            setTimeout(function() {
+            setTimeout(function () {
                 styledAlert.style.display = 'none';
             }, 3000);
         } else {
 
-       const content =  "Error Adding Users";
-            let alertMessage =   content;
+            const content = "Error Adding Users";
+            let alertMessage = content;
             let alertStyle = `
             background-color: red;
             color: white;
@@ -899,7 +1119,7 @@ const getUsersByCommunityId = async (id) => {
 
             styledAlert.style.display = 'block';
 
-            setTimeout(function() {
+            setTimeout(function () {
                 styledAlert.style.display = 'none';
             }, 3000);
         }
@@ -907,38 +1127,38 @@ const getUsersByCommunityId = async (id) => {
     });
 
 
-let communityIdToDelete;
+    let communityIdToDelete;
 
-const showConfirmationModal = (communityId) => {
-    communityIdToDelete = communityId;
-    $('#confirmationModal').modal('show');
-}
-
-const deleteConfirmed = async () => {
-    if (communityIdToDelete) {
-        await deleteCommunity(communityIdToDelete);
-        $('#confirmationModal').modal('hide');
+    const showConfirmationModal = (communityId) => {
+        communityIdToDelete = communityId;
+        $('#confirmationModal').modal('show');
     }
-}
 
-const deleteCommunity = async (communityId) => {
-    const url = `/api/community/delete/${communityId}`;
-    const cancelUser = await fetch(url, {
-        method: 'DELETE'
-    });
-
-    if (!cancelUser.ok) {
-        alert('DELETE error');
+    const deleteConfirmed = async () => {
+        if (communityIdToDelete) {
+            await deleteCommunity(communityIdToDelete);
+            $('#confirmationModal').modal('hide');
+        }
     }
-    let alertMessage = `Delete successful!`;
-    let alertStyle = `
+
+    const deleteCommunity = async (communityId) => {
+        const url = `/api/community/delete/${communityId}`;
+        const cancelUser = await fetch(url, {
+            method: 'DELETE'
+        });
+
+        if (!cancelUser.ok) {
+            alert('DELETE error');
+        }
+        let alertMessage = `Delete successful!`;
+        let alertStyle = `
             background-color: green;
             color: white;
             border: 1px solid #cc0000;
              border-radius: 15px;
         `;
-    let styledAlert = document.createElement('div');
-    styledAlert.style.cssText = `
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
             ${alertStyle}
             position: fixed;
             top: 25%;
@@ -949,22 +1169,22 @@ const deleteCommunity = async (communityId) => {
             z-index: 10000;
             display: none;
         `;
-    styledAlert.innerHTML = alertMessage;
+        styledAlert.innerHTML = alertMessage;
 
 
-    document.body.appendChild(styledAlert);
+        document.body.appendChild(styledAlert);
 
 
-    styledAlert.style.display = 'block';
+        styledAlert.style.display = 'block';
 
-    setTimeout(function () {
-        styledAlert.style.display = 'none';
-    }, 3000);
-    await fetchCommunities();
-}
+        setTimeout(function () {
+            styledAlert.style.display = 'none';
+        }, 3000);
+        await fetchCommunities();
+    }
     let currentCommunityID;
 
-    document.getElementById('userSearchForKick').addEventListener('input', function() {
+    document.getElementById('userSearchForKick').addEventListener('input', function () {
         const searchValue = this.value.toLowerCase();
         const usersList = document.getElementById('userList');
         const allUsers = document.querySelectorAll('#userList #container');
@@ -987,15 +1207,13 @@ const deleteCommunity = async (communityId) => {
         document.getElementById('communityId').value = id;
         const communityUsers = await getUsersByCommunityId(id);
         const usersList = document.getElementById('userList');
-        const kickGroup=document.getElementById('kickGroup');
+        const kickGroup = document.getElementById('kickGroup');
 
         const community = await getCommunityById(id);
         const currentUser = await getCurrentUser();
 
         usersList.innerHTML = '';
         communityUsers.forEach(user => {
-            if (currentUser.role === "ADMIN") {
-
                 const userDiv = document.createElement('div');
                 userDiv.id = "container";
                 userDiv.style.padding = '20px';
@@ -1021,7 +1239,7 @@ const deleteCommunity = async (communityId) => {
                     photoImg.src = user.photo;
                     photoImg.alt = "User's Photo";
                     photoSpan.appendChild(photoImg);
-                }else {
+                } else {
                     const userPhoto = document.createElement('img');
                     userPhoto.src = '/assets/img/default-logo.png';
                     userPhoto.alt = "User's Photo";
@@ -1052,67 +1270,6 @@ const deleteCommunity = async (communityId) => {
                 userDiv.appendChild(label);
 
                 usersList.appendChild(userDiv);
-
-            } else if (user.name !== community.ownerName) {
-
-                const userDiv = document.createElement('div');
-                userDiv.id = "container";
-                userDiv.style.padding = '20px';
-                userDiv.style.borderRadius = '10px';
-                userDiv.style.marginLeft = "280px";
-
-                const nestedDiv = document.createElement('div');
-                nestedDiv.id = "container1";
-                nestedDiv.style.marginBottom = "80px";
-
-                const photoSpan = document.createElement('span');
-                const nameSpan = document.createElement('span');
-                const deptSpan = document.createElement('span');
-                nameSpan.textContent = user.name;
-                const br = document.createElement('br');
-                deptSpan.textContent = `(${user.dept})`;
-
-                if (user.photo) {
-                    const photoImg = document.createElement('img');
-                    photoImg.src = user.photo;
-                    photoImg.alt = "User's Photo";
-                    photoSpan.appendChild(photoImg);
-                }else {
-                    const userPhoto = document.createElement('img');
-                    userPhoto.src = '/assets/img/default-logo.png';
-                    userPhoto.alt = "User's Photo";
-                    photoSpan.appendChild(userPhoto);
-                }
-
-                const checkbox = document.createElement('input');
-                checkbox.type = "checkbox";
-                checkbox.id = `_kickcheckbox${user.id}`;
-                checkbox.name = "userIds";
-                checkbox.value = user.id;
-
-                checkbox.addEventListener('change',()=>{
-                    console.log('checkbox is checked---->')
-                })
-
-                const label = document.createElement('label');
-                label.htmlFor = `_kickcheckbox${user.id}`;
-                label.className = "form-check-label";
-                label.style.marginLeft = "390px";
-
-                const tickMarkDiv = document.createElement('div');
-                tickMarkDiv.className = "tick_mark";
-
-                nestedDiv.appendChild(photoSpan);
-                nestedDiv.appendChild(nameSpan);
-                nestedDiv.appendChild(br);
-                nestedDiv.appendChild(deptSpan);
-                label.appendChild(tickMarkDiv);
-                userDiv.appendChild(nestedDiv);
-                userDiv.appendChild(checkbox);
-                userDiv.appendChild(label);
-
-                usersList.appendChild(userDiv);
-            }
         });
 
         $('#kickModal').modal('show');
@@ -1131,9 +1288,9 @@ const deleteCommunity = async (communityId) => {
         if (data.ok) {
             const result = await data.json();
             await fetchCommunities();
-           const content ="Kicked Successfully";
+            const content = "Kicked Successfully";
             $('#kickModal').modal('hide');
-            let alertMessage =  content;
+            let alertMessage = content;
             let alertStyle = `
             background-color: blue;
             color: white;
@@ -1160,12 +1317,12 @@ const deleteCommunity = async (communityId) => {
 
             styledAlert.style.display = 'block';
 
-            setTimeout(function() {
+            setTimeout(function () {
                 styledAlert.style.display = 'none';
             }, 3000);
         } else {
-           const content =  'Error kicking users from community';
-            let alertMessage =  content;
+            const content = 'Error kicking users from community';
+            let alertMessage = content;
             let alertStyle = `
             background-color: red;
             color: white;
@@ -1192,26 +1349,38 @@ const deleteCommunity = async (communityId) => {
 
             styledAlert.style.display = 'block';
 
-            setTimeout(function() {
+            setTimeout(function () {
                 styledAlert.style.display = 'none';
             }, 3000);
         }
     });
 
-    document.getElementById('createGroupModalCloseBtn').addEventListener('click', function() {
+    document.getElementById('createGroupModalCloseBtn').addEventListener('click', function () {
         $('#createGroupModal').modal('hide');
     });
-    document.getElementById('kickModalCloseBtn').addEventListener('click', function() {
+    document.getElementById('kickModalCloseBtn').addEventListener('click', function () {
         $('#kickModal').modal('hide');
     });
 
-document.getElementById('addOwnerCloseBtn').addEventListener('click', function() {
-    $('#staticBackdropForAddOwner').modal('hide');
-});
+    document.getElementById('addOwnerCloseBtn').addEventListener('click', function () {
+        $('#staticBackdropForAddOwner').modal('hide');
+    });
 
-document.getElementById('changeAccessCloseBtn').addEventListener('click', function() {
-    $('#staticBackdropForChangeAccess').modal('hide');
-});
+    document.getElementById('changeAccessCloseBtn').addEventListener('click', function () {
+        $('#staticBackdropForChangeAccess').modal('hide');
+    });
+
+    document.getElementById('confimationModelCloseBtn').addEventListener('click', function () {
+        $('#confirmationModal').modal('hide');
+    });
+
+    document.getElementById('rebuildGroupCloseBtn').addEventListener('click', function () {
+        $('#staticBackdropForRebuildGroup').modal('hide');
+    });
+
+    document.getElementById('leaveGroupCloseBtn').addEventListener('click', function () {
+        $('#staticBackdropForLeaveGroup').modal('hide');
+    });
 
     const goToChatRoom = (id) => {
         localStorage.setItem('chatRoomIdForGroup', id);

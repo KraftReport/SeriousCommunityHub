@@ -186,10 +186,17 @@ public class ChatMessageController {
         }
     }
 
-    @GetMapping("/delete-message/{id}")
-    public ResponseEntity<?> deleteMessage(@PathVariable("id")Long id) {
+    @MessageMapping("/delete-message")
+    public void deleteMessage(@Payload Map<String, Long> payload) {
+        System.out.println("CHATID"+payload.get("chatId"));
+        Long id =  payload.get("chatId");
         chatMessageService.deleteById(id);
-            return ResponseEntity.ok().build();
+        messagingTemplate.convertAndSend("/user/remove-divWrapper/queue/messages",new NotificationDtoForChatRoom(
+                id,
+                null,
+                null,
+                null
+        ));
     }
 
 

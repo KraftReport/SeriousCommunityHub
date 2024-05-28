@@ -4933,7 +4933,7 @@ async function getPosts(){
                 let user = await checkPostOwnerOrAdmin(p.id)
                 //   if(user === 'ADMIN' || user === 'OWNER'){
                     post += `<div class="dropdown offset-8">
-                    <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class=" " onclick="getPostDetail(${p.id})"  id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                           <i class="fas fa-ellipsis-h "></i>
                           </div>
                   
@@ -6046,7 +6046,7 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
  });
 
 
- const distinguishMembers = async (id) => {
+ async function distinguishMembers(id){
     let data = await fetch(`/user/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/${id}`)
     let response = await data.json()
     if(response[0] === 'ADMIN'){

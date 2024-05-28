@@ -53,6 +53,10 @@ public interface CommunityService {
 
     public Community findById(Long id);
 
+    void modifyStatus(Long id);
+
+    void leaveFromGroup(Long id);
+
     public List<User> getMembersOfACommunity(Long communityId);
 
     public User getOwnerOfTheCommunity(Long communityId);

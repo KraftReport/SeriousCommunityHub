@@ -61,6 +61,12 @@ public class ChatRoomImpl implements ChatRoomService {
        }
     }
 
+    @Transactional
+    @Override
+    public void saveChatRoom(ChatRoom chatRoom) {
+        chatRoomRepository.save(chatRoom);
+    }
+
 
     public String uploadPhoto(MultipartFile file) throws IOException {
         return cloudinary.uploader()

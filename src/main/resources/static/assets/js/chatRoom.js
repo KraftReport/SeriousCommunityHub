@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     findAndDisplayConnectedUsers().then();
     const onConnected = () => {
         stompClientForChatRoom.subscribe(`/user/chatRoom/queue/messages`, onMessageReceived);
+        stompClientForChatRoom.subscribe(`/user/remove-divWrapper/queue/messages`, onMessageReceivedForRemoveDivWrapper);
     };
 
     const roomId = localStorage.getItem('chatRoomIdForGroup');
@@ -266,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             inputLine.style.borderRadius = '20px';
             const roomPhoto = await fetchRoomPhoto(selectedRoomId);
             const getSize = await fetchRoomSize(selectedRoomId);
-            const photo = roomPhoto.photo || '/static/assets/img/card.jpg';
+            const photo = roomPhoto.photo || '/static/assets/img/default-logo.png';
             const photoContainer = document.createElement('div');
             photoContainer.classList.add('room-info-container');
 
@@ -310,6 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const displayMessageForChatRoom = async (id, senderId, content, photo, voiceData, date) => {
+        const divWrapper = document.createElement('div');
+        divWrapper.classList.add('divWrapper');
+        divWrapper.id = `remove-divWrapper-${id}`;
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
         messageContainer.id = id;
@@ -326,11 +330,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deleteIcon = document.createElement('i');
         deleteIcon.classList.add('fa-solid', 'fa-trash', 'delete-icon');
+        deleteIcon.style.display = 'none';
 
         if (senderId === loginUserForChatRoom) {
+            divWrapper.style.alignSelf = 'flex-end';
+            divWrapper.style.display = 'flex';
             messageContainer.classList.add('sender');
         } else {
             messageContainer.classList.add('receiver');
+            divWrapper.style.alignSelf = 'flex-start';
             messageContainer.style.marginLeft = '45px';
             messageContainer.style.marginTop = '-35px';
             messageContainer.style.borderBottomRightRadius = '10px';
@@ -338,7 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const messageContentContainer = document.createElement('div');
         messageContentContainer.classList.add('message-content-container');
-
         const urlPattern = new RegExp('^(https?:\\/\\/)?' +
             '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' +
             '((\\d{1,3}\\.){3}\\d{1,3}))' +
@@ -373,21 +380,35 @@ document.addEventListener('DOMContentLoaded', () => {
             messageContentContainer.appendChild(message);
         }
 
-        // Append delete icon to messageContentContainer
-        if (loginUserForChatRoom === senderId) {
-            const span = document.createElement('span');
-            span.appendChild(deleteIcon);
-            messageContentContainer.appendChild(span);
-        }
-
         const spanEl = document.createElement('span');
+         spanEl.id = `remove-span-for-${id}`;
         if (loginUserForChatRoom !== senderId) {
             spanEl.appendChild(userImage);
         }
+        if (loginUserForChatRoom === senderId) {
+            const span = document.createElement('span');
+            span.appendChild(deleteIcon);
+            divWrapper.appendChild(span);
+        }
         messageContainer.appendChild(messageContentContainer);
+        divWrapper.appendChild(messageContainer);
         chatAreaForChatRoom.appendChild(spanEl);
-        chatAreaForChatRoom.appendChild(messageContainer);
+        chatAreaForChatRoom.appendChild(divWrapper);
         chatAreaForChatRoom.scrollTop = chatAreaForChatRoom.scrollHeight;
+
+        divWrapper.addEventListener('mouseenter', () => {
+            deleteIcon.style.display = 'inline';
+        });
+
+        divWrapper.addEventListener('mouseleave', () => {
+            deleteIcon.style.display = 'none';
+        });
+
+        deleteIcon.addEventListener('click', async () => {
+            chatAreaForChatRoom.removeChild(divWrapper);
+            const chatId = messageContainer.id;
+            await deleteMessage(chatId);
+        });
 
         const postLinks = document.querySelectorAll('.post-link');
         postLinks.forEach(link => {
@@ -396,30 +417,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 await searchPostWithUrl(link.href);
             });
         });
-
-        // Add event listener for delete icon
-        deleteIcon.addEventListener('click', async () => {
-            chatAreaForChatRoom.removeChild(messageContainer);
-            const chatId = messageContainer.id;
-            await deleteMessage(chatId);
-        });
     };
-    const deleteMessage = async (chatId) => {
-        try {
-            // const isoDateString = new Date(messageDate).toISOString();
-            const response = await fetch(`/delete-message/${chatId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
 
-            if (!response.ok) {
-                throw new Error('Failed to delete message');
-            }
-        } catch (error) {
-            console.error('Error deleting message:', error);
-        }
+
+    const deleteMessage = async (chatId) => {
+ stompClientForChatRoom.send("/app/delete-message", {}, JSON.stringify({chatId : chatId}));
     };
 
 
@@ -575,6 +577,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 nbrMsg.classList.remove('hidden');
                 nbrMsg.textContent = parseInt(nbrMsg.textContent || '0') + 1;
             }
+        }
+    }
+
+    const onMessageReceivedForRemoveDivWrapper = async (payload) => {
+        const message = JSON.parse(payload.body);
+        const chatId = message.chatId;
+        const divWrapper = document.getElementById(`remove-divWrapper-${chatId}`);
+        const span = document.getElementById(`remove-span-for-${chatId}`);
+        if(divWrapper && span){
+            divWrapper.remove();
+            span.remove();
         }
     }
 
