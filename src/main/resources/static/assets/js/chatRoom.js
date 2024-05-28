@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatAreaForChatRoom = document.querySelector('#chat-messages');
     chatAreaForChatRoom.innerHTML =`<div id="defaultMessage-for-chatRoom" style="margin-top: 50px">
                            <img src="/static/assets/img/chatroom-bg.gif" alt="login image" class="login__img" 
-                           style="    width: 854px;height: 680px;margin-top: -48px;">
+                           style="    width: 810px;height: 680px;margin-top: -48px;">
                      </div>`;
     const mentionSuggestions = document.getElementById('mentionSuggestions');
 

@@ -20,6 +20,7 @@ public class Policy implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 6000)
     private String rule;
     private Date date;
 
