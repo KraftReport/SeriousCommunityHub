@@ -386,15 +386,15 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" onclick="logOutFunction()">
+                            <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#logOutModalBox" >
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Log Out</span>
                             </a>
                         </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
                     </ul>
                 </li><!-- End Profile Nav -->
 
@@ -462,9 +462,9 @@
             </li><!-- End Record Page Nav -->
 
             <li class="nav-item">
-                <a class="nav-link collapsed">
+                <a class="nav-link collapsed" data-bs-toggle="modal" data-bs-target="#logOutModalBox" >
                     <i class="bi bi-dash-circle"></i>
-                    <span onclick="logOutFunction()">Log Out</span>
+                    <span>Log Out</span>
                 </a>
             </li>
         </ul>
@@ -484,20 +484,7 @@
 </div>
 <main id="main" class="main">
 
-    <div class="modal fade" id="logOutModalBox" tabindex="-1" aria-labelledby="logOutModalBox" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-body font-monospace">
-              Are you sure to logout from current account ?
-           <div class="d-flex">
-            <button class="btn btn-success" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
-              <a class="nav-link collapsed" style="text-decoration: none;" onclick="clearLocalStorage()" th:href="@{/logout}"><button class="btn btn-danger"><i class="fa-solid fa-check"></i></button></a>
-           </div>
-            </div>
 
-          </div>
-        </div>
-      </div>
  
 
 
@@ -923,7 +910,7 @@
                 <button class="nav-link" onclick="getAllPollPost()" id="polls-tab" data-bs-toggle="tab" data-bs-target="#pollsTab" type="button" role="tab" aria-controls="Polls" aria-selected="false">Polls</button>
             </li>
         </ul>
-        <div class="tab-content" id="myTabContent">
+        <div class="tab-content" id="myTabContent" style="width: 650px">
             <div class="tab-pane fade show active" id="newsfeedTab" role="tabpanel" aria-labelledby="newsfeed-tab">
                 <div id="newsfeed"  class=""></div>
             </div>
@@ -1676,7 +1663,20 @@
 
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
+    <div class="modal fade" id="logOutModalBox" tabindex="-1" aria-labelledby="logOutModalBox" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body font-monospace">
+                    Are you sure to logout from current account ?
+                    <div class="d-flex">
+                        <button class="btn btn-success" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+                        <a class="nav-link collapsed" style="text-decoration: none;" onclick="clearLocalStorage()" th:href="@{/logout}"><button class="btn btn-danger"><i class="fa-solid fa-check"></i></button></a>
+                    </div>
+                </div>
 
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="commentStaticBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
          aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -1786,7 +1786,9 @@
     <!-- Vendor JS Files -->
     <script>
 
-
+        const clearLocalStorage = async () => {
+            localStorage.clear()
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             function checkPendingStatus() {
