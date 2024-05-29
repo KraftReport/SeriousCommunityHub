@@ -5700,7 +5700,7 @@ POLL IS EXPIRED
     let createdTime = await timeAgo(new Date(r.created_date))
 
     row += `
-    <div class="post" id="pollPostDiv-${r.id}">
+    <div class="post" id="pollPostDiv-${r.id}" style="width: 600px;">
 
     <div class="post-top" style="max-width:500px; justify-content:space-between;">
 

@@ -14,7 +14,7 @@ window.onload = async ()=>{
     let userName = user.name
     let department = user.dept === null ? 'no dept' : user.dept
     let email = user.email
-    let access = response.access 
+    let access = response.access
     let createdDate = new Date(response.createdDate)
     let startDay = createdDate.getDate();
     let startMonth = createdDate.getMonth() + 1;
@@ -32,7 +32,7 @@ window.onload = async ()=>{
 
 const insertPhoto = async ( photoUrl ) => {
     let imgDiv = document.getElementById('userPhotoDiv')
-    imgDiv.src = photoUrl 
+    imgDiv.src = photoUrl
 }
 
 const insertNameAndDepartmentAndEmail = async (userName,department,email) => {
@@ -63,7 +63,7 @@ const insertAccessAndGroupAndTime = async (access, group, time, postId) => {
     btn.setAttribute('data-bs-target', '#staticBackdropForCommentView');
     btn.textContent = 'Click to see';
     btn.addEventListener('click',async () => {
-       await getAllCommentsForSinglePost(postId);
+        await getAllCommentsForSinglePost(postId);
     })
 
     // Insert content based on access
@@ -117,48 +117,48 @@ const insertResources = async (resources) => {
             if(r.video === null){
                 resource = document.createElement('img')
                 resource.src = r.photo
-            } 
+            }
             captionDiv.classList.add('font-monospace')
             captionDiv.classList.add('m-2')
-            resource.style.width = '400px'
-            resource.style.marginLeft = '200px'
+            resource.style.width = '464px'
+            resource.style.height = '200px'
             caption.textContent = r.description
-            captionDiv.appendChild(caption) 
+            captionDiv.appendChild(caption)
             resourceDiv.appendChild(resource)
             mainDiv.appendChild(captionDiv)
             mainDiv.appendChild(resourceDiv)
-            parentDiv.appendChild(mainDiv) 
+            parentDiv.appendChild(mainDiv)
         }else {
-            document.getElementById('parentDiv').classList.add('hidden') 
+            document.getElementById('parentDiv').classList.add('hidden')
             console.log('d ko youk tl naw')
-         
-                let name = r.description
-                console.log('loop pat nay b')
-                const li = document.createElement('li');
-                li.classList.add('list-group-item','d-flex');
-                li.style.maxWidth = '400px'
-                li.style.justifyContent = 'space-between' 
-        
-                const mDiv = document.createElement('div')
-                mDiv.textContent = r.description
-                mDiv.classList.add('font-monospace')
-                
-        
-                const downloadIcon = document.createElement('i')
-                downloadIcon.classList.add('fa-solid','fa-down-long','text-primary')
-         
-        
-                const a = document.createElement('a');
-                a.href = r.raw;
-                a.classList.add('font-monospace')  
-                a.onclick = (event) => downloadFile(event,r.raw,r.description)
-                console.log(name) 
-        
-                
-                a.appendChild(downloadIcon)
-                li.appendChild(mDiv)
-                li.appendChild(a)
-                ul.appendChild(li)
+
+            let name = r.description
+            console.log('loop pat nay b')
+            const li = document.createElement('li');
+            li.classList.add('list-group-item','d-flex');
+            li.style.maxWidth = '400px'
+            li.style.justifyContent = 'space-between'
+
+            const mDiv = document.createElement('div')
+            mDiv.textContent = r.description
+            mDiv.classList.add('font-monospace')
+
+
+            const downloadIcon = document.createElement('i')
+            downloadIcon.classList.add('fa-solid','fa-down-long','text-primary')
+
+
+            const a = document.createElement('a');
+            a.href = r.raw;
+            a.classList.add('font-monospace')
+            a.onclick = (event) => downloadFile(event,r.raw,r.description)
+            console.log(name)
+
+
+            a.appendChild(downloadIcon)
+            li.appendChild(mDiv)
+            li.appendChild(a)
+            ul.appendChild(li)
         }
         parentDivForRaw.appendChild(ul)
         document.getElementById('parentDivForRaw').appendChild(parentDivForRaw)
@@ -299,7 +299,7 @@ const displayMessageForSinglePost = async (sender, content, photo, id, postId,lo
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
     const userImage = document.createElement('img');
-    photo = photo || '/static/assets/img/card.jpg';
+    photo = photo || '/static/assets/img/default-logo.png';
     userImage.src = `${photo}`;
     userImage.alt = 'User Photo';
     userImage.style.width = '60px';
@@ -371,7 +371,7 @@ const fetchAndDisplayRepliesForSinglePost = async (id) => {
         const replyElement = document.createElement('div');
 
         const userRpImage = document.createElement('img');
-        const photo = reply.user.photo || '/static/assets/img/card.jpg';
+        const photo = reply.user.photo || '/static/assets/img/default-logo.png';
         userRpImage.src = `${photo}`;
         userRpImage.alt = 'User Photo';
         userRpImage.classList.add('user-photo');

@@ -168,6 +168,7 @@ document.addEventListener('DOMContentLoaded',async () =>{
     await showCommunityPostsForBoth();
     // await showDetailsForEachPost();
     document.getElementById('postForWithinOneMonth').addEventListener('click', async () => {
+        console.log("it clicked!!!!")
         const checkUser = await getUserToCheckAdminOrNot();
         if(checkUser.role === 'ADMIN'){
             const post = await getOnlyPostForAdminWithinOneMonth();

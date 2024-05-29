@@ -2240,7 +2240,7 @@ async function createPostsForSearch(){
         const formattedDescription = await highlightMentions(p.description.replace(/\n/g, '<br>'));
         rows += `
 
-        <div class="post" id="post-delete-section-${p.id}">
+        <div class="post" id="post-delete-section-${p.id}" style="width: 537px;">
         <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
         
         <div class="d-flex">
@@ -2323,7 +2323,7 @@ async function createPostsForSearch(){
       if (thisIsRawPost === false) {
 
         const createMediaElement = (tag, src, controlAttr, closeTag, extraStyle = '', id = '') => {
-            return `<${tag} ${controlAttr} src="${src}" id="${id}" class="img-fluid" style="border-radius: 15px; max-height: 200px; margin: 2px; height: auto; width: 100%; ${extraStyle}" alt="">${closeTag}`;
+            return `<${tag} ${controlAttr} src="${src}" id="${id}" class="img-fluid" style="border-radius: 15px; margin: 2px; height: 200px; width: 100%; ${extraStyle}" alt="">${closeTag}`;
         };
     
         const createGridContainer = (elements, columns) => {

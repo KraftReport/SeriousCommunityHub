@@ -749,7 +749,7 @@ const getPosts = async () => {
       if (thisIsRawPost === false) {
 
         const createMediaElement = (tag, src, controlAttr, closeTag, extraStyle = '', id = '') => {
-            return `<${tag} ${controlAttr} src="${src}" id="${id}" class="img-fluid" style="border-radius: 15px; max-height: 200px; margin: 2px; height: auto; width: 100%; ${extraStyle}" alt="">${closeTag}`;
+            return `<${tag} ${controlAttr} src="${src}" id="${id}" class="img-fluid"  style="border-radius: 15px; margin: 2px; height: 200px; width: 100%; ${extraStyle}" alt="">${closeTag}`;
         };
     
         const createGridContainer = (elements, columns) => {
