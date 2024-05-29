@@ -2,6 +2,7 @@ package com.communityHubSystem.communityHub.controllers;
 
 import com.communityHubSystem.communityHub.dto.InvitationDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
+import com.communityHubSystem.communityHub.models.Invitation;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.services.InvitationService;
 import com.communityHubSystem.communityHub.services.UserService;
@@ -12,9 +13,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -76,6 +75,12 @@ public class InvitationController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping("/get-invited-user/{id}")
+    public ResponseEntity<User> getInvitedUser(@PathVariable("id")Long id){
+        var user = userService.findById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+
 
     public User getLoginUser() {
         var user = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("User Name Not Found Exception"));
@@ -85,4 +90,24 @@ public class InvitationController {
         return null;
     }
 
+    @GetMapping("/get-invitedPendingUser/{id}")
+    public ResponseEntity<List<Long>> getInvitedPendingUser(@PathVariable("id") Long id) {
+        List<Long> userList = new ArrayList<>();
+        List<Invitation> invitationList = invitationService.findByCommunityIdAndIsInvited(id, true);
+
+        for (Invitation invitation : invitationList) {
+            User user = userService.findById(invitation.getRecipientId());
+            if (user != null) {
+                userList.add(user.getId());
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(userList);
+    }
+
+
+
+    public List<User> getActiveUsersForInvitation(){
+        return userService.getAllActiveUser();
+    }
 }

@@ -32,6 +32,10 @@
     overflow-y: auto; /* Scrollable users list */
 }
 
+.users-list-container::-webkit-scrollbar {
+ display: none;
+}
+
 .users-list h2 {
     font-size: 1.5rem;
     margin-bottom: 10px;

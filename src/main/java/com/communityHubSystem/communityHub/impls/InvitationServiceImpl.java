@@ -3,6 +3,7 @@ package com.communityHubSystem.communityHub.impls;
 import com.communityHubSystem.communityHub.dto.InvitationDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Invitation;
+import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.models.User_Group;
 import com.communityHubSystem.communityHub.repositories.InvitationRepository;
 import com.communityHubSystem.communityHub.services.CommunityService;
@@ -10,9 +11,13 @@ import com.communityHubSystem.communityHub.services.InvitationService;
 import com.communityHubSystem.communityHub.services.UserService;
 import com.communityHubSystem.communityHub.services.User_GroupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -80,7 +85,10 @@ public class InvitationServiceImpl implements InvitationService {
        processAcceptInvitation(id,communityId);
     }
 
-
+    @Override
+    public List<Invitation> findByCommunityIdAndIsInvited(Long id, boolean b) {
+        return invitationRepository.findByCommunityIdAndIsInvited(id,b);
+    }
 
     public void processAcceptInvitation(Long id,Long communityId){
         var invitation = invitationRepository.findById(id).orElseThrow(() -> new CommunityHubException("Invitation not found exception!!"));
@@ -96,4 +104,5 @@ public class InvitationServiceImpl implements InvitationService {
             user_groupService.save(groupUser);
         }
     }
+
 }
