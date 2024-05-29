@@ -84,7 +84,9 @@
             }
         }
 
-
+         .pending-user-forInvitation {
+             color: forestgreen; /* Change this to your desired color */
+         }
 
         .user-photo {
             width: 40px;
@@ -1711,7 +1713,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="notificationStaticBoxLabel">Notifications....<i class="fa-solid fa-trash-can" onclick="deleteAllNotifications()" style="margin-left: 240px;" data-toggle="tooltip" title="Delete All"></i></h5>
+                    <h5 class="modal-title" id="notificationStaticBoxLabel">Notifications....<i class="fa-solid fa-trash-can" onclick="deleteAllNotifications()" style="margin-left: 240px;cursor: pointer;" data-toggle="tooltip" title="Delete All"></i></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="content-notification"

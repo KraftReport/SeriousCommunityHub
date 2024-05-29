@@ -5919,6 +5919,12 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
      }
  };
 
+ async function getPendingUser(id) {
+     const data = await fetch(`/user/get-invitedPendingUser/${id}`);
+     const res = await data.json();
+     return res;
+ }
+
  const getUsersByCommunityId = async (id) => {
      const url = `/api/community/user/${id}`;
      const data = await fetch(url);
@@ -5947,78 +5953,83 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
  });
 
 
- async function populateCreateGroupFormForInvitation() {
-     document.getElementById('communityId1').value = communityId;
+async function populateCreateGroupFormForInvitation() {
+    document.getElementById('communityId1').value = communityId;
 
-     const allUsers = await getAllUsers();
-     const communityUsers = await getUsersByCommunityId(communityId);
-     const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
-     const usersList = document.getElementById('usersList');
+    const allUsers = await getAllUsers();
+    const pendingUserIds = await getPendingUser(communityId);
+    const communityUsers = await getUsersByCommunityId(communityId);
+    const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+    const usersList = document.getElementById('usersList');
 
-     usersList.innerHTML = '';
+    usersList.innerHTML = '';
+
+    usersNotInCommunity.forEach(user => {
+        const userContainer = document.createElement('div');
+        userContainer.id = "container";
+        userContainer.style.padding = '20px';
+        userContainer.style.borderRadius = '10px';
+        userContainer.style.marginLeft = "280px";
+
+        const container = document.createElement('div');
+        container.id = "container1";
+        container.style.marginBottom = "80px";
+
+        const photoSpan = document.createElement('span');
+        const userPhoto = document.createElement('img');
+        userPhoto.src = user.photo ? user.photo : '/assets/img/default-logo.png';
+        userPhoto.alt = "User's Photo";
+        photoSpan.appendChild(userPhoto);
+
+        const nameSpan = document.createElement('span');
+        nameSpan.classList.add('user-list-span');
+        nameSpan.textContent = user.name;
+
+        if (pendingUserIds.includes(user.id)) {
+            const pendingSpan = document.createElement('span');
+            pendingSpan.classList.add('pending-user-forInvitation');
+            pendingSpan.style.marginTop = '-5px';
+            pendingSpan.style.padding = '4px';
+            pendingSpan.textContent = " ( pending )";
+            nameSpan.appendChild(pendingSpan);
+        }
+
+        const checkboxInput = document.createElement('input');
+        checkboxInput.type = "checkbox";
+        checkboxInput.id = `_checkbox${user.id}`;
+        checkboxInput.name = "userIds";
+        checkboxInput.value = user.id;
+
+        if (communityUsers.some(communityUser => communityUser.id === user.id)) {
+            checkboxInput.checked = true;
+            checkboxInput.disabled = true;
+        } else if (pendingUserIds.includes(user.id)) {
+            checkboxInput.disabled = true;
+        }
+
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.htmlFor = `_checkbox${user.id}`;
+        checkboxLabel.className = "form-check-label";
+        checkboxLabel.style.marginLeft = "390px";
+
+        const tickMarkDiv = document.createElement('div');
+        tickMarkDiv.className = `tick_mark`;
+
+        checkboxLabel.appendChild(tickMarkDiv);
+        userContainer.appendChild(photoSpan);
+        container.appendChild(photoSpan);
+        userContainer.appendChild(nameSpan);
+        container.appendChild(nameSpan);
+        userContainer.appendChild(container);
+        userContainer.appendChild(checkboxInput);
+        userContainer.appendChild(checkboxLabel);
+        usersList.appendChild(userContainer);
+    });
+
+    $('#invitationFormModal').modal('show');
+}
 
 
-     usersNotInCommunity.forEach(user => {
-
-         const userContainer = document.createElement('div');
-         userContainer.id = "container";
-         userContainer.style.padding = '20px';
-         userContainer.style.borderRadius = '10px';
-         userContainer.style.marginLeft = "280px";
-
-         const container=document.createElement('div');
-         container.id="container1";
-         container.style.marginBottom="80px";
-
-         const photoSpan = document.createElement('span');
-         if (user.photo) {
-             const userPhoto = document.createElement('img');
-             userPhoto.src = user.photo;
-             userPhoto.alt = "User's Photo";
-             photoSpan.appendChild(userPhoto);
-         } else {
-             const userPhoto = document.createElement('img');
-             userPhoto.src = '/assets/img/default-logo.png';
-             userPhoto.alt = "User's Photo";
-             photoSpan.appendChild(userPhoto);
-         }
-
-         const nameSpan = document.createElement('span');
-         nameSpan.classList.add('user-list-span')
-         nameSpan.textContent = user.name;
-
-         const checkboxInput = document.createElement('input');
-         checkboxInput.type = "checkbox";
-         checkboxInput.id = `_checkbox${user.id}`;
-         checkboxInput.name = "userIds";
-         checkboxInput.value = user.id;
-         if (communityUsers.some(communityUser => communityUser.id === user.id)) {
-             checkboxInput.checked = true;
-             checkboxInput.disabled = true;
-         }
-
-         const checkboxLabel = document.createElement('label');
-         checkboxLabel.htmlFor = `_checkbox${user.id}`;
-         checkboxLabel.className = "form-check-label";
-         checkboxLabel.style.marginLeft = "390px";
-
-         const tickMarkDiv = document.createElement('div');
-         tickMarkDiv.className = `tick_mark`;
-
-         checkboxLabel.appendChild(tickMarkDiv);
-         userContainer.appendChild(photoSpan);
-         container.appendChild(photoSpan);
-         userContainer.appendChild(nameSpan);
-         container.appendChild(nameSpan);
-         userContainer.appendChild(container);
-         userContainer.appendChild(checkboxInput);
-         userContainer.appendChild(checkboxLabel);
-         usersList.appendChild(userContainer);
-     });
-
-
-     $('#invitationFormModal').modal('show');
- }
  document.getElementById('inviteFriendBtn').addEventListener('click', async (e) => {
      // e.preventDefault();
 
@@ -6026,18 +6037,70 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
      const inviteDto = Object.fromEntries(formData.entries());
      const data = await fetch('/user/invitationSend',{
          method:'PUT',
-         // headers: {
-         //     'Content-Type' : ' application/json'
-         // },
-         // body:JSON.stringify(inviteDto)
          body:formData
      })
      if (data.ok) {
          const result = await data.json();
-         document.getElementById('invitationMessage').innerHTML = result.message;
          $('#invitationFormModal').modal('hide');
+         let alertMessage = result.message;
+         let alertStyle = `
+            background-color: blue;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+         let styledAlert = document.createElement('div');
+         styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+         styledAlert.innerHTML = alertMessage;
+
+
+         document.body.appendChild(styledAlert);
+
+         $('#createCommunityModal').modal('hide');
+         styledAlert.style.display = 'block';
+         setTimeout(function () {
+             styledAlert.style.display = 'none';
+         }, 3000);
      } else {
-         document.getElementById('invitationMessage').innerHTML = 'Error creating community';
+         let alertMessage ='Please Select a user you want to invite';
+         let alertStyle = `
+            background-color: red;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+         let styledAlert = document.createElement('div');
+         styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+         styledAlert.innerHTML = alertMessage;
+
+
+         document.body.appendChild(styledAlert);
+
+         $('#createCommunityModal').modal('hide');
+         styledAlert.style.display = 'block';
+         setTimeout(function () {
+             styledAlert.style.display = 'none';
+         }, 3000);
      }
  });
 

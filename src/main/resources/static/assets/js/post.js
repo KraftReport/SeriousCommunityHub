@@ -480,7 +480,11 @@ const mentionCommunityMember = () => {
     });
 };
 
-
+const getInvitedUserById = async (id) => {
+    const data = await fetch(`/user/get-invited-user/${id}`);
+    const res = await data.json();
+    return res;
+}
 
 const showEmptyContent = async () => {
     const invitations = await fetchInvitationMessage();
@@ -496,15 +500,16 @@ document.addEventListener('DOMContentLoaded',showEmptyContent);
 const getAllInvitations = async () => {
     const invitation = await fetchInvitationMessage();
     for (const i of invitation) {
-        await displayMessageForInvitation(i.id,i.community.image,i.community.name,i.community.id);
+        console.log("SENDERID",i.senderId)
+        await displayMessageForInvitation(i.id,i.community.image,i.community.name,i.community.id,i.senderId);
     }
 }
 
-const displayMessageForInvitation =async (id,image,name,communityId) => {
+const displayMessageForInvitation =async (id,image,name,communityId,userId) => {
     const root = document.getElementById('messageRoot');
  const divElement = document.createElement('div');
  divElement.classList.add(`invitation-message-${id}`)
-    divElement.style.padding = '10px';
+    divElement.style.padding = '15px';
  divElement.style.border = '1px solid black';
  divElement.style.borderRadius = '10px';
  divElement.style.margin = '3px';
@@ -512,17 +517,18 @@ const displayMessageForInvitation =async (id,image,name,communityId) => {
  divElement.style.marginTop = '-35px';
  divElement.style.borderBottomLeftRadius = '40px';
  divElement.style.backgroundColor = 'lightgrey';
+ const invitedUser = await getInvitedUserById(userId);
       const spElementForImage = document.createElement('span');
       spElementForImage.classList.add(`span-image-${id}`);
          const imgTag = document.createElement('img');
-          const photo = `${image}`|| `/static/assets/img/card.jpg`;
+          const photo = `${image}`|| `/static/assets/img/default-logo.png`;
           imgTag.src = photo;
           imgTag.style.width = '50px';
           imgTag.style.height = '50px';
           imgTag.style.borderRadius = '50%';
           spElementForImage.appendChild(imgTag);
         const spElementForContent = document.createElement('span');
-        spElementForContent.innerHTML = `You has been invited from ${name} group`;
+        spElementForContent.innerHTML = `${invitedUser.name} (${invitedUser.dept}) invited you to join ${name} group`;
         const buttonsWrapper = document.createElement('div');
         buttonsWrapper.classList.add(`button-wrapper-${id}`)
         buttonsWrapper.style.marginLeft = '220px';
