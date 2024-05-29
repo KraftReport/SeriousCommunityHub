@@ -199,15 +199,12 @@
         </div>
     </div>
 </main>
+
 <div th:replace="~{index::footer}"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
@@ -411,6 +408,543 @@
                 console.error('There was a problem with the fetch operation:', error);
             });
     });
+    let currentPageForEach = '0';
+    let isFetchingForEach = false;
+    let hasMoreForEach = true;
+
+    async function fetchNotificationPerPage(){
+        isFetchingForEach = true;
+        let response = await fetch(`/user/get-all-noti/${currentPageForEach}`, {
+            method: 'GET'
+        });
+        let root = document.getElementById('root');
+        root.innerHTML = '';
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        let data = await response.json();
+        isFetchingForEach = false;
+        if (data.length === 0) {
+            hasMoreForEach = false;
+            return;
+        }
+        for (let noti of data) {
+            let divElement = document.createElement('div');
+            divElement.classList.add('notificationForNoti', `postId-${noti.postId}`);
+            divElement.id = `noti-deleted-${noti.id}`;
+            divElement.dataset.postId = noti.postId;
+            divElement.style.borderRadius = '10px';
+            divElement.style.width = '380px';
+            attachNotificationEventListenersForEach();
+            console.log("GetIDFORMEnto",noti.mentionId)
+            const trashIcon = document.createElement('i');
+            trashIcon.id = `trashIcon-deleted-${noti.id}`
+            trashIcon.classList.add('fa-solid','fa-trash-can');
+            trashIcon.style.marginLeft = '400px';
+            trashIcon.addEventListener('click',async () => {
+                const notiID = noti.id;
+                await deletedNotificationForEach(notiID);
+            });
+            const spEle = document.createElement('span');
+            spEle.style.marginTop = '-40px';
+            spEle.appendChild(trashIcon);
+            if (noti.reactId && !noti.commentId && !noti.replyId) {
+                const reactType = await fetchReactTypeForNotificationForEach(noti.reactId);
+                console.log('React Type user', reactType.user.staffId)
+                const user = await fetchUserDataByPostedUserForEach(reactType.user.staffId);
+                const photo = user.photo || '/static/assets/img/default-logo.png';
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+                const pElement = document.createElement('p');
+                let imgReactElement = document.createElement('img');
+                if (reactType.type) {
+                    imgReactElement.src = `/static/assets/img/${reactType.type.toLowerCase()}.png`;
+                    imgReactElement.width = 20;
+                    imgReactElement.height = 20;
+
+                    imgElement.style.display = 'inline-block';
+                    imgReactElement.style.display = 'inline-block';
+                    imgReactElement.style.marginBottom = '-20px';
+                    imgReactElement.style.marginLeft = '-10px';
+                    pElement.style.display = 'inline-block';
+                    pElement.innerHTML = `${user.name}` + `${noti.content}`;
+                } else {
+                    imgReactElement.src = `/static/assets/img/cancel.png`;
+                    imgReactElement.width = 20;
+                    imgReactElement.height = 20;
+
+                    imgElement.style.display = 'inline-block';
+                    imgReactElement.style.display = 'inline-block';
+                    imgReactElement.style.marginBottom = '-20px';
+                    imgReactElement.style.marginLeft = '-10px';
+                    pElement.style.display = 'inline-block';
+                    pElement.innerHTML = `${user.name}` + ` canceled reaction in your post`;
+                }
+                divElement.appendChild(imgElement);
+                divElement.appendChild(imgReactElement);
+                divElement.appendChild(pElement);
+            }
+
+            if (noti.commentId && !noti.replyId && !noti.reactId) {
+                const commentUser = await fetchCommetedUserForEach(noti.commentId);
+                console.log('Comment user', commentUser.user.name)
+                const photo = commentUser.user.photo || '/static/assets/img/default-logo.png';
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${commentUser.user.name} commented to your post`;
+
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }
+
+            if (noti.commentId && noti.replyId && !noti.reactId) {
+                const replyUser = await fetchRepliedUserForDataForEach(noti.replyId);
+                console.log('photo', replyUser.user.photo);
+                console.log('photo', replyUser.user.staffId);
+                const photo = replyUser.user.photo ||  '/static/assets/img/default-logo.png';
+                console.log('Reply user', replyUser.user.name);
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+
+                const pElement = document.createElement('p');
+                pElement.style.display = 'inline-block';
+                pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                pElement.innerHTML = `${replyUser.user.name} replied to your comment`;
+
+                divElement.appendChild(imgElement);
+                divElement.appendChild(pElement);
+            }
+
+
+            if (noti.reactId && noti.commentId && !noti.replyId) {
+                const reactType = await fetchReactTypeForNotificationForEach(noti.reactId);
+                console.log('React Type user', reactType.user.staffId)
+                const user = await fetchUserDataByPostedUserForEach(reactType.user.staffId);
+                const photo = user.photo ||  '/static/assets/img/default-logo.png';
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+                const pElement = document.createElement('p');
+                let imgReactElement = document.createElement('img');
+                if (reactType.type) {
+                    imgReactElement.src = `/static/assets/img/${reactType.type.toLowerCase()}.png`;
+                    imgReactElement.width = 20;
+                    imgReactElement.height = 20;
+
+                    imgElement.style.display = 'inline-block';
+                    imgReactElement.style.display = 'inline-block';
+                    imgReactElement.style.marginBottom = '-20px';
+                    imgReactElement.style.marginLeft = '-10px';
+                    pElement.style.display = 'inline-block';
+                    pElement.innerHTML = `${user.name}` + `${reactType.type}` + ' your comment';
+                } else {
+                    imgReactElement.src = `/static/assets/img/cancel.png`;
+                    imgReactElement.width = 20;
+                    imgReactElement.height = 20;
+
+                    imgElement.style.display = 'inline-block';
+                    imgReactElement.style.display = 'inline-block';
+                    imgReactElement.style.marginBottom = '-20px';
+                    imgReactElement.style.marginLeft = '-10px';
+                    pElement.style.display = 'inline-block';
+                    pElement.innerHTML = `${user.name}` + ` canceled reaction in` + ' your comment';
+                }
+                divElement.appendChild(imgElement);
+                divElement.appendChild(imgReactElement);
+                divElement.appendChild(pElement);
+            }
+
+            if (noti.reactId && !noti.commentId && noti.replyId) {
+                const reactType = await fetchReactTypeForNotificationForEach(noti.reactId);
+                console.log('React Type user', reactType.user.staffId)
+                const user = await fetchUserDataByPostedUserForEach(reactType.user.staffId);
+                const photo = user.photo ||  '/static/assets/img/default-logo.png';
+                let imgElement = document.createElement('img');
+                imgElement.src = `${photo}`;
+                imgElement.width = 40;
+                imgElement.height = 40;
+                imgElement.style.borderRadius = '50%';
+                const pElement = document.createElement('p');
+                let imgReactElement = document.createElement('img');
+                if (reactType.type) {
+                    imgReactElement.src = `/static/assets/img/${reactType.type.toLowerCase()}.png`;
+                    imgReactElement.width = 20;
+                    imgReactElement.height = 20;
+
+                    imgElement.style.display = 'inline-block';
+                    imgReactElement.style.display = 'inline-block';
+                    imgReactElement.style.marginBottom = '-20px';
+                    imgReactElement.style.marginLeft = '-10px';
+                    pElement.style.display = 'inline-block';
+                    pElement.innerHTML = `${user.name}` + `${reactType.type}` + ' your reply';
+                } else {
+                    imgReactElement.src = `/static/assets/img/cancel.png`;
+                    imgReactElement.width = 20;
+                    imgReactElement.height = 20;
+
+                    imgElement.style.display = 'inline-block';
+                    imgReactElement.style.display = 'inline-block';
+                    imgReactElement.style.marginBottom = '-20px';
+                    imgReactElement.style.marginLeft = '-10px';
+                    pElement.style.display = 'inline-block';
+                    pElement.innerHTML = `${user.name}` + ` canceled reaction in ` + ' your reply';
+                }
+                divElement.appendChild(imgElement);
+                divElement.appendChild(imgReactElement);
+                divElement.appendChild(pElement);
+            }
+
+            if (noti.mentionId) {
+                const mention = await getMentionByIdForEach(noti.mentionId);
+                console.log("SDFDSF555"+mention.postedUserId)
+                console.log("SDFDSF555"+mention.post.id)
+                if(!mention.comment) {
+                    const getUser = await getMentionUserForEach(mention.postedUserId);
+                    const photo = getUser.photo || '/static/assets/img/default-logo.png';
+                    console.log("MenitonUSer", getUser.name)
+                    let imgElement = document.createElement('img');
+                    imgElement.src = `${photo}`;
+                    imgElement.width = 40;
+                    imgElement.height = 40;
+                    imgElement.style.borderRadius = '50%';
+
+                    const pElement = document.createElement('p');
+                    pElement.style.display = 'inline-block';
+                    pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                    pElement.innerHTML = `${getUser.name} mentioned you in a post`;
+
+                    divElement.appendChild(imgElement);
+                    divElement.appendChild(pElement);
+                }else{
+                    const getUser = await getMentionUserForEach(mention.postedUserId);
+                    const photo = getUser.photo ||  '/static/assets/img/default-logo.png';
+                    console.log("MenitonUSer", getUser.name)
+                    let imgElement = document.createElement('img');
+                    imgElement.src = `${photo}`;
+                    imgElement.width = 40;
+                    imgElement.height = 40;
+                    imgElement.style.borderRadius = '50%';
+
+                    const pElement = document.createElement('p');
+                    pElement.style.display = 'inline-block';
+                    pElement.style.marginLeft = '10px'; // Adjust margin as needed
+                    pElement.innerHTML = `${getUser.name} mentioned you in a comment`;
+
+                    divElement.appendChild(imgElement);
+                    divElement.appendChild(pElement);
+                }
+            }
+            const container =  document.createElement('div');
+            container.classList.add('container-trash-div')
+            container.style.display = 'inline-grid';
+            container.appendChild(divElement);
+            container.appendChild(spEle);
+            root.appendChild(container);
+        }
+    };
+
+    async function fetchReactTypeForNotificationForEach(id){
+        const reactType = await fetch(`/user/like-noti-type/${id}`);
+        const reactDataType = await reactType.json();
+        return reactDataType;
+    }
+
+    async function fetchUserDataByPostedUserForEach(id){
+        const fetchUserData = await fetch(`/get-userData/${id}`);
+        if (!fetchUserData.ok) {
+            alert('Invalid user');
+        }
+        const userDataForAll = await fetchUserData.json();
+        return userDataForAll;
+    };
+
+    async function fetchCommetedUserForEach(id){
+        const commentUser = await fetch(`/user/comment-user-data/${id}`);
+        if (!commentUser.ok) {
+            alert('something wrong');
+        }
+        const commentUserData = await commentUser.json();
+        return commentUserData;
+    }
+
+    async function fetchRepliedUserForDataForEach(id){
+        const fetchDataForUser = await fetch(`/user/reply-user-data/${id}`);
+        const userDataForReply = await fetchDataForUser.json();
+        return userDataForReply;
+    };
+
+    async function getMentionUserForEach(id){
+        const data = await fetch(`/getData-mention/${id}`);
+        const res = await data.json();
+        return res;
+    }
+
+    async function getMentionByIdForEach(id){
+        const data = await fetch(`/get-mentionUser/${id}`);
+        const res = await data.json();
+        return res;
+    }
+
+    async function deletedNotificationForEach(id){
+        const deleteNoti = await fetch(`/delete-noti/${id}`,{
+            method:'DELETE'
+        });
+        if(!deleteNoti.ok){
+            alert('something wrong please try again later');
+        }else {
+            const divElement = document.getElementById(`noti-deleted-${id}`);
+            const trashIconEl = document.getElementById(`trashIcon-deleted-${id}`);
+            if (divElement && trashIconEl ) {
+                console.log("it's fine",id)
+                divElement.remove();
+                trashIconEl.remove();
+            }
+        }
+    }
+
+    function attachNotificationEventListenersForEach(){
+        const notificationElements = document.querySelectorAll('.notificationForNoti');
+        notificationElements.forEach(notificationElement => {
+            notificationElement.addEventListener('click', async function() {
+                console.log("Clicked on notification element");
+                const postId = this.dataset.postId; // 'this' refers to the current notification element
+                console.log('PostId', postId);
+                const postElement = document.getElementById(postId);
+                if (postElement) {
+                    postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // await fetchNotificationPerPage();
+        const modalContent = document.getElementById('content-notification');
+        modalContent.addEventListener('scroll', async () => {
+            if (isFetchingForEach || !hasMoreForEach) {
+                console.log('currentPage', currentPageForEach);
+                return;
+            }
+
+            if (modalContent.scrollTop + modalContent.clientHeight >= modalContent.scrollHeight) {
+                currentPageForEach++;
+                console.log('currentPage', currentPageForEach);
+                await fetchNotificationPerPage();
+            }
+        });
+    });
+
+    //for invitation start
+
+    async function showInvitation(){
+        const showCount = document.getElementById('inviteMessageCount');
+        const size = await getInvitation();
+        console.log('adfdfdfdfdf',size)
+        if(size === 0){
+            showCount.innerText = ''
+        }else{
+            showCount.innerText = size;
+        }
+    }
+
+    async function getInvitedUserById(id){
+        const data = await fetch(`/user/get-invited-user/${id}`);
+        const res = await data.json();
+        return res;
+    }
+
+    document.addEventListener('DOMContentLoaded',async function () {
+       await showInvitation();
+         await showEmptyContent();
+        await getInvitation();
+        await getAllInvitations();
+    });
+
+    async function getInvitation(){
+        const msgCount = await fetch('/user/invited-user-count');
+        const msgSize = await msgCount.json();
+        return msgSize;
+    }
+
+    async function showEmptyContent(){
+        const invitations = await fetchInvitationMessage();
+        const root = document.getElementById('messageRoot');
+        if(invitations.length === 0){
+            root.style.fontSize = '30px';
+            root.innerHTML = 'There is no invitations yet...';
+        }
+    }
+
+
+    async function getAllInvitations(){
+        const invitation = await fetchInvitationMessage();
+        for (const i of invitation) {
+            await displayMessageForInvitation(i.id,i.community.image,i.community.name,i.community.id,i.senderId);
+        }
+    }
+
+    async function displayMessageForInvitation(id,image,name,communityId,userId){
+        const root = document.getElementById('messageRoot');
+        const divElement = document.createElement('div');
+        divElement.classList.add(`invitation-message-${id}`)
+        divElement.style.padding = '15px';
+        divElement.style.border = '1px solid black';
+        divElement.style.borderRadius = '10px';
+        divElement.style.margin = '3px';
+        divElement.style.marginLeft = '55px';
+        divElement.style.marginTop = '-35px';
+        divElement.style.borderBottomLeftRadius = '40px';
+        divElement.style.backgroundColor = 'lightgrey';
+        const invitedUser = await getInvitedUserById(userId);
+        const spElementForImage = document.createElement('span');
+        spElementForImage.classList.add(`span-image-${id}`);
+        const imgTag = document.createElement('img');
+        const photo = `${image}`|| `/static/assets/img/default-logo.png`;
+        imgTag.src = photo;
+        imgTag.style.width = '50px';
+        imgTag.style.height = '50px';
+        imgTag.style.borderRadius = '50%';
+        spElementForImage.appendChild(imgTag);
+        const spElementForContent = document.createElement('span');
+        spElementForContent.innerHTML = `${invitedUser.name} (${invitedUser.dept}) invited you to join ${name} group`;
+        const buttonsWrapper = document.createElement('div');
+        buttonsWrapper.classList.add(`button-wrapper-${id}`)
+        buttonsWrapper.style.marginLeft = '220px';
+        const acceptButton = document.createElement('button');
+        acceptButton.innerHTML = 'Accept'
+        acceptButton.classList.add('btn','btn-outline-success')
+        acceptButton.id = id;
+        acceptButton.addEventListener('click',async () => {
+            await acceptInvitation(id,communityId,name);
+        });
+        const denyButton = document.createElement('button');
+        denyButton.innerHTML = 'Reject';
+        denyButton.classList.add('btn','btn-outline-danger')
+        denyButton.addEventListener('click', async () => {
+            await rejectInvitation(id);
+        });
+        buttonsWrapper.appendChild(acceptButton);
+        buttonsWrapper.appendChild(denyButton);
+        divElement.appendChild(spElementForContent);
+        // divElement.appendChild(buttonsWrapper);
+        const allWrapDiv = document.createElement('div');
+        allWrapDiv.classList.add(`all-wrap-div-${id}`);
+        allWrapDiv.appendChild(spElementForImage)
+        allWrapDiv.appendChild(divElement);
+        allWrapDiv.appendChild(buttonsWrapper);
+        root.appendChild(allWrapDiv);
+    }
+
+
+    async function acceptInvitation(id,communityId,name){
+        const data = await fetch(`/user/accept-invitation/${id}/${communityId}`);
+        const response = await data.json();
+        if(response){
+            const divEl = document.querySelector(`.all-wrap-div-${id}`);
+            if(divEl){
+                await showInvitation();
+                divEl.remove();
+            }
+            let alertMessage = response.message + ` ${name}`;
+            let alertStyle = `
+            background-color: white;
+            color: blue;
+            border: 1px solid #cc0000;
+            border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function() {
+                styledAlert.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+
+    async function rejectInvitation(id){
+        const data = await fetch(`/user/reject-invitation/${id}`);
+        const response = await data.json();
+        if(response){
+            const divEl = document.querySelector(`.all-wrap-div-${id}`);
+            if(divEl){
+                await showInvitation();
+                divEl.remove();
+
+            }
+            let alertMessage = response.message;
+            let alertStyle = `
+            background-color: #ffcccc;
+            color: #cc0000;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function() {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        }
+    }
+
+    async function fetchInvitationMessage(){
+        const data = await fetch('/user/invited-user-display');
+        const response = await data.json();
+        return response;
+    }
+
+    //for invitation end
 </script>
 </body>
 </html>

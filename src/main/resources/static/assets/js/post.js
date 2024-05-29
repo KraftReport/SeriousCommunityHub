@@ -480,7 +480,11 @@ const mentionCommunityMember = () => {
     });
 };
 
-
+const getInvitedUserById = async (id) => {
+    const data = await fetch(`/user/get-invited-user/${id}`);
+    const res = await data.json();
+    return res;
+}
 
 const showEmptyContent = async () => {
     const invitations = await fetchInvitationMessage();
@@ -496,15 +500,16 @@ document.addEventListener('DOMContentLoaded',showEmptyContent);
 const getAllInvitations = async () => {
     const invitation = await fetchInvitationMessage();
     for (const i of invitation) {
-        await displayMessageForInvitation(i.id,i.community.image,i.community.name,i.community.id);
+        console.log("SENDERID",i.senderId)
+        await displayMessageForInvitation(i.id,i.community.image,i.community.name,i.community.id,i.senderId);
     }
 }
 
-const displayMessageForInvitation =async (id,image,name,communityId) => {
+const displayMessageForInvitation =async (id,image,name,communityId,userId) => {
     const root = document.getElementById('messageRoot');
  const divElement = document.createElement('div');
  divElement.classList.add(`invitation-message-${id}`)
-    divElement.style.padding = '10px';
+    divElement.style.padding = '15px';
  divElement.style.border = '1px solid black';
  divElement.style.borderRadius = '10px';
  divElement.style.margin = '3px';
@@ -512,17 +517,18 @@ const displayMessageForInvitation =async (id,image,name,communityId) => {
  divElement.style.marginTop = '-35px';
  divElement.style.borderBottomLeftRadius = '40px';
  divElement.style.backgroundColor = 'lightgrey';
+ const invitedUser = await getInvitedUserById(userId);
       const spElementForImage = document.createElement('span');
       spElementForImage.classList.add(`span-image-${id}`);
          const imgTag = document.createElement('img');
-          const photo = `${image}`|| `/static/assets/img/card.jpg`;
+          const photo = `${image}`|| `/static/assets/img/default-logo.png`;
           imgTag.src = photo;
           imgTag.style.width = '50px';
           imgTag.style.height = '50px';
           imgTag.style.borderRadius = '50%';
           spElementForImage.appendChild(imgTag);
         const spElementForContent = document.createElement('span');
-        spElementForContent.innerHTML = `You has been invited from ${name} group`;
+        spElementForContent.innerHTML = `${invitedUser.name} (${invitedUser.dept}) invited you to join ${name} group`;
         const buttonsWrapper = document.createElement('div');
         buttonsWrapper.classList.add(`button-wrapper-${id}`)
         buttonsWrapper.style.marginLeft = '220px';
@@ -935,6 +941,7 @@ async function welcome() {
                 let thisIsRawPost = false
                 let target = ''
                 console.log(res)
+                    let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
                     let ug = p.userGroup !== null ? p.userGroup : null
                     let gp = ug !== null ? ug.community : null 
                     let gpName = gp !== null ? gp.name : null
@@ -988,7 +995,7 @@ async function welcome() {
           <div class="d-flex">
          
               <div>
-              <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+              <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
               </div>
               <div class="post-info" style="width:100px;">
 
@@ -1263,63 +1270,68 @@ async function welcome() {
               </div>
           </div>
       </div> 
-    <div id="detail-modal-${p.id}">
-    <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg"  >
-        <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
-          <div class="modal-body p-0">
-            <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
-              <div class="carousel-inner">`
-    
-                    p.resources.forEach((r, index) => {
-                        let active = index == 0 ? 'active' : ''
-                        if (r.photo === null && r.video !== null) {
-                            post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" >
-                  <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
-                  <div class="carousel-caption d-none d-md-block"> 
-                  <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
-                </div>
-                  </div> `
-                        } else if (r.video === null && r.photo !== null) {
-                            post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                  <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-                  <div class="carousel-caption d-none d-md-block"> 
-                  <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
-                </div>
-                </div>`
-                        } else {
-                            post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                  <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
-                  <div class="carousel-caption d-none d-md-block"> 
-                  <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
-                </div>
-                </div>`
-                            post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
-                <div class="carousel-caption d-none d-md-block"> 
-                <p class="font-monospace" style="background-color:black; border-radius:5px;">${r.description.replace(/\n/g, '<br>')}</p>
+      <div id="detail-modal-${p.id}">
+      <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+              <div class="modal-content" style="background-color:transparent; overflow-y: hidden;">
+                  <div class="modal-body p-0">
+                      <div id="carouselExampleControlsPost${p.id}" class="carousel slide" data-bs-ride="carousel">
+                          <div class="carousel-inner">
+                              ${p.resources.map((r, index) => {
+                                  let active = index === 0 ? 'active' : '';
+                                  let captionStyle = `
+                                      background-color: rgba(0, 0, 0, 0.75);
+                                      padding: 10px;
+                                      font-size: 16px;
+                                      font-weight: bold;
+                                      border-radius: 10px;
+                                      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                                  `;
+                                  if (r.photo === null && r.video !== null) {
+                                      return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                  <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                                  <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                      <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                  </div>
+                                              </div>`;
+                                  } else if (r.video === null && r.photo !== null) {
+                                      return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                  <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                                  <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                      <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                  </div>
+                                              </div>`;
+                                  } else {
+                                      return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                  <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                                  <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                      <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                  </div>
+                                              </div>
+                                              <div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                  <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                                  <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                      <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                  </div>
+                                              </div>`;
+                                  }
+                              }).join('')}
+                              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="visually-hidden">Previous</span>
+                              </button>
+                              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="next">
+                                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                  <span class="visually-hidden">Next</span>
+                              </button>
+                          </div>
+                      </div>
+                  </div>
               </div>
-              </div>
-               `
-                        }
-                    })
-                    post+=`
-                 
-              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-              </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-              </button>
-            </div>
-          </div> 
-        </div>
+          </div>
       </div>
-      </div>
-      </div>
-      </div>`;
+  </div>
+  `;
     
                     posts += post;
                 
@@ -2162,61 +2174,68 @@ post += `
       </div>`
       let mod = ''
     
-mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"  >
-    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
-      <div class="modal-body p-0">
-        <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">`
-
-                p.resources.forEach((r, index) => {
-                    let active = index == 0 ? 'active' : ''
-                    if (r.photo === null && r.video !== null) {
-                        mod += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
-              <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
+mod +=` 
+<div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color:transparent; overflow-y: hidden;">
+            <div class="modal-body p-0">
+                <div id="carouselExampleControlsPost${p.id}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        ${p.resources.map((r, index) => {
+                            let active = index === 0 ? 'active' : '';
+                            let captionStyle = `
+                                background-color: rgba(0, 0, 0, 0.75);
+                                padding: 10px;
+                                font-size: 16px;
+                                font-weight: bold;
+                                border-radius: 10px;
+                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                            `;
+                            if (r.photo === null && r.video !== null) {
+                                return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>`;
+                            } else if (r.video === null && r.photo !== null) {
+                                return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>`;
+                            } else {
+                                return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>
+                                        <div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>`;
+                            }
+                        }).join('')}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-              </div> `
-                    } else if (r.video === null && r.photo !== null) {
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
-            </div>
-            </div>`
-                    } else {
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
-            </div>
-            </div>`
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-            <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
-            <div class="carousel-caption d-none d-md-block"> 
-            <p>${r.description.replace(/\n/g, '<br>')}</p>
-          </div>
-          </div>
-           `
-                    }
-                })
-                mod+=`
-             
-          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
         </div>
-      </div> 
     </div>
-  </div>
-  </div>
-  </div>
+</div>
+ 
+
   `
 
         ParentDetailModal.innerHTML = mod
@@ -2341,6 +2360,7 @@ async function getAllEventsForPost() {
             <span>Like ${reactCountForEvent.length}</span>`
             }
             console.log('Type',reactTypeForEvent);
+            let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
             let photo = r.photo === null ? '/static/assets/img/eventImg.jpg' : r.photo;
             let startDate = new Date(r.start_date);
             let startDay = startDate.getDate();
@@ -2364,7 +2384,7 @@ async function getAllEventsForPost() {
                
                     <div>
                   
-                    <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+                    <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
                     </div>
                     <div class="post-info" style="width:100px;">
       
@@ -5076,6 +5096,7 @@ async function showSearchEvents(input){
     console.log(response)
     let row = ''
     response.forEach((r,index)=>{
+        let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
         let photo = r.photo === null ? '/static/assets/img/eventImg.jpg' : r.photo
         let startDate = new Date(r.start_date)
         let startDay = startDate.getDate()
@@ -5097,7 +5118,7 @@ async function showSearchEvents(input){
         <div class="post">
         <div class="post-top">
             <div class="dp">
-                <img src="${r.user.photo}" alt="">
+                <img src="${userPhoto}" alt="">
             </div>
             <div class="post-info">
                 <p class="name">${r.user.name}</p>
@@ -5267,7 +5288,7 @@ async function deleteEditEventPhoto(id){
 }
 
 async function deleteEditPollEventPhoto(id){
-    document.getElementById(id+'-event-edit-url').src =document.getElementById(id+'-poll-event-edit-url').src+ 'deleted'
+    document.getElementById(id+'-poll-event-edit-url').src =document.getElementById(id+'-poll-event-edit-url').src+ 'deleted'
     document.getElementById('updatePollEventPhoto').type = 'hidden'
     document.getElementById('restoreBtn').classList.remove('hidden')
     document.getElementById('photoRemoveBtn').classList.add('hidden')
@@ -5624,6 +5645,7 @@ POLL IS EXPIRED
 
             `
         }
+        let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
         let hidden = await checkVoted(r.id) === false ? '' : 'hidden'
         let notHidden = await checkVoted(r.id) === false ? 'hidden' : ''
         let row = ''
@@ -5640,7 +5662,7 @@ POLL IS EXPIRED
     <div class="d-flex">
    
         <div>
-        <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+        <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
         </div>
         <div class="post-info" style="width:100px;">
 

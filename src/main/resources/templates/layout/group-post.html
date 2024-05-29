@@ -101,6 +101,90 @@
                 color: #d74;
 
             }
+
+
+            #community-detail-box {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#user-detail-box {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.group-name-div {
+    margin-bottom: 20px;
+}
+
+.community-name {
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 10px;
+}
+
+.community-description {
+    font-family: 'Courier New', Courier, monospace;
+    color: #555;
+}
+
+.owner-div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.owner-photo {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+
+.owner-name {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    color: #333;
+}
+
+.owner-email {
+    font-family: 'Courier New', Courier, monospace;
+    color: #28a745;
+}
+
+.member-list-div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.member-div {
+    display: flex;
+    align-items: center;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    padding: 10px;
+    width: calc(33.333% - 10px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.member-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.member-name {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
         </style>
     </head>
     <body>
@@ -110,14 +194,17 @@
             <span id="invitationMessage"></span>
             <div class="   h-100">
                 <div class="row d-flex justify-content-center align-items-center h-100">
-                    <img id="communityImage" style="border-radius: 20px; margin-bottom: -3px;" src="/assets/img/pf-bg1.gif" width="300" height="300">
-                    <div style="background-color: #9ec5ee; border-radius: 20px;">
-                        <h1 id="communityName" class="text-white" style="font-weight: bold">Spider Man</h1>
+                    <img id="communityImage" style="border-radius: 20px; margin-bottom: -3px;" src="/assets/img/pf-bg1.gif" width="300" height="200">
+                    <div style="background-color: #9ec5ee; border-radius: 20px; margin-top: -100px;">
+                        <div class="d-flex">
+                            <h1 id="communityName" class="text-white mx-1" style="font-weight: bold">Spider Man</h1>
+                            <i id="infoOfTheCommunity" class="fa-solid fa-circle-info text-white fs-4 my-2" data-bs-toggle="offcanvas" data-bs-target="#communityDetailShower" aria-controls="communityDetailShower"></i>
+                        </div>
 
                         <div>
                             <div class="d-flex">
-                                <p id="communityMembers" class="font-monospace" ><i class="fa-solid fa-earth-americas"></i>Public group 10members</p>
-                                <i id="infoOfTheCommunity" class="fa-solid fa-circle-info " data-bs-toggle="offcanvas" data-bs-target="#communityDetailShower" aria-controls="communityDetailShower"></i>
+                                <p id="communityMembers" class="font-monospace" ></p>
+                                <p id="numOfMembers" class="font-monospace text-white fs-5 mx-2"></p>
                             </div>
                         </div>
                        <div style="display: flex; justify-content: flex-end;">
@@ -198,8 +285,7 @@
             <!-- community detail offcanvas start  -->
 
             <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="communityDetailShower" aria-labelledby="communityDetailShower">
-                <div class="offcanvas-header">
-                  <h5 class="offcanvas-title" id="communityDetailShower">Colored with scrolling</h5>
+                <div class="offcanvas-header"> 
                   <button type="button" class="btn-close text-reset" onclick="deleteDetailBoxes()" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
