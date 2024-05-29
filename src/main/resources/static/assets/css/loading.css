@@ -1063,11 +1063,11 @@ code {
 .super-group-btns {
     font-family: monospace;
   align-items: center;
-  background-color: #426cf5;
+  background-color: white;
   border:none;
-  border-radius: 8px;
+  border-radius: 20px;
   box-sizing: border-box;
-  color: #ffffff;
+  color: #9ec5ee;
   cursor: pointer;
   display: flex;
   font-family: Inter,sans-serif;
@@ -1118,3 +1118,4 @@ code {
     padding: 0 40px;
   }
 }
+

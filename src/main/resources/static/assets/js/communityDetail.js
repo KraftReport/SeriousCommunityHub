@@ -135,9 +135,9 @@ const createBtns = async () => {
 }
 
 
-// document.getElementById('labelForPollPhoto').addEventListener('click',()=>{
-//     document.getElementById('pollMultipartFile').click()
-// })
+document.getElementById('labelForPollPhoto').addEventListener('click',()=>{
+    document.getElementById('pollMultipartFile').click()
+})
 
 
 document.getElementById('infoOfTheCommunity').addEventListener('click',async function(){
@@ -145,100 +145,195 @@ document.getElementById('infoOfTheCommunity').addEventListener('click',async fun
     await getDetailOfTheCommunity()
 })
 
+const displayMemberProfiles = async () => {
+    // Fetch the community members
+    let users = await fetch(`/api/community/getMembersOfTheCommunity/${communityId}`);
+    let userList = await users.json();
+    console.log(userList);
+
+    // Select the container for the member profiles and the number of members
+    let memberProfilesContainer = document.getElementById('communityMembers');
+    let numOfMembersContainer = document.getElementById('numOfMembers');
+    
+    // Clear the existing content
+    memberProfilesContainer.innerHTML = '';
+    numOfMembersContainer.innerHTML = '';
+
+    // Create a container to hold the overlapping images
+    const profileContainer = document.createElement('div');
+    profileContainer.style.display = 'flex';
+    profileContainer.style.alignItems = 'center';
+
+    // Limit the number of profiles to show
+    const maxVisibleProfiles = 2;
+    const remainingMembers = userList.length - maxVisibleProfiles;
+
+    // Create profile images for the first two members
+    userList.slice(0, maxVisibleProfiles).forEach((user, index) => {
+        const profileImg = document.createElement('img');
+        profileImg.src = user.photo;
+        profileImg.style.width = '40px';
+        profileImg.style.height = '40px';
+        profileImg.style.borderRadius = '50%';
+        profileImg.style.border = '2px solid white';
+        profileImg.style.marginLeft = index === 0 ? '0' : '-15px'; // overlap the images
+        profileContainer.appendChild(profileImg);
+    });
+
+    // Create the "remaining members" indicator
+    if (remainingMembers > 0) {
+        const remainingMembersDiv = document.createElement('div');
+        remainingMembersDiv.textContent = `+${remainingMembers}`;
+        remainingMembersDiv.style.width = '40px';
+        remainingMembersDiv.style.height = '40px';
+        remainingMembersDiv.style.borderRadius = '50%';
+        remainingMembersDiv.style.border = '2px solid white';
+        remainingMembersDiv.style.backgroundColor = '#9ec5ee';
+        remainingMembersDiv.style.color = 'white';
+        remainingMembersDiv.style.display = 'flex';
+        remainingMembersDiv.style.alignItems = 'center';
+        remainingMembersDiv.style.justifyContent = 'center';
+        remainingMembersDiv.style.marginLeft = '-15px'; // overlap the images
+        profileContainer.appendChild(remainingMembersDiv);
+    }
+
+    // Append the profile container to the member profiles container
+    memberProfilesContainer.appendChild(profileContainer);
+
+    // Display the number of members
+    numOfMembersContainer.textContent = `${userList.length} members`;
+};
+
+
+
 const deleteDetailBoxes = async () => {
     document.getElementById('community-detail-box').innerHTML = ''
     document.getElementById('user-detail-box').innerHTML = ''
 }
 
 const getDetailOfTheCommunity = async () => {
-    let data = await fetch(`/api/community/getCommunity/${communityId}`)
-    let response = await data.json()
-    console.log(response)
+    let data = await fetch(`/api/community/getCommunity/${communityId}`);
+    let response = await data.json();
+    console.log(response);
 
-    let users = await fetch(`/api/community/getMembersOfTheCommunity/${communityId}`)
-    let userList = await users.json()
-    console.log(userList)
+    let users = await fetch(`/api/community/getMembersOfTheCommunity/${communityId}`);
+    let userList = await users.json();
+    console.log(userList);
 
-    let owner = await fetch(`/api/community/getOwnerOfTheCommunity/${communityId}`)
-    let communityOwner = await owner.json()
-    console.log(communityOwner)
+    let owner = await fetch(`/api/community/getOwnerOfTheCommunity/${communityId}`);
+    let communityOwner = await owner.json();
+    console.log(communityOwner);
 
-    let detailDiv = document.getElementById('community-detail-box')
-    let usersDiv = document.getElementById('user-detail-box')
+    let detailDiv = document.getElementById('community-detail-box');
+    let usersDiv = document.getElementById('user-detail-box');
 
-    detailDiv.style.backgroundColor = 'black'
-    detailDiv.style.borderEndStartRadius = '50px'
-    detailDiv.style.borderEndEndRadius = '50px'
+    // Style the detailDiv
+    detailDiv.style.padding = '20px';
+    detailDiv.style.backgroundColor = '#f9f9f9';
+    detailDiv.style.borderRadius = '10px';
+    detailDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+    detailDiv.style.marginBottom = '20px';
 
-    console.log(detailDiv)
+    // Style the usersDiv
+    usersDiv.style.padding = '20px';
+    usersDiv.style.backgroundColor = '#fff';
+    usersDiv.style.borderRadius = '10px';
+    usersDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
 
-    const GroupNameDiv = document.createElement('div')
-    const GpName = document.createElement('h5')
-    const about = document.createElement('p')
+    const GroupNameDiv = document.createElement('div');
+    GroupNameDiv.style.marginBottom = '20px';
 
-    about.textContent = response.community.description
-    about.classList.add('text-white','font-monospace')
-    GpName.textContent = response.community.name
-    GpName.classList.add('text-white','font-monospace')
+    const GpName = document.createElement('h2');
+    const about = document.createElement('p');
 
-    GroupNameDiv.appendChild(GpName)
-    GroupNameDiv.appendChild(about)
+    about.textContent = response.community.description;
+    about.style.fontFamily = 'Courier New, Courier, monospace';
+    about.style.color = '#333';
+    about.style.marginBottom = '20px';
+    about.style.fontSize = '16px';
 
+    GpName.textContent = response.community.name;
+    GpName.style.fontWeight = 'bold';
+    GpName.style.fontFamily = 'Courier New, Courier, monospace';
+    GpName.style.marginBottom = '10px';
+    GpName.style.fontSize = '24px';
+    GpName.style.color = '#000';
 
-    const ownerDiv = document.createElement('div')
-    const imgOfOwner = document.createElement('img')
-    const nameOfOwner = document.createElement('p')
-    const emailOfTheOwner = document.createElement('p')
+    GroupNameDiv.appendChild(GpName);
+    GroupNameDiv.appendChild(about);
 
-    imgOfOwner.src = communityOwner.photo
-    imgOfOwner.style.width = '100px'
-    imgOfOwner.style.height = '100px'
-    imgOfOwner.style.borderRadius = '10px'
+    const ownerDiv = document.createElement('div');
+    ownerDiv.style.display = 'flex';
+    ownerDiv.style.alignItems = 'center';
+    ownerDiv.style.marginBottom = '20px';
 
-    nameOfOwner.textContent = communityOwner.name
-    nameOfOwner.classList.add('font-monospace','text-white')
+    const imgOfOwner = document.createElement('img');
+    const nameOfOwner = document.createElement('p');
+    const emailOfTheOwner = document.createElement('p');
+    const textDiv = document.createElement('div');
 
-    emailOfTheOwner.textContent = communityOwner.email
-    emailOfTheOwner.classList.add('font-monosapce','text-white')
+    imgOfOwner.src = communityOwner.photo;
+    imgOfOwner.style.width = '70px';
+    imgOfOwner.style.height = '70px';
+    imgOfOwner.style.borderRadius = '10px';
+    imgOfOwner.style.marginRight = '15px';
 
-    ownerDiv.appendChild(imgOfOwner)
-    ownerDiv.appendChild(nameOfOwner)
-    ownerDiv.appendChild(emailOfTheOwner)
+    nameOfOwner.textContent = 'Owner: ' + communityOwner.name;
+    nameOfOwner.style.fontFamily = 'Courier New, Courier, monospace';
+    nameOfOwner.style.fontWeight = 'bold';
+    nameOfOwner.style.color = '#333';
 
+    emailOfTheOwner.textContent = communityOwner.email;
+    emailOfTheOwner.style.fontFamily = 'Courier New, Courier, monospace';
+    emailOfTheOwner.style.color = '#28a745';
 
+    textDiv.appendChild(nameOfOwner);
+    textDiv.appendChild(emailOfTheOwner);
+    ownerDiv.appendChild(imgOfOwner);
+    ownerDiv.appendChild(textDiv);
 
-    
+    const memberListDiv = document.createElement('div');
+    memberListDiv.style.display = 'block';
+    memberListDiv.style.gap = '15px';
 
-    const memberListDiv = document.createElement('div')
+    for (const u of userList) {
+        const memberDiv = document.createElement('div');
+        memberDiv.style.display = 'flex';
+        memberDiv.style.alignItems = 'center';
+        memberDiv.style.backgroundColor = '#f1f1f1';
+        memberDiv.style.borderRadius = '10px';
+        memberDiv.style.padding = '10px';
+        memberDiv.style.marginBottom = '10px';
+        memberDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
 
-    for(u of userList){
-        const memberDiv = document.createElement('div')
-        const memberImg = document.createElement('img')
-        const memberName  = document.createElement('p')
+        const memberImg = document.createElement('img');
+        const memberName = document.createElement('p');
 
-        memberImg.src = u.photo
-        memberName.textContent = u.name
+        memberImg.src = u.photo;
+        memberImg.style.width = '50px';
+        memberImg.style.height = '50px';
+        memberImg.style.borderRadius = '50%';
+        memberImg.style.marginRight = '10px';
 
-        memberImg.style.width = '100px'
-        memberImg.style.height = '100px'
-        memberImg.borderRadius = '50px'
+        memberName.textContent = u.name;
+        memberName.style.fontFamily = 'Courier New, Courier, monospace';
+        memberName.style.fontWeight = 'bold';
+        memberName.style.margin = '0';
 
+        memberDiv.appendChild(memberImg);
+        memberDiv.appendChild(memberName);
 
-        memberDiv.appendChild(memberImg)
-        memberDiv.appendChild(memberName)
-
-        memberListDiv.appendChild(memberDiv)
-
+        memberListDiv.appendChild(memberDiv);
     }
 
+    detailDiv.appendChild(GroupNameDiv);
+    detailDiv.appendChild(ownerDiv);
+    usersDiv.appendChild(memberListDiv);
 
-    detailDiv.appendChild(GroupNameDiv)
-    detailDiv.append(ownerDiv)
-    usersDiv.appendChild(memberListDiv)
+    console.log(usersDiv);
+};
 
 
-    console.log(usersDiv)
-}
 
 
 let videoIcon = document.getElementById('video-icon')
@@ -584,7 +679,8 @@ window.onload = async function(){
     console.log('wow wow here')
 
     await startUp()
-    await getDetailOfTheCommunity()
+    await displayMemberProfiles()
+    // await getDetailOfTheCommunity()
     await createBtns()
     await getPosts()
 }

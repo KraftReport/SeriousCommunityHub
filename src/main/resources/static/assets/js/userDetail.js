@@ -244,9 +244,8 @@ const getPosts = async () => {
             let ug = p.userGroup !== null ? p.userGroup : null
             let gp = ug !== null ? ug.community : null 
             let gpName = gp !== null ? gp.name : null
-            let CommunityName = gpName === null ? '' : `<div style="margin-left:20px;">
-            <p class="font-monospace bg-secondary text-white d-flex" style="padding:5px;   border-radius:10px;">${gpName} <i class="fa-solid fa-users text-white" style="font-size:10px; margin-left:2px;"></i></p> 
-            </div>`
+            let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+            `
         let createdTime = await timeAgo(new Date(p.createdDate))
         const reactCount = await fetchSizes(p.id);
         const reactType = await fetchReactType(p.id);
