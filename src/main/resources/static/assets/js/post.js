@@ -5780,45 +5780,7 @@ POLL IS EXPIRED
  
     </div>
 
-    <div class="post-bottom">
-    <div class="action" style="height: 50px">
-<div class="button_wrapper">
-  <div class="all_likes_wrapper">
-      <div data-title="LIKE">
-          <img src="/static/assets/img/like.png" alt="Like" />
-      </div>
-      <div data-title="LOVE">
-          <img src="/static/assets/img/love.png" alt="Love" />
-      </div>
-      <div data-title="CARE">
-          <img src="/static/assets/img/care.png" alt="Care" />
-      </div>
-      <div data-title="HAHA">
-          <img src="/static/assets/img/haha.png" alt="Haha" />
-      </div>
-      <div data-title="WOW">
-          <img src="/static/assets/img/wow.png" alt="Wow" />
-      </div>
-      <div data-title="SAD">
-          <img src="/static/assets/img/sad.png" alt="Sad" />
-      </div>
-      <div data-title="ANGRY">
-          <img src="/static/assets/img/angry.png" alt="Angry" />
-      </div>
-  </div>
-  <button class="like_button" id=" "> 
-  </button>
-</div>
-    </div>
-    <div class="action">
-        <i class="fa-regular fa-comment"></i>
-        <span onclick="pressedComment()"  data-bs-toggle="modal" data-bs-target="#commentStaticBox">Comment  </span>
-    </div>
-    <div class="action">
-        <i class="fa fa-share"></i>
-        <span>Share</span>
-    </div>
-</div>
+  
     </div>
         `
         rows+=row
