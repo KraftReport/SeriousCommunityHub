@@ -2,9 +2,12 @@ package com.communityHubSystem.communityHub.impls;
 
 import com.communityHubSystem.communityHub.dto.CommentUpdateDto;
 import com.communityHubSystem.communityHub.models.Comment;
+import com.communityHubSystem.communityHub.models.Notification;
 import com.communityHubSystem.communityHub.models.Reply;
 import com.communityHubSystem.communityHub.repositories.CommentRepository;
 import com.communityHubSystem.communityHub.services.CommentService;
+import com.communityHubSystem.communityHub.services.MentionService;
+import com.communityHubSystem.communityHub.services.NotificationService;
 import com.communityHubSystem.communityHub.services.ReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final ReplyService replyService;
+    private final NotificationService notificationService;
 
     @Override
     public Comment save(Comment comment) {
@@ -39,14 +43,10 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findById(id).orElse(null);
     }
 
+
+    @Transactional
     @Override
     public void deleteComment(Long id) {
-      List<Reply> replyList = replyService.getAllRepliesByCommentId(id);
-      if(replyList.size() > 0) {
-          for (Reply reply : replyList) {
-              replyService.deleteReply(reply.getId());
-          }
-      }
       commentRepository.deleteById(id);
     }
 

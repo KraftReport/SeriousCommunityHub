@@ -1,5 +1,6 @@
 package com.communityHubSystem.communityHub.controllers;
 
+import com.communityHubSystem.communityHub.dto.BirthDayDto;
 import com.communityHubSystem.communityHub.dto.CommentDto;
 import com.communityHubSystem.communityHub.dto.MessageDto;
 import com.communityHubSystem.communityHub.dto.MessageDtoForCommentReaction;
@@ -397,6 +398,8 @@ public class ReactController {
         var comment = commentService.findById(messageDtoForCommentReaction.getCommentId());
         var user = userService.findById(reply.getUser().getId());
         var post = postService.findById(comment.getPost().getId());
+        var singleNoti = notificationService.findByCommentIdAndReplyId(comment.getId(),reply.getId());
+        var notifiedUser = userService.findById(singleNoti.getUser().getId());
         var isReact = reactService.getReact(loginUser.getId(), post.getId(), comment.getId(), reply.getId());
         if (isReact == null) {
             var react = React.builder()
@@ -411,15 +414,16 @@ public class ReactController {
             if(!loginUser.getId().equals(user.getId())) {
                 var noti = Notification.builder()
                         .date(new Date())
-                        .user(loginUser)
+                        .user(user)
                         .post(post)
+                        .comment(comment)
                         .reply(reply)
                         .react(react)
                         .build();
                 notificationService.save(noti);
-                messagingTemplate.convertAndSendToUser(reply.getUser().getStaffId(), "/like-private-message", new MessageDto(
+                messagingTemplate.convertAndSendToUser(user.getStaffId(), "/like-private-message", new MessageDto(
                         messageDtoForCommentReaction.getPostId(),
-                        comment.getUser().getStaffId(),
+                        user.getStaffId(),
                         loginUser.getName(),
                         messageDtoForCommentReaction.getContent(),
                         messageDtoForCommentReaction.getType(),
@@ -540,7 +544,6 @@ public class ReactController {
         return ResponseEntity.status(HttpStatus.OK).body(users);
 
     }
-
 
     public List<User> getMentionsUsersByPostId(Long id) {
         var post = postService.findById(id);

@@ -44,4 +44,6 @@ public interface ReactService {
     List<React> findReactByCommentIdAndPostId(Long id);
 
    public Long finReactByCommentIdIsNullAndPostIdAndReplyIdIsNull(Long id);
+
+    void deleteByReplyId(Long id);
 }

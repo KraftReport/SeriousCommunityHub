@@ -261,7 +261,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new CommunityHubException("User not found!"));
 
         if(loginUser.getRole().equals(User.Role.ADMIN)){
-            var adminList = postRepository.findAll().stream().filter(a -> !a.isDeleted()).sorted(Comparator.comparing(Post::getCreatedDate).reversed()).toList();
+            var adminList = postRepository.findAll().stream().filter(a -> !a.isDeleted() && !a.isHide()).sorted(Comparator.comparing(Post::getCreatedDate).reversed()).toList();
             Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
             int start = Math.toIntExact(pageable.getOffset());
             if (start >= adminList.size()) {
@@ -274,7 +274,7 @@ public class PostServiceImpl implements PostService {
         }
 
         List<Post> publicPosts = postRepository.findPostsByAccessOrderByCreatedDateDesc(Access.PUBLIC);
-        var notDeletedPosts = publicPosts.stream().filter(p -> !p.isDeleted()).toList();
+        var notDeletedPosts = publicPosts.stream().filter(p -> !p.isDeleted() && !p.isHide()).toList();
         List<Post> postList = new ArrayList<>(notDeletedPosts);
         List<User_Group> userGroupList = user_groupRepository.findByUserId(loginUser.getId());
         System.out.println("SIZEOFUSERGROUP"+userGroupList.size());
@@ -285,7 +285,7 @@ public class PostServiceImpl implements PostService {
         }
         for (User_Group user_group : user_groups) {
             List<Post> userGroupPosts = postRepository.findAllByUserGroupIdOrderByCreatedDateDesc(user_group.getId());
-            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted()).toList();
+            var filteredList = userGroupPosts.stream().filter(u -> !u.isDeleted() && !u.isHide()).toList();
             System.err.println("WOWOOWOWOWO"+user_group.getId());
             System.err.println("WOWOOWOWOWO"+filteredList.size());
             postList.addAll(filteredList);
@@ -322,7 +322,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<Post> returnPostForUserDetailPage(Long id,String page) {
-        var posts = new ArrayList<>(postRepository.findPostsByUserId(id).stream().filter(p -> !p.isDeleted()).toList());
+        var posts = new ArrayList<>(postRepository.findPostsByUserId(id).stream().filter(p -> !p.isDeleted() && !p.isHide()).toList());
         System.err.println(posts);
         posts.sort(Comparator.comparing(Post::getCreatedDate).reversed());
         Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
@@ -368,6 +368,38 @@ public class PostServiceImpl implements PostService {
         return postRepository.findByUserIdAndYearAndMonth(userId,currentYear,currentMonth);
     }
 
+    @Override
+    public Page<Post> getHidePostOfAUser(Long id,String  page) {
+        var posts = postRepository.findDeletedPostsByUserId(id);
+        System.err.println(posts);
+        posts.sort(Comparator.comparing(Post::getCreatedDate).reversed());
+        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+        int start = Math.toIntExact(pageable.getOffset());
+        if (start >= posts.size()) {
+            return Page.empty(pageable);
+        }
+        int end = Math.min(start + pageable.getPageSize(), posts.size());
+        List<Post> paginatedPosts = posts.subList(start, end);
+        return new PageImpl<>(paginatedPosts, pageable, posts.size());
+    }
+
+    @Override
+    @Transactional
+    public Post hideAPost(Long id) {
+        var post = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        post.setHide(true);
+        postRepository.save(post);
+        return post;
+    }
+
+    @Override
+    public Post showAPost(Long id) {
+        var post = postRepository.findById(id).orElseThrow(()->new CommunityHubException("post not found"));
+        post.setHide(false);
+        postRepository.save(post);
+        return post;
+    }
+
 
     public boolean isValidPhotoExtension(String extension) {
         return photoExtensions.contains(extension);
@@ -407,6 +439,7 @@ public class PostServiceImpl implements PostService {
         var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
         var loginUser = userService.findByStaffId(staffId).orElseThrow(() -> new CommunityHubException("User Name not found Exception"));
         var post = new Post();
+        post.setHide(false);
         post.setDescription(postDTO.getContent());
         post.setPostType(Post.PostType.CONTENT);
         post.setCreatedDate(new Date());

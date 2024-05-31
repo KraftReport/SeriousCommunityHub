@@ -19,12 +19,17 @@
               </a>
               <i class="bi bi-list toggle-sidebar-btn"></i>
           </div><!-- End Logo -->
-          <div class="search-bar">
-              <form class="search-form d-flex align-items-center" >
-                  <input id="searchInput" type="text" name="query" placeholder="Search" title="Enter search keyword">
-                  <button type="button" title="Search" onclick="searchMethod()"><i class="bi bi-search"></i></button>
-              </form>
-          </div><!-- End Search Bar -->
+          <div>
+            <div class="search-bar">
+                <form class="search-form d-flex align-items-center" >
+                    <input id="searchInput" type="text" name="query" placeholder="Search" title="Enter search keyword">
+                    <button type="button" title="Search" onclick="searchMethod()"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+
+          </div>
+          
+          <!-- End Search Bar -->
 
           <nav class="header-nav ms-auto">
               <ul class="d-flex align-items-center">
@@ -160,22 +165,35 @@
       </header><!-- End Header -->
 <div th:replace="~{index::navbar}"></div>
 <main id="main" class="main"  >
+
+    <div id="suggestions-container" style="width: 100%;
+    height: 200px; /* Adjust the height as needed */
+    overflow-y: auto;
+    border: 1px solid #ccc; width:220px; position:absolute; background-color:transparent; border: none; ">
+      <div id="post-suggestions" class="suggestion-category text-secondary"></div>
+      <div id="event-suggestions" class="suggestion-category text-secondary"></div>
+      <div id="poll-suggestions" class="suggestion-category text-secondary"></div>
+      <div id="user-suggestions" class="suggestion-category text-secondary"></div>
+      <div id="community-suggestions" class="suggestion-category text-secondary"></div>
+  </div>
+
+
     <div class="middle-panel">
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation"> 
-            <button class="nav-link active" onclick="createPostsForSearch()" id="post-search-tab" data-bs-toggle="pill" data-bs-target="#pills-post-search" type="button" role="tab" aria-controls="pills-post-search" aria-selected="true">Post</button>
+            <button class="nav-link active"   id="post-search-tab" data-bs-toggle="pill" data-bs-target="#pills-post-search" type="button" role="tab" aria-controls="pills-post-search" aria-selected="true">Post</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" onclick="goToEventTab()" id="event-search-tab" data-bs-toggle="pill" data-bs-target="#pills-event-search" type="button" role="tab" aria-controls="pills-event-search" aria-selected="false">Event</button>
+              <button class="nav-link"   id="event-search-tab" data-bs-toggle="pill" data-bs-target="#pills-event-search" type="button" role="tab" aria-controls="pills-event-search" aria-selected="false">Event</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" onclick="goToPollTab()" id="poll-search-tab" data-bs-toggle="pill" data-bs-target="#pills-poll-search" type="button" role="tab" aria-controls="pills-poll-search" aria-selected="false">Poll</button>
+              <button class="nav-link"   id="poll-search-tab" data-bs-toggle="pill" data-bs-target="#pills-poll-search" type="button" role="tab" aria-controls="pills-poll-search" aria-selected="false">Poll</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" onclick="goToUserTab()" id="user-search-tab" data-bs-toggle="pill" data-bs-target="#pills-user-search" type="button" role="tab" aria-controls="pills-user-search" aria-selected="false">User</button>
+                <button class="nav-link"  id="user-search-tab" data-bs-toggle="pill" data-bs-target="#pills-user-search" type="button" role="tab" aria-controls="pills-user-search" aria-selected="false">User</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" onclick="goToCommunityTab()" id="community-search-tab" data-bs-toggle="pill" data-bs-target="#pills-community-search" type="button" role="tab" aria-controls="pills-community-search" aria-selected="false">Community</button>
+                <button class="nav-link"   id="community-search-tab" data-bs-toggle="pill" data-bs-target="#pills-community-search" type="button" role="tab" aria-controls="pills-community-search" aria-selected="false">Community</button>
               </li> 
           </ul>
           <div class="tab-content" id="pills-tabContent">
@@ -224,23 +242,31 @@
                   </div>
               </div>
               <div>
-                  <button id="restart" style="background-color: #3192e0; border-radius: 10px; color:white; margin-left: 109px; margin-bottom: 20px; " class="btn" data-bs-dismiss="modal"
+                  <button id="restart" style="background-color: #3192e0; border-radius: 10px; color:white; margin-left: 109px; margin-bottom: 20px;; " class="btn   " data-bs-dismiss="modal"
                           onclick="setToNormal()">Continue
                   </button>
               </div>
           </div>
 
-           
-              <div class="loader"></div> 
-           
 
-        
+              <div class="loader"></div>
+
+
+          <!-- <div id="catBox" class="">
+              <div class="box">
+                  <div class="cat">
+                      <div class="cat__body"></div>
+                      <div class="cat__body"></div>
+                      <div class="cat__tail"></div>
+                      <div class="cat__head"></div>
+                  </div>
+              </div>
+          </div> -->
 
 
       </div>
   </div>
 </div>
-
 
 <!-- loading modal box end  -->
 
@@ -442,7 +468,7 @@
     </div>
 </main>
 <div th:replace="~{index::footer}"></div>
-<!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>-->
+<!-- <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> -->
 <!--<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>-->
 <!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>-->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>

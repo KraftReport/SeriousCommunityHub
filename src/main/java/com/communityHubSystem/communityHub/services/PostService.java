@@ -51,4 +51,8 @@ public interface PostService {
 
    public List<Post> getPostsByCurrentMonthAndYearAndUserId(Long id);
 
+   public Page<Post> getHidePostOfAUser(Long id,String page);
+   public Post hideAPost(Long id);
+
+    public Post showAPost(Long aLong);
 }

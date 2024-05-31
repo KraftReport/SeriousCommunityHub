@@ -1,5 +1,142 @@
+let searchInterval;
 
-const makeFileDownloadPost = async (resources) => {
+document.getElementById('searchInput').addEventListener('input', () => {
+    clearInterval(searchInterval);
+    searchInterval = setInterval(suggestionSearchMethod, 1000);
+});
+
+const tabs = {
+    post: 'post-suggestions',
+    event: 'event-suggestions',
+    poll: 'poll-suggestions',
+    user: 'user-suggestions',
+    community: 'community-suggestions'
+};
+
+let activeTab = 'post';
+
+async function clearSuggestionsDiv() {
+    Object.values(tabs).forEach(id => document.getElementById(id).innerHTML = '');
+};
+
+Object.keys(tabs).forEach(tab => {
+    document.getElementById(`${tab}-search-tab`).addEventListener('click', async () => {
+        document.getElementById('searchInput').focus()
+        document.getElementById('searchInput').value = ''
+        await clearSuggestionsDiv();
+        activeTab = tab;
+    });
+});
+
+async function suggestionSearchMethod(){
+    clearInterval(searchInterval); // Stop the interval once the search method is called
+
+    const query = document.getElementById('searchInput').value;
+    if (!query) {
+        clearSuggestionsDiv();
+        return;
+    }
+
+    try {
+        const responses = await Promise.all([
+            fetch(`/post/searchPost/${query}`).then(res => res.json()),
+            fetch(`/event/searchEvent/${query}`).then(res => res.json()),
+            fetch(`/event/searchPolls/${query}`).then(res => res.json()),
+            fetch(`/user/userSearchMethod/${query}`).then(res => res.json()),
+            fetch(`/api/community/communitySearchMethod/${query}`).then(res => res.json())
+        ]);
+
+        const [suggestionsForPost, suggestionsForEvent, suggestionsForPoll, suggestionsForUser, suggestionsForCommunity] = responses;
+
+        if (activeTab === 'post') updateSuggestions('post-suggestions', suggestionsForPost, createSuggestionHTMLForPost);
+        if (activeTab === 'event') updateSuggestions('event-suggestions', suggestionsForEvent, createSuggestionHTMLForEvent);
+        if (activeTab === 'poll') updateSuggestions('poll-suggestions', suggestionsForPoll, createSuggestionHTMLForPoll);
+        if (activeTab === 'user') updateSuggestions('user-suggestions', suggestionsForUser, createSuggestionHTMLForUser);
+        if (activeTab === 'community') updateSuggestions('community-suggestions', suggestionsForCommunity, createSuggestionHTMLForCommunity);
+
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+    }
+};
+
+async function updateSuggestions(containerId, suggestions, createSuggestionHTML){
+    document.getElementById(containerId).innerHTML = createSuggestionHTML(suggestions);
+};
+
+const createSuggestionHTMLForPost = (items) => items.map(item => `
+    <div onclick="createPostsForSearch('${item.description.trim() || item.user.name}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-paper-plane text-info"></i> ${item.description.trim() || item.user.name}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForEvent = (items) => items.map(item => `
+    <div onclick="showSearchEvents('${item.description}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-calendar text-warning"></i> ${item.description}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForPoll = (items) => items.map(item => `
+    <div onclick="goToPollTab('${item.description}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-chart-simple text-success"></i> ${item.description}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForUser = (items) => items.map(item => `
+    <div onclick="goToUserTab('${item.name}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-user text-primary"></i> ${item.name}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForCommunity = (items) => items.map(item => `
+    <div onclick="goToCommunityTab('${item.name}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-users text-secondary"></i> ${item.name}
+    </div>
+`).join('');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function makeFileDownloadPost(resources){
     console.log('d ko youk tl naw')
     const parentDiv = document.createElement('div');
     parentDiv.classList.add('card','shadow');
@@ -9,6 +146,7 @@ const makeFileDownloadPost = async (resources) => {
 
     
 
+    
 
     
     const ul = document.createElement('ul');
@@ -48,24 +186,24 @@ const makeFileDownloadPost = async (resources) => {
 }
 
 
-const deleteRawFileResource = (id) => {
+async function deleteRawFileResource(id){
     let element = document.getElementById('old-raw-file-'+id)
     element.classList.add('deleted-raw-file')
     console.log(element)
 }
 
-const removePreviewForRawFile = () => {
+async function removePreviewForRawFile(){
     let parent = document.getElementById('editModal') 
     parent.innerHTML = '' 
  
 }
 
-const removePreviewForPostUpdate = () => {
+async function removePreviewForPostUpdate(){
     let parent = document.getElementById('editModal') 
     parent.innerHTML = '' 
 }
 
-const getUpdateDataForRaw = async () => { 
+async function getUpdateDataForRaw(){  
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -120,10 +258,10 @@ const getUpdateDataForRaw = async () => {
     let secondResult = await secondResponse.json()
     console.log(secondResult)
     if(secondResult){
-        await removeCat()
+     
     }
     if (secondResult) {
-        await removeCat()
+        
         // while (newsfeed.firstChild) {
         //     newsfeed.removeChild(newsfeed.firstChild)
         // }
@@ -151,14 +289,19 @@ const getUpdateDataForRaw = async () => {
        
         contentSection.innerHTML = post
          removePreviewForRawFile()
+    
 
     }
 }
 
 
-window.onload =  createPostsForSearch
+window.onload = document.getElementById('searchInput').focus()
 
-const checkEventOwnerOrAdmin = async (id) => {
+
+let mark = document.getElementById('markBox')
+
+
+async function checkEventOwnerOrAdmin(id){
     let data = await fetch(`/event/checkEventOwnerOrAdmin/${id}`)
     let response = await data.json()
     console.log(response[0])
@@ -167,24 +310,34 @@ const checkEventOwnerOrAdmin = async (id) => {
 
 
 
-async function searchMethod(){
-    let input = await document.getElementById('searchInput').value
-    console.log()
-    localStorage.setItem('searchInput',encodeURIComponent(input))
-    document.getElementById('searchInput').value = localStorage.getItem('searchInput')
-    await createPostsForSearch()
-    goToEventTab()
-    goToPollTab()
-    goToUserTab()
-    goToCommunityTab()
-}
-const fetchReactCountForEvent =async (id) => {
+// async function searchMethod() {
+//     console.log('wowowowowo')
+//     // Retrieve input value
+//     let input = await document.getElementById('searchInput').value;
+
+//     // Log input value
+//     console.log(input);
+
+//     // Encode and store input value in localStorage
+//     localStorage.setItem('searchInput', encodeURIComponent(input));
+
+//     // Set input field value to the encoded value
+//     document.getElementById('searchInput').value = localStorage.getItem('searchInput');
+
+//     // Call each tab navigation method sequentially
+//     await createPostsForSearch();
+//     await goToEventTab();
+//     await goToPollTab();
+//     await goToUserTab();
+//     await goToCommunityTab();
+// }
+async function fetchReactCountForEvent(id){
     const sizeData = await fetch(`/event-react-type/${id}`);
     const eventReactCount = await sizeData.json();
     return eventReactCount;
 }
 
-const fetchReactTypeForEvent = async (id) => {
+async function fetchReactTypeForEvent (id)  {
     try {
         const dataType = await fetch(`/event-user-react-type/${id}`);
         if (!dataType.ok) {
@@ -199,8 +352,8 @@ const fetchReactTypeForEvent = async (id) => {
     }
 }
 
-async function goToCommunityTab(){
-    let data = await fetch('/api/community/communitySearchMethod/'+localStorage.getItem('searchInput'))
+async function goToCommunityTab(input){
+    let data = await fetch('/api/community/communitySearchMethod/'+input)
     let response = await data.json()
     let max = 10
     let communityTab = document.getElementById('pills-community-search')
@@ -274,8 +427,8 @@ async function getNumberOfMembers(id){
     return response[0]
 }
 
-async function goToUserTab(){
-    let data = await fetch ('/user/userSearchMethod/'+localStorage.getItem('searchInput'))
+async function goToUserTab(input){
+    let data = await fetch ('/user/userSearchMethod/'+input)
     let userTab = document.getElementById('pills-user-search')
     let response = await data.json()
     console.log(response)
@@ -317,13 +470,13 @@ async function goToUserTab(){
 }
 
 
-const getGroupOrPublicMentionUsers =async (id) => {
+async function getGroupOrPublicMentionUsers(id){
     const getUsers = await fetch(`/get-mentionUsers-group/${id}`);
     const data = await getUsers.json();
     return data;
 }
 
-const mentionPostForComment = (id) => {
+ function mentionPostForComment(id){
     const messageInput = document.getElementById('commentText');
     const mentionSuggestions = document.getElementById('mentionSuggestionsForComment');
     mentionSuggestions.classList.add('mentionSuggestionsContainer'); // Add CSS class for styling
@@ -368,13 +521,13 @@ const mentionPostForComment = (id) => {
     });
 };
 
-const getAllMember = async () => {
+async function getAllMember(){
     const getAllData = await fetch('/get-all-active-user');
     const response = await getAllData.json();
     return response;
 };
 
-const highlightMentions = async (description) => {
+async function highlightMentions(description){
 
     const allMembers = await getAllMember();
     const sanitizedMemberNames = allMembers.map(member => member.name.replace(/\s+/g, ''));
@@ -390,7 +543,7 @@ const highlightMentions = async (description) => {
     });
 };
 
-const extractMentionedUsersForComment = (postText) => {
+async function extractMentionedUsersForComment(postText){
     const mentions = JSON.parse(document.getElementById('commentText').dataset.mentions || '[]');
     return mentions.map(mention => mention.id);
 }
@@ -400,7 +553,7 @@ async function goToUserDetailPage(id){
     window.location.href = `/user/other-user-profile?id=${id}`
 }
 
-const fetchUserDataByPostedUser = async (id) => {
+async function fetchUserDataByPostedUser(id){
     const fetchUserData = await fetch(`/get-userData/${id}`);
     if (!fetchUserData.ok) {
         alert('Invalid user');
@@ -412,17 +565,17 @@ const fetchUserDataByPostedUser = async (id) => {
 
 async function goToEventTab(){
     console.log(localStorage.getItem('searchInput'))
-    showSearchEvents(localStorage.getItem('searchInput'))
+    showSearchEvents(input)
 }
 
-const fetchSizes = async (id) => {
+async function fetchSizes(id){
     const reactSize = await fetch(`/like-size/${id}`);
     const reactCount = await reactSize.json();
     return reactCount;
 };
 
 
-const fetchReactType = async (id) => {
+async function fetchReactType (id) {
     try {
         const response = await fetch(`/like-type/${id}`);
         if (!response.ok) {
@@ -437,7 +590,7 @@ const fetchReactType = async (id) => {
     }
 };
 
-const removeReactionForEvent = async (id) => {
+async function removeReactionForEvent(id){
     const cancelType = await fetch(`/remove-like-eventReact-type/${id}`);
     if (!cancelType.ok) {
         alert('something wrong');
@@ -445,7 +598,7 @@ const removeReactionForEvent = async (id) => {
     console.log('hehhe')
 };
 
-const fetchCommentSizes = async (id) => {
+async function fetchCommentSizes(id){
     const commentSize = await fetch(`/comment-size/${id}`);
     const commentCount = await commentSize.json();
     return commentCount;
@@ -498,7 +651,7 @@ document.getElementById('notiCountDecrease').addEventListener('click', () => {
     showNotiCount().then();
 });
 
-const showNotiCount = async () => {
+async function showNotiCount(){
     const notiShow = document.getElementById('notiCount');
     notiShow.innerText = notificationCount;
     if (notificationCount === 0) {
@@ -506,7 +659,7 @@ const showNotiCount = async () => {
     }
 };
 
-const notifyMessage = async () => {
+async function notifyMessage(){
     const showMessage = document.getElementById('notifyMessage');
     const pElement = document.createElement('p');
     pElement.classList.add('noti-p-element');
@@ -520,7 +673,7 @@ const notifyMessage = async () => {
     showMessage.appendChild(pElement);
 };
 
-const notifyMessageForReact = async (message, sender, photo, type) => {
+async function notifyMessageForReact(message, sender, photo, type){
     const spanElement = document.getElementById('notiId');
     spanElement.innerText = `You have ${notificationCount} new notifications`;
     const showMessage = document.getElementById('notifyMessage');
@@ -572,7 +725,7 @@ const notifyMessageForReact = async (message, sender, photo, type) => {
 };
 
 
-const receivedMessageForReact = async (payload) => {
+async function receivedMessageForReact(payload){
     console.log("Message Received");
     const message = await JSON.parse(payload.body);
     // await welcome();
@@ -584,7 +737,7 @@ const receivedMessageForReact = async (payload) => {
 };
 
 
-const pressedLikeForEvent = async (id, type) => {
+async function pressedLikeForEvent(id, type){
     console.log('PostId', id);
     const myObj = {
         postId: id,
@@ -595,7 +748,7 @@ const pressedLikeForEvent = async (id, type) => {
     stompClient.send('/app/react-event-message', {}, JSON.stringify(myObj));
 };
 
-const pressedLike = async (id, type) => {
+async function pressedLike(id, type){
     console.log('PostId', id);
     const myObj = {
         postId: id,
@@ -607,7 +760,7 @@ const pressedLike = async (id, type) => {
 };
 
 
-const getAllComments = async (id) => {
+async function getAllComments(id){
     const fetchComments = await fetch(`/getComment/${id}`);
     if (!fetchComments.ok) {
         alert('There is something wrong in the comment section,Please try again!');
@@ -622,7 +775,7 @@ const getAllComments = async (id) => {
     }
 };
 
-const displayMessage = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
+async function displayMessage(sender, content, photo, id, postId,localDateTime,chatArea){
     const user = await fetchUserDataByPostedUser(loginUser);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
@@ -951,7 +1104,7 @@ const onSuccess =async (id) => {
     await document.querySelector(`.replies-container-${id}`).appendChild(reply);
 }
 
-const fetchAndDisplayLastReply = async (id) => {
+async function fetchAndDisplayLastReply(id){
     const fetchReplies = await fetch(`/getAll-comment/${id}`);
     const fetchDataForReplies = await fetchReplies.json();
     const replyElement = document.createElement('div');
@@ -1242,7 +1395,7 @@ const fetchAndDisplayLastReply = async (id) => {
 };
 
 
-const fetchAndDisplayReplies = async (id) => {
+async function fetchAndDisplayReplies(id){
     const fetchReplies = await fetch(`/getAll-comment/${id}`);
     const fetchDataForReplies = await fetchReplies.json();
 
@@ -1537,19 +1690,19 @@ const fetchAndDisplayReplies = async (id) => {
 };
 
 
-const replyReactType = async (commentId, userId, replyId) => {
+async function replyReactType(commentId, userId, replyId){
     const fetchTypeForReply = await fetch(`/reply-type-react/${commentId}/${userId}/${replyId}`);
     const response = await fetchTypeForReply.json();
     return response;
 }
 
-const commentReactType = async (id, userId, postId) => {
+async function commentReactType(id, userId, postId){
     const fetchType = await fetch(`/comment-type-react/${id}/${userId}/${postId}`);
     const response = await fetchType.json();
     return response;
 }
 
-const fetchCommetedUser = async (id) => {
+async function fetchCommetedUser(id){
     const commentUser = await fetch(`/user/comment-user-data/${id}`);
     if (!commentUser.ok) {
         alert('something wrong');
@@ -1558,13 +1711,13 @@ const fetchCommetedUser = async (id) => {
     return commentUserData;
 }
 
-const fetchReactTypeForNotification = async (id) => {
+async function fetchReactTypeForNotification(id){
     const reactType = await fetch(`/user/like-noti-type/${id}`);
     const reactDataType = await reactType.json();
     return reactDataType;
 }
 
-const deleteComment = async (id) => {
+async function deleteComment(id){
     const getData = await fetch(`/delete-comment/${id}`, {
         method: 'DELETE'
     });
@@ -1586,7 +1739,7 @@ const deleteComment = async (id) => {
     // await getAllComments(postId);
 };
 
-const deleteReply = async (id) => {
+async function deleteReply(id){
     const getData = await fetch(`/delete-reply/${id}`, {
         method: 'DELETE'
     });
@@ -1608,7 +1761,7 @@ const deleteReply = async (id) => {
     // await getAllComments(postId);
 };
 
-const updateContentForReply = async (id, content) => {
+async function updateContentForReply(id, content){
     const myObj = {
         id: id,
         content: content
@@ -1640,13 +1793,13 @@ const updateContentForReply = async (id, content) => {
     // await getAllComments(postId);
 };
 
-const fetchRepliedUserForData = async (id) => {
+async function fetchRepliedUserForData(id){
     const fetchDataForUser = await fetch(`/user/reply-user-data/${id}`);
     const userDataForReply = await fetchDataForUser.json();
     return userDataForReply;
 };
 
-const updateContent = async (id, content) => {
+async function updateContent(id, content){
     const myObj = {
         id: id,
         content: content
@@ -1679,7 +1832,7 @@ const updateContent = async (id, content) => {
     // await getAllComments(postId);
 };
 
-const receivedMessageForComment = async (payload) => {
+async function receivedMessageForComment(payload){
     console.log('Message Received');
     const message = await JSON.parse(payload.body);
     // const user = await fetchUserDataByPostedUser(loginUser);
@@ -1705,7 +1858,7 @@ const receivedMessageForComment = async (payload) => {
     await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId,localDateTime,chatArea);
 };
 
-const receivedMessageForMention = async (payload) => {
+async function receivedMessageForMention(payload){
     try {
         console.log('Message Received');
         const message = JSON.parse(payload.body);
@@ -1723,7 +1876,7 @@ const receivedMessageForMention = async (payload) => {
     }
 };
 
-const receivedMessageForCommentReply = async (payload) => {
+async function receivedMessageForCommentReply(payload){
     console.log('Message Received');
     const message = await JSON.parse(payload.body);
     console.log('staffid', message.staffId);
@@ -1749,7 +1902,7 @@ const receivedMessageForCommentReply = async (payload) => {
     // await displayMessage(message.sender, message.content, message.photo, message.commentId, message.postId, chatArea);
 };
 
-const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
+async function sendMentionNotificationForComment(mentionedUsers, id){
     if (mentionedUsers.length > 0) {
         console.log("get", mentionedUsers);
         const myObj = {
@@ -1761,7 +1914,7 @@ const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
     }
 }
 
-const pressedComment = async (id) => {
+async function pressedComment(id){
     console.log('comment', id);
     await getAllComments(id);
     await mentionPostForComment(id)
@@ -1786,7 +1939,7 @@ const pressedComment = async (id) => {
     });
 };
 
-const resetModalContent = () => {
+ function resetModalContent(){
     const sendCommentButton = document.getElementById('sendCommentButton');
     const newSendCommentButton = sendCommentButton.cloneNode(true);
     sendCommentButton.parentNode.replaceChild(newSendCommentButton, sendCommentButton);
@@ -1814,7 +1967,7 @@ let currentPage = '0';
 let isFetching = false;
 let hasMore = true;
 
-const fetchNotificationPerPage = async () => {
+async function fetchNotificationPerPage(){
     isFetching = true;
     let response = await fetch(`/user/get-all-noti/${currentPage}`, {
         method: 'GET'
@@ -2061,19 +2214,19 @@ const fetchNotificationPerPage = async () => {
     }
 };
 
-const getMentionUser = async (id) => {
+async function getMentionUser(id){
     const data = await fetch(`/getData-mention/${id}`);
     const res = await data.json();
     return res;
 }
 
-const getMentionById = async (id) => {
+async function getMentionById(id){
     const data = await fetch(`/get-mentionUser/${id}`);
     const res = await data.json();
     return res;
 }
 
-const deleteAllNotifications =async  () => {
+async function deleteAllNotifications(){
     const deleteAllNoti = await fetch(`/delete-all-noti`,{
         method:'DELETE'
     });
@@ -2087,7 +2240,7 @@ const deleteAllNotifications =async  () => {
     }
 }
 
-const deletedNotification = async (id) =>{
+async function deletedNotification(id){
     const deleteNoti = await fetch(`/delete-noti/${id}`,{
         method:'DELETE'
     });
@@ -2104,7 +2257,7 @@ const deletedNotification = async (id) =>{
     }
 }
 
-const attachNotificationEventListeners = () => {
+ function attachNotificationEventListeners(){
     const notificationElements = document.querySelectorAll('.notificationForNoti');
     notificationElements.forEach(notificationElement => {
         notificationElement.addEventListener('click', async function() {
@@ -2144,7 +2297,7 @@ async function removeReaction(id){
     console.log('hehhe')
 };
 
-const downloadFile = async (event, url, fileName) => {
+async function downloadFile(event, url, fileName){
     event.preventDefault();
     try {
         const response = await fetch(url, {
@@ -2170,9 +2323,10 @@ const downloadFile = async (event, url, fileName) => {
     }
 };
 
-async function createPostsForSearch(){
-    document.getElementById('searchInput').focus()
-    let data = await fetch('/post/searchPost/'+localStorage.getItem('searchInput'))
+async function createPostsForSearch(input){
+    // document.getElementById('searchInput').focus()
+    // document.getElementById('searchInput').value = input
+    let data = await fetch('/post/searchPost/'+input)
     let response = await data.json()
     console.log(response)
     let postTab = document.getElementById('pills-post-search')
@@ -2190,6 +2344,7 @@ async function createPostsForSearch(){
         return
     }
     for (const p of response) {
+        let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
         let res = p.resources
         let thisIsRawPost = false
         let target = '' 
@@ -2246,7 +2401,7 @@ async function createPostsForSearch(){
         <div class="d-flex">
        
             <div>
-            <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
@@ -2267,7 +2422,8 @@ async function createPostsForSearch(){
               <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
               if(user === 'ADMIN' || user === 'OWNER'){
               if(user=== 'OWNER'){
-                  rows+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
+                  rows+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
+                  <li><div data-bs-toggle="modal" data-bs-target="#hidePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-eye-slash text-warning"></i> Set Only Me</div>`
               }
                 
                  rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>
@@ -2291,6 +2447,22 @@ async function createPostsForSearch(){
 
   </div>
 </div>
+</div>
+
+
+<div class="modal fade" id="hidePostAsk${p.id}" tabindex="-1" aria-labelledby="hidePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to hide this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
 </div>
 `
             // }
@@ -2667,7 +2839,7 @@ async function createPostsForSearch(){
         });
     });
     
-    document.getElementById('searchInput').value = localStorage.getItem('searchInput')+''
+  
 }
 
 async function getShareGroup(){
@@ -2781,7 +2953,7 @@ async function showPhotoUrl(url){
     previousUrlValue.value = url;
 }
 
-const copyButton = async () => {
+async function copyButton(){
     let copyText = document.getElementById("postShareUrl");
     copyText.select();
     copyText.setSelectionRange(0, 99999);
@@ -2792,29 +2964,23 @@ const copyButton = async () => {
 
 
 
-const removeCat = async () =>{ 
-    lodader.classList.add('hidden')
-    mark.classList.remove('hidden')
-   }
+ 
 
    let lodader = document.querySelector('.loader')
 
-   async function setToNormal() {
-    loadingModalBox.hide()
+   async function setToNormal() { 
     lodader.classList.remove('hidden')
     mark.classList.add('hidden') 
 }
 
 
-async function deleteEvent(id){
-    loadingModalBox.show()
+async function deleteEvent(id){ 
     let data = await fetch('/event/deleteAEvent/'+id,{
         method : 'DELETE'
     })
     let result = data.json()
     console.log(result)
-    if(result){
-        await removeCat()
+    if(result){ 
         const eventDiv = document.getElementById(`delete-event-section-${id}`);
         if(eventDiv){
             eventDiv.remove();
@@ -2828,19 +2994,17 @@ async function deleteEvent(id){
 
 
 
-let mark = document.getElementById('markBox')
 
-let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
 
-async function deletePost(id) {
-    loadingModalBox.show()
+
+
+async function deletePost(id) { 
     let data = await fetch('/post/deletePost/' + id, {
         method: 'GET'
     })
     let response = await data.json()
     console.log(response)
-    if(response){
-        await removeCat()
+    if(response){ 
         const postList = document.getElementById(`post-delete-section-${id}`);
         if(postList){
             postList.remove();
@@ -2891,7 +3055,7 @@ async function deleteEditPollEventPhoto(id){
     document.getElementById('photoRemoveBtn').classList.add('hidden')
 }
 
-const fetchPostById = async (id) => {
+async function fetchPostById(id){
     const postData = await fetch(`/post/fetch-post/${id}`);
     const postRes = await postData.json();
     return postRes;
@@ -3244,7 +3408,7 @@ document.getElementById('raw').addEventListener('change', function () {
     }
 });
 
-async function getUpdateData() { 
+async function getUpdateData() {  
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#resourceId')
     value.forEach(v => console.log(v.value))
@@ -3304,11 +3468,9 @@ async function getUpdateData() {
     })
     let secondResult = await secondResponse.json()
     console.log(secondResult)
-    if(secondResult){
-        await removeCat()
+    if(secondResult){ 
     }
-    if (secondResult) {
-        await removeCat()
+    if (secondResult) { 
         // while (newsfeed.firstChild) {
         //     newsfeed.removeChild(newsfeed.firstChild)
         // }
@@ -3550,8 +3712,7 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
   `
 
         ParentDetailModal.innerHTML = mod
-        contentSection.innerHTML = post
-        await removeCat()
+        contentSection.innerHTML = post 
 
     }
 }
@@ -3599,6 +3760,7 @@ async function showSearchEvents(input){
     
     let rows = ''
     for (const r of response) {
+        let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
@@ -3678,7 +3840,7 @@ async function showSearchEvents(input){
         <div class="d-flex">
 
             <div>
-            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
@@ -3944,7 +4106,7 @@ async function getEventDetail(id){
     <button style="border-radius:10px;" class="btn btn-danger font-monospace m-2" id="photoRemoveBtn" onclick="deleteEditEventPhoto(${response.id})">Delete</button> 
     </div>
     </div> 
-    <button type="button" style="margin-left: 200px; border-radius: 10px;" onclick="getEventUpdateData()" data-bs-dismiss="offcanvas" class="btn btn-primary font-monospace m-2" data-bs-target="#loadingModalBox" >Update</button>
+    <button type="button" style="margin-left: 200px; border-radius: 10px;" onclick="getEventUpdateData()" data-bs-dismiss="offcanvas" class="btn btn-primary font-monospace m-2"   >Update</button>
 </div>
     `
     eventEditModal.innerHTML = row
@@ -3990,8 +4152,7 @@ async function restorePollPhoto(id){
     document.getElementById('updatePollEventPhoto').type = 'file'
 }
 
-async function getEventUpdateData(){
-    loadingModalBox.show()
+async function getEventUpdateData(){ 
     let eventId = document.getElementById('updateEventId').value
     let eventTitle = document.getElementById('updateEventTitle').value
     let updateEventDescription = document.getElementById('updateEventDescription').value
@@ -4075,8 +4236,7 @@ async function getEventUpdateData(){
         body : formData
     })
     let r = await send.json()
-  if(r){
-    await removeCat()
+  if(r){ 
       const eventContent = document.getElementById(`event-update-section-${r.id}`);
       const eventPostContent = document.querySelector(`.post-content-${r.id}`);
       if(eventPostContent){
@@ -4583,8 +4743,7 @@ async function getPollEventDetail(id){
     eventEditModal.innerHTML = row
 }
 
-async function getPollEventUpdateData(){
-    loadingModalBox.show()
+async function getPollEventUpdateData(){ 
     let eventId = document.getElementById('updatePollEventId').value
     let eventTitle = document.getElementById('updatePollEventTitle').value
     let updateEventDescription = document.getElementById('updatePollEventDescription').value
@@ -4781,16 +4940,15 @@ POLL IS EXPIRED
     ` 
     console.log("---------row"+row)
     mainContent.innerHTML = row
-    
-    await removeCat()
+  
     }
 }
 
 
 
 
-async function goToPollTab(){
-    let data = await fetch('/event/searchPolls/'+localStorage.getItem('searchInput'),{
+async function goToPollTab(input){
+    let data = await fetch('/event/searchPolls/'+input,{
         method : 'GET'
     })
     let response = await data.json()
@@ -4806,6 +4964,7 @@ async function goToPollTab(){
     }
     let rows = ''
     for (let r of response) {
+        let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
@@ -4839,7 +4998,7 @@ POLL IS EXPIRED
         <div class="d-flex">
 
             <div>
-            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 

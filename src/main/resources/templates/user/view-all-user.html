@@ -482,6 +482,7 @@
             });
     }
     document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
         const pencilIcons = document.querySelectorAll('#pencilIcons');
         const trashIcons = document.querySelectorAll('#trashIcons');
         const warningIcon = document.querySelectorAll('#warningIcons')
@@ -670,7 +671,106 @@
                 fetchAndDisplayUserHobbies(userId);
             });
         });
+
+        const toggleCheckbox = document.getElementById("toggle-checkbox");
+        const toggleKnob = document.getElementById("toggle-knob");
+        const userStatus = await checkStatusForUser();
+        if (userStatus.isOn === 'ON') {
+            toggleCheckbox.checked = false;
+        } else {
+            toggleCheckbox.checked = true;
+        }
+        toggleCheckbox.addEventListener("change", async function() {
+            if (toggleCheckbox.checked) {
+                console.log("OFF");
+                const data = await fetch(`/user/turn-off-noti`,{
+                    method:'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body:JSON.stringify({ isOn: 'OFF' })
+                });
+                if(!data.ok){
+                    console.log('something wrong please try again!');
+                }
+                const res = await data.text();
+                let alertMessage = `${res}`;
+                let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+                let styledAlert = document.createElement('div');
+                styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+                styledAlert.innerHTML = alertMessage;
+
+
+                document.body.appendChild(styledAlert);
+
+
+                styledAlert.style.display = 'block';
+
+                setTimeout(function () {
+                    styledAlert.style.display = 'none';
+                }, 3000);
+            } else {
+                console.log("ON");
+                const data = await fetch(`/user/turn-on-noti`,{
+                    method:'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body:JSON.stringify({ isOn: 'ON' })
+                });
+                if(!data.ok){
+                    console.log('something wrong please try again!');
+                }
+                const res = await data.text();
+                let alertMessage = `${res}`;
+                let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+                let styledAlert = document.createElement('div');
+                styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+                styledAlert.innerHTML = alertMessage;
+
+
+                document.body.appendChild(styledAlert);
+
+
+                styledAlert.style.display = 'block';
+
+                setTimeout(function () {
+                    styledAlert.style.display = 'none';
+                }, 3000);
+            }
+        });
     });
+
     const  setUserDetailId = async () => {
         const userId = event.currentTarget.getAttribute('data-user-id');  
         console.log("User ID:", userId);
@@ -1089,6 +1189,12 @@
         return res;
     }
 
+    async function checkStatusForUser(){
+        const data = await fetch(`/user/check-notiStatus`);
+        const res = await data.json();
+        return res;
+    }
+
     async function deletedNotificationForEach(id){
         const deleteNoti = await fetch(`/delete-noti/${id}`,{
             method:'DELETE'
@@ -1114,8 +1220,15 @@
                 const postId = this.dataset.postId; // 'this' refers to the current notification element
                 console.log('PostId', postId);
                 const postElement = document.getElementById(postId);
+                const pElement = this.querySelector('p');
                 if (postElement) {
                     postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }else{
+                    if (pElement) {
+                        localStorage.setItem('commentOrReply',pElement.textContent);
+                    }
+                    localStorage.setItem('trendPostIdForSinglePost',postId);
+                    window.location.href = `/user-details-post`
                 }
             });
         });

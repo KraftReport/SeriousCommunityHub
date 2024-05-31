@@ -57,4 +57,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
     List<Post> findByUserIdAndYearAndMonth(@Param("userId") Long userId, @Param("year") int year, @Param("month") int month);
 
 
+    @Query(value = "select * from post where user_id = :id and hide = true",nativeQuery = true)
+    List<Post> findDeletedPostsByUserId(Long id);
 }

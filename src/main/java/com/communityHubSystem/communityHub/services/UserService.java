@@ -39,4 +39,8 @@ public interface UserService {
 
    public User mentionedUser(String name);
    public List<Object> checkIfUserIsAMemberOrOwnerOrAdminOfAGroup(Long id);
+
+    void notiChangeToTurnOff(User loginUser);
+
+    void notiChangeToTurnOn(User loginUser);
 }

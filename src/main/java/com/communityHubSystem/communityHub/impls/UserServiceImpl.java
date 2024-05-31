@@ -375,6 +375,24 @@ public class UserServiceImpl implements UserService {
         return list;
     }
 
+    @Transactional
+    @Override
+    public void notiChangeToTurnOff(User loginUser) {
+        userRepository.findById(loginUser.getId()).ifPresent(u -> {
+            u.setIsOn(User.IsOn.OFF);
+            userRepository.save(u);
+        });
+    }
+
+    @Transactional
+    @Override
+    public void notiChangeToTurnOn(User loginUser) {
+        userRepository.findById(loginUser.getId()).ifPresent(u -> {
+            u.setIsOn(User.IsOn.ON);
+            userRepository.save(u);
+        });
+    }
+
 
     private boolean checkGroupOwnerOrNot(){
         var loginUser = getCurrentLoginUser();

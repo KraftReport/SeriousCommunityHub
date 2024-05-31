@@ -22,6 +22,8 @@ public class VoteOption {
     private String type;
 
 
+    private boolean isDeleted;
+
     @OneToMany(mappedBy = "voteOptionId",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonIgnore
     private Set<Poll> polls;

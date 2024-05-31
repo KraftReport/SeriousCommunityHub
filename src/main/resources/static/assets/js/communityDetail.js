@@ -1,4 +1,13 @@
 
+
+const getFormattedDate = async (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+
 const createBtns = async () => {
     let data = await distinguishMembers(localStorage.getItem('communityIdForDetailPage'))
     let mainDiv = document.getElementById('createBtns')
@@ -132,6 +141,40 @@ const createBtns = async () => {
         mainDiv.style.marginLeft= '650px'
         mainDiv.appendChild(controller1)
     }
+
+
+    const todayDate = new Date();
+    
+    // Format today's date as YYYY-MM-DD
+    const formattedToday = await getFormattedDate(todayDate);
+    
+    // Set the min attribute of the date input to today's date
+    document.getElementById('start_date').setAttribute('min', formattedToday);
+    
+        // Event listener for start date change
+    document.getElementById('start_date').addEventListener('change', function() {
+        const startDateValue = this.value;
+        document.getElementById('end_date').setAttribute('min', startDateValue);
+    });
+    
+    document.getElementById('end_date').setAttribute('min', formattedToday); 
+    
+    // Set the min attribute of the date input to today's date
+    document.getElementById('poll_start_date').setAttribute('min', formattedToday);
+    
+        // Event listener for start date change
+    document.getElementById('poll_start_date').addEventListener('change', function() {
+        const startDateValue = this.value;
+        document.getElementById('poll_end_date').setAttribute('min', startDateValue);
+    });
+    
+        // Optionally, set the min attribute of the end date input to today's date initially
+    document.getElementById('poll_end_date').setAttribute('min', formattedToday);
+        if (popupButtons.classList.contains('show')) {
+            popupButtons.classList.remove('show');
+        } else {
+            popupButtons.classList.add('show');
+        }
 }
 
 
@@ -143,6 +186,85 @@ document.getElementById('labelForPollPhoto').addEventListener('click',()=>{
 document.getElementById('infoOfTheCommunity').addEventListener('click',async function(){
     console.log('wowowowow')
     await getDetailOfTheCommunity()
+})
+
+ 
+
+document.getElementById('file').addEventListener('change', function () {
+    console.log('here')
+    const preview = document.getElementById('preview');
+    
+
+    preview.innerHTML = '';
+    const files = document.getElementById('file').files;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileName = file.name.toLowerCase();
+        console.log(fileName)
+        console.log(fileName.split('.').pop())
+        const validImageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'psv', 'svg', 'webp', 'ico', 'heic'];
+        const validVideoExtensions = ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'mpeg', 'mpg', 'webm', '3gp', 'ts'];
+        if (validImageExtensions.includes(fileName.split('.').pop()) || validVideoExtensions.includes(fileName.split('.').pop())) {
+            const previewItem = document.createElement('div'); 
+            previewItem.className = 'preview-item';
+            if (validImageExtensions.includes(fileName.split('.').pop())) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '100px';
+                    img.style.maxHeight = '100px';
+                    img.style.borderRadius = '10px'
+                    previewItem.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            } else if (validVideoExtensions.includes(fileName.split('.').pop())) {
+
+                const video = document.createElement('video');
+                video.id = "myVideo"
+                video.src = URL.createObjectURL(file);
+                video.style.maxWidth = '100px';
+                video.style.maxHeight = '100px';
+                video.controls = true;
+                video.style.borderRadius = '10px'
+                previewItem.appendChild(video);
+               
+            }
+
+            const pDiv = document.createElement('div')
+            pDiv.style.display = "flex"
+            pDiv.style.marginBottom = '20px'
+            pDiv.style.marginLeft = '30px'
+             
+
+            // Create caption input
+            const captionInput = document.createElement('textarea');
+            captionInput.type = 'text';
+            captionInput.placeholder = 'Enter caption'; 
+            captionInput.setAttribute('id',`caption-${i}`)
+            captionInput.style.maxWidth = '200px'
+            captionInput.style.maxHeight = '300px'
+            captionInput.style.borderRadius = '10px'
+            captionInput.style.border = 'none'
+            
+
+  
+            pDiv.appendChild(previewItem)
+            pDiv.appendChild(captionInput)
+
+
+
+            // preview.appendChild(previewItem);
+            preview.appendChild(pDiv);
+        } else {
+            alert('Invalid file type. Please select a JPG, JPEG or PNG file.');
+            document.querySelector('input[value="RESOURCE"]').value = "CONTENT";
+            document.querySelector('label[for="gridRadios1"]').innerText = "Content";
+            document.getElementById('file').value = '';
+        }
+
+
+    }
 })
 
 const displayMemberProfiles = async () => {
@@ -204,7 +326,11 @@ const displayMemberProfiles = async () => {
     numOfMembersContainer.textContent = `${userList.length} members`;
 };
 
-
+async function checkStatusForUser(){
+    const data = await fetch(`/user/check-notiStatus`);
+    const res = await data.json();
+    return res;
+}
 
 const deleteDetailBoxes = async () => {
     document.getElementById('community-detail-box').innerHTML = ''
@@ -593,6 +719,7 @@ const downloadFile = async (event, url, fileName) => {
 
 
 const createARawFilePost = async () => {
+    loadingModalBox.show()
     let file = document.getElementById('raw').files
     let form = new FormData(document.getElementById('rawForm')) 
 
@@ -612,6 +739,9 @@ const createARawFilePost = async () => {
     document.getElementById('raw-preview').innerHTML = ''
     while (newsfeed.firstChild) {
         newsfeed.removeChild(newsfeed.firstChild)
+    }
+    if(response){
+        await removeCat()
     }
     await getPosts()
 }
@@ -683,6 +813,103 @@ window.onload = async function(){
     // await getDetailOfTheCommunity()
     await createBtns()
     await getPosts()
+    const toggleCheckbox = document.getElementById("toggle-checkbox");
+    const toggleKnob = document.getElementById("toggle-knob");
+    const userStatus = await checkStatusForUser();
+    if (userStatus.isOn === 'ON') {
+        toggleCheckbox.checked = false;
+    } else {
+        toggleCheckbox.checked = true;
+    }
+    toggleCheckbox.addEventListener("change", async function() {
+        if (toggleCheckbox.checked) {
+            console.log("OFF");
+            const data = await fetch(`/user/turn-off-noti`,{
+                method:'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify({ isOn: 'OFF' })
+            });
+            if(!data.ok){
+                console.log('something wrong please try again!');
+            }
+            const res = await data.text();
+            let alertMessage = `${res}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        } else {
+            console.log("ON");
+            const data = await fetch(`/user/turn-on-noti`,{
+                method:'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify({ isOn: 'ON' })
+            });
+            if(!data.ok){
+                console.log('something wrong please try again!');
+            }
+            const res = await data.text();
+            let alertMessage = `${res}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        }
+    });
 }
 
 
@@ -756,7 +983,7 @@ const removeReaction = async (id) => {
     console.log('hehhe')
 };
 
-const fileInput = document.getElementById('file');
+
 const type = document.getElementById('')
 let newsfeed = document.getElementById('newsfeedTab')
 let cal = document.getElementById('cal')
@@ -945,19 +1172,19 @@ async function createPost() {
     
 }
 
-// const extractMentionedUsers = (postText) => {
-//     const mentionRegex = /\[\[([^\]]+)\]\]/g;
-//     let mentionedUsers = [];
-//     let match;
-//
-//     while ((match = mentionRegex.exec(postText)) !== null) {
-//         mentionedUsers.push(match[1].trim());
-//     }
-//
-//     console.log("Mentioned Users: ", mentionedUsers);
-//
-//     return mentionedUsers;
-// };
+const extractMentionedUsers = (postText) => {
+    const mentionRegex = /\[\[([^\]]+)\]\]/g;
+    let mentionedUsers = [];
+    let match;
+
+    while ((match = mentionRegex.exec(postText)) !== null) {
+        mentionedUsers.push(match[1].trim());
+    }
+
+    console.log("Mentioned Users: ", mentionedUsers);
+
+    return mentionedUsers;
+};
 
 
  
@@ -1311,12 +1538,10 @@ function removePreview() {
     document.getElementById('postForm').reset()
 }
 
-
-const removeCat = async () =>{
-    cat.classList.add('hidden')
+const removeCat = async () =>{    
+document.querySelector('.loader').classList.add('hidden')
     mark.classList.remove('hidden')
    }
-
 
 async function getUpdateData() {
     let updateResourcesDtos = []
@@ -1654,6 +1879,7 @@ window.addEventListener('load', async function () {
 })
 
 async function createPollPost() {
+    loadingModalBox.show()
     let data = new FormData(document.getElementById('pollForm'));
     console.log(Object.fromEntries(data.entries()));
     let response = await fetch('/event/createEvent', {
@@ -1662,6 +1888,10 @@ async function createPollPost() {
     });
     let result = await response.json()
     console.log(result)
+    if(result){
+        await getPolls()
+        await removeCat()
+    }
 }
 
 // async function getAllEventsForPost(){
@@ -1842,6 +2072,7 @@ async function deletePost(id) {
 }
 
 const createEventPost = async () => {
+    loadingModalBox.show()
     const title = document.getElementById('eventtitle').value;
     const description = document.getElementById('eventdescription').value;
     const startDate = document.getElementById('start_date').value;
@@ -1873,13 +2104,14 @@ const createEventPost = async () => {
 
         if (result) {
             document.getElementById('eventForm').reset();
-            await removeCat();
+            await getEvents()
+            await removeCat()
         }
     } catch (error) {
         console.error('Error:', error);
         alert('There was an error creating the event. Please try again.');
     } finally {
-        loadingModalBox.hide();
+       await removeCat()
     }
 };
 
@@ -2033,10 +2265,13 @@ const receivedMessageForReact = async (payload) => {
     console.log("Message Received");
     const message = await JSON.parse(payload.body);
     // await welcome();
-    if (loginUser === message.staffId) {
-        notificationCount = notificationCount + 1;
-        await showNotiCount();
-        await notifyMessageForReact(message.content, message.sender, message.photo, message.type);
+    const user  = await checkStatusForUser();
+    if(user.isOn === 'ON'){
+        if (loginUser === message.staffId) {
+            notificationCount = notificationCount + 1;
+            await showNotiCount();
+            await notifyMessageForReact(message.content, message.sender, message.photo, message.type);
+        }
     }
 };
 
@@ -2341,7 +2576,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
             dropdownMenu.style.display = 'none';
             let currentContent = null;
             if (convertDiv.contains(spanElement)) {
-                currentContent = spanElement.innerHTML;
+                currentContent = spanElement.textContent;
             }
             console.log('textArea', currentContent);
             const textarea = document.createElement('textarea');
@@ -2641,7 +2876,7 @@ const fetchAndDisplayLastReply = async (id) => {
             editIcon.style.padding = '15px';
             editIcon.addEventListener('click', () => {
                 dropdownMenu.style.display = 'none';
-                const currentContent = replyContent.innerHTML;
+                const currentContent = replyContent.textContent;
                 const textarea = document.createElement('textarea');
                 textarea.style.borderRadius = '10px';
                 textarea.style.backgroundColor = 'lightgrey';
@@ -2935,7 +3170,7 @@ const fetchAndDisplayReplies = async (id) => {
             editIcon.style.padding = '15px';
             editIcon.addEventListener('click', () => {
                 dropdownMenu.style.display = 'none';
-                const currentContent = replyContent.innerHTML;
+                const currentContent = replyContent.textContent;
                 const textarea = document.createElement('textarea');
                 textarea.style.borderRadius = '10px';
                 textarea.style.backgroundColor = 'lightgrey';
@@ -3109,13 +3344,16 @@ const fetchAndDisplayReplies = async (id) => {
      // const user = await fetchUserDataByPostedUser(loginUser);
      // const postList = await fetchUserPostById(loginUser);
      // console.log("type",typeof postList);
-     if (loginUser === message.staffId) {
-         notificationCount = notificationCount + 1;
-         await showNotiCount();
-         console.log(message.photo, message.sender, message.content, message.postId);
-         const msg = ' commented to your photo';
-         message.photo = message.photo ||  '/static/assets/img/default-logo.png';
-         await notifyMessageForReact(msg, message.sender, message.photo, null);
+     const user  = await checkStatusForUser();
+     if(user.isOn === 'ON'){
+         if (loginUser === message.staffId) {
+             notificationCount = notificationCount + 1;
+             await showNotiCount();
+             console.log(message.photo, message.sender, message.content, message.postId);
+             const msg = ' commented to your photo';
+             message.photo = message.photo ||  '/static/assets/img/default-logo.png';
+             await notifyMessageForReact(msg, message.sender, message.photo, null);
+         }
      }
      const commentCountSize = await fetchCommentSizes(message.postId);
      document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
@@ -3135,12 +3373,15 @@ const receivedMessageForMention = async (payload) => {
         const message = JSON.parse(payload.body);
         const user = await fetchUserDataByPostedUser(message.userId);
         const userIdList = message.users;
-        if (userIdList.includes(loginUser)) {
-            notificationCount += 1;
-            await showNotiCount();
-            const msg = 'mentioned you in a post';
-            message.photo = user.photo ||  '/static/assets/img/default-logo.png';
-            await notifyMessageForReact(msg, user.name, user.photo, null);
+        const checkUser  = await checkStatusForUser();
+        if(checkUser.isOn === 'ON'){
+            if (userIdList.includes(loginUser)) {
+                notificationCount += 1;
+                await showNotiCount();
+                const msg = 'mentioned you in a post';
+                message.photo = user.photo ||  '/static/assets/img/default-logo.png';
+                await notifyMessageForReact(msg, user.name, user.photo, null);
+            }
         }
     } catch (error) {
         console.error('Error processing mention message:', error);
@@ -3163,12 +3404,15 @@ const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
      console.log('Message Received');
      const message = await JSON.parse(payload.body);
      console.log('staffid', message.staffId);
-     if (loginUser === message.staffId) {
-         notificationCount = notificationCount + 1;
-         await showNotiCount();
-         console.log(message.photo, message.sender, message.content, message.postId);
-         const msg = ' replied to your comment';
-         await notifyMessageForReact(msg, message.sender, message.photo, null);
+     const user  = await checkStatusForUser();
+     if(user.isOn === 'ON'){
+         if (loginUser === message.staffId) {
+             notificationCount = notificationCount + 1;
+             await showNotiCount();
+             console.log(message.photo, message.sender, message.content, message.postId);
+             const msg = ' replied to your comment';
+             await notifyMessageForReact(msg, message.sender, message.photo, null);
+         }
      }
      // await welcome();
      const commentCountSize = await fetchCommentSizes(message.postId);
@@ -3559,8 +3803,15 @@ const attachNotificationEventListeners = () => {
             const postId = this.dataset.postId; // 'this' refers to the current notification element
             console.log('PostId', postId);
             const postElement = document.getElementById(postId);
+            const pElement = this.querySelector('p');
             if (postElement) {
                 postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }else{
+                if (pElement) {
+                    localStorage.setItem('commentOrReply',pElement.textContent);
+                }
+                localStorage.setItem('trendPostIdForSinglePost',postId);
+                window.location.href = `/user-details-post`
             }
         });
     });
@@ -3682,7 +3933,7 @@ async function getEventDetail(id){
     <button style="border-radius:10px;" class="btn btn-danger font-monospace m-2" id="photoRemoveBtn" onclick="deleteEditEventPhoto(${response.id})">Delete</button> 
     </div>
     </div> 
-    <button type="button" style="margin-left: 200px; border-radius: 10px;" onclick="getEventUpdateData()" data-bs-dismiss="offcanvas" class="btn btn-primary font-monospace m-2" data-bs-target="#loadingModalBox" >Update</button>
+    <button type="button" style="margin-left: 200px; border-radius: 10px;" onclick="getEventUpdateData()" data-bs-dismiss="offcanvas" class="btn btn-primary font-monospace m-2"  >Update</button>
 </div>
     `
     eventEditModal.innerHTML = row
@@ -3696,7 +3947,7 @@ async function deleteEditEventPhoto(id){
 }
 
 async function deleteEditPollEventPhoto(id){
-    document.getElementById(id+'-event-edit-url').src =document.getElementById(id+'-poll-event-edit-url').src+ 'deleted'
+    document.getElementById(id+'-poll-event-edit-url').src =document.getElementById(id+'-poll-event-edit-url').src+ 'deleted'
     document.getElementById('updatePollEventPhoto').type = 'hidden'
     document.getElementById('restoreBtn').classList.remove('hidden')
     document.getElementById('photoRemoveBtn').classList.add('hidden')
@@ -4011,7 +4262,7 @@ async function timeAgo(createdDate) {
     }
   }
 
-// async function getAllPollPost(){
+// async function getPolls(){
 //     isFetchingForPoll = true
 //     let polls = document.getElementById('polls');
 //     let pollTab = document.getElementById('polls')
@@ -4394,6 +4645,7 @@ async function getPollEventDetail(id){
 }
 
 async function getPollEventUpdateData(){
+    loadingModalBox.show()
     let eventId = document.getElementById('updatePollEventId').value
     let eventTitle = document.getElementById('updatePollEventTitle').value
     let updateEventDescription = document.getElementById('updatePollEventDescription').value
@@ -4778,7 +5030,7 @@ window.addEventListener('scroll', async () => {
 
 
 
-const makeFileDownloadPost = async (resources) => {
+const makeFileDownloadPost = async (resources) => { 
     console.log('d ko youk tl naw')
     const parentDiv = document.createElement('div');
     parentDiv.classList.add('card','shadow');
@@ -4823,7 +5075,7 @@ const makeFileDownloadPost = async (resources) => {
     return parentDiv.outerHTML
 }
 
-const showPhotoUrl =async (url) => {
+async function showPhotoUrl(url){
     let previousUrlValue =  document.getElementById('postShareUrl');
     document.getElementById('forShareingContent').style.width = '800px';
     const divEl = document.getElementById('forSharingButton');
@@ -4837,7 +5089,7 @@ const showPhotoUrl =async (url) => {
     previousUrlValue.value = url;
 }
 
-const copyButton = async () => {
+async function copyButton(){
     let copyText = document.getElementById("postShareUrl");
     copyText.select();
     copyText.setSelectionRange(0, 99999);
@@ -4846,7 +5098,7 @@ const copyButton = async () => {
 
 //for share group start
 
-const getShareGroup = async () => {
+async function getShareGroup(){
     const data = await fetch(`/user/getCommunity-list-forShare`);
     const res = await data.json();
     console.log("hahahahah yaya");
@@ -4869,23 +5121,26 @@ const getShareGroup = async () => {
     const postShareButton = document.createElement('button');
     postShareButton.type = 'button';
     postShareButton.id = 'forSharingButton';
-    postShareButton.classList.add('btn','btn-outline-primary');
+    postShareButton.classList.add('btn', 'btn-outline-primary');
     postShareButton.style.height = '50px';
     postShareButton.innerHTML = '<i class="fa-solid fa-share"></i> Share';
     postShareButton.style.display = 'none';
 
-    selectBox.addEventListener('change', newChild => {
+    selectBox.addEventListener('change', () => {
         if (selectBox.value) {
             postShareButton.style.display = 'block';
             const divEL = document.getElementById('forSharingButton');
             document.getElementById('forShareingContent').style.width = '850px';
-            if(!divEL) {
+            if (!divEL) {
                 postShareDiv.appendChild(postShareButton);
             }
-            postShareButton.addEventListener('click',async () => {
+            const newButton = postShareButton.cloneNode(true);
+            postShareDiv.replaceChild(newButton, postShareButton);
+
+            newButton.addEventListener('click', async () => {
                 const postURl = document.getElementById('postShareUrl').value;
-                console.log("PostURl",postURl)
-                await postShareToGroup(selectBox.value,loginUser,postURl);
+                console.log("PostURl", postURl)
+                await postShareToGroup(selectBox.value, loginUser, postURl);
             });
         } else {
             document.getElementById('forShareingContent').style.width = '800px';
@@ -4894,7 +5149,7 @@ const getShareGroup = async () => {
     });
 }
 
-const postShareToGroup =async (id,staffId,content) => {
+async function postShareToGroup(id,staffId,content){
     const chatMessage = {
         roomId: id,
         sender: staffId,
@@ -4960,6 +5215,7 @@ async function getPosts(){
         }
             // localStorage.setItem('currentPage', response);
             for (const p of response) {
+                let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
                 let res = p.resources
                 let thisIsRawPost = false
                 let target = '' 
@@ -5016,7 +5272,7 @@ async function getPosts(){
                 <div class="d-flex">
                
                     <div>
-                    <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+                    <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
                     </div>
                     <div class="post-info" style="width:100px;">
       
@@ -5037,7 +5293,8 @@ async function getPosts(){
                     <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
                     if(user === 'ADMIN' || user === 'OWNER'){
                     if(user=== 'OWNER'){
-                        post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
+                        post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
+                        <li><div data-bs-toggle="modal" data-bs-target="#hidePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-eye-slash text-warning"></i> Set Only Me</div>`
                     }
                       
                        post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>`
@@ -5062,6 +5319,21 @@ async function getPosts(){
           </div>
         </div>
       </div>
+
+      <div class="modal fade" id="hidePostAsk${p.id}" tabindex="-1" aria-labelledby="hidePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to hide this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
+</div>
       `
                     // }
       
@@ -5455,6 +5727,7 @@ async function getEvents(){
         displayNoPostMessage()
     }else{
         for(const r of response){
+            let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
             let ug = r.user_group !== null ? r.user_group : null
             let gp = ug !== null ? ug.community : null 
             let gpName = gp !== null ? gp.name : null
@@ -5536,7 +5809,7 @@ async function getEvents(){
             <div class="d-flex">
 
                 <div>
-                <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+                <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
                 </div>
                 <div class="post-info" style="width:100px;">
 
@@ -5769,6 +6042,7 @@ async function getPolls(){
     console.log(response)
     let rows = ''
     for (let r of response) {
+        let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
@@ -5803,7 +6077,7 @@ POLL IS EXPIRED
     <div class="d-flex">
 
         <div>
-        <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+        <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
         </div>
         <div class="post-info" style="width:100px;">
 
@@ -6048,19 +6322,29 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
      });
  });
 
+async function getUsersNotInCommunity(id){
+    const url = `/api/community/notUsersInCommunity/${id}`;
+    const data = await fetch(url);
+    if (data.ok) {
+        const dataResponse = await data.json();
+        console.log('community users', dataResponse);
+        return dataResponse;
+    }
+};
 
 async function populateCreateGroupFormForInvitation() {
     document.getElementById('communityId1').value = communityId;
-
-    const allUsers = await getAllUsers();
+    // const currentUser=await getCurrentUser();
+    //   const allUsers = await getAllUsers();
     const pendingUserIds = await getPendingUser(communityId);
     const communityUsers = await getUsersByCommunityId(communityId);
-    const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+    // const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+    const usersNotInCoummunity= await getUsersNotInCommunity(communityId);
     const usersList = document.getElementById('usersList');
 
     usersList.innerHTML = '';
 
-    usersNotInCommunity.forEach(user => {
+    usersNotInCoummunity.forEach(user => {
         const userContainer = document.createElement('div');
         userContainer.id = "container";
         userContainer.style.padding = '20px';

@@ -49,6 +49,16 @@
     top: 10px;
   }
 
-  .container {
+  /* .container {
      !important; /* Set background color to transparent */
+/* } */ */
+ 
+
+#suggestions-container::-webkit-scrollbar {
+  display: none;
+}
+
+#suggestions-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

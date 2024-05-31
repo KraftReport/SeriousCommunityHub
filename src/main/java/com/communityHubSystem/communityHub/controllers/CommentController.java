@@ -2,10 +2,7 @@ package com.communityHubSystem.communityHub.controllers;
 
 import com.communityHubSystem.communityHub.dto.CommentUpdateDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
-import com.communityHubSystem.communityHub.models.Notification;
-import com.communityHubSystem.communityHub.models.React;
-import com.communityHubSystem.communityHub.models.Type;
-import com.communityHubSystem.communityHub.models.User;
+import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -33,6 +30,7 @@ public class CommentController {
     private final NotificationService notificationService;
     private final UserService userService;
     private final ReactService reactService;
+    private final MentionService mentionService;
 
 
     @DeleteMapping("/delete-comment/{id}")
@@ -43,13 +41,32 @@ public class CommentController {
         var comment = commentService.findById(id);
         var post = postService.findById(comment.getPost().getId());
         response.put("postId", post.getId());
-        var noti = notificationService.findByCommentIdAndUserId(id, user.getId());
-        for (Notification notification : noti) {
+        var postedUser = userService.findById(post.getUser().getId());
+        var noti = notificationService.findByCommentIdAndUserId(id, postedUser.getId());
+        var notiList = notificationService.findAllByCommentId(id);
+        System.out.println("NOTILI"+notiList.size());
+        System.out.println("YOUR SHIT SHIT3");
+        List<Reply> replyList = replyService.getAllRepliesByCommentId(id);
+        for (Notification notification : notiList) {
+            System.out.println("YOUR SHIT SHIT1");
             notificationService.deleteAll(notification.getId());
+        }
+
+        if(replyList.size() > 0) {
+            for (Reply reply : replyList) {
+               reactService.deleteByReplyId(reply.getId());
+                replyService.deleteReply(reply.getId());
+            }
         }
         var react = reactService.findReactByCommentId(id);
         if (react != null) {
+            System.out.println("YOUR SHIT SHIT2");
             reactService.deleteById(react.getId());
+        }
+
+        var mention = mentionService.getMentionByCommentId(id);
+        if(mention != null){
+            mentionService.deleteById(mention.getId());
         }
         commentService.deleteComment(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -62,10 +79,13 @@ public class CommentController {
         Map<String, Long> response = new HashMap<>();
         var reply = replyService.findById(id);
         var post = postService.findById(reply.getComment().getPost().getId());
+        var comment = commentService.findById(reply.getComment().getId());
+//        var commentedUser = commentService.findById(reply.getComment().getId());
         response.put("postId", post.getId());
-        var noti = notificationService.findByReplyIdAndUserId(id, user.getId());
-        for (Notification notification : noti) {
-            notificationService.deleteAll(notification.getId());
+//        var noti = notificationService.findByReplyIdAndUserId(id, commentedUser.getId());
+        var singleNoti = notificationService.findByCommentIdAndReplyId(comment.getId(),id);
+        if(singleNoti != null) {
+            notificationService.deleteAll(singleNoti.getId());
         }
         var react = reactService.findByReplyId(id);
         if (react != null) {
