@@ -46,7 +46,10 @@ public class User implements Serializable {
     private String RejectReason;
     private String BannedReason;
     @Enumerated(EnumType.STRING)
+    private IsOn isOn;
+    @Enumerated(EnumType.STRING)
     private Role role;
+
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JsonIgnore
@@ -111,5 +114,9 @@ public class User implements Serializable {
 
     public enum Role{
         ADMIN,USER,DEFAULT_USER;
+    }
+
+    public enum IsOn{
+        ON,OFF;
     }
 }

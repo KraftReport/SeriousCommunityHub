@@ -3,6 +3,7 @@ package com.communityHubSystem.communityHub.controllers;
 import com.communityHubSystem.communityHub.dto.NotificationDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Notification;
+import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,12 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,4 +53,32 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.OK).body(replyService.findById(id));
     }
 
+    @PutMapping("/turn-off-noti")
+    public ResponseEntity<?> turnOffNoti(@RequestBody Map<String, String> requestBody) {
+        String isOn = requestBody.get("isOn");
+        var loginUser = getUserForIsOn();
+         userService.notiChangeToTurnOff(loginUser);
+        System.out.println("DDS" + isOn);
+        return ResponseEntity.ok("Turn off successfully!");
+    }
+
+    @PutMapping("/turn-on-noti")
+    public ResponseEntity<?> turnOnNoti(@RequestBody Map<String, String> requestBody) {
+        String isOn = requestBody.get("isOn");
+        var loginUser = getUserForIsOn();
+        userService.notiChangeToTurnOn(loginUser);
+        System.out.println("DDS" + isOn);
+        return ResponseEntity.ok("Turn on successfully!");
+    }
+
+
+    @GetMapping("/check-notiStatus")
+    public ResponseEntity<?> checkNotiStatusForUser(){
+        return ResponseEntity.status(HttpStatus.OK).body(getUserForIsOn());
+    }
+
+    public User getUserForIsOn(){
+        var user = userService.findByStaffId(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new CommunityHubException("User name not found exception!"));
+        return user;
+    }
 }

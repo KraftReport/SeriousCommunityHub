@@ -1,6 +1,9 @@
 package com.communityHubSystem.communityHub.impls;
 
 import com.cloudinary.Cloudinary;
+import com.communityHubSystem.communityHub.controllers.NotificationController;
+import com.communityHubSystem.communityHub.controllers.ReactController;
+import com.communityHubSystem.communityHub.dto.BirthDayDto;
 import com.communityHubSystem.communityHub.dto.EventDTO;
 import com.communityHubSystem.communityHub.dto.PollDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +46,7 @@ public class EventServiceImpl implements EventService {
     private final User_GroupRepository user_groupRepository;
     private final VoteOptionRepository voteOptionRepository;
     private final Cloudinary cloudinary;
+    private final SimpMessagingTemplate messagingTemplate;
     private final List<String> photoExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", "bmp", "tiff", "tif", "psv", "svg", "webp", "ico", "heic");
 
     List<Long> ids = new ArrayList<>();
@@ -401,6 +406,7 @@ public class EventServiceImpl implements EventService {
         filteredEvents.addAll(getEventsOfGroupForLoginUser(Event.EventType.EVENT));
         return filteredEvents;
     }
+
     @Override
     public List<Event> checkBirthdayOfEmployees() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -408,8 +414,11 @@ public class EventServiceImpl implements EventService {
         today.setTime(setToMidnight(today.getTime()));
         List<Event> list = new ArrayList<>();
         List<User> allUsers = userRepository.findAll();
+        List<User> activeUsers = allUsers.stream()
+                .filter(User::isActive)
+                .collect(Collectors.toList());
 
-        allUsers.stream()
+        activeUsers.stream()
                 .filter(user -> {
                     try {
                         return todayIsBirthday(user, today);
@@ -419,26 +428,40 @@ public class EventServiceImpl implements EventService {
                     }
                 })
                 .forEach(user -> {
-                    var eventTitle =  user.getName()+"'s birthday party";
-                    var eventExists = eventRepository.findByEventTitleAndStartDate(eventTitle, today.getTime()).isPresent();
-                    var found = eventRepository.findByEventTitleAndStartDate(eventTitle, today.getTime()).orElseThrow(()->new CommunityHubException("event not found"));
-                    if(!eventExists){
+                    var eventTitle = user.getName() + "'s birthday party";
+                    boolean eventExists = eventRepository.findByEventTitleAndStartDate(eventTitle, today.getTime()).isPresent();
+
+                    if (!eventExists) {
                         Event event = new Event();
                         event.setEventType(Event.EventType.EVENT);
                         event.setTitle(user.getName() + "'s birthday party");
                         event.setAccess(Access.PUBLIC);
                         event.setDeleted(false);
-                        event.setDescription(user.getName()+"'s "+getAge(user.getDob())+" years old birthday");
+                        event.setDescription(user.getName() + "'s " + getAge(user.getDob()) + " years old birthday");
                         event.setStart_date(setToMidnight(today.getTime()));
                         event.setEnd_date(setToMidnight(today.getTime()));
                         eventRepository.save(event);
                         list.add(event);
                     }
-                    list.add(found);
-                });
-        System.err.println(list);
 
+                    // Send notification only once per user
+                    sendBirthdayNotification(user.getStaffId(), user.getName(), "Happy Birthday ");
+
+                    eventRepository.findByEventTitleAndStartDate(eventTitle, today.getTime()).ifPresent(list::add);
+                });
+
+        System.err.println(list);
         return list;
+    }
+
+
+    public void sendBirthdayNotification(String staffId, String username, String message) {
+        System.out.println("GET BIRTHDAY NOTI");
+        messagingTemplate.convertAndSend("/user/all/birthDay-noti-message", new BirthDayDto(
+                staffId,
+                username,
+                message
+        ));
     }
 
     @Override

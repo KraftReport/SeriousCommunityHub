@@ -126,4 +126,13 @@ public class ReactServiceImpl implements ReactService {
     public Long finReactByCommentIdIsNullAndPostIdAndReplyIdIsNull(Long id) {
         return reactRepository.countReactsByPostIdWhereCommentIdIsNullAndReplyIdIsNull(id);
     }
+
+    @Transactional
+    @Override
+    public void deleteByReplyId(Long id) {
+        var react  = reactRepository.findByReplyId(id);
+        if(react != null){
+            reactRepository.deleteById(react.getId());
+        }
+    }
 }

@@ -66,4 +66,14 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.deleteAll(notificationList);
     }
 
+    @Override
+    public List<Notification> findAllByCommentId(Long id) {
+        return notificationRepository.findAllByCommentId(id);
+    }
+
+    @Override
+    public Notification findByCommentIdAndReplyId(Long id, Long id1) {
+        return notificationRepository.findByCommentIdAndReplyId(id,id1);
+    }
+
 }

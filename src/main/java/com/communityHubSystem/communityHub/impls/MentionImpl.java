@@ -24,4 +24,14 @@ public class MentionImpl implements MentionService {
     public Mention getMention(Long id) {
         return mentionRepository.findById(id).orElseThrow(() -> new CommunityHubException("Mention Not Found Exception!"));
     }
+
+    @Override
+    public Mention getMentionByCommentId(Long id) {
+        return mentionRepository.findByCommentId(id);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        mentionRepository.deleteById(id);
+    }
 }
