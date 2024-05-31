@@ -116,6 +116,15 @@ window.onload = async () => {
     });
 };
 
+
+const getFormattedDate = async (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+ 
+
 const checkStatusForUser = async () =>{
     const data = await fetch(`/user/check-notiStatus`);
     const res = await data.json();
@@ -2432,14 +2441,13 @@ window.addEventListener('load', async function () {
 })
 
 async function createPollPost() {
-    logOutModalBox.show()
+    loadingModalBox.show()
     let data = new FormData(document.getElementById('pollForm'));
     console.log(Object.fromEntries(data.entries()));
     let response = await fetch('/event/createEvent', {
         method: 'POST',
         body: data
     }); 
-    loadingModalBox.show()
     let result = await response.json()
     console.log(result)
     if(result){

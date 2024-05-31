@@ -1,11 +1,7 @@
-let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
-let mark = document.getElementById('markBox')
+ 
+ 
 
-const removeCat = async () =>{
-    document.querySelector('.loader').classList.add('hidden')
-    mark.classList.remove('hidden')
-   }
-
+ 
 
 function deleteResource(id) {
     document.getElementById(id + '-url').src =  ''
@@ -34,8 +30,7 @@ const removePreviewForPostUpdate = () => {
     parent.innerHTML = '' 
 }
 
-const getUpdateDataForRaw = async () => { 
-    loadingModalBox.show()
+const getUpdateDataForRaw = async () => {  
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -90,10 +85,10 @@ const getUpdateDataForRaw = async () => {
     let secondResult = await secondResponse.json()
     console.log(secondResult)
     if(secondResult){
-        await removeCat()
+      
     }
     if (secondResult) {
-        await removeCat()
+      
         // while (newsfeed.firstChild) {
         //     newsfeed.removeChild(newsfeed.firstChild)
         // }
@@ -121,7 +116,7 @@ const getUpdateDataForRaw = async () => {
        
         contentSection.innerHTML = post
          removePreviewForRawFile()
-         await removeCat()
+        
 
     }
 }
@@ -427,7 +422,7 @@ const singlePagePost = async (id) => {
     Are you sure do you want to delete this post ?
     <div class="d-flex" style="margin-left:300px; margin-top:30px;">
     <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
-    <button onclick="deletePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+    <button onclick="deletePost(${p.id})" data-bs-dismiss="modal"   class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
     </div>
     </div>
 
@@ -3403,8 +3398,7 @@ async function getPostDetail(id) {
 // }
 
 
-async function getUpdateData() {
-    loadingModalBox.show()
+async function getUpdateData() { 
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#resourceId')
     value.forEach(v => console.log(v.value))
@@ -3710,15 +3704,14 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
 
         ParentDetailModal.innerHTML = mod
         contentSection.innerHTML = post
-        await removeCat()
+   
 
     }
 }
 
 
 
-async function deletePost(id) { 
-    loadingModalBox.show()
+async function deletePost(id) {  
     let data = await fetch('/post/deletePost/' + id, {
         method: 'GET'
     })
