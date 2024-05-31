@@ -190,6 +190,9 @@ public class UserController {
                 String skillName = selectedSkillsArray[i];
                 String experience = experiencesArray.length > i ? experiencesArray[i] : "0";
 
+                if (skillName.isEmpty() || experience.isEmpty()) {
+                    continue;
+                }
                 // Check if the skill name already exists in the database
                 Optional<Skill> existingSkill = skillRepository.findByName(skillName);
 

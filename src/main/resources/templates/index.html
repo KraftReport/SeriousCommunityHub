@@ -46,6 +46,7 @@
     <script src="/static/assets/js/react.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.css">
     <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/checkBox.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/assets/css/onOff.css}">
     <style>
 
         #calendarModalBox .modal-body {
@@ -244,6 +245,46 @@
             display: none; /* Hide the scrollbar */
         }
 
+        .celebration-effects {
+            display: none; /* Hidden initially */
+            position: relative;
+            width: 100%;
+            height: 200px; /* Adjust height as needed */
+            overflow: hidden;
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -100px;
+            left: 50%;
+            width: 50px;
+            height: 100px;
+            background-color: red;
+            border-radius: 50% 50% 50% 50%;
+            transform: translateX(-50%);
+            animation: floatUp 5s ease-in-out infinite;
+        }
+
+        .balloon::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background-color: gray;
+            transform: translateX(-50%);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translate(-50%, 0);
+            }
+            100% {
+                transform: translate(-50%, -120%);
+            }
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
@@ -305,7 +346,19 @@
                         <li class="dropdown-header">
                             <!--                        You have 4 new notifications-->
                             <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2"
-                                              id="notiId">View all</span></a>
+                                              id="notiId">
+
+                                      <div class="toggle-button-cover">
+        <div class="button-cover">
+          <div class="button-new r" id="button-new">
+            <input type="checkbox" class="checkbox-new" id="toggle-checkbox" />
+            <div class="knobs-new"></div>
+            <div class="layer-new"></div>
+          </div>
+        </div>
+      </div>
+
+                            </span></a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
@@ -1739,6 +1792,33 @@
         </div>
     </div>
 
+<!--    for birthday modal box start-->
+
+    <div class="modal fade" id="staticBackdropForBirthDay" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabelForBirthDay"><i class="fa-solid fa-cake-candles"></i> Here is a birthday!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="birthDayWords">
+                        <!-- Birthday message will be inserted here -->
+                    </div>
+                    <div id="celebrationEffects" class="celebration-effects">
+                        <!-- Balloon or other effects will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-success" id="clickToSeeAnimation">Click to celebrate</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--    for birthday modal box end-->
+
 <!--   finished modal box-->
     <div class="modal fade" id="finishedModal" data-bs-backdrop="static" tabindex="-1" role="dialog"
          aria-labelledby="successModalLabel" aria-hidden="true">
@@ -1989,6 +2069,26 @@
             form.style.display = 'block';
         }
 
+        document.getElementById('clickToSeeAnimation').addEventListener('click', () => {
+            const celebrationEffects = document.getElementById('celebrationEffects');
+            celebrationEffects.innerHTML = ''; // Clear any previous effects
+
+            for (let i = 0; i < 10; i++) { // Adjust number of balloons as needed
+                const balloon = document.createElement('div');
+                balloon.classList.add('balloon');
+                balloon.style.left = `${Math.random() * 100}%`;
+                balloon.style.backgroundColor = getRandomColor();
+                celebrationEffects.appendChild(balloon);
+            }
+
+            celebrationEffects.style.display = 'block'; // Show the celebration effects container
+        });
+
+        function getRandomColor() {
+            const colors = ['red', 'blue', 'green', 'yellow', 'pink', 'purple', 'orange'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
 
         let calendar = null;
 
@@ -2026,50 +2126,78 @@
         // }
 
         async function seeEvents() {
-    let [calendarEventsResponse, birthdaysResponse] = await Promise.all([
-        fetch('/event/getCalendarEventsForEachLoginUser', { method: 'GET' }),
-        fetch('/event/checkBirthdayOfEmployees',{method:'GET'})
-    ]);
+            try {
+                let [calendarEventsResponse, birthdaysResponse] = await Promise.all([
+                    fetch('/event/getCalendarEventsForEachLoginUser', { method: 'GET' }),
+                    fetch('/event/checkBirthdayOfEmployees', { method: 'GET' })
+                ]);
 
-    // .filter(event => new Date(event.end_date) >= new Date())
-    if (calendarEventsResponse.ok && birthdaysResponse.ok) {
-        let calendarEvents = await calendarEventsResponse.json();
-        let filteredCalendarEvents = calendarEvents.filter(event => new Date(event.end_date) >= new Date());
-        let birthdays = await birthdaysResponse.json();
-        console.log(calendarEvents +'111111111111111')
-        console.log(birthdays+'000000000000000000')
+                if (!calendarEventsResponse.ok) {
+                    throw new Error('Failed to fetch calendar events');
+                }
 
-        // Combine both responses into one array
-        let allEvents = [...filteredCalendarEvents, ...birthdays.map(birthday => {
-            // Mark birthday events
-            birthday.isBirthday = true;
-            return birthday;
-        })];
+                if (!birthdaysResponse.ok) {
+                    throw new Error('Failed to fetch birthday events');
+                }
 
-        console.log(allEvents)
+                let calendarEventsText = await calendarEventsResponse.text();
+                let birthdaysText = await birthdaysResponse.text();
 
-        let events = allEvents
+                console.log('Calendar Events Response Text:', calendarEventsText);
+                console.log('Birthdays Response Text:', birthdaysText);
 
-            .map(event => ({
-                id: event.id,
-                title: event.description,
-                start: new Date(event.start_date),
-                end: new Date(event.end_date),
-                color: event.isBirthday ? 'red' : 'blue' // Set color based on whether it's a birthday event
-            }));
+                let calendarEvents = [];
+                let birthdays = [];
 
-        console.log(events);
+                try {
+                    calendarEvents = JSON.parse(calendarEventsText);
+                } catch (error) {
+                    console.error('Failed to parse calendar events JSON:', error);
+                }
 
-        $('#calendarModalBox').modal('show');
+                try {
+                    birthdays = JSON.parse(birthdaysText);
+                } catch (error) {
+                    console.error('Failed to parse birthdays JSON:', error);
+                }
 
-        $('#calendarModalBox').on('shown.bs.modal', () => {
-            renderCalendar(events);
-        });
-    }
-}
+                console.log('Parsed Calendar Events:', calendarEvents);
+                console.log('Parsed Birthdays:', birthdays);
+
+                let filteredCalendarEvents = calendarEvents.filter(event => new Date(event.end_date) >= new Date());
+
+                let allEvents = [...filteredCalendarEvents, ...birthdays.map(birthday => {
+                    // Mark birthday events
+                    birthday.isBirthday = true;
+                    return birthday;
+                })];
+
+                console.log(allEvents);
+
+                let events = allEvents.map(event => ({
+                    id: event.id,
+                    title: event.description,
+                    start: new Date(event.start_date),
+                    end: new Date(event.end_date),
+                    color: event.isBirthday ? 'red' : 'blue' // Set color based on whether it's a birthday event
+                }));
+
+                console.log(events);
+                localStorage.setItem('birthDayNotiGet',false);
+                $('#calendarModalBox').modal('show');
+
+                $('#calendarModalBox').on('shown.bs.modal', () => {
+                    renderCalendar(events);
+                });
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            }
+        }
 
 
-function renderCalendar(events) {
+
+
+        function renderCalendar(events) {
             let calendarEl = document.getElementById('calendar');
             calendar = new FullCalendar.Calendar(calendarEl, {
                 height: 'auto',

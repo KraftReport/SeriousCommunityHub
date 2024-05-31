@@ -16,11 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("event")
+@RequestMapping("/event")
 public class EventController {
 
     private final EventService eventService;
@@ -217,10 +218,15 @@ public class EventController {
         return ResponseEntity.ok(eventService.getCalendarEventsForEachLoginUser());
     }
 
-    @GetMapping("checkBirthdayOfEmployees")
+    @GetMapping("/checkBirthdayOfEmployees")
     @ResponseBody
     public ResponseEntity<List<Event>> checkBirthdayOfEmployees() throws ParseException {
-        return ResponseEntity.ok(eventService.checkBirthdayOfEmployees());
+        List<Event> events = eventService.checkBirthdayOfEmployees();
+        if (events == null) {
+            events = new ArrayList<>();
+        }
+        System.out.println("Returning events: " + events); // Log the events being returned
+        return ResponseEntity.ok(events);
     }
 
     @GetMapping("/checkEventOwnerOrAdmin/{id}")

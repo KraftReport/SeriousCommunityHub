@@ -22,6 +22,10 @@ public interface NotificationService {
 
   public  void deleteAllForLoginUser(List<Notification> notificationList);
 
+   public List<Notification> findAllByCommentId(Long id);
+
+    public Notification findByCommentIdAndReplyId(Long id, Long id1);
+
 //   public Page<NotificationDto> findAllNotifications(Long id, int page);
 
 }

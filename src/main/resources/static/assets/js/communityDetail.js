@@ -326,7 +326,11 @@ const displayMemberProfiles = async () => {
     numOfMembersContainer.textContent = `${userList.length} members`;
 };
 
-
+async function checkStatusForUser(){
+    const data = await fetch(`/user/check-notiStatus`);
+    const res = await data.json();
+    return res;
+}
 
 const deleteDetailBoxes = async () => {
     document.getElementById('community-detail-box').innerHTML = ''
@@ -809,6 +813,103 @@ window.onload = async function(){
     // await getDetailOfTheCommunity()
     await createBtns()
     await getPosts()
+    const toggleCheckbox = document.getElementById("toggle-checkbox");
+    const toggleKnob = document.getElementById("toggle-knob");
+    const userStatus = await checkStatusForUser();
+    if (userStatus.isOn === 'ON') {
+        toggleCheckbox.checked = false;
+    } else {
+        toggleCheckbox.checked = true;
+    }
+    toggleCheckbox.addEventListener("change", async function() {
+        if (toggleCheckbox.checked) {
+            console.log("OFF");
+            const data = await fetch(`/user/turn-off-noti`,{
+                method:'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify({ isOn: 'OFF' })
+            });
+            if(!data.ok){
+                console.log('something wrong please try again!');
+            }
+            const res = await data.text();
+            let alertMessage = `${res}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        } else {
+            console.log("ON");
+            const data = await fetch(`/user/turn-on-noti`,{
+                method:'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify({ isOn: 'ON' })
+            });
+            if(!data.ok){
+                console.log('something wrong please try again!');
+            }
+            const res = await data.text();
+            let alertMessage = `${res}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        }
+    });
 }
 
 
@@ -2164,10 +2265,13 @@ const receivedMessageForReact = async (payload) => {
     console.log("Message Received");
     const message = await JSON.parse(payload.body);
     // await welcome();
-    if (loginUser === message.staffId) {
-        notificationCount = notificationCount + 1;
-        await showNotiCount();
-        await notifyMessageForReact(message.content, message.sender, message.photo, message.type);
+    const user  = await checkStatusForUser();
+    if(user.isOn === 'ON'){
+        if (loginUser === message.staffId) {
+            notificationCount = notificationCount + 1;
+            await showNotiCount();
+            await notifyMessageForReact(message.content, message.sender, message.photo, message.type);
+        }
     }
 };
 
@@ -2472,7 +2576,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
             dropdownMenu.style.display = 'none';
             let currentContent = null;
             if (convertDiv.contains(spanElement)) {
-                currentContent = spanElement.innerHTML;
+                currentContent = spanElement.textContent;
             }
             console.log('textArea', currentContent);
             const textarea = document.createElement('textarea');
@@ -2772,7 +2876,7 @@ const fetchAndDisplayLastReply = async (id) => {
             editIcon.style.padding = '15px';
             editIcon.addEventListener('click', () => {
                 dropdownMenu.style.display = 'none';
-                const currentContent = replyContent.innerHTML;
+                const currentContent = replyContent.textContent;
                 const textarea = document.createElement('textarea');
                 textarea.style.borderRadius = '10px';
                 textarea.style.backgroundColor = 'lightgrey';
@@ -3066,7 +3170,7 @@ const fetchAndDisplayReplies = async (id) => {
             editIcon.style.padding = '15px';
             editIcon.addEventListener('click', () => {
                 dropdownMenu.style.display = 'none';
-                const currentContent = replyContent.innerHTML;
+                const currentContent = replyContent.textContent;
                 const textarea = document.createElement('textarea');
                 textarea.style.borderRadius = '10px';
                 textarea.style.backgroundColor = 'lightgrey';
@@ -3240,13 +3344,16 @@ const fetchAndDisplayReplies = async (id) => {
      // const user = await fetchUserDataByPostedUser(loginUser);
      // const postList = await fetchUserPostById(loginUser);
      // console.log("type",typeof postList);
-     if (loginUser === message.staffId) {
-         notificationCount = notificationCount + 1;
-         await showNotiCount();
-         console.log(message.photo, message.sender, message.content, message.postId);
-         const msg = ' commented to your photo';
-         message.photo = message.photo ||  '/static/assets/img/default-logo.png';
-         await notifyMessageForReact(msg, message.sender, message.photo, null);
+     const user  = await checkStatusForUser();
+     if(user.isOn === 'ON'){
+         if (loginUser === message.staffId) {
+             notificationCount = notificationCount + 1;
+             await showNotiCount();
+             console.log(message.photo, message.sender, message.content, message.postId);
+             const msg = ' commented to your photo';
+             message.photo = message.photo ||  '/static/assets/img/default-logo.png';
+             await notifyMessageForReact(msg, message.sender, message.photo, null);
+         }
      }
      const commentCountSize = await fetchCommentSizes(message.postId);
      document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
@@ -3266,12 +3373,15 @@ const receivedMessageForMention = async (payload) => {
         const message = JSON.parse(payload.body);
         const user = await fetchUserDataByPostedUser(message.userId);
         const userIdList = message.users;
-        if (userIdList.includes(loginUser)) {
-            notificationCount += 1;
-            await showNotiCount();
-            const msg = 'mentioned you in a post';
-            message.photo = user.photo ||  '/static/assets/img/default-logo.png';
-            await notifyMessageForReact(msg, user.name, user.photo, null);
+        const checkUser  = await checkStatusForUser();
+        if(checkUser.isOn === 'ON'){
+            if (userIdList.includes(loginUser)) {
+                notificationCount += 1;
+                await showNotiCount();
+                const msg = 'mentioned you in a post';
+                message.photo = user.photo ||  '/static/assets/img/default-logo.png';
+                await notifyMessageForReact(msg, user.name, user.photo, null);
+            }
         }
     } catch (error) {
         console.error('Error processing mention message:', error);
@@ -3294,12 +3404,15 @@ const sendMentionNotificationForComment = async (mentionedUsers, id) =>{
      console.log('Message Received');
      const message = await JSON.parse(payload.body);
      console.log('staffid', message.staffId);
-     if (loginUser === message.staffId) {
-         notificationCount = notificationCount + 1;
-         await showNotiCount();
-         console.log(message.photo, message.sender, message.content, message.postId);
-         const msg = ' replied to your comment';
-         await notifyMessageForReact(msg, message.sender, message.photo, null);
+     const user  = await checkStatusForUser();
+     if(user.isOn === 'ON'){
+         if (loginUser === message.staffId) {
+             notificationCount = notificationCount + 1;
+             await showNotiCount();
+             console.log(message.photo, message.sender, message.content, message.postId);
+             const msg = ' replied to your comment';
+             await notifyMessageForReact(msg, message.sender, message.photo, null);
+         }
      }
      // await welcome();
      const commentCountSize = await fetchCommentSizes(message.postId);
@@ -3690,8 +3803,15 @@ const attachNotificationEventListeners = () => {
             const postId = this.dataset.postId; // 'this' refers to the current notification element
             console.log('PostId', postId);
             const postElement = document.getElementById(postId);
+            const pElement = this.querySelector('p');
             if (postElement) {
                 postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }else{
+                if (pElement) {
+                    localStorage.setItem('commentOrReply',pElement.textContent);
+                }
+                localStorage.setItem('trendPostIdForSinglePost',postId);
+                window.location.href = `/user-details-post`
             }
         });
     });
@@ -4955,7 +5075,7 @@ const makeFileDownloadPost = async (resources) => {
     return parentDiv.outerHTML
 }
 
-const showPhotoUrl =async (url) => {
+async function showPhotoUrl(url){
     let previousUrlValue =  document.getElementById('postShareUrl');
     document.getElementById('forShareingContent').style.width = '800px';
     const divEl = document.getElementById('forSharingButton');
@@ -4969,7 +5089,7 @@ const showPhotoUrl =async (url) => {
     previousUrlValue.value = url;
 }
 
-const copyButton = async () => {
+async function copyButton(){
     let copyText = document.getElementById("postShareUrl");
     copyText.select();
     copyText.setSelectionRange(0, 99999);
@@ -4978,7 +5098,7 @@ const copyButton = async () => {
 
 //for share group start
 
-const getShareGroup = async () => {
+async function getShareGroup(){
     const data = await fetch(`/user/getCommunity-list-forShare`);
     const res = await data.json();
     console.log("hahahahah yaya");
@@ -5001,23 +5121,26 @@ const getShareGroup = async () => {
     const postShareButton = document.createElement('button');
     postShareButton.type = 'button';
     postShareButton.id = 'forSharingButton';
-    postShareButton.classList.add('btn','btn-outline-primary');
+    postShareButton.classList.add('btn', 'btn-outline-primary');
     postShareButton.style.height = '50px';
     postShareButton.innerHTML = '<i class="fa-solid fa-share"></i> Share';
     postShareButton.style.display = 'none';
 
-    selectBox.addEventListener('change', newChild => {
+    selectBox.addEventListener('change', () => {
         if (selectBox.value) {
             postShareButton.style.display = 'block';
             const divEL = document.getElementById('forSharingButton');
             document.getElementById('forShareingContent').style.width = '850px';
-            if(!divEL) {
+            if (!divEL) {
                 postShareDiv.appendChild(postShareButton);
             }
-            postShareButton.addEventListener('click',async () => {
+            const newButton = postShareButton.cloneNode(true);
+            postShareDiv.replaceChild(newButton, postShareButton);
+
+            newButton.addEventListener('click', async () => {
                 const postURl = document.getElementById('postShareUrl').value;
-                console.log("PostURl",postURl)
-                await postShareToGroup(selectBox.value,loginUser,postURl);
+                console.log("PostURl", postURl)
+                await postShareToGroup(selectBox.value, loginUser, postURl);
             });
         } else {
             document.getElementById('forShareingContent').style.width = '800px';
@@ -5026,7 +5149,7 @@ const getShareGroup = async () => {
     });
 }
 
-const postShareToGroup =async (id,staffId,content) => {
+async function postShareToGroup(id,staffId,content){
     const chatMessage = {
         roomId: id,
         sender: staffId,
@@ -6199,19 +6322,29 @@ document.body.addEventListener('hidden.bs.modal', async function (event) {
      });
  });
 
+async function getUsersNotInCommunity(id){
+    const url = `/api/community/notUsersInCommunity/${id}`;
+    const data = await fetch(url);
+    if (data.ok) {
+        const dataResponse = await data.json();
+        console.log('community users', dataResponse);
+        return dataResponse;
+    }
+};
 
 async function populateCreateGroupFormForInvitation() {
     document.getElementById('communityId1').value = communityId;
-
-    const allUsers = await getAllUsers();
+    // const currentUser=await getCurrentUser();
+    //   const allUsers = await getAllUsers();
     const pendingUserIds = await getPendingUser(communityId);
     const communityUsers = await getUsersByCommunityId(communityId);
-    const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+    // const usersNotInCommunity = allUsers.filter(user => !communityUsers.some(communityUser => communityUser.id === user.id));
+    const usersNotInCoummunity= await getUsersNotInCommunity(communityId);
     const usersList = document.getElementById('usersList');
 
     usersList.innerHTML = '';
 
-    usersNotInCommunity.forEach(user => {
+    usersNotInCoummunity.forEach(user => {
         const userContainer = document.createElement('div');
         userContainer.id = "container";
         userContainer.style.padding = '20px';

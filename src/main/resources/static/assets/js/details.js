@@ -133,6 +133,11 @@ const fetchPostById = async (id) => {
     return postRes;
 }
 
+async function checkStatusForUser(){
+    const data = await fetch(`/user/check-notiStatus`);
+    const res = await data.json();
+    return res;
+}
 // const removeCat = async () =>{
 //     lodader.classList.add('hidden')
 //     mark.classList.remove('hidden')
@@ -149,6 +154,103 @@ document.addEventListener('DOMContentLoaded',async () => {
     connect();
     notifyMessage().then();
     // await fetchNotificationPerPage();
+    const toggleCheckbox = document.getElementById("toggle-checkbox");
+    const toggleKnob = document.getElementById("toggle-knob");
+    const userStatus = await checkStatusForUser();
+    if (userStatus.isOn === 'ON') {
+        toggleCheckbox.checked = false;
+    } else {
+        toggleCheckbox.checked = true;
+    }
+    toggleCheckbox.addEventListener("change", async function() {
+        if (toggleCheckbox.checked) {
+            console.log("OFF");
+            const data = await fetch(`/user/turn-off-noti`,{
+                method:'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify({ isOn: 'OFF' })
+            });
+            if(!data.ok){
+                console.log('something wrong please try again!');
+            }
+            const res = await data.text();
+            let alertMessage = `${res}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        } else {
+            console.log("ON");
+            const data = await fetch(`/user/turn-on-noti`,{
+                method:'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify({ isOn: 'ON' })
+            });
+            if(!data.ok){
+                console.log('something wrong please try again!');
+            }
+            const res = await data.text();
+            let alertMessage = `${res}`;
+            let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+            let styledAlert = document.createElement('div');
+            styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+            styledAlert.innerHTML = alertMessage;
+
+
+            document.body.appendChild(styledAlert);
+
+
+            styledAlert.style.display = 'block';
+
+            setTimeout(function () {
+                styledAlert.style.display = 'none';
+            }, 3000);
+        }
+    });
 });
 
 const getAllMember = async () => {
@@ -218,6 +320,8 @@ const singlePagePost = async (id) => {
     let data = await fetch(`/post/singlePost/${id}`, {
         method: 'GET'
     });
+    let pWords = localStorage.getItem('commentOrReply');
+    console.log('PWORDSDS',pWords)
     const showPost = document.getElementById('postDetailsForSingleForPost');
 
     let p = await data.json();
@@ -734,6 +838,16 @@ const singlePagePost = async (id) => {
             });
         });
     });
+    if (pWords && (pWords.includes('comment') || pWords.includes('reply'))) {
+        $('#commentStaticBox').modal('show'); // Ensure '#commentStaticBox' exists and is a valid modal element
+        const commentElement = pressedComment(id);
+        localStorage.removeItem('commentOrReply');
+        if (commentElement && typeof commentElement.click === 'function') {
+            await commentElement.click();
+        } else {
+            console.error('Error: pressedComment(id) did not return a valid clickable element.');
+        }
+    }
 }
 
 async function timeAgo(createdDate) {
@@ -1334,7 +1448,7 @@ const displayMessage = async (sender, content, photo, id, postId,localDateTime,c
             dropdownMenu.style.display = 'none';
             let currentContent = null;
             if (convertDiv.contains(spanElement)) {
-                currentContent = spanElement.innerHTML;
+                currentContent = spanElement.textContent;
             }
             console.log('textArea', currentContent);
             const textarea = document.createElement('textarea');
@@ -1634,7 +1748,7 @@ const fetchAndDisplayLastReply = async (id) => {
             editIcon.style.padding = '15px';
             editIcon.addEventListener('click', () => {
                 dropdownMenu.style.display = 'none';
-                const currentContent = replyContent.innerHTML;
+                const currentContent = replyContent.textContent;
                 const textarea = document.createElement('textarea');
                 textarea.style.borderRadius = '10px';
                 textarea.style.backgroundColor = 'lightgrey';
@@ -1928,7 +2042,7 @@ const fetchAndDisplayReplies = async (id) => {
             editIcon.style.padding = '15px';
             editIcon.addEventListener('click', () => {
                 dropdownMenu.style.display = 'none';
-                const currentContent = replyContent.innerHTML;
+                const currentContent = replyContent.textContent;
                 const textarea = document.createElement('textarea');
                 textarea.style.borderRadius = '10px';
                 textarea.style.backgroundColor = 'lightgrey';
@@ -2207,23 +2321,29 @@ const receivedMessageForReact = async (payload) => {
     console.log("Message Received");
     const message = await JSON.parse(payload.body);
     // await welcome();
-    if (loginUser === message.staffId) {
-        notificationCount = notificationCount + 1;
-        await showNotiCount();
-        await notifyMessageForReact(message.content, message.sender, message.photo, message.type);
+    const user  = await checkStatusForUser();
+    if(user.isOn === 'ON'){
+        if (loginUser === message.staffId) {
+            notificationCount = notificationCount + 1;
+            await showNotiCount();
+            await notifyMessageForReact(message.content, message.sender, message.photo, message.type);
+        }
     }
 };
 
 const receivedMessageForComment = async (payload) => {
     console.log('Message Received');
     const message = await JSON.parse(payload.body);
-    if (loginUser === message.staffId) {
-        notificationCount = notificationCount + 1;
-        await showNotiCount();
-        console.log(message.photo, message.sender, message.content, message.postId);
-        const msg = ' commented to your photo';
-        message.photo = message.photo ||  '/static/assets/img/default-logo.png';
-        await notifyMessageForReact(msg, message.sender, message.photo, null);
+    const user  = await checkStatusForUser();
+    if(user.isOn === 'ON'){
+        if (loginUser === message.staffId) {
+            notificationCount = notificationCount + 1;
+            await showNotiCount();
+            console.log(message.photo, message.sender, message.content, message.postId);
+            const msg = ' commented to your photo';
+            message.photo = message.photo ||  '/static/assets/img/default-logo.png';
+            await notifyMessageForReact(msg, message.sender, message.photo, null);
+        }
     }
     const commentCountSize = await fetchCommentSizes(message.postId);
     document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
@@ -2257,12 +2377,15 @@ const receivedMessageForCommentReply = async (payload) => {
     console.log('Message Received');
     const message = await JSON.parse(payload.body);
     console.log('staffid', message.staffId);
-    if (loginUser === message.staffId) {
-        notificationCount = notificationCount + 1;
-        await showNotiCount();
-        console.log(message.photo, message.sender, message.content, message.postId);
-        const msg = ' replied to your comment';
-        await notifyMessageForReact(msg, message.sender, message.photo, null);
+    const user  = await checkStatusForUser();
+    if(user.isOn === 'ON'){
+        if (loginUser === message.staffId) {
+            notificationCount = notificationCount + 1;
+            await showNotiCount();
+            console.log(message.photo, message.sender, message.content, message.postId);
+            const msg = ' replied to your comment';
+            await notifyMessageForReact(msg, message.sender, message.photo, null);
+        }
     }
     const commentCountSize = await fetchCommentSizes(message.postId);
     document.getElementById(`commentCountStaticBox-${message.postId}`).innerHTML = '';
@@ -2282,12 +2405,15 @@ const receivedMessageForMention = async (payload) => {
         const message = JSON.parse(payload.body);
         const user = await fetchUserDataByPostedUser(message.userId);
         const userIdList = message.users;
-        if (userIdList.includes(loginUser)) {
-            notificationCount += 1;
-            await showNotiCount();
-            const msg = message.content;
-            message.photo = user.photo ||  '/static/assets/img/default-logo.png';
-            await notifyMessageForReact(msg, user.name, user.photo, null);
+        const checkUser  = await checkStatusForUser();
+        if(checkUser.isOn === 'ON'){
+            if (userIdList.includes(loginUser)) {
+                notificationCount += 1;
+                await showNotiCount();
+                const msg = message.content;
+                message.photo = user.photo ||  '/static/assets/img/default-logo.png';
+                await notifyMessageForReact(msg, user.name, user.photo, null);
+            }
         }
     } catch (error) {
         console.error('Error processing mention message:', error);
@@ -2298,30 +2424,30 @@ const receivedMessageForMEventNoti = async (payload) => {
     console.log("Message Receive for event");
     const message = JSON.parse(payload.body);
     const user = await getPostedEventUser(message.userId);
-
-
-    if(message.groupId){
-        const groupMemberList = await getPostedEventUserWithinGroup(message.groupId);
-        const staffIdList = groupMemberList.map(user => user.staffId);
-        if(loginUser !== message.userId && staffIdList.includes(loginUser)){
-            notificationCount += 1;
-            await showNotiCount();
-            const msg = message.content;
-            const photo = user.photo ||  '/static/assets/img/default-logo.png';
-            await notifyMessageForReact(msg, "System", photo, null);
-        }
-    }else{
-        const userList = await getAllMember();
-        const staffIdList = userList.map(user => user.staffId);
-        if(loginUser !== message.userId && staffIdList.includes(loginUser)){
-            notificationCount += 1;
-            await showNotiCount();
-            const msg = message.content;
-            const photo = user.photo ||  '/static/assets/img/default-logo.png';
-            await notifyMessageForReact(msg, "System", photo, null);
+    const checkUser  = await checkStatusForUser();
+    if(checkUser.isOn === 'ON'){
+        if(message.groupId){
+            const groupMemberList = await getPostedEventUserWithinGroup(message.groupId);
+            const staffIdList = groupMemberList.map(user => user.staffId);
+            if(loginUser !== message.userId && staffIdList.includes(loginUser)){
+                notificationCount += 1;
+                await showNotiCount();
+                const msg = message.content;
+                const photo = user.photo ||  '/static/assets/img/default-logo.png';
+                await notifyMessageForReact(msg, "System", photo, null);
+            }
+        }else{
+            const userList = await getAllMember();
+            const staffIdList = userList.map(user => user.staffId);
+            if(loginUser !== message.userId && staffIdList.includes(loginUser)){
+                notificationCount += 1;
+                await showNotiCount();
+                const msg = message.content;
+                const photo = user.photo ||  '/static/assets/img/default-logo.png';
+                await notifyMessageForReact(msg, "System", photo, null);
+            }
         }
     }
-
 }
 
 
@@ -2659,8 +2785,15 @@ async function deletedNotification(id){
             const postId = this.dataset.postId; // 'this' refers to the current notification element
             console.log('PostId', postId);
             const postElement = document.getElementById(postId);
+            const pElement = this.querySelector('p');
             if (postElement) {
                 postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }else{
+                if (pElement) {
+                    localStorage.setItem('commentOrReply',pElement.textContent);
+                }
+                localStorage.setItem('trendPostIdForSinglePost',postId);
+                window.location.href = `/user-details-post`
             }
         });
     });
@@ -2729,23 +2862,26 @@ async function getShareGroup(){
     const postShareButton = document.createElement('button');
     postShareButton.type = 'button';
     postShareButton.id = 'forSharingButton';
-    postShareButton.classList.add('btn','btn-outline-primary');
+    postShareButton.classList.add('btn', 'btn-outline-primary');
     postShareButton.style.height = '50px';
     postShareButton.innerHTML = '<i class="fa-solid fa-share"></i> Share';
     postShareButton.style.display = 'none';
 
-    selectBox.addEventListener('change', newChild => {
+    selectBox.addEventListener('change', () => {
         if (selectBox.value) {
             postShareButton.style.display = 'block';
             const divEL = document.getElementById('forSharingButton');
             document.getElementById('forShareingContent').style.width = '850px';
-            if(!divEL) {
+            if (!divEL) {
                 postShareDiv.appendChild(postShareButton);
             }
-            postShareButton.addEventListener('click',async () => {
+            const newButton = postShareButton.cloneNode(true);
+            postShareDiv.replaceChild(newButton, postShareButton);
+
+            newButton.addEventListener('click', async () => {
                 const postURl = document.getElementById('postShareUrl').value;
-                console.log("PostURl",postURl)
-                await postShareToGroup(selectBox.value,loginUser,postURl);
+                console.log("PostURl", postURl)
+                await postShareToGroup(selectBox.value, loginUser, postURl);
             });
         } else {
             document.getElementById('forShareingContent').style.width = '800px';

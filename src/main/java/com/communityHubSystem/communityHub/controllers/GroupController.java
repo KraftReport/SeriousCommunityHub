@@ -134,24 +134,23 @@ public class GroupController {
         String staffId = auth.getName();
         Optional<User> user = userService.findByStaffId(staffId.trim());
         if (user.isPresent()) {
+            List<Community> communities = new ArrayList<>();
             if (User.Role.ADMIN.equals(user.get().getRole())) {
-                return communityService.findAllByIsActive();
+                communities = communityService.findAllByIsActive();
             } else {
                 List<User_Group> user_groups = user_groupRepository.findByUserId(user.get().getId());
-
-                List<Community> communities = new ArrayList<>();
-
                 for (User_Group user_group : user_groups) {
                     var community = communityService.getCommunityById(user_group.getCommunity().getId());
                     if (community.isActive()) {
                         communities.add(community);
                     }
                 }
-
-                return communities;
             }
+            // Sort communities by date in descending order
+            communities.sort((c1, c2) -> c2.getDate().compareTo(c1.getDate()));
+            return communities;
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -244,6 +243,40 @@ public class GroupController {
             }
 
             return ResponseEntity.status(HttpStatus.OK).body(users);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+
+    @GetMapping("/notUsersInCommunity/{communityId}")
+    public ResponseEntity<List<User>> getUsersNotInCommunity(@PathVariable("communityId") Long communityId) {
+        var staffId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> optionalUser = userService.findByStaffId(staffId.trim());
+
+        if (optionalUser.isPresent()) {
+            User currentUser = optionalUser.get();
+            User.Role currentUserRole = currentUser.getRole();
+
+            List<User> allUsers = userService.getAllUser();
+            List<User_Group> userGroups = user_groupService.findByCommunityId(communityId);
+            Set<Long> userIdsInCommunity = userGroups.stream()
+                    .map(userGroup -> userGroup.getUser().getId())
+                    .collect(Collectors.toSet());
+
+            List<User> usersNotInCommunity = allUsers.stream()
+                    .filter(user -> !userIdsInCommunity.contains(user.getId()))
+                    .filter(user -> !User.Role.ADMIN.equals(user.getRole()))
+                    .collect(Collectors.toList());
+
+            if (User.Role.USER.equals(currentUserRole)) {
+                Community community = communityService.getCommunityBy(communityId);
+                usersNotInCommunity = usersNotInCommunity.stream()
+                        .filter(user -> !community.getOwnerName().equals(user.getName().trim()))
+                        .collect(Collectors.toList());
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(usersNotInCommunity);
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
