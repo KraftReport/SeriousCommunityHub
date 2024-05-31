@@ -246,6 +246,7 @@ public class UserServiceImpl implements UserService {
         user.setRemoved(removed);
         user.setRejected(reject);
         user.setRejectReason(rejectReason);
+        user.setRejectedCount(user.getRejectedCount()+1);
         userRepository.save(user);
     }
     @Override

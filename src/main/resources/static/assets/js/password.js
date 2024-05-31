@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Show the message and validate the password when the input field gains focus
-    newPasswordInput.addEventListener('focus', function() {
+    newPasswordInput.addEventListener('input', function() {
         document.getElementById('newPasswordMessage').style.display = 'block';
         validatePassword();
     });

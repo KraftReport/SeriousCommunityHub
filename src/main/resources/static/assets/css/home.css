@@ -5,7 +5,11 @@ margin:0;
     box-sizing: border-box;
     font-family: sans-serif;
 }
-
+/* Dark Mode */
+body.dark-mode {
+    background-color: #333;
+    color: #fff;
+}
 nav .nav-middle a{
     text-decoration: none;
     color:#333;
@@ -213,4 +217,46 @@ nav .nav-middle a  > i{
     font-size: 15px;
     cursor: pointer;
     margin-left: 8px;
+}
+
+body.dark-mode .container {
+    background: #121212; /* Dark background */
+}
+
+body.dark-mode .middle-panel .story-section .story {
+    background: #1e1e1e; /* Darker background */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); /* Soft shadow */
+}
+
+body.dark-mode .middle-panel .story-section .story .name {
+    color: #ddd; /* Light text */
+}
+
+body.dark-mode .middle-panel .story-section .story.create .exo1-container {
+    background: #007bff; /* Accent color */
+    border: 4px solid #fff; /* White border */
+}
+
+body.dark-mode .middle-panel .story-section .story.create .name {
+    color: #fff; /* White text */
+}
+
+body.dark-mode .post {
+    background: #1e1e1e; /* Darker background */
+    color: #ddd; /* Light text */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); /* Soft shadow */
+}
+
+body.dark-mode .post .post-bottom .action:hover {
+    background: #333; /* Slightly darker background on hover */
+}
+
+body.dark-mode .container .right-panel .pages-section .page,
+body.dark-mode .container .right-panel .friends-section .friend {
+    color: #ddd; /* Light text */
+}
+
+body.dark-mode .container .right-panel .pages-section .page:hover,
+body.dark-mode .right-panel .friends-section .friend:hover {
+    background: #333; /* Slightly darker background on hover */
 }

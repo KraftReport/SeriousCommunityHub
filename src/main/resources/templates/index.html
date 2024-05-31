@@ -243,7 +243,19 @@
         #memberAddModal #memberList::-webkit-scrollbar {
             display: none; /* Hide the scrollbar */
         }
-
+        .toggle-btn {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-btn .icon {
+            font-size: 24px;
+            margin-right: 8px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
@@ -283,7 +295,9 @@
                 </li><!-- End Search Icon-->
 
                 <li class="nav-item dropdown">
-                    <i class="fa-solid fa-calendar-days" data-bs-toggle="modal" onclick="seeEvents()" data-bs-target="#calendarModalBox" style="font-size: 22px; margin-right: 20px"></i>
+                    <a class="nav-link nav-icon" data-bs-toggle="modal" onclick="seeEvents()" data-bs-target="#calendarModalBox" style="font-size: 22px; margin-right: 20px">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    </a>
                 </li>
 
                 <li class="nav-item dropdown">
@@ -391,6 +405,15 @@
                             <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#logOutModalBox" >
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Log Out</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" id="theme-toggle" >
+                                <span class="icon" id="theme-icon">🌞</span>
+                                <span id="theme-text">Light Mode</span>
                             </a>
                         </li>
                         <li>
@@ -863,9 +886,9 @@
         <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header" style="background-color: #007bff; color: white;">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="uploadExcelModalLabel">Upload Excel File</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: white"></button>
                     </div>
                     <div class="modal-body">
                         <form id="uploadForm">
@@ -1051,13 +1074,14 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="acceptndLogout" data-bs-dismiss="modal">Login
+                    <button type="button" class="btn btn-primary" id="acceptAndLogout" data-bs-dismiss="modal">Login
                         Now
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Later</button>
                 </div>
             </div>
         </div>
+        <script src="/static/assets/js/acceptRemoval.js"></script>
     </div>
     <div class="modal fade" id="removeUserModal" data-bs-backdrop="static" tabindex="-1"
          aria-labelledby="removeUserModalLabel" aria-hidden="true">
@@ -1789,10 +1813,43 @@
     <script>
 
         const clearLocalStorage = async () => {
-            localStorage.clear()
+            const theme = localStorage.getItem('theme');
+            localStorage.clear();
+            if (theme) {
+                localStorage.setItem('theme', theme);
+            }
+        }
+        // Function to toggle between dark and white mode
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'white');
+                body.classList.remove('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌞';
+                document.getElementById('theme-text').textContent = 'Light Mode';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                body.classList.add('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌙';
+                document.getElementById('theme-text').textContent = 'Dark Mode';
+            }
         }
 
+        // Event listener for theme toggle button
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            toggleTheme();
+        });
         document.addEventListener('DOMContentLoaded', function () {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌙';
+                document.getElementById('theme-text').textContent = 'Dark Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌞';
+                document.getElementById('theme-text').textContent = 'Light Mode';
+            }
             function checkPendingStatus() {
 
                 fetch('/user/checkPendingStatus')

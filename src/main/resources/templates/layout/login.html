@@ -72,7 +72,7 @@
                     document.getElementById('password_error').innerText = '';
                 });
 
-                document.getElementById('staff_id').addEventListener('input', validateStaffId);
+                document.getElementById('staff_id').addEventListener('blur', validateStaffId);
                 function validateStaffId() {
                     const staffId = document.getElementById('staff_id').value;
                     if (!staffId) {

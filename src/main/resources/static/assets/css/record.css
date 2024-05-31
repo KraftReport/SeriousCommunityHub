@@ -175,3 +175,32 @@
     transform: scaleX(1);
     width: 100%;
 }
+body.dark-mode .unique-card-container {
+    background-color: #333333;
+    box-shadow: 10px 0 50px rgba(255, 255, 255, 0.5);
+}
+
+body.dark-mode #unique-toggleImg:checked ~ .unique-content-wrapper .unique-image-container {
+    height: 350px;
+    width: 850px;
+    z-index: 99;
+    transition: .3s .2s ease-in;
+}
+body.dark-mode .unique-text-content .unique-heading {
+    color: #ffffff;
+}
+
+body.dark-mode .unique-text-content .unique-description {
+    color: #cccccc;
+}
+body.dark-mode .unique-text-content button {
+    color: #000000;
+    background: #cecece;
+}
+body.dark-mode .unique-navigation .unique-nav-dot:before {
+    background: #ffffff;
+}
+
+body.dark-mode .unique-nav-dot {
+    background: #555555;
+}

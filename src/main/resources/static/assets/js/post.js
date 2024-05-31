@@ -1013,7 +1013,7 @@ async function welcome() {
                       </div>
               
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
+                <li><div class="dropdown-item font-monospace"  data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"><i class="fa-solid fa-link text-info"></i> Get link</div></li>`
                 if(user === 'ADMIN' || user === 'OWNER'){
                 if(user=== 'OWNER'){
                     post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`

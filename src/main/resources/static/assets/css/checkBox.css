@@ -133,3 +133,24 @@
     border-radius: 50%;
     margin-top: -8px;
 }
+
+.dark-mode #memberKickModal .container,
+.dark-mode #memberAddModal .container {
+    background: #333;
+    color: #fff;
+}
+
+.dark-mode #memberKickModal .container .group:hover,
+.dark-mode #memberAddModal .container .group:hover {
+    background-color: #555;
+}
+
+.dark-mode #memberKickModal label::before,
+.dark-mode #memberAddModal label::before {
+    background: url("/static/assets/img/check.png");
+}
+
+.dark-mode #memberKickModal label::after,
+.dark-mode #memberAddModal label::after {
+    border-color: #27ae60;
+}

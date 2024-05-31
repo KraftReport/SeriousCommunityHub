@@ -24,7 +24,7 @@
     /* padding: .5rem 6rem; */
     padding: .5rem 2rem;
     border-radius: .5rem;
-    /* background-color: #242426; */
+    background: transparent;
     cursor: pointer;
     user-select: none;
     transition: all 75ms;
@@ -114,6 +114,17 @@
 /*for event*/
 .button_wrapper1 {
     position: relative;
+}
+/* Dark mode styles for like buttons */
+body.dark-mode .like_button,
+body.dark-mode .like_button1 {
+    color: white; /* Light text color */
+    background-color: transparent; /* Transparent background */
+}
+
+body.dark-mode .like_button:hover,
+body.dark-mode .like_button1:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Lighter background color on hover */
 }
 
 .like_button1 {

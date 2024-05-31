@@ -108,6 +108,7 @@ public class UserController {
             List<User> filteredUsers = users.stream()
                     .filter(user -> !user.getStaffId().equals(loggedInUser.getStaffId()))
                     .collect(Collectors.toList());
+            model.addAttribute("loggedIndUser",loggedInUser);
             model.addAttribute("users", filteredUsers);
         } else {
             model.addAttribute("users", Collections.emptyList());
@@ -714,6 +715,24 @@ public class UserController {
         return ResponseEntity.ok(exists);
         }
         return ResponseEntity.ok(false);
+    }
+
+    @PostMapping("/update-fully-permitted")
+    public ResponseEntity<Map<String, Object>> updateFullyPermitted(@RequestBody Map<String, Object> payload) {
+        Long userId = ((Number) payload.get("id")).longValue();
+        Boolean fullyPermitted = (Boolean) payload.get("fully_permitted");
+        User user = userService.findById(userId);
+        if (user != null) {
+            user.setFully_permitted(fullyPermitted);
+            userRepository.save(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            return ResponseEntity.ok(response);
+        } else {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 }
 

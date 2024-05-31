@@ -149,3 +149,48 @@
 .community-card .member-list .member-name:last-child:after {
     content: "...";
 }
+/* Dark Mode Styles */
+body.dark-mode .community-card {
+    background-color: #222; /* Dark background color */
+    color: #fff; /* Light text color */
+}
+
+body.dark-mode .community-card .card-footer {
+    background-color: rgba(0, 0, 0, 0.8); /* Darker background color for footer */
+}
+
+body.dark-mode .community-card .dropdown-menu {
+    background-color: #333; /* Dark background color for dropdown menu */
+}
+
+body.dark-mode .community-card .card-text,
+body.dark-mode .community-card .card-title {
+    color: #fff; /* Light text color for text content */
+}
+
+body.dark-mode .community-card .dropdown-toggle::after {
+    border-top-color: #fff; /* Light color for dropdown toggle arrow */
+}
+
+body.dark-mode .community-card .btn-primary::before,
+body.dark-mode .community-card .btn-success::before,
+body.dark-mode .community-card .btn-danger::before {
+    color: #fff; /* Light color for button icons */
+}
+
+body.dark-mode .community-card image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+body.dark-mode .community-card .member-list {
+    color: #fff; /* Light text color for member list */
+}
+
+body.dark-mode .community-card .member-list .member-name {
+    color: #ccc; /* Light color for member names */
+}

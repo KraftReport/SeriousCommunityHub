@@ -108,7 +108,7 @@ $(document).ready(function() {
         }
     }
 
-    $newPasswordInput.on('focus blur input', function () {
+    $newPasswordInput.on('input', function () {
         validatingPassword();
     });
 
