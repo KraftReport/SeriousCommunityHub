@@ -326,6 +326,7 @@ public class EventServiceImpl implements EventService {
             var vo = new VoteOption();
             vo.setVoteEvent(event);
             vo.setType(n);
+            vo.setDeleted(false);
             voteOptionRepository.save(vo);
         }
     }

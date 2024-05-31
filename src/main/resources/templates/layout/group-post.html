@@ -329,7 +329,7 @@
                             <div class="col-sm-10">
                             </div>
                         </div>
-                        <div class="row mb-3" hidden>
+                        <div class="row mb-3" style="display: none;">
                             <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
                             <div class="col-sm-10">
                                 <select class="form-select font-monospace" id="groupSelect1" name="groupId"
@@ -388,7 +388,7 @@
                         <label id="labelForEventPhoto" for="multipartFile" class="font-monospace m-2">Photo <i class="fa-solid fa-camera"></i></label>
                         <input type="file" style="display: none;" name="multipartFile" class="form-control" id="eventPhotoFile" >
 
-                        <div class="row mb-3" hidden>
+                        <div class="row mb-3" style="display: none;">
                             <label class=" font-monospace">Commuinty <i class="fa-solid fa-users"></i></label>
                             <div class="col-sm-10" >
                                 <select class="form-select font-monospace" id="groupSelect2" name="groupId" aria-label="Default select example">
@@ -442,7 +442,7 @@
                             </ul>
                         </div>
 
-                        <div class="row mb-3">
+                        <div class="row mb-3" style="display: none;">
                             <label class="font-monospace m-2">Commuinty <i class="fa-solid fa-users"></i></label>
                             <div class="col-sm-10" >
                                 <select class="form-select font-monospace m-2" id="groupSelect3" name="groupId" aria-label="Default select example">
@@ -461,42 +461,45 @@
 
             <!-- loading modal box start  -->
             <div class="modal fade  " id="loadingModalBox" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                 aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content border rounded-1">
-
-                        <div id="markBox" class="hidden">
-                            <div class="check_mark">
-                                <div class="sa-icon sa-success animate">
-                                    <span class="sa-line sa-tip animateSuccessTip"></span>
-                                    <span class="sa-line sa-long animateSuccessLong"></span>
-                                    <div class="sa-placeholder"></div>
-                                    <div class="sa-fix"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <button id="restart" class="btn btn-success offset-10" data-bs-dismiss="modal"
-                                        onclick="setToNormal()">OK
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="catBox" class="">
-                            <div class="box">
-                                <div class="cat">
-                                    <div class="cat__body"></div>
-                                    <div class="cat__body"></div>
-                                    <div class="cat__tail"></div>
-                                    <div class="cat__head"></div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
-            </div>
-
+            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+           <div class="modal-dialog">
+               <div class="modal-content border rounded-1" style="width:300px; margin-left:100px;">
+   
+                   <div id="markBox" class="hidden">
+                       <div class="check_mark">
+                           <div class="sa-icon sa-success animate">
+                               <span class="sa-line sa-tip animateSuccessTip"></span>
+                               <span class="sa-line sa-long animateSuccessLong"></span>
+                               <div class="sa-placeholder"></div>
+                               <div class="sa-fix"></div>
+                           </div>
+                       </div>
+                       <div>
+                           <button id="restart" style="background-color: #3192e0; border-radius: 10px; color:white; margin-left: 109px; margin-bottom: 20px;; " class="btn   " data-bs-dismiss="modal"
+                                   onclick="setToNormal()">Continue
+                           </button>
+                       </div>
+                   </div>
+   
+   
+                       <div class="loader"></div>
+   
+   
+                   <!-- <div id="catBox" class="">
+                       <div class="box">
+                           <div class="cat">
+                               <div class="cat__body"></div>
+                               <div class="cat__body"></div>
+                               <div class="cat__tail"></div>
+                               <div class="cat__head"></div>
+                           </div>
+                       </div>
+                   </div> -->
+   
+   
+               </div>
+           </div>
+       </div>
 
 
             <!-- loading modal box end  -->
@@ -636,7 +639,7 @@
                         <input style="display: none; border: none; border-radius: 20px; box-shadow: 0 0 4px 0px rgba(0, 0, 0, 0.5); "  type="file" name="raw" id="raw" multiple>
 
 
-                        <div class="row mb-3">
+                        <div class="row mb-3" style="display: none;">
                             <label class="font-monospace">Community <i class="fa-solid fa-users"></i></label>
                             <div class="col-sm-10">
                                 <select class="form-select font-monospace" id="groupSelect4" name="groupId"

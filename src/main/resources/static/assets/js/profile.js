@@ -1,3 +1,6 @@
+let lodader = document.querySelector('.loader')
+let mark = document.getElementById('markBox')
+let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
 
 function deleteResource(id) {
     document.getElementById(id + '-url').src = 'deleted'
@@ -35,6 +38,7 @@ let notificationCount = 0;
 }
 
 async function getUpdateDataForRaw(){
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -119,6 +123,7 @@ async function getUpdateDataForRaw(){
 
        
         contentSection.innerHTML = post
+        await removeCat()
          removePreviewForRawFile()
 
     }
@@ -129,6 +134,12 @@ let currentPageForPost = 0;
 let isFetchingForPost = false;
 let hasMoreForPost = true;
 
+let currentPageForDelPost = 0;
+let isFetchingForDelPost = false;
+let hasMoreForDelPost = true;
+
+let inPostTab = true
+let inDelTab = false
 window.onload = async () => {
     console.log('wow this js file is working :-P')
     const userIdInput = document.getElementById('userId1');
@@ -141,17 +152,54 @@ window.onload = async () => {
     await getPosts();
 }
 
+const clickPostTab = async () => {
+    isFetchingForPost = false
+    hasMoreForPost = true
+    isFetchingForDelPost = false
+    hasMoreForDelPost = true
+    currentPageForPost = 0
+    inPostTab = true
+    inDelTab = false
+    document.getElementById('parentLoginUserProfileDiv').innerHTML = ''
+    await getPosts()
+}
+
+const clickDelPostTab = async () => {
+    isFetchingForPost = false
+    hasMoreForPost = true
+    isFetchingForDelPost = false
+    hasMoreForDelPost = true
+    currentPageForDelPost = 0
+    inPostTab = false
+    inDelTab = true
+    document.getElementById('deletedPostsDiv').innerHTML = ''
+    await getDelPosts()
+}
+
 window.addEventListener('scroll', async () => {
     if (isFetchingForPost || !hasMoreForPost) {
         console.log('here two')
         return;
     }
 
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+    if (isFetchingForDelPost || !hasMoreForDelPost) {
+        console.log('here two')
+        return;
+    }
+
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && inPostTab === true && inDelTab == false) {
         console.log('here')
         currentPageForPost++;
         await videoObserver()
         await getPosts();
+        await videoObserver()
+    }
+
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && inDelTab === true && inPostTab === false) {
+        console.log('here')
+        currentPageForDelPost++;
+        await videoObserver()
+        await getDelPosts();
         await videoObserver()
     }
 });
@@ -595,7 +643,551 @@ async function postShareToGroup(id,staffId,content){
     }
 }
 
+const getDelPosts = async () => { 
+        let userId = await getLoginUserId()
+        console.log(userId + 'wow wow wow')
+        console.log('for currnet page',currentPageForPost)
+        let postsDiv = document.getElementById('deletedPostsDiv')
+        isFetchingForDelPost = true
+        let data = await fetch(`/post/getHidePostsOfUser/${userId}/${currentPageForDelPost}`)
+        let response = await data.json()
+        isFetchingForDelPost = false
+        console.log(response)
+        console.log('Size', response.length)
+        let posts = ''
+        if (response.length === 0) {
+            hasMoreForDelPost = false;
+            await displayNoPostMessage();
+        }
+        // localStorage.setItem('currentPage', response);
+        for (const p of response) {
+            let res = p.resources
+            let thisIsRawPost = false
+            let target = '' 
+            console.log(res)
+                let ug = p.userGroup !== null ? p.userGroup : null
+                let gp = ug !== null ? ug.community : null 
+                let gpName = gp !== null ? gp.name : null
+                let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+                `
+            let createdTime = await timeAgo(new Date(p.createdDate))
+            const reactCount = await fetchSizes(p.id);
+            const reactType = await fetchReactType(p.id);
+            let likeButtonContent = '';
+            if (reactType === "LIKE") {
+                likeButtonContent = `<div class="button_icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
+    </div>
+            <span  style="color: black;">LIKE ${reactCount.length}</span>`
+                ;
+            } else if (reactType === "LOVE") {
+                likeButtonContent = `<img src="/static/assets/img/love.png" alt="Love" style="width: 25px; height: 25px"/>
+               <span>LOVE ${reactCount.length}</span>`;
+            } else if (reactType === "CARE") {
+                likeButtonContent = `<img src="/static/assets/img/care.png" alt="Care" style="width: 25px; height: 25px" />
+                      <span>CARE ${reactCount.length}</span>`;
+            } else if (reactType === "ANGRY") {
+                likeButtonContent = `<img src="/static/assets/img/angry.png" alt="Angry" style="width: 25px; height: 25px" />
+                     <span>ANGRY ${reactCount.length}</span>`;
+            } else if (reactType === "HAHA") {
+                likeButtonContent = `<img src="/static/assets/img/haha.png" alt="Haha" style="width: 25px; height: 25px" />
+                  <span>HAHA ${reactCount.length}</span>`;
+            } else if (reactType === "SAD") {
+                likeButtonContent = `<img src="/static/assets/img/sad.png" alt="Sad" style="width: 25px; height: 25px" />
+        <span>SAD ${reactCount.length}</span>`;
+            } else if (reactType === "WOW") {
+                likeButtonContent = `<img src="/static/assets/img/wow.png" alt="Wow" style="width: 25px; height: 25px" />
+                    <span>WOW ${reactCount.length}</span>`;
+            } else {
+                likeButtonContent = `<div class="button_icon">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16H286.5c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8H384c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/></svg>
+            </div>
+            <span>Like ${reactCount.length}</span>`
+            }
+    
+            const commentCountSize = await fetchCommentSizes(p.id);
+            const formattedDescription = await highlightMentions(p.description.replace(/\n/g, '<br>'));
+            let post = '';
+            post += `
+    
+            <div class="post" id="post-delete-section-${p.id}">
+            <div class="post-top" style="max-width:500px; justify-content:space-between;"> 
+            
+            <div class="d-flex">
+           
+                <div>
+                <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+                </div>
+                <div class="post-info" style="width:100px;">
+    
+                <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
+                ${CommunityName} 
+                <span class="time font-monospace">${createdTime}</span>
+               
+            </div>
+            </div>`
+            let user = await checkPostOwnerOrAdmin(p.id)
+            //   if(user === 'ADMIN' || user === 'OWNER'){
+                post += `<div class="dropdown offset-8">
+                <div class=" " onclick="getPostDetail(${p.id})"     id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-ellipsis-h "></i>
+                      </div>
+              
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
+                if(user === 'ADMIN' || user === 'OWNER'){
+                if(user=== 'OWNER'){
+                    post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
+                    <li><div data-bs-toggle="modal" data-bs-target="#showPostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-eye text-warning"></i> Show post</div>
+                    `
+                }
+                  
+                   post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>`
+            }
+                   post+=`</li> 
+                </ul>
+              </div> 
+              
+                
+                <!-- Modal -->
+    <div class="modal fade" id="showPostAsk${p.id}" tabindex="-1" aria-labelledby="showPostAsk${p.id}" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content"> 
+        <div class="modal-body font-monospace">
+        Are you sure do you want to show this post for other to see ?
+        <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+        <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="showPost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+        </div>
+        </div>
+    
+      </div>
+    </div>
+    </div>
 
+
+    <div class="modal fade" id="hidePostAsk${p.id}" tabindex="-1" aria-labelledby="hidePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to hide this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+    `
+                // }
+    
+                for(file of res){
+                  if(file.raw !== null){
+                      thisIsRawPost = true
+                       
+                  }else{
+                      target =`#newsfeedPost${p.id}`
+                  }
+              }
+                       
+              
+            post+=`</div>
+           
+      <div id="post-update-section-${p.id}">
+      <div class="post-content-${p.id} font-monospace" data-bs-toggle="modal" data-bs-target=${target} >
+            ${formattedDescription}
+            `
+            for(file of res){
+              if(file.raw !== null){
+                  thisIsRawPost = true
+                  
+              console.log('we are here')
+              post += await makeFileDownloadPost(p.resources)
+              break;
+              }
+          }
+          if (thisIsRawPost === false) {
+    
+            const createMediaElement = (tag, src, controlAttr, closeTag, extraStyle = '', id = '') => {
+                return `<${tag} ${controlAttr} src="${src}" id="${id}" class="img-fluid"  style="border-radius: 15px; margin: 2px; height: 200px; width: 100%; ${extraStyle}" alt="">${closeTag}`;
+            };
+        
+            const createGridContainer = (elements, columns) => {
+                return `<div class="grid-container" style="display: grid; grid-template-columns: repeat(${columns}, 1fr); gap: 10px;">${elements.join('')}</div>`;
+            };
+        
+            let mediaElements = [];
+            let overflowCount = 0;
+        
+            p.resources.forEach((r, index) => {
+                let tag = 'img';
+                let controlAttr = '';
+                let closeTag = '';
+                let id = '';
+                if (r.photo !== null) {
+                    if (mediaElements.length < 4) {
+                        mediaElements.push(createMediaElement(tag, r.photo, controlAttr, closeTag));
+                    } else {
+                        overflowCount++;
+                    }
+                } else if (r.video !== null) {
+                    tag = 'video';
+                    controlAttr = 'controls';
+                    closeTag = '</video>';
+                    id = `myVideo`;
+                    if (mediaElements.length < 4) {
+                        mediaElements.push(createMediaElement(tag, r.video, controlAttr, closeTag, '', id));
+                    } else {
+                        overflowCount++;
+                    }
+                }
+            });
+        
+            if (overflowCount > 0) {
+                const lastMedia = p.resources[3];
+                let lastTag = 'img';
+                let lastControlAttr = '';
+                let lastCloseTag = '';
+                let lastSrc = lastMedia.photo || lastMedia.video;
+                let lastId = '';
+        
+                if (lastMedia.video !== null) {
+                    lastTag = 'video';
+                    lastControlAttr = 'controls';
+                    lastCloseTag = '</video>';
+                    lastId = 'myVideo';
+                }
+        
+                mediaElements[3] = `<div style="position: relative;">
+                    ${createMediaElement(lastTag, lastSrc, lastControlAttr, lastCloseTag, 'filter: blur(5px);', lastId)}
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 25px;">+${overflowCount}</div>
+                </div>`;
+            }
+        
+            let columns = 1;
+            if (mediaElements.length === 2) {
+                columns = 2;
+            } else if (mediaElements.length === 3) {
+                columns = 2; // Two columns layout
+                // Make the last media element span two columns
+                const lastMedia = p.resources[2];
+                let lastTag = 'img';
+                let lastControlAttr = '';
+                let lastCloseTag = '';
+                let lastSrc = lastMedia.photo || lastMedia.video;
+                let lastId = '';
+        
+                if (lastMedia.video !== null) {
+                    lastTag = 'video';
+                    lastControlAttr = 'controls';
+                    lastCloseTag = '</video>';
+                    lastId = 'myVideo';
+                }
+        
+                mediaElements[2] = `<div style="grid-column: span 2;">
+                                        ${createMediaElement(lastTag, lastSrc, lastControlAttr, lastCloseTag, 'max-height: 200px;', lastId)}
+                                    </div>`;
+            } else if (mediaElements.length >= 4) {
+                columns = 2;
+            }
+        
+            if (mediaElements.length === 1) {
+                const singleMedia = p.resources[0];
+                let singleTag = 'img';
+                let singleControlAttr = '';
+                let singleCloseTag = '';
+                let singleSrc = singleMedia.photo || singleMedia.video;
+                let singleId = '';
+        
+                if (singleMedia.video !== null) {
+                    singleTag = 'video';
+                    singleControlAttr = 'controls';
+                    singleCloseTag = '</video>';
+                    singleId = 'myVideo';
+                }
+        
+                // Special case for a single media element with custom styles
+                post += `<div style="padding: 20px;">
+                            ${createMediaElement(singleTag, singleSrc, singleControlAttr, singleCloseTag, 'max-height: 300px;', singleId)}
+                         </div>`;
+            } else if (mediaElements.length > 0) {
+                post += createGridContainer(mediaElements, columns);
+            }
+        
+            // Output the post
+            console.log(post);
+        
+            // Add JavaScript to handle the video overlay
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('video').forEach(video => {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'video-overlay';
+                    overlay.style.position = 'absolute';
+                    overlay.style.top = '0';
+                    overlay.style.left = '0';
+                    overlay.style.width = '100%';
+                    overlay.style.height = '100%';
+                    overlay.style.display = 'flex';
+                    overlay.style.alignItems = 'center';
+                    overlay.style.justifyContent = 'center';
+                    overlay.style.color = 'white';
+                    overlay.style.fontSize = '30px';
+                    overlay.style.background = 'rgba(0, 0, 0, 0.5)';
+                    overlay.innerHTML = '<i class="fas fa-play"></i>';
+        
+                    const parent = video.parentElement;
+                    parent.style.position = 'relative';
+                    parent.appendChild(overlay);
+        
+                    const showOverlay = () => {
+                        overlay.style.display = 'flex';
+                    };
+        
+                    const hideOverlay = () => {
+                        overlay.style.display = 'none';
+                    };
+        
+                    video.addEventListener('play', hideOverlay);
+                    video.addEventListener('pause', showOverlay);
+                    video.addEventListener('ended', showOverlay);
+        
+                    overlay.addEventListener('click', () => {
+                        video.play();
+                    });
+        
+                    // Initially show the overlay
+                    showOverlay();
+                });
+            });
+        }
+             
+         
+            post += `
+                  </div>
+                  </div>
+                  <div class="post-bottom">
+                      <div class="action" style="height: 50px">
+            <div class="button_wrapper">
+                    <div class="all_likes_wrapper">
+                        <div data-title="LIKE">
+                            <img src="/static/assets/img/like.png" alt="Like" />
+                        </div>
+                        <div data-title="LOVE">
+                            <img src="/static/assets/img/love.png" alt="Love" />
+                        </div>
+                        <div data-title="CARE">
+                            <img src="/static/assets/img/care.png" alt="Care" />
+                        </div>
+                        <div data-title="HAHA">
+                            <img src="/static/assets/img/haha.png" alt="Haha" />
+                        </div>
+                        <div data-title="WOW">
+                            <img src="/static/assets/img/wow.png" alt="Wow" />
+                        </div>
+                        <div data-title="SAD">
+                            <img src="/static/assets/img/sad.png" alt="Sad" />
+                        </div>
+                        <div data-title="ANGRY">
+                            <img src="/static/assets/img/angry.png" alt="Angry" />
+                        </div>
+                    </div>
+                    <button class="like_button" id="${p.id}">
+                      ${likeButtonContent}
+                    </button>
+                </div>
+                      </div>
+                      <div class="action">
+                          <i class="fa-regular fa-comment"></i>
+        <span onclick="pressedComment('${p.id}')"  data-bs-toggle="modal" data-bs-target="#commentStaticBox" id="commentCountStaticBox-${p.id}">Comment ${commentCountSize}</span>
+                      </div>
+                  </div>
+              </div> 
+            <div id="detail-modal-${p.id}">
+            <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg"  >
+                <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
+                  <div class="modal-body p-0">
+                    <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
+                      <div class="carousel-inner">`
+    
+            p.resources.forEach((r, index) => {
+                let active = index == 0 ? 'active' : ''
+                if (r.photo === null && r.video !== null) {
+                    post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" >
+                          <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
+                          <div class="carousel-caption d-none d-md-block"> 
+                          <p>${r.description.replace(/\n/g, '<br>')}</p>
+                        </div>
+                          </div> `
+                } else if (r.video === null && r.photo !== null) {
+                    post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
+                          <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
+                          <div class="carousel-caption d-none d-md-block"> 
+                          <p>${r.description.replace(/\n/g, '<br>')}</p>
+                        </div>
+                        </div>`
+                } else {
+                    post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
+                          <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
+                          <div class="carousel-caption d-none d-md-block"> 
+                          <p>${r.description.replace(/\n/g, '<br>')}</p>
+                        </div>
+                        </div>`
+                    post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;">
+                        <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
+                        <div class="carousel-caption d-none d-md-block"> 
+                        <p>${r.description.replace(/\n/g, '<br>')}</p>
+                      </div>
+                      </div>
+                       `
+                }
+            })
+            post += `
+                         
+                      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                      </button>
+                      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                      </button>
+                    </div>
+                  </div> 
+                </div>
+              </div>
+              </div>
+              </div>
+              </div>`;
+    
+            posts += post;
+        }
+        let range = document.createRange();
+        let fragment = range.createContextualFragment(posts);
+        postsDiv.appendChild(fragment);
+        // }
+    
+        const likeButtons = document.querySelectorAll(".like_button");
+        likeButtons.forEach(likeButton => {
+            likeButton.addEventListener('click', async (event) => {
+                const postId = likeButton.id;
+                const currentReactType = await fetchReactType(postId);
+                console.log('sdd', currentReactType);
+                if ((currentReactType !== null) && (currentReactType !=="OTHER")) {
+                    await removeReaction(postId);
+                    const reactCount = await fetchSizes(postId);
+                    likeButton.innerHTML = `<div class="button_icon">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M323.8 34.8c-38.2-10.9-78.1 11.2-89 49.4l-5.7 20c-3.7 13-10.4 25-19.5 35l-51.3 56.4c-8.9 9.8-8.2 25 1.6 33.9s25 8.2 33.9-1.6l51.3-56.4c14.1-15.5 24.4-34 30.1-54.1l5.7-20c3.6-12.7 16.9-20.1 29.7-16.5s20.1 16.9 16.5 29.7l-5.7 20c-5.7 19.9-14.7 38.7-26.6 55.5c-5.2 7.3-5.8 16.9-1.7 24.9s12.3 13 21.3 13L448 224c8.8 0 16 7.2 16 16c0 6.8-4.3 12.7-10.4 15c-7.4 2.8-13 9-14.9 16.7s.1 15.8 5.3 21.7c2.5 2.8 4 6.5 4 10.6c0 7.8-5.6 14.3-13 15.7c-8.2 1.6-15.1 7.3-18 15.2s-1.6 16.7 3.6 23.3c2.1 2.7 3.4 6.1 3.4 9.9c0 6.7-4.2 12.6-10.2 14.9c-11.5 4.5-17.7 16.9-14.4 28.8c.4 1.3 .6 2.8 .6 4.3c0 8.8-7.2 16-16 16H286.5c-12.6 0-25-3.7-35.5-10.7l-61.7-41.1c-11-7.4-25.9-4.4-33.3 6.7s-4.4 25.9 6.7 33.3l61.7 41.1c18.4 12.3 40 18.8 62.1 18.8H384c34.7 0 62.9-27.6 64-62c14.6-11.7 24-29.7 24-50c0-4.5-.5-8.8-1.3-13c15.4-11.7 25.3-30.2 25.3-51c0-6.5-1-12.8-2.8-18.7C504.8 273.7 512 257.7 512 240c0-35.3-28.6-64-64-64l-92.3 0c4.7-10.4 8.7-21.2 11.8-32.2l5.7-20c10.9-38.2-11.2-78.1-49.4-89zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/></svg>
+                </div>
+                <span>Like ${reactCount.length}</span>`;
+                } else {
+                    await pressedLike(postId, "LIKE");
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    const reactCount = await fetchSizes(postId);
+                    likeButton.innerHTML = `<div class="button_icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
+            </div>
+            <span>Like ${reactCount.length}</span>`
+                    likeButton.classList.toggle('active');
+    
+                    if (likeButton.classList.contains('active')) {
+                        likeButton.style.color = "black";
+                    } else {
+                        likeButton.classList.remove('active');
+                        likeButton.style.color = "unset";
+                    }
+                }
+            });
+    
+            likeButton.addEventListener('mouseover', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper").classList.add('active');
+            });
+    
+            likeButton.addEventListener('mouseout', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper").classList.remove('active');
+            });
+    
+            likeButton.parentNode.addEventListener('mouseover', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper").classList.add('active');
+            });
+    
+            likeButton.parentNode.addEventListener('mouseout', () => {
+                likeButton.parentNode.querySelector(".all_likes_wrapper").classList.remove('active');
+            });
+    
+            likeButton.parentNode.querySelectorAll('div').forEach((like_image) => {
+                like_image.addEventListener('click', async (event) => {
+                    let dataTitle = event.currentTarget.dataset.title;
+                    const postId = likeButton.id;
+                    await pressedLike(postId, dataTitle);
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    const reactCount = await fetchSizes(postId);
+                    if (dataTitle === "LIKE") {
+                        likeButton.innerHTML = `<div class="button_icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path d="M313.4 32.9c26 5.2 42.9 30.5 37.7 56.5l-2.3 11.4c-5.3 26.7-15.1 52.1-28.8 75.2H464c26.5 0 48 21.5 48 48c0 18.5-10.5 34.6-25.9 42.6C497 275.4 504 288.9 504 304c0 23.4-16.8 42.9-38.9 47.1c4.4 7.3 6.9 15.8 6.9 24.9c0 21.3-13.9 39.4-33.1 45.6c.7 3.3 1.1 6.8 1.1 10.4c0 26.5-21.5 48-48 48H294.5c-19 0-37.5-5.6-53.3-16.1l-38.5-25.7C176 420.4 160 390.4 160 358.3V320 272 247.1c0-29.2 13.3-56.7 36-75l7.4-5.9c26.5-21.2 44.6-51 51.2-84.2l2.3-11.4c5.2-26 30.5-42.9 56.5-37.7zM32 192H96c17.7 0 32 14.3 32 32V448c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V224c0-17.7 14.3-32 32-32z"/></svg>
+                        </div>
+                        <span>Like ${reactCount.length}</span>`;
+    
+                        likeButton.classList.add("active")
+                    } else {
+                        likeButton.innerHTML = `<img src="/static/assets/img/${dataTitle.toLowerCase()}.png" style="width: 20px; height: 20px" /> ${dataTitle} ${reactCount.length}`;
+                    }
+    
+                    if (dataTitle === "LIKE") {
+                        likeButton.style.color = "black";
+                    } else if (dataTitle === "LOVE") {
+                        likeButton.style.color = "#EC2D50";
+                    } else if (dataTitle === "CARE" || dataTitle === 'HAHA' || dataTitle === "WOW" || dataTitle === "SAD") {
+                        likeButton.style.color = "#FAC551";
+                    } else {
+                        likeButton.style.color = "#E24E05";
+                    }
+    
+                    likeButton.parentNode.querySelector(".all_likes_wrapper").classList.remove("active");
+                });
+                like_image.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                });
+            });
+        });
+    
+    }
+
+
+    const hidePost = async (id) => {
+        loadingModalBox.show()
+        let data = await fetch(`/post/hidePost/${id}`)
+        let response = await data.json()
+        console.log(response)
+        if(response){
+            await removeCat()
+            const postList = document.getElementById(`post-delete-section-${id}`);
+            if(postList){
+                postList.remove();
+            }
+        }
+    }
+
+    const showPost = async (id) => {
+        loadingModalBox.show()
+        let data = await fetch(`/post/showPost/${id}`)
+        let response = await data.json()
+        console.log(response)
+        if(response){
+            await removeCat()
+            const postList = document.getElementById(`post-delete-section-${id}`);
+            if(postList){
+                postList.remove();
+            }
+        }
+    }
 const getPosts = async () => {
     let userId = await getLoginUserId()
     console.log(userId + 'wow wow wow')
@@ -614,6 +1206,7 @@ const getPosts = async () => {
     }
     // localStorage.setItem('currentPage', response);
     for (const p of response) {
+        let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
         let res = p.resources
         let thisIsRawPost = false
         let target = '' 
@@ -671,7 +1264,7 @@ const getPosts = async () => {
         <div class="d-flex">
        
             <div>
-            <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
@@ -692,7 +1285,8 @@ const getPosts = async () => {
             <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
             if(user === 'ADMIN' || user === 'OWNER'){
             if(user=== 'OWNER'){
-                post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
+                post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
+                <li><div data-bs-toggle="modal" data-bs-target="#hidePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-eye-slash text-warning"></i> Set Only Me</div>`
             }
               
                post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>`
@@ -716,6 +1310,21 @@ const getPosts = async () => {
 
   </div>
 </div>
+</div>
+
+<div class="modal fade" id="hidePostAsk${p.id}" tabindex="-1" aria-labelledby="hidePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to hide this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
 </div>
 `
             // }
@@ -1694,6 +2303,7 @@ document.getElementById('raw').addEventListener('change', function () {
 });
 
 async function getUpdateData() {
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#resourceId')
     value.forEach(v => console.log(v.value))
@@ -2000,6 +2610,7 @@ async function getUpdateData() {
 
         ParentDetailModal.innerHTML = mod
         contentSection.innerHTML = post
+        await removeCat()
 
     }
 }
@@ -3332,9 +3943,8 @@ commentModal.addEventListener('show.bs.modal', () => {
     resetModalContent();
 });
 
-let lodader = document.querySelector('.loader')
-let mark = document.getElementById('markBox')
-let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
+
+
 
 async function removeCat(){
     lodader.classList.add('hidden')

@@ -190,4 +190,20 @@ public class PostController {
         }
     }
 
+    @GetMapping("/getHidePostsOfUser/{id}/{page}")
+    public ResponseEntity<List<Post>> getDeletedPostsOfUser(@PathVariable("id")String id,
+                                                            @PathVariable("page")String page){
+        return ResponseEntity.ok(postService.getHidePostOfAUser(Long.valueOf(id),page).getContent());
+    }
+
+    @GetMapping("/hidePost/{id}")
+    public ResponseEntity<Post> hidePost(@PathVariable("id")String  id){
+        return ResponseEntity.ok(postService.hideAPost(Long.valueOf(id)));
+    }
+
+    @GetMapping("/showPost/{id}")
+    public ResponseEntity<Post> showPost(@PathVariable("id")String  id){
+        return ResponseEntity.ok(postService.showAPost(Long.valueOf(id)));
+    }
+
 }

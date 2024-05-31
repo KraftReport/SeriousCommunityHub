@@ -32,12 +32,17 @@ public class Post implements Serializable {
     @Enumerated(EnumType.STRING)
     private Access access;
     private boolean isDeleted;
+    private boolean hide;
     @Column(unique = true)
     private String url;
+
+
 
     public enum PostType{
         CONTENT,RESOURCE,RAW
     }
+
+
 
 
     @ManyToOne

@@ -13,6 +13,13 @@ let logOutModalBox = new bootstrap.Modal(document.getElementById('logOutModalBox
 
 window.onload = welcome;
 
+
+const getFormattedDate = async (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
  
 
 document.getElementById('pollMultipartFile').addEventListener('change', function(event) {
@@ -201,6 +208,33 @@ const checkEventOwnerOrAdmin = async (id) => {
 
 const mainButtonClick = async () => {
     const popupButtons = document.getElementById('divForCreation');
+    const todayDate = new Date();
+    
+// Format today's date as YYYY-MM-DD
+const formattedToday = await getFormattedDate(todayDate);
+
+// Set the min attribute of the date input to today's date
+document.getElementById('start_date').setAttribute('min', formattedToday);
+
+    // Event listener for start date change
+document.getElementById('start_date').addEventListener('change', function() {
+    const startDateValue = this.value;
+    document.getElementById('end_date').setAttribute('min', startDateValue);
+});
+
+document.getElementById('end_date').setAttribute('min', formattedToday); 
+
+// Set the min attribute of the date input to today's date
+document.getElementById('poll_start_date').setAttribute('min', formattedToday);
+
+    // Event listener for start date change
+document.getElementById('poll_start_date').addEventListener('change', function() {
+    const startDateValue = this.value;
+    document.getElementById('poll_end_date').setAttribute('min', startDateValue);
+});
+
+    // Optionally, set the min attribute of the end date input to today's date initially
+document.getElementById('poll_end_date').setAttribute('min', formattedToday);
     if (popupButtons.classList.contains('show')) {
         popupButtons.classList.remove('show');
     } else {
@@ -804,7 +838,7 @@ async function createPost() {
         while (newsfeed.firstChild) {
             newsfeed.removeChild(newsfeed.firstChild)
         }
-        welcome()
+        await welcome()
         // postCount = 0
     }
 
@@ -1016,7 +1050,8 @@ async function welcome() {
                 <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
                 if(user === 'ADMIN' || user === 'OWNER'){
                 if(user=== 'OWNER'){
-                    post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
+                    post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
+                    <li><div data-bs-toggle="modal" data-bs-target="#hidePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-eye-slash text-warning"></i> Set Only Me</div>`
                 }
                   
                    post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>`
@@ -1034,6 +1069,21 @@ async function welcome() {
       <div class="d-flex" style="margin-left:300px; margin-top:30px;">
       <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
       <button onclick="deletePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="hidePostAsk${p.id}" tabindex="-1" aria-labelledby="hidePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to hide this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
       </div>
       </div>
  
@@ -1447,6 +1497,20 @@ const displayNoPostMessage = () => {
 
 }
 
+const hidePost = async (id) => {
+    loadingModalBox.show()
+    let data = await fetch(`/post/hidePost/${id}`)
+    let response = await data.json()
+    console.log(response)
+    if(response){
+        await removeCat()
+        const postList = document.getElementById(`post-delete-section-${id}`);
+        if(postList){
+            postList.remove();
+        }
+    }
+}
+
 const showPhotoUrl =async (url) => {
   let previousUrlValue =  document.getElementById('postShareUrl');
     document.getElementById('forShareingContent').style.width = '800px';
@@ -1570,7 +1634,7 @@ const postShareToGroup =async (id,staffId,content) => {
 //for share group end
 
 const removeCat = async () =>{
-    lodader.classList.add('hidden')
+    document.querySelector('.loader').classList.add('hidden')
     mark.classList.remove('hidden')
    }
 
@@ -2266,6 +2330,7 @@ window.addEventListener('load', async function () {
 })
 
 async function createPollPost() {
+    logOutModalBox.show()
     let data = new FormData(document.getElementById('pollForm'));
     console.log(Object.fromEntries(data.entries()));
     let response = await fetch('/event/createEvent', {
@@ -2281,6 +2346,8 @@ async function createPollPost() {
         document.getElementById('pollForm').reset()
         await removeCat()
     }
+
+
 
 }
 
@@ -2650,28 +2717,59 @@ async function deletePost(id) {
 
 }
 
+
+
+
 const validateDates = () => {
     console.log('validate');
-    const startDate = document.getElementById('start_date').value;
-    const endDate = document.getElementById('end_date').value;
-    
+    const startDateElement = document.getElementById('start_date');
+    const endDateElement = document.getElementById('end_date');
+    const startDate = startDateElement.value;
+    const endDate = endDateElement.value;
+
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+
+    // Check if start date is earlier than today
+    if (startDate && startDate < today) {
+        startDateElement.value = '';
+        alert('Start date cannot be earlier than today');
+        return;
+    }
+
+    // Check if end date is earlier than start date
     if (startDate && endDate && startDate > endDate) {
-        document.getElementById('start_date').value = '';
-        document.getElementById('end_date').value = ''; 
+        startDateElement.value = '';
+        endDateElement.value = '';
         alert('Start date must be earlier than end date');
+        return;
     }
 };
 
 
 const pollValidateDates = () => {
     console.log('validate');
-    const startDate = document.getElementById('poll_start_date').value;
-    const endDate = document.getElementById('poll_end_date').value;
-    
+    const startDateElement = document.getElementById('poll_start_date');
+    const endDateElement = document.getElementById('poll_end_date');
+    const startDate = startDateElement.value;
+    const endDate = endDateElement.value;
+
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+
+    // Check if start date is earlier than today
+    if (startDate && startDate < today) {
+        startDateElement.value = '';
+        alert('Start date cannot be earlier than today');
+        return;
+    }
+
+    // Check if end date is earlier than start date
     if (startDate && endDate && startDate > endDate) {
-        document.getElementById('poll_start_date').value = '';
-        document.getElementById('poll_end_date').value = ''; 
+        startDateElement.value = '';
+        endDateElement.value = '';
         alert('Start date must be earlier than end date');
+        return;
     }
 };
 
@@ -2683,7 +2781,7 @@ document.getElementById('poll_start_date').addEventListener('change', pollValida
 document.getElementById('poll_end_date').addEventListener('change', pollValidateDates);
 
 
-const createEventPost = async () => {
+const createEventPost = async () => { 
     const title = document.getElementById('eventtitle').value;
     const description = document.getElementById('eventdescription').value;
     const startDate = document.getElementById('start_date').value;
@@ -5274,7 +5372,7 @@ async function getEventDetail(id){
     <button style="border-radius:10px;" class="btn btn-danger font-monospace m-2" id="photoRemoveBtn" onclick="deleteEditEventPhoto(${response.id})">Delete</button> 
     </div>
     </div> 
-    <button type="button" style="margin-left: 200px; border-radius: 10px;" onclick="getEventUpdateData()" data-bs-dismiss="offcanvas" class="btn btn-primary font-monospace m-2" data-bs-target="#loadingModalBox" >Update</button>
+    <button type="button" style="margin-left: 200px; border-radius: 10px;"  data-bs-dismiss="offcanvas" onclick="getEventUpdateData()" class="btn btn-primary font-monospace m-2"  >Update</button>
 </div>
     `
     eventEditModal.innerHTML = row
@@ -6383,7 +6481,7 @@ const getCommunityFromUserGroup = async (userGroupId,userId) => {
 }
 
 
- 
+
 
 
 
@@ -6398,4 +6496,8 @@ document.getElementById('rawSend').addEventListener('click',createARawFilePost()
 
 
 
+
+
+
+    // Get today's date
 

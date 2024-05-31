@@ -1,3 +1,141 @@
+let searchInterval;
+
+document.getElementById('searchInput').addEventListener('input', () => {
+    clearInterval(searchInterval);
+    searchInterval = setInterval(suggestionSearchMethod, 1000);
+});
+
+const tabs = {
+    post: 'post-suggestions',
+    event: 'event-suggestions',
+    poll: 'poll-suggestions',
+    user: 'user-suggestions',
+    community: 'community-suggestions'
+};
+
+let activeTab = 'post';
+
+async function clearSuggestionsDiv() {
+    Object.values(tabs).forEach(id => document.getElementById(id).innerHTML = '');
+};
+
+Object.keys(tabs).forEach(tab => {
+    document.getElementById(`${tab}-search-tab`).addEventListener('click', async () => {
+        document.getElementById('searchInput').focus()
+        document.getElementById('searchInput').value = ''
+        await clearSuggestionsDiv();
+        activeTab = tab;
+    });
+});
+
+async function suggestionSearchMethod(){
+    clearInterval(searchInterval); // Stop the interval once the search method is called
+
+    const query = document.getElementById('searchInput').value;
+    if (!query) {
+        clearSuggestionsDiv();
+        return;
+    }
+
+    try {
+        const responses = await Promise.all([
+            fetch(`/post/searchPost/${query}`).then(res => res.json()),
+            fetch(`/event/searchEvent/${query}`).then(res => res.json()),
+            fetch(`/event/searchPolls/${query}`).then(res => res.json()),
+            fetch(`/user/userSearchMethod/${query}`).then(res => res.json()),
+            fetch(`/api/community/communitySearchMethod/${query}`).then(res => res.json())
+        ]);
+
+        const [suggestionsForPost, suggestionsForEvent, suggestionsForPoll, suggestionsForUser, suggestionsForCommunity] = responses;
+
+        if (activeTab === 'post') updateSuggestions('post-suggestions', suggestionsForPost, createSuggestionHTMLForPost);
+        if (activeTab === 'event') updateSuggestions('event-suggestions', suggestionsForEvent, createSuggestionHTMLForEvent);
+        if (activeTab === 'poll') updateSuggestions('poll-suggestions', suggestionsForPoll, createSuggestionHTMLForPoll);
+        if (activeTab === 'user') updateSuggestions('user-suggestions', suggestionsForUser, createSuggestionHTMLForUser);
+        if (activeTab === 'community') updateSuggestions('community-suggestions', suggestionsForCommunity, createSuggestionHTMLForCommunity);
+
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+    }
+};
+
+const updateSuggestions = (containerId, suggestions, createSuggestionHTML) => {
+    document.getElementById(containerId).innerHTML = createSuggestionHTML(suggestions);
+};
+
+const createSuggestionHTMLForPost = (items) => items.map(item => `
+    <div onclick="createPostsForSearch('${item.description.trim() || item.user.name}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-paper-plane text-info"></i> ${item.description.trim() || item.user.name}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForEvent = (items) => items.map(item => `
+    <div onclick="showSearchEvents('${item.description}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-calendar text-warning"></i> ${item.description}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForPoll = (items) => items.map(item => `
+    <div onclick="goToPollTab('${item.description}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-chart-simple text-success"></i> ${item.description}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForUser = (items) => items.map(item => `
+    <div onclick="goToUserTab('${item.name}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-user text-primary"></i> ${item.name}
+    </div>
+`).join('');
+
+const createSuggestionHTMLForCommunity = (items) => items.map(item => `
+    <div onclick="goToCommunityTab('${item.name}')" class="suggestion-item font-monospace" style="padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;  cursor: pointer;">
+        <i class="fa-solid fa-users text-secondary"></i> ${item.name}
+    </div>
+`).join('');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const makeFileDownloadPost = async (resources) => {
     console.log('d ko youk tl naw')
@@ -9,6 +147,7 @@ const makeFileDownloadPost = async (resources) => {
 
     
 
+    
 
     
     const ul = document.createElement('ul');
@@ -66,6 +205,7 @@ const removePreviewForPostUpdate = () => {
 }
 
 const getUpdateDataForRaw = async () => { 
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -151,12 +291,17 @@ const getUpdateDataForRaw = async () => {
        
         contentSection.innerHTML = post
          removePreviewForRawFile()
+         await removeCat()
 
     }
 }
 
 
-window.onload =  createPostsForSearch
+window.onload = document.getElementById('searchInput').focus()
+
+
+let mark = document.getElementById('markBox')
+
 
 const checkEventOwnerOrAdmin = async (id) => {
     let data = await fetch(`/event/checkEventOwnerOrAdmin/${id}`)
@@ -167,24 +312,34 @@ const checkEventOwnerOrAdmin = async (id) => {
 
 
 
-async function searchMethod(){
-    let input = await document.getElementById('searchInput').value
-    console.log()
-    localStorage.setItem('searchInput',encodeURIComponent(input))
-    document.getElementById('searchInput').value = localStorage.getItem('searchInput')
-    await createPostsForSearch()
-    goToEventTab()
-    goToPollTab()
-    goToUserTab()
-    goToCommunityTab()
-}
-const fetchReactCountForEvent =async (id) => {
+// async function searchMethod() {
+//     console.log('wowowowowo')
+//     // Retrieve input value
+//     let input = await document.getElementById('searchInput').value;
+
+//     // Log input value
+//     console.log(input);
+
+//     // Encode and store input value in localStorage
+//     localStorage.setItem('searchInput', encodeURIComponent(input));
+
+//     // Set input field value to the encoded value
+//     document.getElementById('searchInput').value = localStorage.getItem('searchInput');
+
+//     // Call each tab navigation method sequentially
+//     await createPostsForSearch();
+//     await goToEventTab();
+//     await goToPollTab();
+//     await goToUserTab();
+//     await goToCommunityTab();
+// }
+async function fetchReactCountForEvent(id){
     const sizeData = await fetch(`/event-react-type/${id}`);
     const eventReactCount = await sizeData.json();
     return eventReactCount;
 }
 
-const fetchReactTypeForEvent = async (id) => {
+async function fetchReactTypeForEvent (id)  {
     try {
         const dataType = await fetch(`/event-user-react-type/${id}`);
         if (!dataType.ok) {
@@ -199,8 +354,8 @@ const fetchReactTypeForEvent = async (id) => {
     }
 }
 
-async function goToCommunityTab(){
-    let data = await fetch('/api/community/communitySearchMethod/'+localStorage.getItem('searchInput'))
+async function goToCommunityTab(input){
+    let data = await fetch('/api/community/communitySearchMethod/'+input)
     let response = await data.json()
     let max = 10
     let communityTab = document.getElementById('pills-community-search')
@@ -274,8 +429,8 @@ async function getNumberOfMembers(id){
     return response[0]
 }
 
-async function goToUserTab(){
-    let data = await fetch ('/user/userSearchMethod/'+localStorage.getItem('searchInput'))
+async function goToUserTab(input){
+    let data = await fetch ('/user/userSearchMethod/'+input)
     let userTab = document.getElementById('pills-user-search')
     let response = await data.json()
     console.log(response)
@@ -412,7 +567,7 @@ const fetchUserDataByPostedUser = async (id) => {
 
 async function goToEventTab(){
     console.log(localStorage.getItem('searchInput'))
-    showSearchEvents(localStorage.getItem('searchInput'))
+    showSearchEvents(input)
 }
 
 const fetchSizes = async (id) => {
@@ -2170,9 +2325,10 @@ const downloadFile = async (event, url, fileName) => {
     }
 };
 
-async function createPostsForSearch(){
-    document.getElementById('searchInput').focus()
-    let data = await fetch('/post/searchPost/'+localStorage.getItem('searchInput'))
+async function createPostsForSearch(input){
+    // document.getElementById('searchInput').focus()
+    // document.getElementById('searchInput').value = input
+    let data = await fetch('/post/searchPost/'+input)
     let response = await data.json()
     console.log(response)
     let postTab = document.getElementById('pills-post-search')
@@ -2190,6 +2346,7 @@ async function createPostsForSearch(){
         return
     }
     for (const p of response) {
+        let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
         let res = p.resources
         let thisIsRawPost = false
         let target = '' 
@@ -2246,7 +2403,7 @@ async function createPostsForSearch(){
         <div class="d-flex">
        
             <div>
-            <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
@@ -2267,7 +2424,8 @@ async function createPostsForSearch(){
               <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
               if(user === 'ADMIN' || user === 'OWNER'){
               if(user=== 'OWNER'){
-                  rows+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
+                  rows+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
+                  <li><div data-bs-toggle="modal" data-bs-target="#hidePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-eye-slash text-warning"></i> Set Only Me</div>`
               }
                 
                  rows +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>
@@ -2291,6 +2449,22 @@ async function createPostsForSearch(){
 
   </div>
 </div>
+</div>
+
+
+<div class="modal fade" id="hidePostAsk${p.id}" tabindex="-1" aria-labelledby="hidePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to hide this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
 </div>
 `
             // }
@@ -2828,9 +3002,9 @@ async function deleteEvent(id){
 
 
 
-let mark = document.getElementById('markBox')
 
-let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
+
+
 
 async function deletePost(id) {
     loadingModalBox.show()
@@ -3245,6 +3419,7 @@ document.getElementById('raw').addEventListener('change', function () {
 });
 
 async function getUpdateData() { 
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#resourceId')
     value.forEach(v => console.log(v.value))
@@ -3599,6 +3774,7 @@ async function showSearchEvents(input){
     
     let rows = ''
     for (const r of response) {
+        let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
@@ -3678,7 +3854,7 @@ async function showSearchEvents(input){
         <div class="d-flex">
 
             <div>
-            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
@@ -4789,8 +4965,8 @@ POLL IS EXPIRED
 
 
 
-async function goToPollTab(){
-    let data = await fetch('/event/searchPolls/'+localStorage.getItem('searchInput'),{
+async function goToPollTab(input){
+    let data = await fetch('/event/searchPolls/'+input,{
         method : 'GET'
     })
     let response = await data.json()
@@ -4806,6 +4982,7 @@ async function goToPollTab(){
     }
     let rows = ''
     for (let r of response) {
+        let userPhoto = r.user.photo !==null ? r.user.photo : '/static/assets/img/default-logo.png'
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
@@ -4839,7 +5016,7 @@ POLL IS EXPIRED
         <div class="d-flex">
 
             <div>
-            <img src="${r.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 

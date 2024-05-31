@@ -1,3 +1,12 @@
+let loadingModalBox = new bootstrap.Modal(document.getElementById('loadingModalBox'))
+let mark = document.getElementById('markBox')
+
+const removeCat = async () =>{
+    document.querySelector('.loader').classList.add('hidden')
+    mark.classList.remove('hidden')
+   }
+
+
 function deleteResource(id) {
     document.getElementById(id + '-url').src =  ''
     document.getElementById(id + '-url').src = 'deleted'
@@ -26,6 +35,7 @@ const removePreviewForPostUpdate = () => {
 }
 
 const getUpdateDataForRaw = async () => { 
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -111,6 +121,7 @@ const getUpdateDataForRaw = async () => {
        
         contentSection.innerHTML = post
          removePreviewForRawFile()
+         await removeCat()
 
     }
 }
@@ -215,6 +226,7 @@ const singlePagePost = async (id) => {
         displayNoPostMessage();
     }
         let res = p.resources
+        let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
         let thisIsRawPost = false
         let target = ''
         console.log(res)
@@ -271,7 +283,7 @@ const singlePagePost = async (id) => {
         <div class="d-flex">
        
             <div>
-            <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+            <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
             </div>
             <div class="post-info" style="width:100px;">
 
@@ -292,7 +304,8 @@ const singlePagePost = async (id) => {
             <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
             if(user === 'ADMIN' || user === 'OWNER'){
             if(user=== 'OWNER'){
-                post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>`
+                post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
+                <li><div data-bs-toggle="modal" data-bs-target="#hidePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-eye-slash text-warning"></i> Set Only Me</div>`
             }
               
                post +=`<li><div data-bs-toggle="modal" data-bs-target="#deletePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-trash text-danger"></i> Delete post</div>`
@@ -316,6 +329,21 @@ const singlePagePost = async (id) => {
 
   </div>
 </div>
+</div>
+
+<div class="modal fade" id="hidePostAsk${p.id}" tabindex="-1" aria-labelledby="hidePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content"> 
+      <div class="modal-body font-monospace">
+      Are you sure do you want to hide this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+ 
+    </div>
+  </div>
 </div>
 `
             // }
@@ -3240,6 +3268,7 @@ async function getPostDetail(id) {
 
 
 async function getUpdateData() {
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#resourceId')
     value.forEach(v => console.log(v.value))
@@ -3545,6 +3574,7 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
 
         ParentDetailModal.innerHTML = mod
         contentSection.innerHTML = post
+        await removeCat()
 
     }
 }
@@ -3552,6 +3582,7 @@ mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labe
 
 
 async function deletePost(id) { 
+    loadingModalBox.show()
     let data = await fetch('/post/deletePost/' + id, {
         method: 'GET'
     })
