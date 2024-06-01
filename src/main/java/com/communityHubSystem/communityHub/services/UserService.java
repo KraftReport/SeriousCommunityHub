@@ -43,4 +43,6 @@ public interface UserService {
     void notiChangeToTurnOff(User loginUser);
 
     void notiChangeToTurnOn(User loginUser);
+
+    public User findByName(String trim);
 }

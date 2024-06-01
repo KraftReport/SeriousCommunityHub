@@ -2,6 +2,7 @@ package com.communityHubSystem.communityHub.impls;
 
 import com.communityHubSystem.communityHub.dto.InvitationDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
+import com.communityHubSystem.communityHub.models.Community;
 import com.communityHubSystem.communityHub.models.Invitation;
 import com.communityHubSystem.communityHub.models.User;
 import com.communityHubSystem.communityHub.models.User_Group;
@@ -35,7 +36,7 @@ public class InvitationServiceImpl implements InvitationService {
     public void save(Long id, InvitationDto invitationDto) {
         for (Long userId : invitationDto.getUserIds()) {
             var community = communityService.getCommunityById(invitationDto.getCommunityId());
-            var invite = invitationRepository.findByRecipientIdAndCommunityId(userId, community.getId());
+            var invite = invitationRepository.findByRecipientIdAndCommunityIdAndIsRequested(userId, community.getId(), false);
             if (invite == null) {
                 var invitation = Invitation.builder()
                         .senderId(id)
@@ -44,13 +45,15 @@ public class InvitationServiceImpl implements InvitationService {
                         .isInvited(true)
                         .isAccepted(false)
                         .isRemoved(false)
+                        .isRequested(false)
                         .date(new Date())
                         .build();
                 invitationRepository.save(invitation);
-            }else{
+            } else {
                 invite.setRemoved(false);
                 invite.setAccepted(false);
                 invite.setInvited(true);
+                invite.setRequested(false);
                 invite.setDate(new Date());
                 invitationRepository.save(invite);
             }
@@ -59,7 +62,7 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Override
     public List<Invitation> findLoginUserInvitation(Long id) {
-        return invitationRepository.findByRecipientIdAndIsInvited(id,true);
+        return invitationRepository.findByRecipientIdAndIsInvited(id, true);
     }
 
     @Transactional
@@ -68,6 +71,7 @@ public class InvitationServiceImpl implements InvitationService {
         invitationRepository.findById(id).ifPresent(i -> {
             i.setInvited(false);
             i.setAccepted(false);
+            i.setRequested(false);
             i.setRemoved(true);
             invitationRepository.save(i);
         });
@@ -79,33 +83,105 @@ public class InvitationServiceImpl implements InvitationService {
         invitationRepository.findById(id).ifPresent(i -> {
             i.setInvited(false);
             i.setRemoved(false);
+            i.setRequested(false);
             i.setAccepted(true);
             invitationRepository.save(i);
         });
-       processAcceptInvitation(id,communityId);
+        processAcceptInvitation(id, communityId);
     }
 
     @Override
     public List<Invitation> findByCommunityIdAndIsInvited(Long id, boolean b) {
-        return invitationRepository.findByCommunityIdAndIsInvited(id,b);
+        return invitationRepository.findByCommunityIdAndIsInvited(id, b);
     }
 
     @Override
     public List<Invitation> findByCommunityIdAndIsRemoved(Long id, boolean b) {
-        return invitationRepository.findByCommunityIdAndIsRemoved(id,b);
+        return invitationRepository.findByCommunityIdAndIsRemovedAndIsRequested(id, b, false);
     }
 
-    public void processAcceptInvitation(Long id,Long communityId){
+
+    @Transactional
+    @Override
+    public void requestedInvitation(User user, User loginUser, Community community) {
+        var invite = invitationRepository.findByRecipientIdAndCommunityIdAndIsRequested(user.getId(), community.getId(), true);
+        if(invite == null){
+            var invitation = Invitation.builder()
+                    .senderId(loginUser.getId())
+                    .community(community)
+                    .recipientId(user.getId())
+                    .isInvited(false)
+                    .isAccepted(false)
+                    .isRemoved(false)
+                    .isRequested(true)
+                    .date(new Date())
+                    .build();
+            invitationRepository.save(invitation);
+        }else{
+            invite.setRemoved(false);
+            invite.setAccepted(false);
+            invite.setInvited(false);
+            invite.setRequested(true);
+            invite.setDate(new Date());
+            invitationRepository.save(invite);
+        }
+
+    }
+
+    @Transactional
+    @Override
+    public void requestAcceptedInvitation(Long id) {
+        var invitation = invitationRepository.findById(id).orElseThrow(() -> new CommunityHubException("Invitation not found exception!"));
+        var user = userService.findById(invitation.getSenderId());
+        var community = communityService.findById(invitation.getCommunity().getId());
+        invitationRepository.findById(id).ifPresent(i -> {
+            i.setInvited(false);
+            i.setRemoved(false);
+            i.setRequested(false);
+            i.setAccepted(true);
+            invitationRepository.save(i);
+        });
+        var userGroup = User_Group.builder()
+                .user(user)
+                .community(community)
+                .date(new Date())
+                .build();
+        user_groupService.save(userGroup);
+    }
+
+    @Transactional
+    @Override
+    public void requestDeniedInvitation(Long id) {
+        invitationRepository.findById(id).ifPresent(i -> {
+            i.setInvited(false);
+            i.setAccepted(false);
+            i.setRequested(true);
+            i.setRemoved(true);
+            invitationRepository.save(i);
+        });
+    }
+
+    @Override
+    public List<Invitation> findByCommunityIdAndIsRemovedAndIsRequested(Long id, boolean b, boolean b1) {
+        return invitationRepository.findByCommunityIdAndIsRemovedAndIsRequested(id, b, b1);
+    }
+
+    @Override
+    public List<Invitation> findInvitationsByCommunityIdAndIsRemovedAndIsRequested(Long id, boolean b, boolean b1) {
+        return invitationRepository. findByCommunityIdAndIsRemovedAndIsRequested(id,b,b1);
+    }
+
+    public void processAcceptInvitation(Long id, Long communityId) {
         var invitation = invitationRepository.findById(id).orElseThrow(() -> new CommunityHubException("Invitation not found exception!!"));
         var user = userService.findById(invitation.getRecipientId());
         var community = communityService.getCommunityById(communityId);
-        var user_group = user_groupService.findByUserIdAndCommunityId(user.getId(),community.getId());
-        if(user_group == null){
+        var user_group = user_groupService.findByUserIdAndCommunityId(user.getId(), community.getId());
+        if (user_group == null) {
             var groupUser = User_Group.builder()
                     .date(new Date())
                     .user(user)
                     .community(community)
-                     .build();
+                    .build();
             user_groupService.save(groupUser);
         }
     }

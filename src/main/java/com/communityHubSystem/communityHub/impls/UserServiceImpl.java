@@ -55,7 +55,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUser() {
-        return userRepository.findAll();
+       List<User> listUser = new ArrayList<>();
+       List<User> users = userRepository.findAll();
+       for(User user:users){
+           if(user.isActive()){
+               listUser.add(user);
+           }
+       }
+       return listUser;
     }
 
 
@@ -390,6 +397,11 @@ public class UserServiceImpl implements UserService {
             u.setIsOn(User.IsOn.ON);
             userRepository.save(u);
         });
+    }
+
+    @Override
+    public User findByName(String name) {
+        return userRepository.findByName(name);
     }
 
 

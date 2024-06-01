@@ -1,7 +1,9 @@
 package com.communityHubSystem.communityHub.services;
 
 import com.communityHubSystem.communityHub.dto.InvitationDto;
+import com.communityHubSystem.communityHub.models.Community;
 import com.communityHubSystem.communityHub.models.Invitation;
+import com.communityHubSystem.communityHub.models.User;
 
 import java.util.List;
 
@@ -18,4 +20,14 @@ public interface InvitationService {
    public List<Invitation> findByCommunityIdAndIsInvited(Long id, boolean b);
 
     public List<Invitation> findByCommunityIdAndIsRemoved(Long id, boolean b);
+
+    void requestedInvitation(User user, User loginUser, Community community);
+
+    void requestAcceptedInvitation(Long id);
+
+    void requestDeniedInvitation(Long id);
+
+   public List<Invitation> findByCommunityIdAndIsRemovedAndIsRequested(Long id, boolean b, boolean b1);
+
+    public List<Invitation> findInvitationsByCommunityIdAndIsRemovedAndIsRequested(Long id, boolean b, boolean b1);
 }
