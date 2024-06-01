@@ -205,10 +205,12 @@
                             <div class="d-flex">
                                 <p id="communityMembers" class="font-monospace" ></p>
                                 <p id="numOfMembers" class="font-monospace text-white fs-5 mx-2"></p>
+                                <i class="fa-solid fa-message" id="messageJoinBtn" style="cursor: pointer;display: none"></i>
                             </div>
                         </div>
                        <div style="display: flex; justify-content: flex-end;">
                         <div class="button-group d-flex"  >
+                            <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace" id="chatMessageJoinIcon" value="JoinMessage" data-bs-toggle="modal" data-bs-target="#staticBackdropForJoinGroup" style="display: none" ><i class="fa-solid fa-user-gear"></i> Join</button>
                             <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace" id="chatMessageIconForGroup" value="Message" style="display: none"><i class="fa-solid fa-message"></i> Message</button>
                             <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace"  value="Invite" id="inviteBtn" onclick="populateCreateGroupFormForInvitation()" style="display: none"><i class="fa-solid fa-user-plus"></i> Invite</button>
                         </div>
@@ -246,6 +248,44 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="modal fade" id="staticBackdropForJoinGroup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="staticBackdropLabelForJoinGroup"><i class="fa-solid fa-user-tie"></i>Join</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" id="groupId1" name="communityId">
+                                    <h6>Are you sure want to join this group!!?</h6>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal" id="groupYesBtn">Yes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+<!--                    for join modal start-->
+                    <div class="modal fade" id="invitationStaticBoxForJoin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                         aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="invitationStaticBoxLabelForJoin">Requests....<i class="fa-solid fa-user-plus" style="margin-left: 240px"></i></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="message-invitation-notification-forJoin"
+                                     style="overflow-y: auto; height: 350px; width: 450px;">
+                                    <div id="messageRootForJoin"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<!--                    for join modal end-->
+
                     <div class="">
                         <div class="middle-panel">
 

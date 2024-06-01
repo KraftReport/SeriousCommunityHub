@@ -4,6 +4,7 @@ import com.communityHubSystem.communityHub.dto.InvitationDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.Invitation;
 import com.communityHubSystem.communityHub.models.User;
+import com.communityHubSystem.communityHub.services.CommunityService;
 import com.communityHubSystem.communityHub.services.InvitationService;
 import com.communityHubSystem.communityHub.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class InvitationController {
 
     private final InvitationService invitationService;
     private final UserService userService;
+    private final CommunityService communityService;
 
 
     @PutMapping("/invitationSend")
@@ -118,6 +120,95 @@ public class InvitationController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(userList);
     }
+
+    //for user request start
+    @GetMapping("/request-invitation/{id}")
+    public ResponseEntity<Map<String,String>> getRequestInvitation(@PathVariable("id")Long id){
+        Map<String,String> res = new HashMap<>();
+        var community = communityService.findById(id);
+        var loginUser = getLoginUser();
+        var user = userService.findByName(community.getOwnerName().trim());
+        if(user != null){
+            invitationService.requestedInvitation(user,loginUser,community);
+            res.put("message","Requested Successfully!Admin team will response later.");
+            return ResponseEntity.status(HttpStatus.OK).body(res);
+        }else{
+            res.put("message","There is no owner in this group! You can't request now!");
+            return ResponseEntity.status(HttpStatus.OK).body(res);
+        }
+    }
+
+    @GetMapping("/request-accept-invitation/{id}")
+    public ResponseEntity<Map<String,String>> requestAcceptedInvitation(@PathVariable("id")Long id){
+        Map<String,String> res = new HashMap<>();
+        invitationService.requestAcceptedInvitation(id);
+        res.put("message","Accepted Successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @GetMapping("/request-deny-invitation/{id}")
+    public ResponseEntity<Map<String,String>> requestDeniedInvitation(@PathVariable("id")Long id){
+        Map<String,String> response = new HashMap<>();
+        response.put("message","Rejected Successfully");
+        invitationService.requestDeniedInvitation(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+    @GetMapping("/get-requestDeniedUser/{id}")
+    public ResponseEntity<List<Long>> getRejectedUserForAcceptInvitation(@PathVariable("id")Long id){
+        List<Long> userList = new ArrayList<>();
+        List<Invitation> invitationList = invitationService.findByCommunityIdAndIsRemovedAndIsRequested(id, true,true);
+
+        for (Invitation invitation : invitationList) {
+            User user = userService.findById(invitation.getRecipientId());
+            if (user != null) {
+                userList.add(user.getId());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userList);
+    }
+
+    @GetMapping("/get-requestPendingUser/{id}")
+    public ResponseEntity<List<Long>> getPendingUserForAcceptInvitation(@PathVariable("id")Long id){
+        List<Long> userList = new ArrayList<>();
+        List<Invitation> invitationList = invitationService.findByCommunityIdAndIsRemovedAndIsRequested(id, false,true);
+
+        for (Invitation invitation : invitationList) {
+            User user = userService.findById(invitation.getRecipientId());
+            if (user != null) {
+                userList.add(user.getId());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userList);
+    }
+
+    @GetMapping("/request-groupOwner-invitation/{id}")
+    public ResponseEntity<?> getRequestUsersInvitationList(@PathVariable("id")Long id){
+        var invitationList = invitationService.findInvitationsByCommunityIdAndIsRemovedAndIsRequested(id,false,true);
+        if(!invitationList.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(invitationList);
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
+        }
+
+    }
+
+    @GetMapping("/request-user-display/{id}")
+    public ResponseEntity<List<Invitation>> getRequestedInvitations(@PathVariable("id")Long id){
+        var invitationList = invitationService.findByCommunityIdAndIsRemovedAndIsRequested(id,false,true);
+        if(!invitationList.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(invitationList);
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(Collections.EMPTY_LIST);
+        }
+    }
+
+    @GetMapping("/check-loginUser")
+    public ResponseEntity<?> checkVisitorForLoginUser(){
+       return ResponseEntity.status(HttpStatus.OK).body(getLoginUser());
+    }
+    //for user request end
 
 
     public List<User> getActiveUsersForInvitation(){

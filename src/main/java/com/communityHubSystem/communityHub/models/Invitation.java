@@ -22,6 +22,7 @@ public class Invitation {
     private boolean isInvited;
     private boolean isRemoved;
     private boolean isAccepted;
+    private boolean isRequested;
     private Date date;
 
     @ManyToOne

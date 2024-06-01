@@ -950,9 +950,255 @@ const fetchPostById = async (id) => {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     localStorage.removeItem('searchInput');
-})
+    const data = communityId;
+        await checkUsersToShowJoinButtonOrNot(data);
+        await checkGroupForLoginUserForJoin(data);
+    document.getElementById('groupYesBtn').addEventListener('click',async () => {
+       await joinGroupForm(data);
+    });
+
+    document.getElementById('messageJoinBtn').addEventListener('click',async () => {
+        await showEmptyContent(data);
+        await getAllInvitationsForJoin(data);
+        $('#invitationStaticBoxForJoin').modal('show');
+    });
+});
+
+
+async function checkGroupForLoginUserForJoin(id){
+    const invBtn = document.getElementById('messageJoinBtn');
+    const user = await getCheckUserForGroup();
+    const groupOwner = await getCommunityOwner(id);
+    console.log("DCHeck",user.role)
+    console.log("DCHeck",groupOwner)
+    if(user.role === 'ADMIN' || groupOwner !== null){
+        invBtn.style.display = 'block';
+    }
+}
+
+async function checkUserIsNotCommunity(){
+    const data = await fetch(`/user/check-loginUser`);
+    const res = await data.json();
+    return res;
+}
+
+async function checkUsersToShowJoinButtonOrNot(id){
+    const loginUser = await checkUserIsNotCommunity();
+    const usersNotInCommunity = await getUsersNotInCommunity(id);
+    const joinButton = document.getElementById('chatMessageJoinIcon');
+    const userIsNotInCommunity = usersNotInCommunity.some(user => user.id === loginUser.id);
+    if (userIsNotInCommunity) {
+        joinButton.style.display = 'block';
+    } else {
+        joinButton.style.display = 'none';
+    }
+}
+
+async function joinGroupForm(id){
+    const data = await fetch(`/user/request-invitation/${id}`,{
+        method:'GET'
+    });
+    if(!data.ok){
+        console.log('Something wrong please try again!');
+    }else{
+        const res = await data.json();
+        let alertMessage = `${res.message}`;
+        let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+
+
+        document.body.appendChild(styledAlert);
+
+
+        styledAlert.style.display = 'block';
+
+        setTimeout(function () {
+            styledAlert.style.display = 'none';
+        }, 3000);
+        $('#staticBackdropForJoinGroup').modal('hide');
+    }
+
+}
+
+async function getRequests(id) {
+    const data = await fetch(`/user/request-user-display/${id}`);
+    const res =  await data.json();
+    return res;
+}
+
+async function showEmptyContent(id){
+    const invitations = await getRequests(id);
+    const root = document.getElementById('messageRootForJoin');
+    if(invitations.length === 0){
+        root.style.fontSize = '30px';
+        root.innerHTML = 'There is no request yet...';
+    }
+}
+
+async function getAllInvitationsForJoin(id){
+    const invitation = await getRequests(id);
+    for (const i of invitation) {
+        console.log("SENDERID",i.senderId)
+        await displayMessageForJoinInvitation(i.id,i.community.image,i.community.name,i.community.id,i.senderId);
+    }
+}
+
+async function getRequestedUser(id) {
+    const data = await fetch(`/user/get-invited-user/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+const displayMessageForJoinInvitation =async (id,image,name,communityId,userId) => {
+    const root = document.getElementById('messageRootForJoin');
+    const divElement = document.createElement('div');
+    divElement.classList.add(`invitation-message-${id}`)
+    divElement.style.padding = '15px';
+    divElement.style.border = '1px solid black';
+    divElement.style.borderRadius = '10px';
+    divElement.style.margin = '3px';
+    divElement.style.marginLeft = '55px';
+    divElement.style.marginTop = '-35px';
+    divElement.style.borderBottomLeftRadius = '40px';
+    divElement.style.backgroundColor = 'lightgrey';
+    const invitedUser = await getRequestedUser(userId);
+    const spElementForImage = document.createElement('span');
+    spElementForImage.classList.add(`span-image-${id}`);
+    const imgTag = document.createElement('img');
+    const photo = `${image}`|| `/static/assets/img/default-logo.png`;
+    imgTag.src = photo;
+    imgTag.style.width = '50px';
+    imgTag.style.height = '50px';
+    imgTag.style.borderRadius = '50%';
+    spElementForImage.appendChild(imgTag);
+    const spElementForContent = document.createElement('span');
+    spElementForContent.innerHTML = `${invitedUser.name} (${invitedUser.dept}) requested to join this group..!`;
+    const buttonsWrapper = document.createElement('div');
+    buttonsWrapper.classList.add(`button-wrapper-${id}`)
+    buttonsWrapper.style.marginLeft = '220px';
+    const acceptButton = document.createElement('button');
+    acceptButton.innerHTML = 'Accept'
+    acceptButton.classList.add('btn','btn-outline-success')
+    acceptButton.id = id;
+    acceptButton.addEventListener('click',async () => {
+        await acceptInvitationForJoin(id,invitedUser.name);
+        console.log("This is accept button")
+    });
+    const denyButton = document.createElement('button');
+    denyButton.innerHTML = 'Reject';
+    denyButton.classList.add('btn','btn-outline-danger')
+    denyButton.addEventListener('click', async () => {
+        await rejectInvitationForDeny(id);
+        console.log('This is deny button');
+    });
+    buttonsWrapper.appendChild(acceptButton);
+    buttonsWrapper.appendChild(denyButton);
+    divElement.appendChild(spElementForContent);
+    const allWrapDiv = document.createElement('div');
+    allWrapDiv.classList.add(`all-wrap-div-${id}`);
+    allWrapDiv.appendChild(spElementForImage)
+    allWrapDiv.appendChild(divElement);
+    allWrapDiv.appendChild(buttonsWrapper);
+    root.appendChild(allWrapDiv);
+}
+
+async function acceptInvitationForJoin(id,name) {
+    const data = await fetch(`/user/request-accept-invitation/${id}`);
+    if(!data.ok){
+        console.log("Something wrong please try again");
+    }else{
+        const divEl = document.querySelector(`.all-wrap-div-${id}`);
+        if(divEl){
+            divEl.remove();
+
+        }
+        const res = await data.json();
+        let alertMessage = `${res.message} ${name} now the member of this group..!`;
+        let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+        document.body.appendChild(styledAlert);
+        styledAlert.style.display = 'block';
+        setTimeout(function () {
+            styledAlert.style.display = 'none';
+        }, 3000);
+    }
+}
+
+
+async function rejectInvitationForDeny(id) {
+    const data = await fetch(`/user/request-deny-invitation/${id}`);
+    if(!data.ok){
+        console.log('Something wrong please try again');
+    }else{
+        const divEl = document.querySelector(`.all-wrap-div-${id}`);
+        if(divEl){
+            divEl.remove();
+        }
+        const res = await data.json();
+        let alertMessage = `${res.message}`;
+        let alertStyle = `
+            background-color: red;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+        let styledAlert = document.createElement('div');
+        styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+        styledAlert.innerHTML = alertMessage;
+        document.body.appendChild(styledAlert);
+        styledAlert.style.display = 'block';
+        setTimeout(function () {
+            styledAlert.style.display = 'none';
+        }, 3000);
+    }
+}
+
 function goToCreatePost() {
     window.location.href = '/user/goToCreatePost'
 }
@@ -6452,6 +6698,21 @@ async function getUsersNotInCommunity(id){
         return dataResponse;
     }
 };
+
+async function getPendingUsersForJoin(id){
+    const data = await fetch(`/user/get-requestPendingUser/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+async function getRejectedUserForJoin(id){
+    const data = await fetch(`/user/get-requestDeniedUser/${id}`);
+    const res = await data.json();
+    return res;
+}
+
+
+
 
 async function populateCreateGroupFormForInvitation() {
     document.getElementById('communityId1').value = communityId;
