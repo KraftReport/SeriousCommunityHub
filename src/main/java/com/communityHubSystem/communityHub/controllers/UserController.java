@@ -737,6 +737,12 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
+
+    @GetMapping("/getCurrentLoginUserId")
+    @ResponseBody
+    public ResponseEntity<Long> getCurrentLoginUserId(){
+        return ResponseEntity.ok(userService.getLogin().getId());
+    }
 }
 
 

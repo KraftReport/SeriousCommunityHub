@@ -10,10 +10,7 @@ import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.PostRepository;
 import com.communityHubSystem.communityHub.repositories.ResourceRepository;
-import com.communityHubSystem.communityHub.services.CommunityService;
-import com.communityHubSystem.communityHub.services.PostService;
-import com.communityHubSystem.communityHub.services.UserService;
-import com.communityHubSystem.communityHub.services.User_GroupService;
+import com.communityHubSystem.communityHub.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +37,7 @@ public class PostController {
     private final UserService userService;
     private final User_GroupService user_groupService;
     private final CommunityService communityService;
+    private final SavedPostService savedPostService;
 
     @PostMapping("/createPublicPost")
     public ResponseEntity<?> createPublicPost(@ModelAttribute PostDto publicPostDto,
@@ -204,6 +202,26 @@ public class PostController {
     @GetMapping("/showPost/{id}")
     public ResponseEntity<Post> showPost(@PathVariable("id")String  id){
         return ResponseEntity.ok(postService.showAPost(Long.valueOf(id)));
+    }
+
+    @GetMapping("/saveAPost/{id}")
+    public ResponseEntity<SavedPosts> saveAPost(@PathVariable("id")String id){
+        return ResponseEntity.ok(savedPostService.saveAPost(userService.getLogin().getId(),Long.valueOf(id)));
+    }
+
+    @GetMapping("/unSaveAPost/{id}")
+    public ResponseEntity<SavedPosts> unSaveAPost(@PathVariable("id")String id){
+        return ResponseEntity.ok(savedPostService.unSaveAPost(userService.getLogin().getId(),Long.valueOf(id)));
+    }
+
+    @GetMapping("/getSavedPost/{page}")
+    public ResponseEntity<List<Post>> getSavedPost(@PathVariable("page")String page){
+        return ResponseEntity.ok(postService.getAllSavedPost(page).getContent());
+    }
+
+    @GetMapping("/checkSavedPost/{id}")
+    public ResponseEntity<List<Object>> checkSavedPost(@PathVariable("id")String id){
+        return ResponseEntity.ok(postService.checkSavedPost(Long.valueOf(id)));
     }
 
 }

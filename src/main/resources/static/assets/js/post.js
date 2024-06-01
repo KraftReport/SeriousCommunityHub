@@ -213,6 +213,7 @@ const removePreviewForPostUpdate = () => {
 }
 
 const getUpdateDataForRaw = async () => { 
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#oldRawFileId')
     console.log(value)
@@ -943,7 +944,7 @@ async function createPost() {
         document.getElementById('postForm').reset()
         console.log(response)
         if (response) {
-            removeCat()
+            await removeCat()
             removePreview()
         }
      console.log("Post text", postText)
@@ -1073,6 +1074,60 @@ const makeFileDownloadPost = async (resources) => {
     return parentDiv.outerHTML
 }
 
+async function getCurrentLoginUserId(){
+    let data = await fetch('user/getCurrentLoginUserId')
+    let response  = await data.json()
+    console.log(response)
+    return response
+}
+
+async function clickUserImgIcon(id,url){
+    console.log(id+'____'+url)
+    localStorage.setItem('userIdForDetailPage',id)
+    window.location.href = url
+}
+
+async function clickCommunityNameSpan(id){
+    localStorage.setItem('communityIdForDetailPage',id)
+    window.location.href = 'api/community/goToCommunityDetail'
+}
+
+async function savePost(id){
+    loadingModalBox.show()
+    let data = await fetch(`/post/saveAPost/${id}`)
+    let response = await data.json()
+    if(response){
+        await dynamicUpdater(id)
+        await removeCat()
+    }
+}
+
+async function dynamicUpdater(id){
+    let result = await checkSavedPost(id)
+    if(result === 'SAVED'){
+        document.getElementById(`postSaveBtn-${id}`).innerHTML = `<div data-bs-toggle="modal" data-bs-target="#unSavePostAsk${id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Unsave post`
+    }else{
+        document.getElementById(`postSaveBtn-${id}`).innerHTML = `<div data-bs-toggle="modal" data-bs-target="#savePostAsk${id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Save post`
+    }
+}
+
+async function checkSavedPost(id){
+    let data = await fetch(`/post/checkSavedPost/${id}`)
+    let response = await data.json()
+    console.log(response)
+    return response[0]
+}
+
+async function unSavePost(id){
+    loadingModalBox.show()
+    let data = await fetch(`/post/unSaveAPost/${id}`)
+    let response = await data.json()
+    if(response){
+        await dynamicUpdater(id)
+        await removeCat()
+    }
+}
+
 async function welcome() {
     await checkUserOrAdminOrGroupOwner()
     isFetchingForPost = true;
@@ -1090,6 +1145,13 @@ async function welcome() {
         }
             // localStorage.setItem('currentPage', response);
             for (const p of response) {
+                let profileRouteUrl = null
+                let loginUserId = await getCurrentLoginUserId()
+                if(loginUserId === p.user.id){
+                    profileRouteUrl = '/user/profile'
+                }else{
+                    profileRouteUrl = `/user/other-user-profile?id=${p.user.id}`
+                }
                 let res = p.resources
                 let thisIsRawPost = false
                 let target = ''
@@ -1098,8 +1160,10 @@ async function welcome() {
                     let ug = p.userGroup !== null ? p.userGroup : null
                     let gp = ug !== null ? ug.community : null 
                     let gpName = gp !== null ? gp.name : null
-                    let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+                    let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark" onclick="clickCommunityNameSpan(${gp.id})">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
                     `
+                    let savedCheck = await checkSavedPost(p.id)
+                    let saveFuncton = savedCheck === 'SAVED' ? `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#unSavePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Unsave post</div>` : `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#savePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Save post</div>`
                     let createdTime = await timeAgo(new Date(p.createdDate))
                     const reactCount = await fetchSizes(p.id);
                     const reactType = await fetchReactType(p.id);
@@ -1148,11 +1212,13 @@ async function welcome() {
           <div class="d-flex">
          
               <div>
-              <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
+             
+              <img src="${userPhoto}" onclick="clickUserImgIcon('${p.user.id}','${profileRouteUrl}')" alt="" style="width:50px; height:50px; border-radius:20px;">
+             
               </div>
               <div class="post-info" style="width:100px;">
 
-              <p class="name font-monospace" style="margin-bottom:3px;">${p.user.name}</p>
+              <p class="name font-monospace" style="margin-bottom:3px;" onclick="clickUserImgIcon('${p.user.id}','${profileRouteUrl}')" >${p.user.name}</p>
               ${CommunityName} 
               <span class="time font-monospace">${createdTime}</span>
              
@@ -1166,7 +1232,8 @@ async function welcome() {
                       </div>
               
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <li><div class="dropdown-item font-monospace"  data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"><i class="fa-solid fa-link text-info"></i> Get link</div></li>`
+                <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>
+                ${saveFuncton}`
                 if(user === 'ADMIN' || user === 'OWNER'){
                 if(user=== 'OWNER'){
                     post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
@@ -1203,6 +1270,36 @@ async function welcome() {
       <div class="d-flex" style="margin-left:300px; margin-top:30px;">
       <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
       <button onclick="hidePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="savePostAsk${p.id}" tabindex="-1" aria-labelledby="savePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body font-monospace">
+      Are you sure do you want to save this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="savePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="unSavePostAsk${p.id}" tabindex="-1" aria-labelledby="unSavePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body font-monospace">
+      Are you sure do you want to unSave this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="unSavePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
       </div>
       </div>
 
@@ -2159,6 +2256,7 @@ function removePreview() {
 
 
 async function getUpdateData() {
+    loadingModalBox.show()
     let updateResourcesDtos = []
     const value = document.querySelectorAll('#resourceId')
     value.forEach(v => console.log(v.value))
@@ -2495,11 +2593,17 @@ async function getAllEventsForPost() {
         displayNoPostMessage();
     } else {
         for (const r of response) {
-            
+            let profileRouteUrl = null
+            let loginUserId = await getCurrentLoginUserId()
+            if(loginUserId === r.user.id){
+                profileRouteUrl = '/user/profile'
+            }else{
+                profileRouteUrl = `/user/other-user-profile?id=${r.user.id}`
+            }
             let ug = r.user_group !== null ? r.user_group : null
             let gp = ug !== null ? ug.community : null 
             let gpName = gp !== null ? gp.name : null
-                    let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>`
+                    let CommunityName = gpName === null ? '' : `<span onclick="clickCommunityNameSpan(${gp.id})" class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>`
             
 
             if(new Date()>new Date(r.end_date)){
@@ -2574,11 +2678,11 @@ async function getAllEventsForPost() {
                
                     <div>
                   
-                    <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
+                    <img onclick="clickUserImgIcon('${r.user.id}','${profileRouteUrl}')" src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
                     </div>
                     <div class="post-info" style="width:100px;">
       
-                    <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
+                    <p class="name font-monospace" style="margin-bottom:3px;" onclick="clickUserImgIcon('${r.user.id}','${profileRouteUrl}')" >${r.user.name}</p>
                     ${CommunityName} 
                     <span class="time font-monospace">${createdTime}</span>
                    
@@ -5922,10 +6026,17 @@ async function getAllPollPost(){
     console.log(response)
     let rows = ''
     for (let r of response) {
+        let profileRouteUrl = null
+        let loginUserId = await getCurrentLoginUserId()
+        if(loginUserId === r.user.id){
+            profileRouteUrl = '/user/profile'
+        }else{
+            profileRouteUrl = `/user/other-user-profile?id=${r.user.id}`
+        }
         let ug = r.user_group !== null ? r.user_group : null
         let gp = ug !== null ? ug.community : null 
         let gpName = gp !== null ? gp.name : null
-        let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>`
+        let CommunityName = gpName === null ? '' : `<span onclick="clickCommunityNameSpan(${gp.id})" class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span>`
         let expired = ''
         if(new Date()>new Date(r.end_date)){
             expired=`
@@ -5957,11 +6068,11 @@ POLL IS EXPIRED
     <div class="d-flex">
    
         <div>
-        <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
+        <img onclick="clickUserImgIcon('${r.user.id}','${profileRouteUrl}')" src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
         </div>
         <div class="post-info" style="width:100px;">
 
-        <p class="name font-monospace" style="margin-bottom:3px;">${r.user.name}</p>
+        <p class="name font-monospace" style="margin-bottom:3px;" onclick="clickUserImgIcon('${r.user.id}','${profileRouteUrl}')" >${r.user.name}</p>
         ${CommunityName} 
         <span class="time font-monospace">${createdTime}</span>
        

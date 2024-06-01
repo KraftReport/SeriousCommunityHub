@@ -202,6 +202,7 @@
                                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                           <button class="nav-link active" id="nav-post-tab" data-bs-toggle="tab" data-bs-target="#nav-post" type="button" role="tab" aria-controls="nav-post" aria-selected="true" onclick="clickPostTab()"><i class="fa-solid fa-paper-plane text-info"></i></button>
                                           <button class="nav-link" id="nav-del-tab" data-bs-toggle="tab" data-bs-target="#nav-del" type="button" role="tab" aria-controls="nav-del" aria-selected="false" onclick="clickDelPostTab()"><i class="fa-solid fa-lock text-danger"></i></button> 
+                                          <button class="nav-link" id="nav-saved-tab" data-bs-toggle="tab" data-bs-target="#nav-saved" type="button" role="tab" aria-controls="nav-saved" aria-selected="false" onclick="clickSavedPostTab()"><i class="fa-solid fa-bookmark text-primary"></i></button> 
                                         </div>
                                       </nav>
                                       <div class="tab-content" id="nav-tabContent">
@@ -210,6 +211,9 @@
                                         </div>
                                         <div class="tab-pane fade" id="nav-del" role="tabpanel" aria-labelledby="nav-del-tab">
                                             <div id="deletedPostsDiv"></div>
+                                        </div> 
+                                        <div class="tab-pane fade" id="nav-saved" role="tabpanel" aria-labelledby="nav-saved-tab">
+                                            <div id="savedPostsDiv"></div>
                                         </div> 
                                       </div>
                                 </div>

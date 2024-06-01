@@ -55,4 +55,8 @@ public interface PostService {
    public Post hideAPost(Long id);
 
     public Post showAPost(Long aLong);
+
+    Page<Post> getAllSavedPost(String page);
+
+    List<Object> checkSavedPost(Long id);
 }
