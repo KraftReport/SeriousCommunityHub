@@ -718,6 +718,12 @@ public class UserController {
         }
         return ResponseEntity.ok(false);
     }
+
+    @GetMapping("/getCurrentLoginUserId")
+    @ResponseBody
+    public ResponseEntity<Long> getCurrentLoginUserId(){
+        return ResponseEntity.ok(userService.getLogin().getId());
+    }
 }
 
 

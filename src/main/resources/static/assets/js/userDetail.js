@@ -1,4 +1,13 @@
- 
+async function clickUserImgIcon(id,url){
+    console.log(id+'____'+url)
+    localStorage.setItem('userIdForDetailPage',id)
+    window.location.href = url
+}
+
+async function clickCommunityNameSpan(id){
+    localStorage.setItem('communityIdForDetailPage',id)
+    window.location.href = 'api/community/goToCommunityDetail'
+}
 
 console.log(localStorage.getItem('userIdForDetailPage') + "-------------------------------ha ha ha")
 
@@ -328,6 +337,42 @@ let loginUser = null;
 let stompClient = null;
 let notificationCount = 0;
 
+async function savePost(id){
+    loadingModalBox.show()
+    let data = await fetch(`/post/saveAPost/${id}`)
+    let response = await data.json()
+    if(response){
+        await dynamicUpdater(id)
+        await removeCat()
+    }
+}
+
+async function dynamicUpdater(id){
+    let result = await checkSavedPost(id)
+    if(result === 'SAVED'){
+        document.getElementById(`postSaveBtn-${id}`).innerHTML = `<div data-bs-toggle="modal" data-bs-target="#unSavePostAsk${id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Unsave post`
+    }else{
+        document.getElementById(`postSaveBtn-${id}`).innerHTML = `<div data-bs-toggle="modal" data-bs-target="#savePostAsk${id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Save post`
+    }
+}
+
+async function checkSavedPost(id){
+    let data = await fetch(`/post/checkSavedPost/${id}`)
+    let response = await data.json()
+    console.log(response)
+    return response[0]
+}
+
+async function unSavePost(id){
+    loadingModalBox.show()
+    let data = await fetch(`/post/unSaveAPost/${id}`)
+    let response = await data.json()
+    if(response){
+        await dynamicUpdater(id)
+        await removeCat()
+    }
+}
+
 const getPosts = async () => {
     console.log('66666666666666666666666666666666666666666666666666666666')
     isFetchingForPost = true
@@ -345,6 +390,8 @@ const getPosts = async () => {
     }
     // localStorage.setItem('currentPage', response);
     for (const p of response) {
+        let savedCheck = await checkSavedPost(p.id)
+        let saveFuncton = savedCheck === 'SAVED' ? `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#unSavePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Unsave post</div>` : `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#savePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Save post</div>`
         let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
         let res = p.resources
         let thisIsRawPost = false
@@ -353,7 +400,7 @@ const getPosts = async () => {
             let ug = p.userGroup !== null ? p.userGroup : null
             let gp = ug !== null ? ug.community : null 
             let gpName = gp !== null ? gp.name : null
-            let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
+            let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark" onclick="clickCommunityNameSpan(${gp.id})">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
             `
         let createdTime = await timeAgo(new Date(p.createdDate))
         const reactCount = await fetchSizes(p.id);
@@ -420,7 +467,8 @@ const getPosts = async () => {
                   </div>
           
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>`
+            <li class="font-monospace"><i class="fa-solid fa-link text-info" style="margin-left: 10px" data-bs-toggle="modal" data-bs-target="#postUrlForShare" onclick="showPhotoUrl('${p.url}')"></i> Get link</li>
+            ${saveFuncton}`
             if(user === 'ADMIN' || user === 'OWNER'){
             if(user=== 'OWNER'){
                 post+= `<li><div class="dropdown-item font-monospace" data-bs-toggle="offcanvas" data-bs-target="#postEditOffcanvas"><i class="fa-solid fa-screwdriver-wrench text-success"></i> Edit post</div></li>
@@ -461,6 +509,21 @@ const getPosts = async () => {
       </div>
       </div>
  
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="unSavePostAsk${p.id}" tabindex="-1" aria-labelledby="unSavePostAsk${p.id}" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body font-monospace">
+      Are you sure do you want to unSave this post ?
+      <div class="d-flex" style="margin-left:300px; margin-top:30px;">
+      <button data-bs-dismiss="modal" class="btn btn-success"><i class="fa-solid fa-xmark"></i></button>
+      <button onclick="unSavePost(${p.id})" data-bs-dismiss="modal" class="btn btn-danger"><i class="fa-solid fa-check"></i></button>
+      </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -688,63 +751,67 @@ const getPosts = async () => {
                   </div>
               </div>
           </div> 
-        <div id="detail-modal-${p.id}">
-        <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg"  >
-            <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
-              <div class="modal-body p-0">
-                <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
-                  <div class="carousel-inner">`
-        
-                        p.resources.forEach((r, index) => {
-                            let active = index == 0 ? 'active' : ''
-                            if (r.photo === null && r.video !== null) {
-                                post += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
-                      <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
-                      <div class="carousel-caption d-none d-md-block"> 
-                      <p>${r.description.replace(/\n/g, '<br>')}</p>
-                    </div>
-                      </div> `
-                            } else if (r.video === null && r.photo !== null) {
-                                post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                      <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-                      <div class="carousel-caption d-none d-md-block"> 
-                      <p>${r.description.replace(/\n/g, '<br>')}</p>
-                    </div>
-                    </div>`
-                            } else {
-                                post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                      <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
-                      <div class="carousel-caption d-none d-md-block"> 
-                      <p>${r.description.replace(/\n/g, '<br>')}</p>
-                    </div>
-                    </div>`
-                                post += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-                    <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
-                    <div class="carousel-caption d-none d-md-block"> 
-                    <p>${r.description.replace(/\n/g, '<br>')}</p>
+          <div id="detail-modal-${p.id}">
+          <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                  <div class="modal-content" style="background-color:transparent; overflow-y: hidden;">
+                      <div class="modal-body p-0">
+                          <div id="carouselExampleControlsPost${p.id}" class="carousel slide" data-bs-ride="carousel">
+                              <div class="carousel-inner">
+                                  ${p.resources.map((r, index) => {
+                                      let active = index === 0 ? 'active' : '';
+                                      let captionStyle = `
+                                          background-color: rgba(0, 0, 0, 0.75);
+                                          padding: 10px;
+                                          font-size: 16px;
+                                          font-weight: bold;
+                                          border-radius: 10px;
+                                          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                                      `;
+                                      if (r.photo === null && r.video !== null) {
+                                          return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                      <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                                      <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                          <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                      </div>
+                                                  </div>`;
+                                      } else if (r.video === null && r.photo !== null) {
+                                          return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                      <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                                      <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                          <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                      </div>
+                                                  </div>`;
+                                      } else {
+                                          return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                      <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                                      <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                          <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                      </div>
+                                                  </div>
+                                                  <div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                                      <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                                      <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                          <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                                      </div>
+                                                  </div>`;
+                                      }
+                                  }).join('')}
+                                  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="prev">
+                                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                      <span class="visually-hidden">Previous</span>
+                                  </button>
+                                  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="next">
+                                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                      <span class="visually-hidden">Next</span>
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
                   </div>
-                  </div>
-                   `
-                            }
-                        })
-                        post+=`
-                     
-                  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                  </button>
-                  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                  </button>
-                </div>
-              </div> 
-            </div>
+              </div>
           </div>
-          </div>
-          </div>
-          </div>`;
+      </div>`;
         
                         posts += post;
                     }    let range = document.createRange();
@@ -1685,61 +1752,67 @@ post += `
       </div>`
       let mod = ''
     
-mod +=` <div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg"  >
-    <div class="modal-content" style=" background-color:transparent;  overflow-y: hidden;"> 
-      <div class="modal-body p-0">
-        <div id="carouselExampleControlsPostSearch${p.id}" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">`
-
-                p.resources.forEach((r, index) => {
-                    let active = index == 0 ? 'active' : ''
-                    if (r.photo === null && r.video !== null) {
-                        mod += ` <div   class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;" > 
-              <video controls id="myVideo"  src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
+mod +=`  
+<div class="modal fade" id="newsfeedPost${p.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color:transparent; overflow-y: hidden;">
+            <div class="modal-body p-0">
+                <div id="carouselExampleControlsPost${p.id}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        ${p.resources.map((r, index) => {
+                            let active = index === 0 ? 'active' : '';
+                            let captionStyle = `
+                                background-color: rgba(0, 0, 0, 0.75);
+                                padding: 10px;
+                                font-size: 16px;
+                                font-weight: bold;
+                                border-radius: 10px;
+                                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                            `;
+                            if (r.photo === null && r.video !== null) {
+                                return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>`;
+                            } else if (r.video === null && r.photo !== null) {
+                                return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>`;
+                            } else {
+                                return `<div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <video controls src="${r.video}" class="d-block w-100" style="height:100%;" alt="..."></video>
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>
+                                        <div class="carousel-item ${active}" style="object-fit: cover; width:100%; height:600px;">
+                                            <img src="${r.photo}" class="d-block w-100" style="height:100%;" alt="...">
+                                            <div class="carousel-caption d-none d-md-block" style="${captionStyle}">
+                                                <p>${r.description.replace(/\n/g, '<br>')}</p>
+                                            </div>
+                                        </div>`;
+                            }
+                        }).join('')}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPost${p.id}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-              </div> `
-                    } else if (r.video === null && r.photo !== null) {
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <img  src="${r.photo}"   class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="...">
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
-            </div>
-            </div>`
-                    } else {
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-              <video id="myVideo" controls src="${r.video}" class="d-block  carousel-image " style=" width:100%; height : 100%;" alt="..."></video>
-              <div class="carousel-caption d-none d-md-block"> 
-              <p>${r.description.replace(/\n/g, '<br>')}</p>
-            </div>
-            </div>`
-                        mod += `<div    class="carousel-item ${active}" style="object-fit: cover; width:100%; height : 600px;"> 
-            <img src="${r.photo}"class="d-block  carousel-image " style=" width:100%; height : 100%;"alt="...">
-            <div class="carousel-caption d-none d-md-block"> 
-            <p>${r.description.replace(/\n/g, '<br>')}</p>
-          </div>
-          </div>
-           `
-                    }
-                })
-                mod+=`
-             
-          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsPostSearch${p.id}" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
         </div>
-      </div> 
     </div>
-  </div>
-  </div>
-  </div>
+</div>
+ 
   `
 
         ParentDetailModal.innerHTML = mod

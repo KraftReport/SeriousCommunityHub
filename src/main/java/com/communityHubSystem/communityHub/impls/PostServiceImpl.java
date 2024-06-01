@@ -51,6 +51,7 @@ public class PostServiceImpl implements PostService {
     private final ResourceRepository resourceRepository;
     private final UserService userService;
     private final ModelMapper modelMapper;
+    private final SavedPostRepository savedPostRepository;
 
     private final List<String> photoExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", "bmp", "tiff", "tif", "psv", "svg", "webp", "ico", "heic");
     private final List<String> videoExtensions = Arrays.asList(".mp4", ".avi", ".mov", ".wmv", "mkv", "flv", "mpeg", "mpg", "webm", "3gp", "ts");
@@ -398,6 +399,38 @@ public class PostServiceImpl implements PostService {
         post.setHide(false);
         postRepository.save(post);
         return post;
+    }
+
+
+
+    @Override
+    public Page<Post> getAllSavedPost(String  page) {
+        var savedPosts = savedPostRepository.findByUserId(getCurrentLoginUser().getId());
+        var result = new ArrayList<>(savedPosts.
+                stream()
+                .map(s -> postRepository.findById(s.getPostId()).orElseThrow(() -> new CommunityHubException("post not found")))
+                .toList());
+        result.sort(Comparator.comparing(Post::getCreatedDate).reversed());
+        Pageable pageable = PageRequest.of(Integer.parseInt(page), 5);
+        int start = Math.toIntExact(pageable.getOffset());
+        if (start >= result.size()) {
+            return Page.empty(pageable);
+        }
+        int end = Math.min(start + pageable.getPageSize(), result.size());
+        List<Post> paginatedPosts = result.subList(start, end);
+        return new PageImpl<>(paginatedPosts, pageable, result.size());
+    }
+
+    @Override
+    public List<Object> checkSavedPost(Long id) {
+        var list = new ArrayList<Object>();
+        var found = savedPostRepository.findByUserIdAndPostId(getCurrentLoginUser().getId(),id);
+        if(found != null){
+            list.add("SAVED");
+        }else {
+            list.add("UNSAVED");
+        }
+        return list;
     }
 
 
