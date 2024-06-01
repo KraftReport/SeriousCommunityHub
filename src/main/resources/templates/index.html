@@ -351,8 +351,6 @@
                        sec:authorize="hasAnyAuthority('ADMIN')">
                         <i class="bi bi-file-earmark-spreadsheet"></i>
                     </a><!-- End Excel Icon -->
-
-
                 </li>
                 <li class="nav-item dropdown">
 
@@ -363,23 +361,21 @@
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
                         <li class="dropdown-header">
-                            <!--                        You have 4 new notifications-->
                             <i class="fa-solid fa-bell" id="notiOnBell" style="font-size: 20px; height: 43px;"></i>
                             <i class="fa-solid fa-bell-slash" id="notiOffBell"  style="font-size: 20px;"></i>
-                            <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2"
-                                              id="notiId">
-
-                                      <div class="toggle-button-cover">
-        <div class="button-cover">
-          <div class="button-new r" id="button-new">
-            <input type="checkbox" class="checkbox-new" id="toggle-checkbox" />
-            <div class="knobs-new"></div>
-            <div class="layer-new"></div>
-          </div>
-        </div>
-      </div>
-
-                            </span></a>
+                            <a href="#">
+                                <span class="badge rounded-pill bg-info p-2 ms-2" id="notiId" style="height: 45px">
+                                    <div class="toggle-button-cover">
+                                        <div class="button-cover">
+                                            <div class="button-new r" id="button-new">
+                                                <input type="checkbox" class="checkbox-new" id="toggle-checkbox" />
+                                                <div class="knobs-new"></div>
+                                                <div class="layer-new"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
