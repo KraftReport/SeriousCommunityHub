@@ -16,4 +16,6 @@ public interface InvitationService {
    public void acceptedInvitation(Long id, Long communityId);
 
    public List<Invitation> findByCommunityIdAndIsInvited(Long id, boolean b);
+
+    public List<Invitation> findByCommunityIdAndIsRemoved(Long id, boolean b);
 }

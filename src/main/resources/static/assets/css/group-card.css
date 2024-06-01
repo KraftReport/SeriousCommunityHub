@@ -149,3 +149,8 @@
 .community-card .member-list .member-name:last-child:after {
     content: "...";
 }
+
+.community-card .dropdown-item:hover {
+     background-color: lightgrey;
+     color: #000;
+ }
