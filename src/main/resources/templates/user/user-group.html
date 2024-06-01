@@ -744,7 +744,7 @@
             const community = communities[i];
             let photo = '';
             if (community.image) {
-                photo = `<img src="${community.image}" alt="Group's Photo" width="100" height="100">`;
+                photo = `<img src="${community.image}" class="image" alt="Group's Photo" width="100" height="100">`;
             }
             let lockButton = document.createElement('i');
             if (community.groupAccess === 'PUBLIC') {
@@ -793,7 +793,7 @@
                                     <a class="dropdown-item" style="cursor: pointer" href="#" ${!isNotCurrentUserOwner ? 'hidden' : ''}  onclick="leaveGroup('${community.id}')">Leave the group</a>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-primary chat-button" ${!isActive ? 'hidden' : ''} onclick="goToChatRoom(${community.id})"><i class="fa fa-comments"></i></button>
+                            <button type="button" class="btn btn-primary chat-button" ${!isActive ? 'hidden' : ''} onclick="goToChatRoom(${community.id})"></button>
                             <button type="button" class="btn btn-success add-button" ${isNotCurrentUserOwner || !isActive ? 'hidden' : ''} onclick="populateCreateGroupForm(${community.id}, '${community.name}', '${community.ownerName}', '${community.description}', '${community.image}')"><i class="fa fa-factory"></i></button>
                         </div>
                     </div>

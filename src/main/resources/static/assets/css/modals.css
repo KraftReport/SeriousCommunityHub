@@ -87,3 +87,59 @@ label {
 input[type="date"] {
     color: #000; /* Set text color to black for date input */
 }
+
+/* Dark Mode */
+body.dark-mode .modal-content {
+    background-color: #333;
+    color: #ddd;
+}
+
+body.dark-mode .modal-header {
+    background-color: #001628; /* Darker blue */
+}
+
+body.dark-mode .modal-title {
+    color: #fff;
+}
+
+body.dark-mode .modal-body-content {
+    background-color: #333;
+    color: #ddd;
+}
+
+body.dark-mode .btn-primary {
+    background-color: #001628; /* Darker blue */
+    border-color: #005cbf;
+    color: #fff;
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #005cbf;
+    border-color: #0069d9;
+}
+
+body.dark-mode .form-control {
+    background-color: #333;
+    border-color: #555;
+    color: #ddd;
+}
+
+body.dark-mode label {
+    color: #ddd;
+}
+
+body.dark-mode .container-fluid,
+body.dark-mode .row,
+body.dark-mode .col-md-12 {
+    background-color: #222;
+}
+
+body.dark-mode .custom-select {
+    background-color: #333;
+    border-color: #555;
+    color: #ddd;
+}
+
+body.dark-mode input[type="date"] {
+    color: #ddd;
+}

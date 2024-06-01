@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const acceptRoleBtn = document.getElementById('acceptRemovedRoleBtn');
-
+    const acceptAndLogout = document.getElementById('acceptAndLogout');
+    acceptAndLogout.addEventListener('click', function() {
+        window.location.href = '/logout';
+    });
     acceptRoleBtn.addEventListener('click', function() {
         removeUserStatusAndRole();
     });

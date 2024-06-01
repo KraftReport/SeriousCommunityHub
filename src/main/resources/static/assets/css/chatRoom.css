@@ -290,6 +290,126 @@
 .message-container:hover .delete-icon {
     display: inline;
 }
+body.dark-mode .chat-container {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
 
+body.dark-mode .users-list {
+    background-color: #444;
+    color: #fff;
+    border-right-color: #555;
+}
+
+body.dark-mode .users-list h2 {
+    color: #fff;
+}
+
+body.dark-mode .user-item.active {
+    background-color: #666;
+    color: #fff;
+}
+
+body.dark-mode .separator {
+    background-color: #555;
+}
+
+body.dark-mode .chat-area {
+    background-color: #9cc9f5;
+}
+
+body.dark-mode .sender {
+    background-color: #000000;
+    color: #fff;
+}
+
+body.dark-mode .receiver {
+    background-color: #ecf0f1;
+    color: #000;
+}
+
+body.dark-mode .message-input input {
+    background-color: #555;
+    color: #fff;
+    border-color: #777;
+}
+
+body.dark-mode .message-input button {
+    background-color: #555;
+    color: #fff;
+}
+
+body.dark-mode .user-form {
+    background-color: #222;
+    color: #fff;
+    border-color: #444;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .user-form h2 {
+    color: #fff;
+}
+
+body.dark-mode .user-form label {
+    color: #fff;
+}
+
+body.dark-mode .user-form input {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
+}
+
+body.dark-mode .user-form button {
+    background-color: #333;
+    color: #fff;
+}
+
+.body.dark-mode .hidden {
+    color: #333;
+}
+
+body.dark-mode #bar-above-messages {
+    background-color: #444;
+    color: #fff;
+}
+
+body.dark-mode .room-info-container {
+    color: #fff;
+}
+
+body.dark-mode .room-participants {
+    color: #ddd;
+}
+
+body.dark-mode #IsSelected .dropdown-menu {
+    background-color: #333;
+    border-color: #555;
+}
+
+body.dark-mode #IsSelected .dropdown-menu li a {
+    color: #fff;
+    border-color: #555;
+}
+
+body.dark-mode #IsSelected .dropdown-menu li a
+{
+    background-color: #555;
+}
+
+body.dark-mode .custom-dropdown-toggle {
+    color: #fff;
+}
+
+body.dark-mode .delete-icon {
+    color: #f00;
+}
+
+body.dark-mode .message-container:hover,
+.delete-icon {
+    color: #f55;
+}
 
 

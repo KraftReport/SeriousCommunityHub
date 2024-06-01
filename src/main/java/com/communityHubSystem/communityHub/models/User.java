@@ -45,6 +45,8 @@ public class User implements Serializable {
     private String RemovedReason;
     private String RejectReason;
     private String BannedReason;
+    private int rejectedCount;
+    private boolean fully_permitted;
     @Enumerated(EnumType.STRING)
     private IsOn isOn;
     @Enumerated(EnumType.STRING)

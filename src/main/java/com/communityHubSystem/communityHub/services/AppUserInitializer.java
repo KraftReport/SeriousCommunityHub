@@ -35,6 +35,7 @@ public class AppUserInitializer {
             user.setStaffId("99-09999");
             user.setDone(true);
             user.setDeleted(false);
+            user.setFully_permitted(true);
             userRepository.save(user);
         }
     }

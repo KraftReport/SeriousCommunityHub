@@ -172,6 +172,7 @@
                 <th>Division</th>
                 <th>Staff ID</th>
                 <th>Role</th>
+                <th>Permission</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -192,7 +193,14 @@
                 <td th:text="${user.staffId}"></td>
                 <td>
                     <span th:text="${user.role}"></span>
+                    <th:block th:if="${loggedIndUser.fully_permitted}">
                     <th:block th:if="${user.role != 'DEFAULT_USER'}">
+                        <th:block th:if="${user.rejectedCount > 1}">
+                            <button type="button" class="btn btn-danger btn-sm" onclick="showRejectedCount('rejectedCountSpan_${user.id}')">
+                                <i class="fas fa-info-circle" style="color: red;"></i>
+                            </button>
+                            <span id="rejectedCountSpan_${user.id}" hidden th:text="'Rejected for: ' + ${user.rejectedCount}  + 'times' " style="margin-left: 10px;"></span>
+                        </th:block>
                         <th:block th:if="${user.pending}">
                             <i class="fas fa-spinner fa-spin"></i>
                         </th:block>
@@ -210,13 +218,35 @@
                             </th:block>
                         </th:block>
                     </th:block>
+                    </th:block>
+                </td>
+                <td>
+                    <th:block th:if="${user.done}">
+                        <th:block th:if="${user.fully_permitted}">
+                            <span>full-authorized</span>
+                            <button type="button" class="btn btn-danger btn-sm"  th:onclick="'updateFullyPermitted(' + ${user.id} + ', false)'">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </th:block>
+                        <th:block th:unless="${user.fully_permitted}">
+                            <span>half-authorized</span>
+                            <button type="button" class="btn btn-primary btn-sm" th:onclick="'updateFullyPermitted(' + ${user.id} + ', true)'">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                        </th:block>
+                    </th:block>
+                    <th:block th:unless="${user.done}">
+                        <span>not authorized</span>
+                    </th:block>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             th:data-bs-target="'#userDetailModal-' + ${user.id}">View Detail
                     </button>
+                    <th:block th:if="${loggedIndUser.fully_permitted}">
                     <button th:if="${user.isActive}" class="btn btn-danger btn-ban">Ban</button>
                     <button th:unless="${user.isActive}" class="btn btn-success btn-unban">UnBan</button>
+                    </th:block>
                 </td>
             </tr>
             </tbody>
@@ -416,6 +446,42 @@
     /*]]>*/
 </script>
 <script>
+    function showRejectedCount(elementId) {
+        const spanElement = document.getElementById(elementId);
+        if (spanElement) {
+            if (spanElement.hidden) {
+                spanElement.removeAttribute("hidden");
+            } else {
+                spanElement.setAttribute("hidden", "");
+            }
+        }
+    }
+
+    function updateFullyPermitted(userId, value) {
+        fetch('/user/update-fully-permitted', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: userId,
+                fully_permitted: value
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to update permission');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating permission');
+            });
+    }
+    document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('DOMContentLoaded', async function () {
         const pencilIcons = document.querySelectorAll('#pencilIcons');
         const trashIcons = document.querySelectorAll('#trashIcons');

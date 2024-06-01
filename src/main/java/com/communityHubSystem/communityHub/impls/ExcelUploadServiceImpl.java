@@ -144,6 +144,7 @@ public class ExcelUploadServiceImpl implements ExcelUploadService {
                 user.setDone(false);
                 user.setRemoved(false);
                 user.setRejected(false);
+                user.setIsOn(User.IsOn.ON);
                 user_data.add(user);
             }
         } catch (IOException e) {

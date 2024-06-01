@@ -448,3 +448,100 @@
     transform: translate(0);
     opacity: 1;
 }
+
+body.dark-mode #createGroupModal,
+body.dark-mode #kickModal {
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+body.dark-mode #createGroupModal *:not(input[type="checkbox"]) {
+    color: #fff;
+}
+
+body.dark-mode #createGroupModal .modal-body,
+body.dark-mode #kickModal .modal-body {
+    background-color: #222;
+}
+
+body.dark-mode #createGroupModal #usersList span,
+body.dark-mode #kickModal #userList span {
+    color: #fff;
+}
+
+body.dark-mode #createGroupModal #usersList span img,
+body.dark-mode #kickModal #userList span img {
+    border: 2px solid #fff;
+}
+
+body.dark-mode #createGroupModal #usersList label,
+body.dark-mode #kickModal #userList label {
+    background-color: #1b9fb3;
+    box-shadow: 0 7px 10px #37ceff;
+}
+
+body.dark-mode #createGroupModal #usersList label:hover,
+body.dark-mode #kickModal #userList label:hover {
+    box-shadow: 0 7px 10px #fff;
+}
+
+body.dark-mode #createGroupModal #usersList input[type="checkbox"]:checked + label,
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label {
+    background-color: #00bcd4;
+    box-shadow: 0 7px 10px #92ff97;
+}
+
+body.dark-mode #createGroupModal #usersList input[type="checkbox"]:checked + label:before,
+body.dark-mode #createGroupModal #usersList input[type="checkbox"]:checked + label .tick_mark:before,
+body.dark-mode #createGroupModal #usersList input[type="checkbox"]:checked + label .tick_mark:after,
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label:before,
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label .tick_mark:before,
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label .tick_mark:after {
+    opacity: 0;
+}
+body.dark-mode #kickModal,
+body.dark-mode #invitationFormModal {
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+body.dark-mode #kickModal #userList,
+body.dark-mode #invitationFormModal #usersList {
+    background-color: #222;
+}
+
+body.dark-mode #kickModal #userList span,
+body.dark-mode #invitationFormModal #usersList span {
+    color: #fff;
+}
+
+body.dark-mode #kickModal #userList span img,
+body.dark-mode #invitationFormModal #usersList span img {
+    border: 2px solid #fff;
+}
+
+body.dark-mode #kickModal #userList label,
+body.dark-mode #invitationFormModal #usersList label {
+    background-color: #1b9fb3;
+    box-shadow: 0 7px 10px #37ceff;
+}
+
+body.dark-mode #kickModal #userList label:hover,
+body.dark-mode #invitationFormModal #usersList label:hover {
+    box-shadow: 0 7px 10px #fff;
+}
+
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label,
+body.dark-mode #invitationFormModal #usersList input[type="checkbox"]:checked + label {
+    background-color: #00bcd4;
+    box-shadow: 0 7px 10px #92ff97;
+}
+
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label:before,
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label .tick_mark:before,
+body.dark-mode #kickModal #userList input[type="checkbox"]:checked + label .tick_mark:after,
+body.dark-mode #invitationFormModal #usersList input[type="checkbox"]:checked + label:before,
+body.dark-mode #invitationFormModal #usersList input[type="checkbox"]:checked + label .tick_mark:before,
+body.dark-mode #invitationFormModal #usersList input[type="checkbox"]:checked + label .tick_mark:after {
+    opacity: 0;
+}

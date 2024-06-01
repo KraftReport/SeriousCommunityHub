@@ -1,6 +1,10 @@
 body{margin-top:20px;
     background:#eee;
 }
+body.dark-mode {
+    background: #121212; /* Dark background */
+}
+
 .single_advisor_profile {
     position: relative;
     margin-bottom: 50px;
@@ -133,4 +137,67 @@ body{margin-top:20px;
 .single_advisor_profile:hover .single_advisor_details_info p,
 .single_advisor_profile:focus .single_advisor_details_info p {
     color: #ffffff;
+}
+body.dark-mode .single_advisor_profile {
+    background: #1e1e1e; /* Darker background */
+    box-shadow: 0 0.25rem 1rem 0 rgba(255, 255, 255, 0.125); /* Soft shadow */
+}
+
+body.dark-mode .single_advisor_profile .advisor_thumb {
+    background-color: #f3f3f3; /* Darker accent color */
+}
+
+body.dark-mode .single_advisor_profile .advisor_thumb::after {
+    background-color: #1e1e1e; /* Darker background */
+}
+
+body.dark-mode .single_advisor_profile .advisor_thumb .social-info a {
+    color: #020710; /* Darker text */
+}
+
+body.dark-mode .single_advisor_profile .single_advisor_details_info {
+    background-color: #1e1e1e; /* Darker background */
+}
+
+body.dark-mode .single_advisor_profile .single_advisor_details_info::after {
+    background-color: #070a57; /* Darker accent color */
+}
+
+body.dark-mode .single_advisor_profile .single_advisor_details_info h6,
+body.dark-mode .single_advisor_profile .single_advisor_details_info p {
+    color: #ddd; /* Light text */
+}
+
+body.dark-mode .single_advisor_profile:hover .advisor_thumb::after,
+body.dark-mode .single_advisor_profile:focus .advisor_thumb::after {
+    background-color: #070a57; /* Darker accent color on hover/focus */
+}
+
+body.dark-mode .single_advisor_profile:hover .advisor_thumb .social-info a,
+body.dark-mode .single_advisor_profile:focus .advisor_thumb .social-info a {
+    color: #fff; /* White text on hover/focus */
+}
+
+body.dark-mode .single_advisor_profile:hover .advisor_thumb .social-info a:hover,
+body.dark-mode .single_advisor_profile:hover .advisor_thumb .social-info a:focus,
+body.dark-mode .single_advisor_profile:focus .advisor_thumb .social-info a:hover,
+body.dark-mode .single_advisor_profile:focus .advisor_thumb .social-info a:focus {
+    color: #fff; /* White text on hover/focus */
+}
+
+body.dark-mode .single_advisor_profile:hover .single_advisor_details_info,
+body.dark-mode .single_advisor_profile:focus .single_advisor_details_info {
+    background-color: #070a57; /* Darker accent color on hover/focus */
+}
+
+body.dark-mode .single_advisor_profile:hover .single_advisor_details_info::after,
+body.dark-mode .single_advisor_profile:focus .single_advisor_details_info::after {
+    background-color: #fff; /* White accent color on hover/focus */
+}
+
+body.dark-mode .single_advisor_profile:hover .single_advisor_details_info h6,
+body.dark-mode .single_advisor_profile:focus .single_advisor_details_info h6,
+body.dark-mode .single_advisor_profile:hover .single_advisor_details_info p,
+body.dark-mode .single_advisor_profile:focus .single_advisor_details_info p {
+    color: #fff; /* White text on hover/focus */
 }

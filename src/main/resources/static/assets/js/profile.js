@@ -446,6 +446,7 @@ const showSavedPosts = async () => {
                let gpName = gp !== null ? gp.name : null
                let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
                `
+           let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
            let createdTime = await timeAgo(new Date(p.createdDate))
            const reactCount = await fetchSizes(p.id);
            const reactType = await fetchReactType(p.id);
@@ -494,7 +495,7 @@ const showSavedPosts = async () => {
            <div class="d-flex">
           
                <div>
-               <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+                 <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
                </div>
                <div class="post-info" style="width:100px;">
    
@@ -1421,6 +1422,7 @@ const getDelPosts = async () => {
                 let gpName = gp !== null ? gp.name : null
                 let CommunityName = gpName === null ? '' : `<span class="font-monospace d-block badge rounded-pill bg-dark">${gpName} <i class="fa-solid fa-users text-white" style="margin-top:3px;"></i></span> 
                 `
+            let userPhoto = p.user.photo !==null ? p.user.photo : '/static/assets/img/default-logo.png'
             let createdTime = await timeAgo(new Date(p.createdDate))
             const reactCount = await fetchSizes(p.id);
             const reactType = await fetchReactType(p.id);
@@ -1469,7 +1471,7 @@ const getDelPosts = async () => {
             <div class="d-flex">
            
                 <div>
-                <img src="${p.user.photo}" alt="" style="width:50px; height:50px; border-radius:20px;">
+                <img src="${userPhoto}" alt="" style="width:50px; height:50px; border-radius:20px;">
                 </div>
                 <div class="post-info" style="width:100px;">
     

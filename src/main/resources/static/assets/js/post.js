@@ -3271,14 +3271,25 @@ const receivedMessageForBirthDayNoti = async (payload) => {
 
     const getStatus = localStorage.getItem('birthDayNotiGet');
     const birthDiv = document.getElementById('birthDayWords');
+    const celebrationEffectsDiv = document.getElementById('celebrationEffects');
  console.log('want to know',getStatus)
     if (!getStatus || getStatus === 'undefined') {
         if (loginUser === message.staffId) {
             birthDiv.innerHTML = `Today is your birthday! Let's celebrate it.`;
+            celebrationEffectsDiv.innerHTML = `
+                <img src="/static/assets/img/bd-for-user.gif" alt="Birthday Celebration" class="img-fluid">
+                <audio id="birthdaySong" src="/static/assets/img/troll-bd-voice.mp3" type="audio/mp3"></audio>
+                <audio id="birthdayMessage" src="/static/assets/img/bd-song.mp3" type="audio/mp3"></audio>
+            `;
             localStorage.setItem('birthDayNotiGet', true);
         } else {
             playNotificationSound();
             birthDiv.innerHTML = `Today is ${message.userName}'s birthday! Let's celebrate it.`;
+            celebrationEffectsDiv.innerHTML = `
+                <img src="/static/assets/img/bd-from-other.gif" alt="Birthday Celebration" class="img-fluid">
+                <audio id="birthdaySong" src="/static/assets/img/troll-bd-voice.mp3" type="audio/mp3"></audio>
+                <audio id="birthdayMessage" src="/static/assets/img/bd-song.mp3" type="audio/mp3"></audio>
+            `;
             localStorage.setItem('birthDayNotiGet', true);
         }
 

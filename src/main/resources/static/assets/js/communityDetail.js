@@ -141,7 +141,6 @@ const createBtns = async () => {
         controller2.appendChild(pollCreateBtn)
         mainDiv.classList.add('d-flex')
         mainDiv.style.marginTop = '30px'
-        mainDiv.style.marginLeft = '430px'
         mainDiv.appendChild(controller1)
         mainDiv.append(controller2)
     }else{
@@ -149,7 +148,6 @@ const createBtns = async () => {
         controller1.appendChild(rawCreateionBtn)
         mainDiv.classList.add('d-flex')
         mainDiv.style.marginTop = '30px'
-        mainDiv.style.marginLeft= '650px'
         mainDiv.appendChild(controller1)
     }
 

@@ -82,3 +82,51 @@
 .custom-modal-btn:hover {
     background-color: #23527C;
 }
+
+body.dark-mode .custom-modal {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+body.dark-mode .custom-modal-dialog {
+    background-color: #333;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+body.dark-mode .custom-modal-header {
+    border-bottom: 1px solid #555;
+}
+
+body.dark-mode .custom-modal-title {
+    color: #fff;
+}
+
+body.dark-mode .custom-modal-close svg {
+    fill: #fff;
+}
+
+body.dark-mode .custom-modal-body {
+    color: #fff;
+}
+
+body.dark-mode .custom-modal-footer {
+    background-color: #333;
+}
+
+body.dark-mode .custom-modal-btn {
+    background-color: #337AB7;
+    color: #fff;
+}
+
+body.dark-mode .custom-modal-btn-secondary {
+    background-color: #ddd;
+    color: #333;
+}
+
+body.dark-mode .custom-modal-btn-primary {
+    background-color: #337AB7;
+    color: #fff;
+}
+
+body.dark-mode .custom-modal-btn:hover {
+    background-color: #23527C;
+}

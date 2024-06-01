@@ -305,6 +305,19 @@
             }
         }
 
+        .toggle-btn {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-btn .icon {
+            font-size: 24px;
+            margin-right: 8px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 </head>
@@ -344,7 +357,9 @@
                 </li><!-- End Search Icon-->
 
                 <li class="nav-item dropdown">
-                    <i class="fa-solid fa-calendar-days" data-bs-toggle="modal" onclick="seeEvents()" data-bs-target="#calendarModalBox" style="font-size: 22px; margin-right: 20px"></i>
+                    <a class="nav-link nav-icon" data-bs-toggle="modal" onclick="seeEvents()" data-bs-target="#calendarModalBox" style="font-size: 22px; margin-right: 20px">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    </a>
                 </li>
 
                 <li class="nav-item dropdown">
@@ -352,8 +367,6 @@
                        sec:authorize="hasAnyAuthority('ADMIN')">
                         <i class="bi bi-file-earmark-spreadsheet"></i>
                     </a><!-- End Excel Icon -->
-
-
                 </li>
                 <li class="nav-item dropdown">
 
@@ -364,23 +377,21 @@
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
                         <li class="dropdown-header">
-                            <!--                        You have 4 new notifications-->
-                            <i class="fa-solid fa-bell" id="notiOnBell" style="font-size: 20px;"></i>
+                            <i class="fa-solid fa-bell" id="notiOnBell" style="font-size: 20px; height: 43px;"></i>
                             <i class="fa-solid fa-bell-slash" id="notiOffBell"  style="font-size: 20px;"></i>
-                            <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2"
-                                              id="notiId">
-
-                                      <div class="toggle-button-cover">
-        <div class="button-cover">
-          <div class="button-new r" id="button-new">
-            <input type="checkbox" class="checkbox-new" id="toggle-checkbox" />
-            <div class="knobs-new"></div>
-            <div class="layer-new"></div>
-          </div>
-        </div>
-      </div>
-
-                            </span></a>
+                            <a href="#">
+                                <span class="badge rounded-pill bg-info p-2 ms-2" id="notiId" style="height: 45px">
+                                    <div class="toggle-button-cover">
+                                        <div class="button-cover">
+                                            <div class="button-new r" id="button-new">
+                                                <input type="checkbox" class="checkbox-new" id="toggle-checkbox" />
+                                                <div class="knobs-new"></div>
+                                                <div class="layer-new"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
@@ -399,7 +410,6 @@
                                                               data-bs-target="#notificationStaticBox" onclick="fetchNotificationPerPage()">Show all
                             notifications</a>
                         </li>
-
                     </ul><!-- End Notification Dropdown Items -->
 
                 </li><!-- End Notification Nav -->
@@ -466,6 +476,15 @@
                             <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#logOutModalBox" >
                                 <i class="bi bi-box-arrow-right"></i>
                                 <span>Log Out</span>
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center" id="theme-toggle" >
+                                <span class="icon" id="theme-icon">🌞</span>
+                                <span id="theme-text">Light Mode</span>
                             </a>
                         </li>
                         <li>
@@ -939,9 +958,9 @@
         <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header" style="background-color: #007bff; color: white;">
+                    <div class="modal-header">
                         <h5 class="modal-title" id="uploadExcelModalLabel">Upload Excel File</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="color: white"></button>
                     </div>
                     <div class="modal-body">
                         <form id="uploadForm">
@@ -1127,13 +1146,14 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="acceptndLogout" data-bs-dismiss="modal">Login
+                    <button type="button" class="btn btn-primary" id="acceptAndLogout" data-bs-dismiss="modal">Login
                         Now
                     </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Later</button>
                 </div>
             </div>
         </div>
+        <script src="/static/assets/js/acceptRemoval.js"></script>
     </div>
     <div class="modal fade" id="removeUserModal" data-bs-backdrop="static" tabindex="-1"
          aria-labelledby="removeUserModalLabel" aria-hidden="true">
@@ -1834,7 +1854,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-success" id="clickToSeeAnimation">Click to celebrate</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="clickToCloseBirthdayModal" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -1892,10 +1912,43 @@
     <script>
 
         const clearLocalStorage = async () => {
-            localStorage.clear()
+            const theme = localStorage.getItem('theme');
+            localStorage.clear();
+            if (theme) {
+                localStorage.setItem('theme', theme);
+            }
+        }
+        // Function to toggle between dark and white mode
+        function toggleTheme() {
+            const body = document.body;
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'white');
+                body.classList.remove('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌞';
+                document.getElementById('theme-text').textContent = 'Light Mode';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                body.classList.add('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌙';
+                document.getElementById('theme-text').textContent = 'Dark Mode';
+            }
         }
 
+        // Event listener for theme toggle button
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            toggleTheme();
+        });
         document.addEventListener('DOMContentLoaded', function () {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌙';
+                document.getElementById('theme-text').textContent = 'Dark Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('theme-icon').textContent = '🌞';
+                document.getElementById('theme-text').textContent = 'Light Mode';
+            }
             function checkPendingStatus() {
 
                 fetch('/user/checkPendingStatus')
@@ -2091,27 +2144,23 @@
         function showForm(form) {
             form.style.display = 'block';
         }
-
+        document.getElementById('clickToCloseBirthdayModal').addEventListener('click', () => {
+            const message = document.getElementById('birthdayMessage');
+            message.pause();
+        });
         document.getElementById('clickToSeeAnimation').addEventListener('click', () => {
             const celebrationEffects = document.getElementById('celebrationEffects');
-            celebrationEffects.innerHTML = ''; // Clear any previous effects
-
-            for (let i = 0; i < 10; i++) { // Adjust number of balloons as needed
-                const balloon = document.createElement('div');
-                balloon.classList.add('balloon');
-                balloon.style.left = `${Math.random() * 100}%`;
-                balloon.style.backgroundColor = getRandomColor();
-                celebrationEffects.appendChild(balloon);
-            }
-
-            celebrationEffects.style.display = 'block'; // Show the celebration effects container
+            celebrationEffects.style.display = 'block';
+            playBirthdayAudio()
         });
-
-        function getRandomColor() {
-            const colors = ['red', 'blue', 'green', 'yellow', 'pink', 'purple', 'orange'];
-            return colors[Math.floor(Math.random() * colors.length)];
+        const playBirthdayAudio = () => {
+            const song = document.getElementById('birthdaySong');
+            const message = document.getElementById('birthdayMessage');
+            song.play();
+            song.onended = () => {
+                message.play();
+            };
         }
-
 
         let calendar = null;
 
