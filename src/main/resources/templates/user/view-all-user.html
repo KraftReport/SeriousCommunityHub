@@ -671,18 +671,26 @@
                 fetchAndDisplayUserHobbies(userId);
             });
         });
-
+        await notifyMessage();
         const toggleCheckbox = document.getElementById("toggle-checkbox");
         const toggleKnob = document.getElementById("toggle-knob");
+        const notiOnBell = document.getElementById('notiOnBell');
+        const notiOffBell = document.getElementById('notiOffBell');
         const userStatus = await checkStatusForUser();
         if (userStatus.isOn === 'ON') {
+            notiOnBell.style.display = 'block';
+            notiOffBell.style.display = 'none';
             toggleCheckbox.checked = false;
         } else {
+            notiOnBell.style.display = 'none';
+            notiOffBell.style.display = 'block';
             toggleCheckbox.checked = true;
         }
         toggleCheckbox.addEventListener("change", async function() {
             if (toggleCheckbox.checked) {
                 console.log("OFF");
+                notiOnBell.style.display = 'none';
+                notiOffBell.style.display = 'block';
                 const data = await fetch(`/user/turn-off-noti`,{
                     method:'PUT',
                     headers: {
@@ -726,6 +734,8 @@
                 }, 3000);
             } else {
                 console.log("ON");
+                notiOnBell.style.display = 'block';
+                notiOffBell.style.display = 'none';
                 const data = await fetch(`/user/turn-on-noti`,{
                     method:'PUT',
                     headers: {
@@ -783,7 +793,20 @@
         
     }
 
-   
+    let notificationCount = 0;
+    async function notifyMessage(){
+        const showMessage = document.getElementById('notifyMessage');
+        const pElement = document.createElement('p');
+        pElement.classList.add('noti-p-element');
+        if (notificationCount === 0) {
+            pElement.style.display = 'block';
+            pElement.textContent = 'There is no notification yet!';
+        } else {
+            pElement.style.display = 'none';
+            pElement.textContent = '';
+        }
+        showMessage.appendChild(pElement);
+    };
 
     $(document).ready(function () {
         $('.single_advisor_profile').on('click', function() {

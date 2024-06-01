@@ -306,11 +306,13 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public List<User> getMembersOfACommunity(Long communityId) {
         var userIds = user_groupRepository.findUserIdByCommunityId(communityId);
-        return userIds.stream()
-                .map(s->userRepository
-                        .findById(s)
-                        .orElseThrow(()->new CommunityHubException("user not found")))
-                .toList();
+        List<User> userList = userIds.stream()
+                .map(id -> userRepository.findById(id)
+                        .orElseThrow(() -> new CommunityHubException("User not found exception!")))
+                .filter(user -> !user.getRole().equals(User.Role.ADMIN))
+                .collect(Collectors.toList());
+
+        return userList;
     }
 
     @Override

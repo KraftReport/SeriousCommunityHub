@@ -194,3 +194,8 @@ body.dark-mode .community-card .member-list {
 body.dark-mode .community-card .member-list .member-name {
     color: #ccc; /* Light color for member names */
 }
+
+.community-card .dropdown-item:hover {
+     background-color: lightgrey;
+     color: #000;
+ }
