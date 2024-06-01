@@ -359,21 +359,19 @@
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
                         <li class="dropdown-header">
-                            <!--                        You have 4 new notifications-->
-                            <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2"
-                                              id="notiId">
-
-                                      <div class="toggle-button-cover">
-        <div class="button-cover">
-          <div class="button-new r" id="button-new">
-            <input type="checkbox" class="checkbox-new" id="toggle-checkbox" />
-            <div class="knobs-new"></div>
-            <div class="layer-new"></div>
-          </div>
-        </div>
-      </div>
-
-                            </span></a>
+                            <a href="#">
+                                <span class="badge rounded-pill bg-info p-2 ms-2" id="notiId" style="height: 43px;">
+                                    <div class="toggle-button-cover">
+                                        <div class="button-cover">
+                                            <div class="button-new r" id="button-new">
+                                                <input type="checkbox" class="checkbox-new" id="toggle-checkbox" />
+                                                <div class="knobs-new"></div>
+                                                <div class="layer-new"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </span>
+                            </a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
@@ -392,7 +390,6 @@
                                                               data-bs-target="#notificationStaticBox" onclick="fetchNotificationPerPage()">Show all
                             notifications</a>
                         </li>
-
                     </ul><!-- End Notification Dropdown Items -->
 
                 </li><!-- End Notification Nav -->
@@ -1836,7 +1833,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-success" id="clickToSeeAnimation">Click to celebrate</button>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="clickToCloseBirthdayModal" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -2126,27 +2123,23 @@
         function showForm(form) {
             form.style.display = 'block';
         }
-
+        document.getElementById('clickToCloseBirthdayModal').addEventListener('click', () => {
+            const message = document.getElementById('birthdayMessage');
+            message.pause();
+        });
         document.getElementById('clickToSeeAnimation').addEventListener('click', () => {
             const celebrationEffects = document.getElementById('celebrationEffects');
-            celebrationEffects.innerHTML = ''; // Clear any previous effects
-
-            for (let i = 0; i < 10; i++) { // Adjust number of balloons as needed
-                const balloon = document.createElement('div');
-                balloon.classList.add('balloon');
-                balloon.style.left = `${Math.random() * 100}%`;
-                balloon.style.backgroundColor = getRandomColor();
-                celebrationEffects.appendChild(balloon);
-            }
-
-            celebrationEffects.style.display = 'block'; // Show the celebration effects container
+            celebrationEffects.style.display = 'block';
+            playBirthdayAudio()
         });
-
-        function getRandomColor() {
-            const colors = ['red', 'blue', 'green', 'yellow', 'pink', 'purple', 'orange'];
-            return colors[Math.floor(Math.random() * colors.length)];
+        const playBirthdayAudio = () => {
+            const song = document.getElementById('birthdaySong');
+            const message = document.getElementById('birthdayMessage');
+            song.play();
+            song.onended = () => {
+                message.play();
+            };
         }
-
 
         let calendar = null;
 
