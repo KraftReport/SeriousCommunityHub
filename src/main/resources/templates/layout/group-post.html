@@ -191,6 +191,7 @@
         <div th:replace="~{index::header}"></div>
         <div th:replace="~{index::navbar}"></div>
         <main id="main" class="main">
+
             <span id="invitationMessage"></span>
             <div class="   h-100">
                 <div class="row d-flex justify-content-center align-items-center h-100">
@@ -199,27 +200,26 @@
                         <div class="d-flex">
                             <h1 id="communityName" class="text-white mx-1" style="font-weight: bold">Spider Man</h1>
                             <i id="infoOfTheCommunity" class="fa-solid fa-circle-info text-white fs-4 my-2" data-bs-toggle="offcanvas" data-bs-target="#communityDetailShower" aria-controls="communityDetailShower"></i>
+                           <!-- <i class="fa-solid fa-message text-white fs-4 my-2" id="messageJoinBtn" style="cursor: pointer;display: none ;margin-left: 10px;"></i>-->
                         </div>
 
                         <div>
                             <div class="d-flex">
                                 <p id="communityMembers" class="font-monospace" ></p>
                                 <p id="numOfMembers" class="font-monospace text-white fs-5 mx-2"></p>
-                                <i class="fa-solid fa-message" id="messageJoinBtn" style="cursor: pointer;display: none"></i>
                             </div>
                         </div>
                        <div style="display: flex; justify-content: flex-end;">
                         <div class="button-group d-flex"  >
+                            <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace" id="messageJoinBtn"  style="display: none" ><i class="fa-solid  fa-hand-paper"></i> Requests</button>
                             <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace" id="chatMessageJoinIcon" value="JoinMessage" data-bs-toggle="modal" data-bs-target="#staticBackdropForJoinGroup" style="display: none" ><i class="fa-solid fa-user-gear"></i> Join</button>
-                            <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace" id="chatMessageIconForGroup" value="Message" style="display: none"><i class="fa-solid fa-message"></i> Message</button>
+                            <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace" id="chatMessageIconForGroup" value="Message" style="display: none"><i class="fa-solid fa-comments"></i> Chat</button>
                             <button type="button" class="btn btn-white btn-lg super-group-btns m-2 font-monospace"  value="Invite" id="inviteBtn" onclick="populateCreateGroupFormForInvitation()" style="display: none"><i class="fa-solid fa-user-plus"></i> Invite</button>
                         </div>
                        </div>
                     </div>
 
-                    <div id="createBtns" style="margin-bottom: 10px;">
 
-                    </div>
 
                     <div class="container">
                         <div class="modal fade" id="invitationFormModal" tabindex="-1" aria-labelledby="createCommunityModalLabel" aria-hidden="true">
@@ -252,7 +252,7 @@
                     <div class="modal fade" id="staticBackdropForJoinGroup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <div class="modal-header">
+                                <div class="modal-header" style="color: #0d6efd">
                                     <h5 class="modal-title" id="staticBackdropLabelForJoinGroup"><i class="fa-solid fa-user-tie"></i>Join</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
@@ -260,7 +260,7 @@
                                     <input type="hidden" id="groupId1" name="communityId">
                                     <h6>Are you sure want to join this group!!?</h6>
                                 </div>
-                                <div class="modal-footer">
+                                <div class="modal-footer" style="color: #0d6efd">
                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                                     <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal" id="groupYesBtn">Yes</button>
                                 </div>
@@ -289,7 +289,9 @@
                     <div class="">
                         <div class="middle-panel">
 
-                          
+                            <div id="createBtns" style="margin-bottom: 10px;">
+
+                            </div>
                   
               
 

@@ -422,7 +422,7 @@ async function goToCommunityTab(input){
 async function goToCommunityDetail(id){
     let data = await fetch(`/user/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/${id}`)
     let response = await data.json()
-    if(response[0] === 'VISITOR'){
+    if(response[0] === 'VISITOR1'){
         alert('you have not access to view this group')
     }else{
         localStorage.setItem('communityIdForDetailPage',id)
