@@ -105,6 +105,19 @@ public class InvitationController {
         return ResponseEntity.status(HttpStatus.OK).body(userList);
     }
 
+    @GetMapping("/get-rejectedUser/{id}")
+    public ResponseEntity<List<Long>> getRejectedUser(@PathVariable("id")Long id){
+        List<Long> userList = new ArrayList<>();
+        List<Invitation> invitationList = invitationService.findByCommunityIdAndIsRemoved(id, true);
+
+        for (Invitation invitation : invitationList) {
+            User user = userService.findById(invitation.getRecipientId());
+            if (user != null) {
+                userList.add(user.getId());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userList);
+    }
 
 
     public List<User> getActiveUsersForInvitation(){

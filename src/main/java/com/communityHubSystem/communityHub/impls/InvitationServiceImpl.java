@@ -90,6 +90,11 @@ public class InvitationServiceImpl implements InvitationService {
         return invitationRepository.findByCommunityIdAndIsInvited(id,b);
     }
 
+    @Override
+    public List<Invitation> findByCommunityIdAndIsRemoved(Long id, boolean b) {
+        return invitationRepository.findByCommunityIdAndIsRemoved(id,b);
+    }
+
     public void processAcceptInvitation(Long id,Long communityId){
         var invitation = invitationRepository.findById(id).orElseThrow(() -> new CommunityHubException("Invitation not found exception!!"));
         var user = userService.findById(invitation.getRecipientId());

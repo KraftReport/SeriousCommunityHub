@@ -86,8 +86,12 @@
         }
 
          .pending-user-forInvitation {
-             color: forestgreen; /* Change this to your desired color */
+             color: forestgreen;
          }
+
+        .rejected-user-forInvitation{
+            color: red;
+        }
 
         .user-photo {
             width: 40px;
@@ -345,6 +349,8 @@
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
                         <li class="dropdown-header">
                             <!--                        You have 4 new notifications-->
+                            <i class="fa-solid fa-bell" id="notiOnBell" style="font-size: 20px;"></i>
+                            <i class="fa-solid fa-bell-slash" id="notiOffBell"  style="font-size: 20px;"></i>
                             <a href="#"><span class="badge rounded-pill bg-info p-2 ms-2"
                                               id="notiId">
 
@@ -912,6 +918,7 @@
       </div>
     <div class="middle-panel">
 
+        <audio id="notificationSound" src="/static/notiSound/soundNoti.mp3" preload="auto"></audio>
 
         <div class="modal fade" id="uploadExcelModal" tabindex="-1" aria-labelledby="uploadExcelModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog">
