@@ -1067,11 +1067,18 @@ async function showEmptyContent(id){
 async function showCountForJoin(id){
     const invitations = await getRequests(id);
     const count = document.getElementById('requestCount');
+    const user = await getCheckUserForGroup();
+    const groupOwner = await getCommunityOwner(id);
     if(invitations.length === 0){
         count.style.backgroundColor = 'transparent';
         count.textContent = '';
     }else{
-        count.textContent = `${invitations.length}`;
+        if(user.role === 'ADMIN' || groupOwner !== null){
+            count.textContent = `${invitations.length}`;
+        }else{
+            count.style.backgroundColor = 'transparent';
+            count.textContent = '';
+        }
     }
 }
 
