@@ -1218,10 +1218,10 @@ async function welcome() {
               <img src="${userPhoto}" onclick="clickUserImgIcon('${p.user.id}','${profileRouteUrl}')" alt="" style="width:50px; height:50px; border-radius:20px;">
              
               </div>
-              <div class="post-info" style="width:100px;">
+              <div class="post-info" style="width:100px;" >
 
               <p class="name font-monospace" style="margin-bottom:3px;" onclick="clickUserImgIcon('${p.user.id}','${profileRouteUrl}')" >${p.user.name}</p>
-              ${CommunityName} 
+            <span style="cursor:pointer;">${CommunityName}</span>
               <span class="time font-monospace">${createdTime}</span>
              
           </div>

@@ -130,7 +130,7 @@ public class InvitationController {
         var user = userService.findByName(community.getOwnerName().trim());
         if(user != null){
             invitationService.requestedInvitation(user,loginUser,community);
-            res.put("message","Requested Successfully!Admin team will response later.");
+            res.put("message","Requested Successfully! Admin team will response later.");
             return ResponseEntity.status(HttpStatus.OK).body(res);
         }else{
             res.put("message","There is no owner in this group! You can't request now!");

@@ -8,6 +8,13 @@ const getFormattedDate = async (date) => {
 }
 
 
+async function getCurrentLoginUserId(){
+    let data = await fetch('user/getCurrentLoginUserId')
+    let response  = await data.json()
+    console.log(response)
+    return response
+}
+
 async function clickUserImgIcon(id,url){
     console.log(id+'____'+url)
     localStorage.setItem('userIdForDetailPage',id)
@@ -16,7 +23,7 @@ async function clickUserImgIcon(id,url){
 
 async function clickCommunityNameSpan(id){
     localStorage.setItem('communityIdForDetailPage',id)
-    window.location.href = 'api/community/goToCommunityDetail'
+    window.location.href = '/api/community/goToCommunityDetail'
 }
 
 const createBtns = async () => {
@@ -143,12 +150,14 @@ const createBtns = async () => {
         mainDiv.style.marginTop = '30px'
         mainDiv.appendChild(controller1)
         mainDiv.append(controller2)
-    }else{
+    }else if(data==='MEMBER'){
         controller1.appendChild(postCreateBtn)
         controller1.appendChild(rawCreateionBtn)
         mainDiv.classList.add('d-flex')
         mainDiv.style.marginTop = '30px'
         mainDiv.appendChild(controller1)
+    }else{
+
     }
 
 
@@ -302,7 +311,8 @@ const displayMemberProfiles = async () => {
     // Create profile images for the first two members
     userList.slice(0, maxVisibleProfiles).forEach((user, index) => {
         const profileImg = document.createElement('img');
-        profileImg.src = user.photo;
+        const photo = user.photo ? user.photo : '/static/assets/img/default-logo.png';
+        profileImg.src = photo;
         profileImg.style.width = '40px';
         profileImg.style.height = '40px';
         profileImg.style.borderRadius = '50%';
@@ -406,8 +416,8 @@ const getDetailOfTheCommunity = async () => {
     const nameOfOwner = document.createElement('p');
     const emailOfTheOwner = document.createElement('p');
     const textDiv = document.createElement('div');
-
-    imgOfOwner.src = communityOwner.photo;
+    const image =  communityOwner.photo ?  communityOwner.photo : '/static/assets/img/default-logo.png';
+    imgOfOwner.src = image;
     imgOfOwner.style.width = '70px';
     imgOfOwner.style.height = '70px';
     imgOfOwner.style.borderRadius = '10px';
@@ -443,8 +453,8 @@ const getDetailOfTheCommunity = async () => {
 
         const memberImg = document.createElement('img');
         const memberName = document.createElement('p');
-
-        memberImg.src = u.photo;
+        const image = u.photo ? u.photo : '/static/assets/img/default-logo.png';
+        memberImg.src = image;
         memberImg.style.width = '50px';
         memberImg.style.height = '50px';
         memberImg.style.borderRadius = '50%';
@@ -953,12 +963,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     const data = communityId;
         await checkUsersToShowJoinButtonOrNot(data);
         await checkGroupForLoginUserForJoin(data);
+        await showCountForJoin(data);
     document.getElementById('groupYesBtn').addEventListener('click',async () => {
        await joinGroupForm(data);
     });
 
     document.getElementById('messageJoinBtn').addEventListener('click',async () => {
         await showEmptyContent(data);
+        document.getElementById('messageRootForJoin').innerHTML = '';
         await getAllInvitationsForJoin(data);
         $('#invitationStaticBoxForJoin').modal('show');
     });
@@ -1052,6 +1064,24 @@ async function showEmptyContent(id){
     }
 }
 
+async function showCountForJoin(id){
+    const invitations = await getRequests(id);
+    const count = document.getElementById('requestCount');
+    const user = await getCheckUserForGroup();
+    const groupOwner = await getCommunityOwner(id);
+    if(invitations.length === 0){
+        count.style.backgroundColor = 'transparent';
+        count.textContent = '';
+    }else{
+        if(user.role === 'ADMIN' || groupOwner !== null){
+            count.textContent = `${invitations.length}`;
+        }else{
+            count.style.backgroundColor = 'transparent';
+            count.textContent = '';
+        }
+    }
+}
+
 async function getAllInvitationsForJoin(id){
     const invitation = await getRequests(id);
     for (const i of invitation) {
@@ -1098,14 +1128,14 @@ const displayMessageForJoinInvitation =async (id,image,name,communityId,userId) 
     acceptButton.classList.add('btn','btn-outline-success')
     acceptButton.id = id;
     acceptButton.addEventListener('click',async () => {
-        await acceptInvitationForJoin(id,invitedUser.name);
+        await acceptInvitationForJoin(id,invitedUser.name,communityId);
         console.log("This is accept button")
     });
     const denyButton = document.createElement('button');
     denyButton.innerHTML = 'Reject';
     denyButton.classList.add('btn','btn-outline-danger')
     denyButton.addEventListener('click', async () => {
-        await rejectInvitationForDeny(id);
+        await rejectInvitationForDeny(id,communityId);
         console.log('This is deny button');
     });
     buttonsWrapper.appendChild(acceptButton);
@@ -1119,7 +1149,7 @@ const displayMessageForJoinInvitation =async (id,image,name,communityId,userId) 
     root.appendChild(allWrapDiv);
 }
 
-async function acceptInvitationForJoin(id,name) {
+async function acceptInvitationForJoin(id,name,communityId) {
     const data = await fetch(`/user/request-accept-invitation/${id}`);
     if(!data.ok){
         console.log("Something wrong please try again");
@@ -1127,8 +1157,8 @@ async function acceptInvitationForJoin(id,name) {
         const divEl = document.querySelector(`.all-wrap-div-${id}`);
         if(divEl){
             divEl.remove();
-
         }
+        await showCountForJoin(communityId);
         const res = await data.json();
         let alertMessage = `${res.message} ${name} now the member of this group..!`;
         let alertStyle = `
@@ -1159,7 +1189,7 @@ async function acceptInvitationForJoin(id,name) {
 }
 
 
-async function rejectInvitationForDeny(id) {
+async function rejectInvitationForDeny(id,communityId) {
     const data = await fetch(`/user/request-deny-invitation/${id}`);
     if(!data.ok){
         console.log('Something wrong please try again');
@@ -1168,6 +1198,7 @@ async function rejectInvitationForDeny(id) {
         if(divEl){
             divEl.remove();
         }
+        await showCountForJoin(communityId);
         const res = await data.json();
         let alertMessage = `${res.message}`;
         let alertStyle = `
@@ -5510,6 +5541,12 @@ async function unSavePost(id){
     }
 }
 
+async function getCurrentLoginUserId(){
+    let data = await fetch('user/getCurrentLoginUserId')
+    let response  = await data.json()
+    console.log(response)
+    return response
+}
 
 async function getPosts(){
     isFetchingForPost = true
@@ -6887,7 +6924,12 @@ async function populateCreateGroupFormForInvitation() {
     if(response[0] === 'OWNER'){
         return 'OWNER'
     }
-    return 'MEMBER'
+    if(response[0] ==='MEMBER'){
+        return 'MEMBER'
+    }
+    if(response[0]=== 'VISITOR'){
+        return 'VISITOR'
+    }
 }
 
 

@@ -472,4 +472,10 @@ public class GroupController {
     public ResponseEntity<User> getOwnerOfTheCommunity(@PathVariable("communityId")String communityId){
         return ResponseEntity.ok(communityService.getOwnerOfTheCommunity(Long.valueOf(communityId)));
     }
+
+    @GetMapping("/getAccessOfACommunity/{id}")
+    @ResponseBody
+    public ResponseEntity<List<Object>> getAccessOfACommunity(@PathVariable("id")String id){
+        return ResponseEntity.ok(communityService.getAccessOfCommunity(Long.valueOf(id)));
+    }
 }

@@ -78,8 +78,9 @@ const showOneTrendyPostWithinOneMonth =async () => {
     const checkUser = await getUserToCheckAdminOrNot();
     if(checkUser.role === 'ADMIN'){
         const post = await getOnlyPostForAdminWithinOneMonth();
-        const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
-        photo.src = `${image}`;
+        // const image = `${post.user.photo}` || 'static/assets/img/default-logo.png';
+        const image = post.user.photo ? post.user.photo : '/static/assets/img/default-logo.png';
+        photo.src = image;
         const reactSize = await getOnlyPostReactsCountForAdmin(post.id);
         const commentSize = await getOnlyPostCommentsCountForAdmin(post.id);
         const createdDate = new Date(post.createdDate);
@@ -96,8 +97,9 @@ const showOneTrendyPostWithinOneMonth =async () => {
         console.log("that is admin")
     }else{
         const post = await fetchMostTrendyPostWithinOneMonth();
-        const image = `${post.user.photo}` || '/static/assets/img/card.jpg';
-        photo.src = `${image}`;
+        // const image = `${post.user.photo}` || 'static/assets/img/default-logo.png';
+        const image = post.user.photo ? post.user.photo : '/static/assets/img/default-logo.png';
+        photo.src = image;
         const reactSize = await fetchMostTrendyPostReactCountWithinOneMonth();
         const commentSize = await fetchMostTrendyPostCommentCountWithinOneMonth();
         const createdDate = new Date(post.createdDate);
@@ -123,8 +125,9 @@ const showOneTrendyPostWithinOneYear =async () => {
 const checkUser = await getUserToCheckAdminOrNot();
  if(checkUser.role === 'ADMIN'){
      const p = await getOnlyPostForAdminWithinOneYear();
-     const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
-     photo.src = `${image}`;
+     // const image = `${p.user.photo}` || 'static/assets/img/default-logo.png';
+     const image = p.user.photo ? p.user.photo : '/static/assets/img/default-logo.png';
+     photo.src = image;
      const reactSize = await getOnlyPostReactsCountForAdmin(p.id);
      const commentSize = await getOnlyPostCommentsCountForAdmin(p.id);
      const createdDate = new Date(p.createdDate);
@@ -141,8 +144,8 @@ const checkUser = await getUserToCheckAdminOrNot();
      console.log("that is admin")
  }else{
      const p = await fetchMostTrendyPostWithinOneYear();
-     const image = `${p.user.photo}` || '/static/assets/img/card.jpg';
-     photo.src = `${image}`;
+     const image = p.user.photo ? p.user.photo : '/static/assets/img/default-logo.png';
+     photo.src = image;
      const reactSize = await fetchMostTrendyPostReactCountWithinOneYear();
      const commentSize = await fetchMostTrendyPostCommentCountWithinOneYear();
      const createdDate = new Date(p.createdDate);
@@ -247,7 +250,7 @@ const showTrendyCommunityWithMostMembers = async () => {
     descriptionIcon.classList.add('fa-solid', 'fa-audio-description');
     groupNameIcon.classList.add('fa-solid', 'fa-layer-group');
 
-    const photo = community.image || 'static/assets/img/card.jpg';
+    const photo = community.image || 'static/assets/img/default-logo.png';
     groupPhoto1.src = photo;
     groupPhoto2.src = photo;
     groupPhoto3.src = photo;
