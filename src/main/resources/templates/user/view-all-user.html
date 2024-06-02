@@ -41,6 +41,9 @@
             padding: 15px;
             border-bottom: 1px solid #dddddd;
         }
+        #usersTables select {
+            width: 80px;
+        }
         .btn-primary {
             background-color: #007bff;
             border-color: #007bff;
@@ -481,389 +484,383 @@
                 alert('Error updating permission');
             });
     }
-    document.addEventListener('DOMContentLoaded', function () {
-    document.addEventListener('DOMContentLoaded', async function () {
-        const pencilIcons = document.querySelectorAll('#pencilIcons');
-        const trashIcons = document.querySelectorAll('#trashIcons');
-        const warningIcon = document.querySelectorAll('#warningIcons')
-        pencilIcons.forEach(icon => {
-            icon.addEventListener('click', function () {
-                const userId = this.closest('tr').querySelector('td:first-child').textContent.trim();
-                console.log("Pencil icon clicked");
-                updateUserToAdminStatus(userId, 'pending', true);
-            });
-        });
-        warningIcon.forEach(icon => {
-            icon.addEventListener('click', function () {
-                const userId = this.closest('tr').querySelector('td:first-child').textContent.trim();
-                console.log("warning icon is clicked");
-                document.getElementById('rejectedRoleModal').setAttribute('data-user-id', userId);
-                fetch('/user/getRejectReason', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({userId: userId})
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        const modalBody = document.getElementById('rejectedRoleModal').querySelector('.modal-body');
-                        modalBody.innerHTML = `Sorry User <strong>${data.name}</strong> rejected to update to the admin role due to the fact <span style="color: #ff0000">${data.rejectReason}</span>.`;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                const modal = new bootstrap.Modal(document.getElementById('rejectedRoleModal'));
-                modal.show();
-            })
-        })
-        trashIcons.forEach(icon => {
-            icon.addEventListener('click', function () {
-                const userId = this.closest('tr').querySelector('td:first-child').textContent.trim();
-                console.log("Trash icon clicked");
-                document.getElementById('removeUserModal').setAttribute('data-user-id', userId);
-                const modal = new bootstrap.Modal(document.getElementById('removeUserModal'));
-                modal.show();
-            });
-        });
-        const submitButton = document.getElementById('submitRemovalReason');
+    $(document).ready(function() {
+        const $pencilIcons = $('#pencilIcons');
+        const $trashIcons = $('#trashIcons');
+        const $warningIcon = $('#warningIcons');
 
-        submitButton.addEventListener('click', function () {
-            const userId = document.getElementById('removeUserModal').getAttribute('data-user-id');
-            const removalReason = document.getElementById('removalReason').value;
+        $pencilIcons.on('click', function () {
+            const userId = $(this).closest('tr').find('td:first-child').text().trim();
+            console.log("Pencil icon clicked");
+            updateUserToAdminStatus(userId, 'pending', true);
+        });
+
+        $warningIcon.on('click', function () {
+            const userId = $(this).closest('tr').find('td:first-child').text().trim();
+            console.log("warning icon is clicked");
+            $('#rejectedRoleModal').attr('data-user-id', userId);
+            $.ajax({
+                url: '/user/getRejectReason',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({userId: userId}),
+                success: function(data) {
+                    const modalBody = $('#rejectedRoleModal .modal-body');
+                    modalBody.html(`Sorry User <strong>${data.name}</strong> rejected to update to the admin role due to the fact <span style="color: #ff0000">${data.rejectReason}</span>.`);
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+            const modal = new bootstrap.Modal($('#rejectedRoleModal').get(0));
+            modal.show();
+        });
+
+        $trashIcons.on('click', function () {
+            const userId = $(this).closest('tr').find('td:first-child').text().trim();
+            console.log("Trash icon clicked");
+            $('#removeUserModal').attr('data-user-id', userId);
+            const modal = new bootstrap.Modal($('#removeUserModal').get(0));
+            modal.show();
+        });
+
+        $('#submitRemovalReason').on('click', function () {
+            const userId = $('#removeUserModal').attr('data-user-id');
+            const removalReason = $('#removalReason').val();
             removedAdminToUserStatus(userId, 'removedStatus', true, removalReason);
-            const modal = bootstrap.Modal.getInstance(document.getElementById('removeUserModal'));
+            const modal = bootstrap.Modal.getInstance($('#removeUserModal').get(0));
             modal.hide();
         });
 
-        const acceptRoleBtn = document.getElementById('acceptRejectedRoleBtn');
-
-        acceptRoleBtn.addEventListener('click', function () {
-            const userId = document.getElementById('rejectedRoleModal').getAttribute('data-user-id');
+        $('#acceptRejectedRoleBtn').on('click', function () {
+            const userId = $('#rejectedRoleModal').attr('data-user-id');
             removeUserStatusAndRole(userId);
         });
-
-        function removeUserStatusAndRole(userId) {
-            fetch(`/user/acceptRejected`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    userId: userId
-                })
-            })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.error('Failed to update user status and role');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating user status and role:', error);
-                });
-        }
-
-        function removedAdminToUserStatus(userId, statusField, newValue, removalReason) {
-            fetch('/user/removedAdmin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({userId: userId, [statusField]: newValue, removedReason: removalReason})
-            })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.log("Failed to update admin status")
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating user status: ', error);
-                })
-        }
-
-        function updateUserToAdminStatus(userId, statusField, newValue) {
-            fetch(`/user/updateUserToAdminStatus`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({userId: userId, [statusField]: newValue})
-            })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.error('Failed to update user status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating user status:', error);
-                });
-        }
-        const hobbyIcons = {
-            "Reading": "<i class='fas fa-book' style='color: #4a86e8;'></i>",
-            "Hiking": "<i class='fas fa-hiking' style='color: #f6b26b;'></i>",
-            "Cooking": "<i class='fas fa-utensils' style='color: #e55039;'></i>",
-            "Gardening": "<i class='fas fa-seedling' style='color: #8bc34a;'></i>",
-            "Writing": "<i class='fas fa-pen' style='color: #673ab7;'></i>",
-            "Photography": "<i class='fas fa-camera' style='color: #9e9e9e;'></i>",
-            "Coding": "<i class='fas fa-laptop-code' style='color: #607d8b;'></i>",
-            "Drawing": "<i class='fas fa-draw-polygon' style='color: #ff9800;'></i>",
-            "Swimming": "<i class='fas fa-swimmer' style='color: #00bcd4;'></i>",
-            "Gaming": "<i class='fas fa-gamepad' style='color: #4caf50;'></i>",
-            "Painting": "<i class='fas fa-paint-brush' style='color: #9c27b0;'></i>",
-            "Traveling": "<i class='fas fa-globe-americas' style='color: #795548;'></i>",
-            "Cycling": "<i class='fas fa-bicycle' style='color: #607d8b;'></i>",
-            "Camping": "<i class='fas fa-campground' style='color: #ff9800;'></i>",
-            "Fishing": "<i class='fas fa-fish' style='color: #00bcd4;'></i>",
-            "Birdwatching": "<i class='fas fa-binoculars' style='color: #4caf50;'></i>",
-            "Meditation": "<i class='fas fa-meditate' style='color: #9c27b0;'></i>",
-            "Music": "<i class='fas fa-music' style='color: #795548;'></i>",
-            "Jogging": "<i class='fas fa-running' style='color: #4a86e8;'></i>",
-            "Sports": "<i class='fas fa-futbol' style='color: #f6b26b;'></i>",
-            "Crafts": "<i class='fas fa-craft' style='color: #e55039;'></i>",
-            "Sewing": "<i class='fas fa-scissors' style='color: #8bc34a;'></i>",
-            "Crochet": "<i class='fas fa-crop' style='color: #673ab7;'></i>",
-            "Acting": "<i class='fas fa-theater-masks' style='color: #9e9e9e;'></i>"
-        };
-
-        function displayHobbiesWithIcons(hobbiesString) {
-            const hobbies = hobbiesString.split(',');
-            console.log(hobbies+"reach here.")
-            let html = "";
-            hobbies.forEach(hobby => {
-                const icon = hobbyIcons[hobby];
-                if (icon) {
-                    html += `<div>${icon} ${hobby}</div>`;
-                }
-            });
-            return html;
-        }
-
-        function fetchAndDisplayUserHobbies(userId) {
-            fetch(`/user/getUserHobbies/${userId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch user hobbies');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const hobbies = data.hobbies;
-                    const hobbiesContainer = document.getElementById(`hobbiesContainer-${userId}`);
-                    if (hobbiesContainer) {
-                        hobbiesContainer.innerHTML = displayHobbiesWithIcons(hobbies);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching user hobbies:', error);
-                });
-        }
-
-        // Add event listeners to "View Detail" buttons
-        document.querySelectorAll('button[data-bs-target^="#userDetailModal-"]').forEach(button => {
-            button.addEventListener('click', event => {
-                const userId = event.currentTarget.getAttribute('data-bs-target').split('-').pop();
-                fetchAndDisplayUserHobbies(userId);
-            });
-        });
-        await notifyMessage();
-        const toggleCheckbox = document.getElementById("toggle-checkbox");
-        const toggleKnob = document.getElementById("toggle-knob");
-        const notiOnBell = document.getElementById('notiOnBell');
-        const notiOffBell = document.getElementById('notiOffBell');
-        const userStatus = await checkStatusForUser();
-        if (userStatus.isOn === 'ON') {
-            notiOnBell.style.display = 'block';
-            notiOffBell.style.display = 'none';
-            toggleCheckbox.checked = false;
-        } else {
-            notiOnBell.style.display = 'none';
-            notiOffBell.style.display = 'block';
-            toggleCheckbox.checked = true;
-        }
-        toggleCheckbox.addEventListener("change", async function() {
-            if (toggleCheckbox.checked) {
-                console.log("OFF");
-                notiOnBell.style.display = 'none';
-                notiOffBell.style.display = 'block';
-                const data = await fetch(`/user/turn-off-noti`,{
-                    method:'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body:JSON.stringify({ isOn: 'OFF' })
-                });
-                if(!data.ok){
-                    console.log('something wrong please try again!');
-                }
-                const res = await data.text();
-                let alertMessage = `${res}`;
-                let alertStyle = `
-            background-color: green;
-            color: white;
-            border: 1px solid #cc0000;
-             border-radius: 15px;
-        `;
-                let styledAlert = document.createElement('div');
-                styledAlert.style.cssText = `
-            ${alertStyle}
-            position: fixed;
-            top: 25%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 10000;
-            display: none;
-        `;
-                styledAlert.innerHTML = alertMessage;
-
-
-                document.body.appendChild(styledAlert);
-
-
-                styledAlert.style.display = 'block';
-
-                setTimeout(function () {
-                    styledAlert.style.display = 'none';
-                }, 3000);
-            } else {
-                console.log("ON");
-                notiOnBell.style.display = 'block';
-                notiOffBell.style.display = 'none';
-                const data = await fetch(`/user/turn-on-noti`,{
-                    method:'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body:JSON.stringify({ isOn: 'ON' })
-                });
-                if(!data.ok){
-                    console.log('something wrong please try again!');
-                }
-                const res = await data.text();
-                let alertMessage = `${res}`;
-                let alertStyle = `
-            background-color: green;
-            color: white;
-            border: 1px solid #cc0000;
-             border-radius: 15px;
-        `;
-                let styledAlert = document.createElement('div');
-                styledAlert.style.cssText = `
-            ${alertStyle}
-            position: fixed;
-            top: 25%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 10000;
-            display: none;
-        `;
-                styledAlert.innerHTML = alertMessage;
-
-
-                document.body.appendChild(styledAlert);
-
-
-                styledAlert.style.display = 'block';
-
-                setTimeout(function () {
-                    styledAlert.style.display = 'none';
-                }, 3000);
-            }
-        });
     });
 
-    const  setUserDetailId = async () => {
-        const userId = event.currentTarget.getAttribute('data-user-id');  
-        console.log("User ID:", userId);
-        localStorage.setItem('userIdForDetailPage',userId)
-        window.location.href = '/user/other-user-profile?id=' + userId;
+    function removeUserStatusAndRole(userId) {
+        fetch(`/user/acceptRejected`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Failed to update user status and role');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating user status and role:', error);
+            });
     }
 
-    const  goToUserDetail = async () => {
-        await setUserDetailId()
-        
+    function removedAdminToUserStatus(userId, statusField, newValue, removalReason) {
+        fetch('/user/removedAdmin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({userId: userId, [statusField]: newValue, removedReason: removalReason})
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.log("Failed to update admin status")
+                }
+            })
+            .catch(error => {
+                console.error('Error updating user status: ', error);
+            })
     }
 
-    let notificationCount = 0;
-    async function notifyMessage(){
-        const showMessage = document.getElementById('notifyMessage');
-        const pElement = document.createElement('p');
-        pElement.classList.add('noti-p-element');
-        if (notificationCount === 0) {
-            pElement.style.display = 'block';
-            pElement.textContent = 'There is no notification yet!';
-        } else {
-            pElement.style.display = 'none';
-            pElement.textContent = '';
-        }
-        showMessage.appendChild(pElement);
+    function updateUserToAdminStatus(userId, statusField, newValue) {
+        fetch(`/user/updateUserToAdminStatus`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({userId: userId, [statusField]: newValue})
+        })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Failed to update user status');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating user status:', error);
+            });
+    }
+
+    const hobbyIcons = {
+        "Reading": "<i class='fas fa-book' style='color: #4a86e8;'></i>",
+        "Hiking": "<i class='fas fa-hiking' style='color: #f6b26b;'></i>",
+        "Cooking": "<i class='fas fa-utensils' style='color: #e55039;'></i>",
+        "Gardening": "<i class='fas fa-seedling' style='color: #8bc34a;'></i>",
+        "Writing": "<i class='fas fa-pen' style='color: #673ab7;'></i>",
+        "Photography": "<i class='fas fa-camera' style='color: #9e9e9e;'></i>",
+        "Coding": "<i class='fas fa-laptop-code' style='color: #607d8b;'></i>",
+        "Drawing": "<i class='fas fa-draw-polygon' style='color: #ff9800;'></i>",
+        "Swimming": "<i class='fas fa-swimmer' style='color: #00bcd4;'></i>",
+        "Gaming": "<i class='fas fa-gamepad' style='color: #4caf50;'></i>",
+        "Painting": "<i class='fas fa-paint-brush' style='color: #9c27b0;'></i>",
+        "Traveling": "<i class='fas fa-globe-americas' style='color: #795548;'></i>",
+        "Cycling": "<i class='fas fa-bicycle' style='color: #607d8b;'></i>",
+        "Camping": "<i class='fas fa-campground' style='color: #ff9800;'></i>",
+        "Fishing": "<i class='fas fa-fish' style='color: #00bcd4;'></i>",
+        "Birdwatching": "<i class='fas fa-binoculars' style='color: #4caf50;'></i>",
+        "Meditation": "<i class='fas fa-meditate' style='color: #9c27b0;'></i>",
+        "Music": "<i class='fas fa-music' style='color: #795548;'></i>",
+        "Jogging": "<i class='fas fa-running' style='color: #4a86e8;'></i>",
+        "Sports": "<i class='fas fa-futbol' style='color: #f6b26b;'></i>",
+        "Crafts": "<i class='fas fa-craft' style='color: #e55039;'></i>",
+        "Sewing": "<i class='fas fa-scissors' style='color: #8bc34a;'></i>",
+        "Crochet": "<i class='fas fa-crop' style='color: #673ab7;'></i>",
+        "Acting": "<i class='fas fa-theater-masks' style='color: #9e9e9e;'></i>"
     };
 
-    $(document).ready(function () {
-        $('.single_advisor_profile').on('click', function() {
-            const userId = $(this).data('userid');
-            console.log(userId)
-            localStorage.setItem('userIdForDetailPage',userId)
+    function displayHobbiesWithIcons(hobbiesString) {
+        const hobbies = hobbiesString.split(',');
+        console.log(hobbies + "reach here.")
+        let html = "";
+        hobbies.forEach(hobby => {
+            const icon = hobbyIcons[hobby];
+            if (icon) {
+                html += `<div>${icon} ${hobby}</div>`;
+            }
+        });
+        return html;
+    }
+
+    function fetchAndDisplayUserHobbies(userId) {
+        fetch(`/user/getUserHobbies/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user hobbies');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const hobbies = data.hobbies;
+                const hobbiesContainer = document.getElementById(`hobbiesContainer-${userId}`);
+                if (hobbiesContainer) {
+                    hobbiesContainer.innerHTML = displayHobbiesWithIcons(hobbies);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user hobbies:', error);
+            });
+    }
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Add event listeners to "View Detail" buttons
+            document.querySelectorAll('button[data-bs-target^="#userDetailModal-"]').forEach(button => {
+                button.addEventListener('click', event => {
+                    const userId = event.currentTarget.getAttribute('data-bs-target').split('-').pop();
+                    fetchAndDisplayUserHobbies(userId);
+                });
+            });
+            await notifyMessage();
+            const toggleCheckbox = document.getElementById("toggle-checkbox");
+            const toggleKnob = document.getElementById("toggle-knob");
+            const notiOnBell = document.getElementById('notiOnBell');
+            const notiOffBell = document.getElementById('notiOffBell');
+            const userStatus = await checkStatusForUser();
+            if (userStatus.isOn === 'ON') {
+                notiOnBell.style.display = 'block';
+                notiOffBell.style.display = 'none';
+                toggleCheckbox.checked = false;
+            } else {
+                notiOnBell.style.display = 'none';
+                notiOffBell.style.display = 'block';
+                toggleCheckbox.checked = true;
+            }
+            toggleCheckbox.addEventListener("change", async function () {
+                if (toggleCheckbox.checked) {
+                    console.log("OFF");
+                    notiOnBell.style.display = 'none';
+                    notiOffBell.style.display = 'block';
+                    const data = await fetch(`/user/turn-off-noti`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({isOn: 'OFF'})
+                    });
+                    if (!data.ok) {
+                        console.log('something wrong please try again!');
+                    }
+                    const res = await data.text();
+                    let alertMessage = `${res}`;
+                    let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+                    let styledAlert = document.createElement('div');
+                    styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+                    styledAlert.innerHTML = alertMessage;
+
+
+                    document.body.appendChild(styledAlert);
+
+
+                    styledAlert.style.display = 'block';
+
+                    setTimeout(function () {
+                        styledAlert.style.display = 'none';
+                    }, 3000);
+                } else {
+                    console.log("ON");
+                    notiOnBell.style.display = 'block';
+                    notiOffBell.style.display = 'none';
+                    const data = await fetch(`/user/turn-on-noti`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({isOn: 'ON'})
+                    });
+                    if (!data.ok) {
+                        console.log('something wrong please try again!');
+                    }
+                    const res = await data.text();
+                    let alertMessage = `${res}`;
+                    let alertStyle = `
+            background-color: green;
+            color: white;
+            border: 1px solid #cc0000;
+             border-radius: 15px;
+        `;
+                    let styledAlert = document.createElement('div');
+                    styledAlert.style.cssText = `
+            ${alertStyle}
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            display: none;
+        `;
+                    styledAlert.innerHTML = alertMessage;
+
+
+                    document.body.appendChild(styledAlert);
+
+
+                    styledAlert.style.display = 'block';
+
+                    setTimeout(function () {
+                        styledAlert.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        });
+
+        const setUserDetailId = async () => {
+            const userId = event.currentTarget.getAttribute('data-user-id');
+            console.log("User ID:", userId);
+            localStorage.setItem('userIdForDetailPage', userId)
             window.location.href = '/user/other-user-profile?id=' + userId;
-        });
-        const tableView = $('#tableView');
-        const cardView = $('#cardView');
-        const modeToggleBtn = $('#modeToggleBtn');
-        const userRole = getUserRole();
-        console.log("User role: " + userRole);
-        if (userRole === 'ADMIN') {
-            console.log("Admin reach")
-            tableView.show();
-            cardView.hide();
-            modeToggleBtn.text('User Mode');
-        } else if (userRole === 'USER') {
-            console.log("user reach")
-            tableView.hide();
-            cardView.show();
-            modeToggleBtn.hide();
         }
-        const table = $('#usersTable').DataTable({
-            lengthChange: true,
-            buttons: ['copy', 'excel', 'pdf', 'print']
-        });
-        $(document).ready(function() {
-            $('#usersTable').on('click', '.btn-ban', function(event) {
-                event.preventDefault();
-                const userId = $(this).closest('tr').find('td:first').text();
-                console.log("banned button clicked.")
-                document.getElementById('banUserModal').setAttribute('data-user-id', userId);
-                const modal = new bootstrap.Modal(document.getElementById('banUserModal'));
-                modal.show();
 
-                const submitButton = document.getElementById('submitBanReason');
+        const goToUserDetail = async () => {
+            await setUserDetailId()
 
-                submitButton.addEventListener('click', function() {
-                    const userId = document.getElementById('banUserModal').getAttribute('data-user-id');
-                    const banReason = document.getElementById('banReason').value;
-                    updateUserStatus(userId, false, banReason);
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('banUserModal'));
-                    modal.hide();
+        }
+
+        let notificationCount = 0;
+
+        async function notifyMessage() {
+            const showMessage = document.getElementById('notifyMessage');
+            const pElement = document.createElement('p');
+            pElement.classList.add('noti-p-element');
+            if (notificationCount === 0) {
+                pElement.style.display = 'block';
+                pElement.textContent = 'There is no notification yet!';
+            } else {
+                pElement.style.display = 'none';
+                pElement.textContent = '';
+            }
+            showMessage.appendChild(pElement);
+        }
+
+        $(document).ready(function () {
+            $('.single_advisor_profile').on('click', function () {
+                const userId = $(this).data('userid');
+                console.log(userId)
+                localStorage.setItem('userIdForDetailPage', userId)
+                window.location.href = '/user/other-user-profile?id=' + userId;
+            });
+            const tableView = $('#tableView');
+            const cardView = $('#cardView');
+            const modeToggleBtn = $('#modeToggleBtn');
+            const userRole = getUserRole();
+            console.log("User role: " + userRole);
+            if (userRole === 'ADMIN') {
+                console.log("Admin reach")
+                tableView.show();
+                cardView.hide();
+                modeToggleBtn.text('User Mode');
+            } else if (userRole === 'USER') {
+                console.log("user reach")
+                tableView.hide();
+                cardView.show();
+                modeToggleBtn.hide();
+            }
+            const table = $('#usersTable').DataTable({
+                lengthChange: true,
+
+                buttons: ['copy', 'excel', 'pdf', 'print']
+            });
+            $(document).ready(function () {
+                $('#usersTable').on('click', '.btn-ban', function (event) {
+                    event.preventDefault();
+                    const userId = $(this).closest('tr').find('td:first').text();
+                    console.log("banned button clicked.")
+                    document.getElementById('banUserModal').setAttribute('data-user-id', userId);
+                    const modal = new bootstrap.Modal(document.getElementById('banUserModal'));
+                    modal.show();
+
+                    const submitButton = document.getElementById('submitBanReason');
+
+                    submitButton.addEventListener('click', function () {
+                        const userId = document.getElementById('banUserModal').getAttribute('data-user-id');
+                        const banReason = document.getElementById('banReason').value;
+                        updateUserStatus(userId, false, banReason);
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('banUserModal'));
+                        modal.hide();
+                    });
+                });
+
+                $('#usersTable').on('click', '.btn-unban', function (event) {
+                    event.preventDefault();
+                    const userId = $(this).closest('tr').find('td:first').text();
+                    updateUserStatus(userId, true, null);
                 });
             });
 
-            $('#usersTable').on('click', '.btn-unban', function(event) {
-                event.preventDefault();
-                const userId = $(this).closest('tr').find('td:first').text();
-                updateUserStatus(userId, true, null);
-            });
         });
-
-    });
-
     function updateUserStatus(userId, isActive, banReason) {
         fetch(`/user/updateUserStatus`, {
             method: 'POST',

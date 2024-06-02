@@ -944,8 +944,9 @@ async function createPost() {
         document.getElementById('postForm').reset()
         console.log(response)
         if (response) {
-            await removeCat()
+
             removePreview()
+            await removeCat()
         }
      console.log("Post text", postText)
         const res = await response.json();
@@ -959,6 +960,7 @@ async function createPost() {
             newsfeed.removeChild(newsfeed.firstChild)
         }
         await welcome()
+
         // postCount = 0
     }
 
