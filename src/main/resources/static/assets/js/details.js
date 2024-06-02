@@ -364,6 +364,13 @@ async function unSavePost(id){
     }
 }
 
+ async function getCurrentLoginUserId(){
+     let data = await fetch('user/getCurrentLoginUserId')
+     let response  = await data.json()
+     console.log(response)
+     return response
+ }
+
 const singlePagePost = async (id) => {
     let data = await fetch(`/post/singlePost/${id}`, {
         method: 'GET'
