@@ -18,4 +18,8 @@ public interface InvitationRepository extends JpaRepository<Invitation,Long> {
     Invitation findByRecipientIdAndCommunityIdAndIsRequested(Long userId, Long id, boolean b);
 
     List<Invitation> findByCommunityIdAndIsRemovedAndIsRequested(Long id, boolean b, boolean b1);
+
+    List<Invitation> findBySenderId(Long uId);
+
+    List<Invitation> findByRecipientId(Long uId);
 }

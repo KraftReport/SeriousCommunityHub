@@ -41,7 +41,7 @@
             padding: 15px;
             border-bottom: 1px solid #dddddd;
         }
-        #usersTables select {
+        #usersTables .usersTable_length {
             width: 80px;
         }
         .btn-primary {
@@ -175,7 +175,9 @@
                 <th>Division</th>
                 <th>Staff ID</th>
                 <th>Role</th>
+                <th:block th:if="${loggedIndUser.fully_permitted}" >
                 <th>Permission</th>
+                </th:block>
                 <th>Action</th>
             </tr>
             </thead>
@@ -223,6 +225,7 @@
                     </th:block>
                     </th:block>
                 </td>
+                <th:block th:if="${loggedIndUser.fully_permitted}">
                 <td>
                     <th:block th:if="${user.done}">
                         <th:block th:if="${user.fully_permitted}">
@@ -242,6 +245,7 @@
                         <span>not authorized</span>
                     </th:block>
                 </td>
+                </th:block>
                 <td>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             th:data-bs-target="'#userDetailModal-' + ${user.id}">View Detail

@@ -2388,8 +2388,7 @@ async function unSavePost(id){
 async function createPostsForSearch(input){
     // document.getElementById('searchInput').focus()
     // document.getElementById('searchInput').value = input
-    let savedCheck = await checkSavedPost(p.id)
-    let saveFuncton = savedCheck === 'SAVED' ? `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#unSavePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Unsave post</div>` : `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#savePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Save post</div>`
+
     let data = await fetch('/post/searchPost/'+input)
     let response = await data.json()
     console.log(response)
@@ -2408,6 +2407,8 @@ async function createPostsForSearch(input){
         return
     }
     for (const p of response) {
+        let savedCheck = await checkSavedPost(p.id)
+        let saveFuncton = savedCheck === 'SAVED' ? `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#unSavePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Unsave post</div>` : `<li id="postSaveBtn-${p.id}"><div data-bs-toggle="modal" data-bs-target="#savePostAsk${p.id}" class="dropdown-item font-monospace" ><i class="fa-solid fa-bookmark text-primary"></i> Save post</div>`
         let profileRouteUrl = null
         let loginUserId = await getCurrentLoginUserId()
         if(loginUserId === p.user.id){

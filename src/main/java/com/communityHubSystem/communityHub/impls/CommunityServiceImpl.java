@@ -4,10 +4,7 @@ import com.communityHubSystem.communityHub.dto.GroupAccessChangeDto;
 import com.communityHubSystem.communityHub.exception.CommunityHubException;
 import com.communityHubSystem.communityHub.models.*;
 import com.communityHubSystem.communityHub.repositories.*;
-import com.communityHubSystem.communityHub.services.ChatRoomService;
-import com.communityHubSystem.communityHub.services.CommunityService;
-import com.communityHubSystem.communityHub.services.ImageUploadService;
-import com.communityHubSystem.communityHub.services.User_ChatRoomService;
+import com.communityHubSystem.communityHub.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -280,6 +277,13 @@ public class CommunityServiceImpl implements CommunityService {
                 .user(user)
                 .community(community)
                 .build();
+        var chatRoom = chatRoomService.findByCommunityId(communityId);
+        var user_chatRoom = User_ChatRoom.builder()
+                .chatRoom(chatRoom)
+                .user(user)
+                .date(new Date())
+                        .build();
+        user_chatRoomService.save(user_chatRoom);
         communityRepository.save(community);
         user_groupRepository.save(userGroup);
     }
@@ -318,7 +322,15 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public User getOwnerOfTheCommunity(Long communityId) {
         var community = communityRepository.findById(communityId).orElseThrow(()->new CommunityHubException("community not found"));
-        return userRepository.findByName(community.getOwnerName());
+            var user = userRepository.findByName(community.getOwnerName());
+            if(user == null){
+                Long id = 999L;
+                User admin = userRepository.findById(id).orElseThrow(() -> new CommunityHubException("User not found exception"));
+                return admin;
+            }else{
+                return user;
+            }
+
     }
 
     @Override

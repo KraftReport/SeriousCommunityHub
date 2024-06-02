@@ -416,19 +416,21 @@ const getDetailOfTheCommunity = async () => {
     const nameOfOwner = document.createElement('p');
     const emailOfTheOwner = document.createElement('p');
     const textDiv = document.createElement('div');
-    const image =  communityOwner.photo ?  communityOwner.photo : '/static/assets/img/default-logo.png';
-    imgOfOwner.src = image;
+    const ownerName= communityOwner.name === 'Plugin' ? 'Anonymous' : communityOwner.name;
+    let ownerPhoto= communityOwner.name === 'Plugin' ? '/static/assets/img/default-logo.png' : communityOwner.photo;
+    const ownerEmail =  communityOwner.email === 'admin@gmail.com' ? '' : communityOwner.email;
+    imgOfOwner.src = ownerPhoto ? ownerPhoto : '/static/assets/img/default-logo.png';
     imgOfOwner.style.width = '70px';
     imgOfOwner.style.height = '70px';
     imgOfOwner.style.borderRadius = '10px';
     imgOfOwner.style.marginRight = '15px';
 
-    nameOfOwner.textContent = 'Owner: ' + communityOwner.name;
+    nameOfOwner.textContent = 'Owner: ' + ownerName;
     nameOfOwner.style.fontFamily = 'Courier New, Courier, monospace';
     nameOfOwner.style.fontWeight = 'bold';
     nameOfOwner.style.color = '#333';
 
-    emailOfTheOwner.textContent = communityOwner.email;
+    emailOfTheOwner.textContent = ownerEmail;
     emailOfTheOwner.style.fontFamily = 'Courier New, Courier, monospace';
     emailOfTheOwner.style.color = '#28a745';
 

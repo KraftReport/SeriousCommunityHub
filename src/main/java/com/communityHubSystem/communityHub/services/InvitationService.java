@@ -30,4 +30,10 @@ public interface InvitationService {
    public List<Invitation> findByCommunityIdAndIsRemovedAndIsRequested(Long id, boolean b, boolean b1);
 
     public List<Invitation> findInvitationsByCommunityIdAndIsRemovedAndIsRequested(Long id, boolean b, boolean b1);
+
+    public List<Invitation> findByRecipientId(Long uId);
+
+    public List<Invitation> findBySenderId(Long uId);
+
+    void deleteById(Long id);
 }
