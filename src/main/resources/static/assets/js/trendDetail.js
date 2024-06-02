@@ -1,5 +1,7 @@
+let loginUserForSinglePost = null;
 window.onload = async ()=>{
     let postId = localStorage.getItem('trendPostId')
+    loginUserForSinglePost = localStorage.getItem('staff_id');
     let data = await fetch(`/post/fetch-post/${postId}`)
     localStorage.removeItem('trendPostId')
     let response = await data.json()
@@ -10,7 +12,7 @@ window.onload = async ()=>{
     let groupId = community !== null ? community.id : '-'
     let user = response.user
     let resources = response.resources !== null ? response.resources : null
-    let userPhoto = user.photo === null ? "/static/assets/img/wowIt'sme.jpg" : user.photo
+    let userPhoto = user.photo === null ? '/static/assets/img/default-logo.png' : user.photo
     let userName = user.name
     let department = user.dept === null ? 'no dept' : user.dept
     let email = user.email
@@ -295,7 +297,7 @@ const commentReactTypeForSinglePost = async (id, userId, postId) => {
 }
 
 const displayMessageForSinglePost = async (sender, content, photo, id, postId,localDateTime,chatArea) => {
-    const user = await fetchUserDataByPostedUserForSinglePost(loginUser);
+    const user = await fetchUserDataByPostedUserForSinglePost(loginUserForSinglePost);
     const divItem = document.createElement('div');
     divItem.classList.add(`user-item-${id}`);
     const userImage = document.createElement('img');
@@ -367,7 +369,7 @@ const fetchAndDisplayRepliesForSinglePost = async (id) => {
     const replies = [];
 
     for (const reply of fetchDataForReplies) {
-        const user = await fetchUserDataByPostedUserForSinglePost(loginUser);
+        const user = await fetchUserDataByPostedUserForSinglePost(loginUserForSinglePost);
         const replyElement = document.createElement('div');
 
         const userRpImage = document.createElement('img');
