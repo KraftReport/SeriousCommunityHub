@@ -10,7 +10,7 @@ async function clickUserImgIcon(id,url){
 
 async function clickCommunityNameSpan(id){
     localStorage.setItem('communityIdForDetailPage',id)
-    window.location.href = 'api/community/goToCommunityDetail'
+    window.location.href = '/api/community/goToCommunityDetail'
 }
 
 function deleteResource(id) {

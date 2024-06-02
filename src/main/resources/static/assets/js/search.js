@@ -6,9 +6,16 @@ async function clickUserImgIcon(id,url){
     window.location.href = url
 }
 
+async function getCurrentLoginUserId(){
+    let data = await fetch('user/getCurrentLoginUserId')
+    let response  = await data.json()
+    console.log(response)
+    return response
+}
+
 async function clickCommunityNameSpan(id){
     localStorage.setItem('communityIdForDetailPage',id)
-    window.location.href = 'api/community/goToCommunityDetail'
+    window.location.href = '/api/community/goToCommunityDetail'
 }
 
 document.getElementById('searchInput').addEventListener('input', () => {
@@ -419,14 +426,20 @@ async function goToCommunityTab(input){
     
 }
 
-async function goToCommunityDetail(id){
-    let data = await fetch(`/user/checkIfUserIsAMemberOrOwnerOrAdminOfAGroup/${id}`)
+async function getGroupAccess(id){
+    let data = await fetch(`/api/community/getAccessOfACommunity/${id}`)
     let response = await data.json()
-    if(response[0] === 'VISITOR1'){
-        alert('you have not access to view this group')
-    }else{
-        localStorage.setItem('communityIdForDetailPage',id)
-        window.location.href = 'api/community/goToCommunityDetail'
+    console.log(response[0])
+    return response[0]
+}
+
+async function goToCommunityDetail(id){
+    let access = await getGroupAccess(id)
+    if(access === 'PRIVATE'){
+        alert('This community is a private community. You have no rights to check this informations !')
+    }else{ 
+            localStorage.setItem('communityIdForDetailPage',id)
+            window.location.href = 'api/community/goToCommunityDetail'
     }
 }
 

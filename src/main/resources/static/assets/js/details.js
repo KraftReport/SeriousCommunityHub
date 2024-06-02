@@ -7,7 +7,7 @@
 
 async function clickCommunityNameSpan(id){
     localStorage.setItem('communityIdForDetailPage',id)
-    window.location.href = 'api/community/goToCommunityDetail'
+    window.location.href = '/api/community/goToCommunityDetail'
 }
 
  
@@ -362,6 +362,13 @@ async function unSavePost(id){
         await dynamicUpdater(id)
         await removeCat()
     }
+}
+
+async function getCurrentLoginUserId(){
+    let data = await fetch('user/getCurrentLoginUserId')
+    let response  = await data.json()
+    console.log(response)
+    return response
 }
 
 const singlePagePost = async (id) => {

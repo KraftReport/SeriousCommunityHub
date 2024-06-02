@@ -60,4 +60,6 @@ public interface CommunityService {
     public List<User> getMembersOfACommunity(Long communityId);
 
     public User getOwnerOfTheCommunity(Long communityId);
+
+    public List<Object> getAccessOfCommunity(Long id);
 }

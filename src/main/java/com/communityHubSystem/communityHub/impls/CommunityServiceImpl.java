@@ -227,7 +227,7 @@ public class CommunityServiceImpl implements CommunityService {
         for (var s : specification) {
             communitySpecification = communitySpecification.or(s);
         }
-        return communityRepository.findAll(communitySpecification).stream().filter(c->c.getGroupAccess().equals(Community.GroupAccess.PUBLIC)).toList();
+        return communityRepository.findAll(communitySpecification);
     }
 
     @Override
@@ -319,6 +319,25 @@ public class CommunityServiceImpl implements CommunityService {
     public User getOwnerOfTheCommunity(Long communityId) {
         var community = communityRepository.findById(communityId).orElseThrow(()->new CommunityHubException("community not found"));
         return userRepository.findByName(community.getOwnerName());
+    }
+
+    @Override
+    public List<Object> getAccessOfCommunity(Long id) {
+        var list = new ArrayList<Object>();
+        var user = getLoginUser().getRole();
+        var owner =  user_groupRepository.findByUserIdAndCommunityId(getLoginUser().getId(),id);
+        if(user.equals(User.Role.ADMIN)){
+            list.add("ADMIN");
+            return list;
+        }
+        if(owner!=null){
+            list.add("MEMBER");
+            return list;
+        }
+        var found = communityRepository.findById(id).orElseThrow(()->new CommunityHubException("community not found"));
+        list.add(found.getGroupAccess().toString());
+        System.err.println(found.getGroupAccess().toString()+"090909------------;");
+        return list;
     }
 
     @Transactional

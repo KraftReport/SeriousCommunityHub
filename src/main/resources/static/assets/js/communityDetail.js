@@ -8,6 +8,13 @@ const getFormattedDate = async (date) => {
 }
 
 
+async function getCurrentLoginUserId(){
+    let data = await fetch('user/getCurrentLoginUserId')
+    let response  = await data.json()
+    console.log(response)
+    return response
+}
+
 async function clickUserImgIcon(id,url){
     console.log(id+'____'+url)
     localStorage.setItem('userIdForDetailPage',id)
@@ -16,7 +23,7 @@ async function clickUserImgIcon(id,url){
 
 async function clickCommunityNameSpan(id){
     localStorage.setItem('communityIdForDetailPage',id)
-    window.location.href = 'api/community/goToCommunityDetail'
+    window.location.href = '/api/community/goToCommunityDetail'
 }
 
 const createBtns = async () => {
@@ -143,12 +150,14 @@ const createBtns = async () => {
         mainDiv.style.marginTop = '30px'
         mainDiv.appendChild(controller1)
         mainDiv.append(controller2)
-    }else{
+    }else if(data==='MEMBER'){
         controller1.appendChild(postCreateBtn)
         controller1.appendChild(rawCreateionBtn)
         mainDiv.classList.add('d-flex')
         mainDiv.style.marginTop = '30px'
         mainDiv.appendChild(controller1)
+    }else{
+
     }
 
 
@@ -6887,7 +6896,12 @@ async function populateCreateGroupFormForInvitation() {
     if(response[0] === 'OWNER'){
         return 'OWNER'
     }
-    return 'MEMBER'
+    if(response[0] ==='MEMBER'){
+        return 'MEMBER'
+    }
+    if(response[0]=== 'VISITOR'){
+        return 'VISITOR'
+    }
 }
 
 
