@@ -177,7 +177,9 @@ public class CommunityServiceImpl implements CommunityService {
         var chatRoom = chatRoomService.findByCommunityId(community.getId());
         for (Long id:ids){
             var user_chat_room = user_chatRoomService.findByUserIdAndChatRoomId(id,chatRoom.getId());
-            user_chatRoomService.deleteById(user_chat_room.getId());
+            if(user_chat_room != null){
+                user_chatRoomService.deleteById(user_chat_room.getId());
+            }
         }
     }
 

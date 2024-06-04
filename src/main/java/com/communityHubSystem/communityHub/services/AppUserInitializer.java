@@ -30,6 +30,8 @@ public class AppUserInitializer {
             user.setRole(User.Role.ADMIN);
             user.setPassword(passwordEncoder.encode("admin"));
             user.setPhone("09978564121");
+            user.setDept("Admin Department");
+            user.setTeam("Admin Team");
             user.setDone(true);
             user.setDeleted(false);
             user.setStaffId("99-09999");

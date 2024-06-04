@@ -151,7 +151,6 @@
     top: 0;
     left: 0;
     height: 100%;
-    /*width: -100%;*/
     background: #000000;
     border-radius: 10px;
     transform: scaleX(0);
@@ -175,7 +174,7 @@
     transform: scaleX(1);
     width: 100%;
 }
-body.dark-mode .unique-card-container {
+/*body.dark-mode .unique-card-container {
     background-color: #333333;
     box-shadow: 10px 0 50px rgba(255, 255, 255, 0.5);
 }
@@ -203,4 +202,4 @@ body.dark-mode .unique-navigation .unique-nav-dot:before {
 
 body.dark-mode .unique-nav-dot {
     background: #555555;
-}
+}*/

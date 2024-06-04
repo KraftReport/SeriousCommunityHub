@@ -408,7 +408,8 @@ public class UserServiceImpl implements UserService {
 
     private boolean checkGroupOwnerOrNot(){
         var loginUser = getCurrentLoginUser();
-        return communityRepository.findCommunityByOwnerName(loginUser.getName()) != null;
+        long communityCount = communityRepository.countCommunitiesByOwnerName(loginUser.getName());
+        return communityCount > 0;
     }
 
     @Override
